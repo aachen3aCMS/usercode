@@ -36,6 +36,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 // SUSY include files
 #include "SusyAnalysis/EventSelector/interface/SusyEventSelector.h"
@@ -89,23 +90,54 @@ private:
   //*** Plotting
   /// Define all plots
   virtual void initPlots();
-  /// Fill all plots for an event
-  virtual void fillPlots( const edm::Event&, const SelectorDecisions& );
 
 private:
 
   // Plots
-  TNtuple* ntuple_; // Will contain all the selector information we want to keep
-  TTree * mAllData; // Will contain the additional SUSY-AC specific data
-  //  TTree * mSelectorData; // Will contain the information on the selector decisions
+  TTree * mAllData; // Will contain the SUSY-AC specific data
 
   TH1F* h_counters;
+
+  // Data tags
+  edm::InputTag jetTag_;
+  edm::InputTag metTag_;
+  edm::InputTag elecTag_;
+  edm::InputTag muonTag_;
+  edm::InputTag genTag_;
+  edm::InputTag trigTag_;
+  edm::InputTag genJetTag_;
+  edm::InputTag vertexTag_;
+
+  std::string gen;
+
+  pat::JetCorrFactors::CorrStep correction_;
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
   GreaterByPt<pat::Electron>  ptcomp_ele;
   GreaterByPt<pat::Jet>       ptcomp_jet;
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
 
+  typedef std::pair<std::string,float> IdPair;
+
+  int nele_;
+  int nmuo_;
+  int njet_;
+  double muopt_;
+  double muoeta_;
+  double elept_;
+  double eleeta_;
+  double jetpt_;
+  double jetfem_;
+  double jeteta_;
+  double met_;
+
+  // Counters
+  unsigned int nrEventTotalRaw_;
+  unsigned int nrEventPassedRaw_;
+
+  double localPi;
+
+  // Tree variables
   int mTreerun;
   int mTreeevent;
   int mTreelumiblk;
@@ -115,8 +147,8 @@ private:
   int mTreeexp;
   int mTreedata;
 
-  Char_t _mTreeHLT[10000];
-  
+  Char_t mTreeHLT[10000];
+
   double mTreeMET[3];
   double mTreeMEX[3];
   double mTreeMEY[3];
@@ -233,60 +265,6 @@ private:
   double mTreeEventWeight;
   int    mTreeProcID;
   double mTreePthat;
-  int mGlobalDecision;
-
-  typedef std::pair<std::string,float> IdPair;
-
-  // Data tags
-  edm::InputTag jetTag_;
-  edm::InputTag metTag_;
-  edm::InputTag elecTag_;
-  edm::InputTag muonTag_;
-  edm::InputTag genTag_;
-  edm::InputTag trigTag_;
-  edm::InputTag genJetTag_;
-  edm::InputTag vertexTag_;
-
-  std::string gen;
-
-  pat::JetCorrFactors::CorrStep correction_;
-
-  int nele_;
-  int nmuo_;
-  int njet_;
-  double muopt_;
-  double muoeta_;
-  double elept_;
-  double eleeta_;
-  double jetpt_;
-  double jetfem_;
-  double jeteta_;
-  double met_;
-
-  // Selection
-  SelectorSequence sequence_;              ///< Interface to selectors
-  std::vector<std::string> plotSelection_; ///< Container for plotting selection
-  std::vector<size_t> plotSelectionIndices_; ///< Selector indices for plotting selection
-
-  // Event information
-  double weight_;
-  int    processId_; 
-
-  // Counters
-  unsigned int nrEventTotalRaw_;          ///< Raw number of events (+1 at each event)
-  unsigned int nrEventPassedRaw_;
-  unsigned int nrEventPassedACRaw_;
-
-  double nrEventTotalWeighted_;           ///< Weighted #(events)
-  std::vector<float> nrEventSelected_;    ///< Selected #(events) for each module
-  std::vector<float> nrEventSelectedRaw_;    ///< Selected #(events) for each module
-  std::vector<float> nrEventAllButOne_;   ///< All-but-one selected #(events) for each module
-  std::vector<float> nrEventAllButOneRaw_;   ///< All-but-one selected #(events) for each module
-  std::vector<float> nrEventCumulative_;  ///< Cumulative selected #(events) for each module
-  std::vector<float> nrEventCumulativeRaw_;  ///< Cumulative selected #(events) for each module
-
-  double localPi;
-  unsigned int *mSelectorResults;
 
 };
 

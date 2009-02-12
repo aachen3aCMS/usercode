@@ -46,7 +46,6 @@ elecTag   = cms.InputTag("selectedLayer1Electrons")
 jetTag    = cms.InputTag("selectedLayer1Jets")
 muonTag   = cms.InputTag("selectedLayer1Muons")
 metTag    = cms.InputTag("selectedLayer1METs")                         
-genTag    = cms.InputTag("genParticles")
 genJetTag = cms.InputTag("iterativeCone5GenJets")
 trigTag   = cms.InputTag("TriggerResults::HLT")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
@@ -59,7 +58,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     elecTag   = elecTag,
     muonTag   = muonTag,
     metTag    = metTag,
-    genTag    = genTag,
     genJetTag = genJetTag,
     trigTag   = trigTag,
     vtxTag    = vtxTag,
@@ -79,37 +77,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     generator  = cms.string('genParticles'), # genParticles or source
     correction = cms.string('ABS'),
     flavour    = cms.string(''),
-    
-    ### Selection
-    selections = cms.PSet(
-    
-    # Sequence of selectors
-    selectionSequence = cms.vstring('HLT'), 
-
-    # Selector's list
-    selectors = cms.PSet(
-    # 1. Preselection
-    HLT           = cms.PSet( selector       = cms.string('HLTEventSelector'),
-                              triggerResults = trigTag, 
-                              pathNames      = cms.vstring('HLT_Mu3',
-                                                           'HLT_Mu5',
-                                                           'HLT_Mu7',
-                                                           'HLT_Mu9',
-                                                           'HLT_Mu11',
-                                                           'HLT_Mu13',
-                                                           'HLT_Mu15',
-                                                           'HLT_IsoMu9',
-                                                           'HLT_IsoMu11',
-                                                           'HLT_IsoMu13',
-                                                           'HLT_IsoMu15'),
-                              ),
-    
-    ) # End selector's list
-    ), # End selection
-    
-    # Plotting: only store what passes these selections
-    # If empty, stores information on all events 
-    plotSelection = cms.vstring('HLT'), 
     
 )
 

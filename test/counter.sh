@@ -58,6 +58,7 @@ then
   OUT_EVENTS=0
   for file in $LIST
   do
+#    echo $file
     SEG=`grep "segmentation" $file`
     if [ "$SEG" ]
     then

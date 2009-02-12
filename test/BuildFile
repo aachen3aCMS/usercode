@@ -1,6 +1,8 @@
 <export></export>
 <use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/Utilities>
 <use name=SusyAnalysis/EventSelector>
+<use name=DataFormats/HLTReco>
 <use name=root>
 <use name=SimDataFormats/HepMCProduct>
 <library name=SusyAnalysisACSkim file=SusyACSkimAnalysis.cpp>

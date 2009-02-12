@@ -14,32 +14,9 @@
 // Constructor
 //
 SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
-  sequence_( iConfig.getParameter<edm::ParameterSet>("selections") ),
-  plotSelection_( iConfig.getParameter<std::vector<std::string> >("plotSelection") ),
   nrEventTotalRaw_(0),
-  nrEventPassedRaw_(0),
-  nrEventPassedACRaw_(0),
-  nrEventTotalWeighted_(0.0)
+  nrEventPassedRaw_(0)
 {
-  // Translate plotSelection strings to indices
-  plotSelectionIndices_.reserve(plotSelection_.size());
-  for ( size_t i=0; i<plotSelection_.size(); ++i )
-    plotSelectionIndices_.push_back(sequence_.selectorIndex(plotSelection_[i]));
-    
-  // List all selectors and selection variables
-  edm::LogVerbatim("SusyACSkimAnalysis") << "Selectors are:" << std::endl;
-  for ( std::vector<const SusyEventSelector*>::const_iterator it = sequence_.selectors().begin();
-        it != sequence_.selectors().end(); ++it ) {
-
-    edm::LogVerbatim("SusyACSkimAnalysis") << " * " << (*it)->name()
-				       << " selects on following " 
-				       << (*it)->numberOfVariables() << " variable(s):";
-    for ( unsigned int i=0; i<(*it)->numberOfVariables(); ++i )
-      edm::LogVerbatim("SusyACSkimAnalysis") << "    - " << (*it)->variableNames()[i];
-    edm::LogVerbatim("SusyACSkimAnalysis") << std::endl;
-  }
-
-  mSelectorResults = new unsigned int[sequence_.size()];
 
   // get the data tags
   jetTag_    = iConfig.getParameter<edm::InputTag>("jetTag");
@@ -73,17 +50,9 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   nmuo_ = iConfig.getParameter<int>("nmuo");
   njet_ = iConfig.getParameter<int>("njet");
 
-  // Initialise counters
-  nrEventSelected_.resize( sequence_.size(), 0.0 );
-  nrEventSelectedRaw_.resize( sequence_.size(), 0.0 );
-  nrEventAllButOne_.resize( sequence_.size(), 0.0 );
-  nrEventAllButOneRaw_.resize( sequence_.size(), 0.0 );
-  nrEventCumulative_.resize( sequence_.size(), 0.0 );
-  nrEventCumulativeRaw_.resize( sequence_.size(), 0.0 );
-
   localPi = acos(-1.0);
 
-  // Initialise plots [should improve in the future]
+  // Initialise plots
   initPlots();
 
 }
@@ -101,6 +70,7 @@ SusyACSkimAnalysis::~SusyACSkimAnalysis() {}
 bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
+  using namespace trigger;
 
   // Get some event information (process ID, weight)
 
@@ -132,71 +102,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 				     << "  Pthat = " <<  mTreePthat << std::endl;
   */
 
-  // for ntuple
-  weight_       = mTreeEventWeight;
-  processId_    = mTreeProcID;
-
-  // Retrieve the decision of each selector module
-  SelectorDecisions decisions = sequence_.decisions(iEvent);
-
   // Count all events
   nrEventTotalRaw_++;
-  nrEventTotalWeighted_ += weight_;
-  
-  // Fill plots with all variables
-  bool dec(true);
-  for ( size_t i=0; i<sequence_.size(); ++i ) {
-    dec = dec && decisions.decision(i);
-    /*
-    edm::LogVerbatim("SusyACSkimAnalysis") 
-      << " " << sequence_.selectorName(i)
-      << " " << decisions.decision(i)
-      << " " << decisions.complementaryDecision(i)
-      << " " << decisions.cumulativeDecision(i)
-      << " " << dec << std::endl;*/
-    
-    // Add the decision to the tree
-    mSelectorResults[i] = (decisions.decision(i)?1:0);
-    
-    // Update counters
-    if ( decisions.decision(i) ) {
-      nrEventSelected_[i] += weight_;
-      nrEventSelectedRaw_[i] ++;
-    }
-    if ( decisions.complementaryDecision(i) ) {
-      nrEventAllButOne_[i] += weight_;
-      nrEventAllButOneRaw_[i] ++;
-    }
-    if ( decisions.cumulativeDecision(i) ) {
-      nrEventCumulative_[i] += weight_;
-      nrEventCumulativeRaw_[i] ++;
-    }
-  }
-
-  // Fill some plots (only if some selections passed, as configured)
-  dec = true;
-  for ( size_t i=0; i<plotSelectionIndices_.size(); ++i )
-    dec = dec&&decisions.decision(plotSelectionIndices_[i]);
-  //  fillPlots( iEvent, decisions );
-  if ( dec ) fillPlots( iEvent, decisions );
-
-  // Print summary so far (every 10 till 100, every 100 till 1000, etc.)
-  for ( unsigned int i=10; i<nrEventTotalRaw_; i*=10 )
-    if ( nrEventTotalRaw_<=10*i && (nrEventTotalRaw_%i)==0 )
-      printSummary();
-
-  if ( !sequence_.decisions(iEvent).globalDecision() ) {
-    // Just fill the selector data
-    mGlobalDecision = 0;
-    //    mSelectorData->Fill();
-    return mGlobalDecision;
-  }
-
-  // Fill all event information
-  mGlobalDecision = 1;
-  //  mSelectorData->Fill();
-
-  nrEventPassedRaw_++;
 
   mTreerun     = iEvent.id().run();
   mTreeevent   = iEvent.id().event();
@@ -244,6 +151,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       std::string name = triggerNames.triggerName(i);
       //      cout << " -> " << i << " " << name << " ";
       if ( (*triggerResults).accept(i) ) {
+	//	cout << " -> " << i << " " << name << " ";
 	//	cout << "1" << endl;
 	tempname = tempname + name + ":";
       }
@@ -251,7 +159,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       //	cout << endl;
     }
   }
-  strcpy(_mTreeHLT, tempname.c_str());
+  strcpy(mTreeHLT, tempname.c_str());
 
   // PDF information 
   Handle<reco::PdfInfo> pdfi;
@@ -777,6 +685,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       else  mTreeEleTrkChiNorm[countele] = 999.;
       
+      // CM Trigger not working
+      /*
+      const std::vector<pat::TriggerPrimitive> & eletrig = eles[i].triggerMatches();
+      cout << "eletrig " << eletrig.size() << endl;
+      for(unsigned int j=0; j<eletrig.size(); ++j) {
+	cout << "triggerPrimitive["<< j << "] :  filterName = " << eletrig[j].filterName() 
+	     << " , triggerObjId = "<< eletrig[j].triggerObjectId() << endl;
+      }
+      */
       countele++;
     }
     mTreeNele = countele;
@@ -856,6 +773,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       else
 	mTreeMuoHits[countmuo] = -1;
 
+      // CM Trigger not working
+      /*
+      const std::vector<pat::TriggerPrimitive> & muotrig = muons[i].triggerMatches();
+      cout << "muotrig " << muotrig.size() << endl;
+      for(unsigned int j=0; j<muotrig.size(); ++j) {
+	cout << "triggerPrimitive["<< j << "] :  filterName = " << muotrig[j].filterName() 
+	     << " , triggerObjId = "<< muotrig[j].triggerObjectId() << endl;
+      }
+      */
       countmuo++;
     }
     mTreeNmuo = countmuo;
@@ -1019,12 +945,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   if (njet_>0 && mTreeNjet<njet_) return 0;
   if (mTreeMET[0] < met_) return 0;
 
-  nrEventPassedACRaw_++;
+  nrEventPassedRaw_++;
 
   // Fill the tree
   mAllData->Fill();
 
-  return mGlobalDecision;
+  return 1;
+
 }
 ////////////////////////////////
 //
@@ -1083,7 +1010,6 @@ void SusyACSkimAnalysis::endJob() {
 
   h_counters->SetBinContent(1, nrEventTotalRaw_);
   h_counters->SetBinContent(2, nrEventPassedRaw_);
-  h_counters->SetBinContent(3, nrEventPassedACRaw_);
 
   printSummary();
 
@@ -1097,33 +1023,7 @@ void SusyACSkimAnalysis::printSummary( void ) {
   
   edm::LogInfo("SusyACSkimAnalysis") << "*** Summary of counters: ";
   edm::LogVerbatim("SusyACSkimAnalysis") << "Total number of events = " << nrEventTotalRaw_
-					 << " ; selected = " << nrEventPassedRaw_  
-					 << " ; selectedAC = " << nrEventPassedACRaw_ << endl;
-
-  std::ostringstream summary;
-  summary << std::setw(21) << std::left << "Name"
-          << std::setw(35) << "Selected"
-          << std::setw(35) << "AllButOne"
-          << std::setw(35) << "Cumulative" << std::endl;
-         
-  for ( size_t i=0; i<sequence_.size(); ++i ) {
-    summary << std::setw(15) << std::left << sequence_.selectorName(i) << std::right;
-    summary << std::setw(10) << std::setprecision(2) << std::fixed
-            << nrEventSelected_[i] 
-	    << " (" << std::setw(10) << std::setprecision(0) << nrEventSelectedRaw_[i] << ")" 
-            << " [" << std::setw(6) << std::setprecision(2) << std::fixed
-            << (nrEventSelected_[i]/nrEventTotalWeighted_)*100. << "%]  ";
-    summary << std::setw(10) << nrEventAllButOne_[i] 
-	    << " (" << std::setw(10) << std::setprecision(0) << nrEventAllButOneRaw_[i] << ")" 
-            << " [" << std::setw(6) << std::setprecision(2) << std::fixed
-            << (nrEventAllButOne_[i]/nrEventTotalWeighted_)*100. << "%]  ";
-    summary << std::setw(10) << nrEventCumulative_[i] 
-	    << " (" << std::setw(10) << std::setprecision(0) << nrEventCumulativeRaw_[i] << ")"
-            << " [" << std::setw(6) << std::setprecision(2) << std::fixed
-            << (nrEventCumulative_[i]/nrEventTotalWeighted_)*100. << "%]  ";
-    summary << std::endl; 
-  }
-  edm::LogVerbatim("SusyACSkimAnalysis") << summary.str();
+					 << " ; selected = " << nrEventPassedRaw_ << endl; 
 
 }
 
@@ -1133,54 +1033,16 @@ void SusyACSkimAnalysis::printSummary( void ) {
 //
 void SusyACSkimAnalysis::initPlots() {
 
-  std::ostringstream variables; // Container for all variables
-
-  // 1. Event variables
-  //  variables << "evtWeight:procID";
-
-  // 2. Decision from all selectors
-  for ( std::vector<const SusyEventSelector*>::const_iterator it = sequence_.selectors().begin();
-        it != sequence_.selectors().end(); ++it ) {
-    std::string var( (*it)->name() );
-    var += "_result";
-    // Push to list of variables
-    variables << var << ":";
-  }
-  variables << "all_result"; // Also store global decision
-    
-  // 3. All variables from sequence
-  for ( std::vector<const SusyEventSelector*>::const_iterator it = sequence_.selectors().begin();
-        it != sequence_.selectors().end(); ++it ) {
-    for ( unsigned int i=0; i<(*it)->numberOfVariables(); ++i ) {
-      std::string var( (*it)->name() ); // prefix variable with selector name
-      var += "." + (*it)->variableNames()[i];
-      // Push to list of variables
-      variables << ":" << var;
-    }
-  }
-
   // Register this ntuple
   edm::Service<TFileService> fs;
-  ntuple_ = fs->make<TNtuple>( "ntuple","SusyACSkimAnalysis variables",
-                               variables.str().c_str() );
 
   // Now we add some additional ones for the dijet analysis
   mAllData = fs->make<TTree>( "allData", "data after cuts" );
-  //  mSelectorData = fs->make<TTree>( "selectorData" , "Bit results for selectors");
 
   h_counters = fs->make<TH1F>("h_counters", "Event Counter", 10, 0, 10);
 
   mAllData->SetAutoSave(10000);
-  //  mSelectorData->SetAutoSave(10000);
 
-  /*
-  std::vector<std::string> names = sequence_.selectorNames();
-  for ( size_t i = 0 ; i < sequence_.size() ; ++i ) {
-    std::string tempName = names[i] + "/i";
-    mSelectorData->Branch(names[i].c_str(),&mSelectorResults[i],tempName.c_str());
-  }
-  mSelectorData->Branch("globalDecision",&mGlobalDecision,"globalDecision/i");
-  */
 
   // Add the branches
 
@@ -1196,7 +1058,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("global_orbit",   &mTreeorbit,       "global_orbit/I");
   mAllData->Branch("global_exp",     &mTreeexp,         "global_exp/I");
   mAllData->Branch("global_isdata",  &mTreedata,        "global_isdata/I");
-  mAllData->Branch("global_HLT",     &_mTreeHLT,        "global_HLT/C");
+  mAllData->Branch("global_HLT",     &mTreeHLT,        "global_HLT/C");
 
   // Truth
   mAllData->Branch("truth_n",      &mTreeNtruth,      "truth_n/I");
@@ -1320,42 +1182,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_hits",       mTreeMuoHits,       "muo_hits[muo_n]/I");
   mAllData->Branch("muo_truth",      mTreeMuoTruth,      "muo_truth[muo_n]/I");
 
-  //  h_counters = new TH1F("h_counters", "Counters", 10, 0, 1);
-
-  edm::LogInfo("SusyACSkimAnalysis") << "Ntuple variables " << variables.str();
-
 }
-
-////////////////////////////////
-//
-// Fill Plots for ntuple
-//
-void SusyACSkimAnalysis::fillPlots( const edm::Event& iEvent, const SelectorDecisions& decisions ) {
-  
-  // Container array
-  float* x = new float[ntuple_->GetNbranches()];
-  int ivar = 0; 
-
-  // 1. Event variables
-  //  x[ivar++] = weight_;
-  //  x[ivar++] = processId_;
-  
-  // 2. Decision from all selectors
-  for ( size_t i=0; i<sequence_.size(); ++i ) x[ivar++] = decisions.decision(i);
-  x[ivar++] = decisions.globalDecision();
-
-  // 3. All variables from sequence
-  std::vector<double> values = sequence_.values();
-  for ( size_t i=0; i<values.size(); ++i ) x[ivar++] = values[i];
-
-  if ( ntuple_->Fill( x ) < 0 ) { // Fill returns number of bytes committed, -1 on error
-    edm::LogWarning("SusyACSkimAnalysis") << "@SUB=fillPlots()" << "Problem filling ntuple";
-  }
-
-  delete [] x; // Important! otherwise we'll leak...
-
-}
-
 
 // Define this as a plug-in
 DEFINE_FWK_MODULE(SusyACSkimAnalysis);
