@@ -1,0 +1,25 @@
+
+  Instructions
+  ============
+
+   Carsten Magass, January 2009
+
+
+(1) To compile SusyACSkimAnalysis.cpp use
+      scramv1 b
+    as usual.
+(2) Prepare submission to crab:
+    ./prepare.sh <datasetpath> <version> <tag>
+    You might have to edit prepare.sh because there
+    are some hardcoded things set 
+    (like my dcms directory and email)
+    This will create a directory CRAB-<tag>-<version>
+(3) Just change to this directory, do
+    crab -create and crab -submit
+(4) Wait until the job has finished, and check, if the output
+    is acceptable. Use
+    ./counter.sh <version> <tag>
+
+
+That's it !
+

@@ -1,0 +1,23 @@
+
+  Instructions
+  ============
+
+   Carsten Magass, January 2009
+
+
+(1) Edit analysis code in SUSYAna.cpp and header SUSYAna.h
+(2) make
+(3) ./RunSUSY -inlist <inlist> -out <outfile>  [-debug]
+    ./RunSUSY -in <filename>   -out <outfile>  [-debug]
+
+If the content of the root tuple changes, one has to
+recreate TreeContent.h. This is rather easy:
+
+(1) open root file in root
+(2) ACSkimAnalyis->cd()
+(3) allData->MakeClass("TreeContent")
+(4) change by hand array sizes [due to bug in MakeClass]
+
+
+That's it !
+

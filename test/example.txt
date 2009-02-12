@@ -1,0 +1,3 @@
+./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v0 lm1
+./prepare.sh /SUSY_LM2-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v0 lm2
+./counter.sh v0 lm1
