@@ -1,3 +1,9 @@
+2009-02-13 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* name change _TrkIso was relative => _RelTrkIso
+	* new variable _TrkIso (absolute track isolation)
+	* new muon variables d0 (muo_d0) and error (muo_sd0)
+	* analysis code updated (trigger selection, duplicate events)
+        * tagged as version v2-1
 2009-02-12 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* trigger selection removed
         * tagged as version v2-0

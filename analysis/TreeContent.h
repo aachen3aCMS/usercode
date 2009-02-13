@@ -109,6 +109,7 @@ public :
    Double_t        ele_eta[50];   //[ele_n]
    Double_t        ele_phi[50];   //[ele_n]
    Double_t        ele_charge[50];   //[ele_n]
+   Double_t        ele_RelTrkIso[50];   //[ele_n]
    Double_t        ele_TrkIso[50];   //[ele_n]
    Double_t        ele_ECalIso[50];   //[ele_n]
    Double_t        ele_HCalIso[50];   //[ele_n]
@@ -127,11 +128,14 @@ public :
    Double_t        muo_eta[50];   //[muo_n]
    Double_t        muo_phi[50];   //[muo_n]
    Double_t        muo_charge[50];   //[muo_n]
+   Double_t        muo_RelTrkIso[50];   //[muo_n]
    Double_t        muo_TrkIso[50];   //[muo_n]
    Double_t        muo_ECalIso[50];   //[muo_n]
    Double_t        muo_HCalIso[50];   //[muo_n]
    Double_t        muo_AllIso[50];   //[muo_n]
    Double_t        muo_TrkChiNorm[50];   //[muo_n]
+   Double_t        muo_d0[50];   //[muo_n]
+   Double_t        muo_sd0[50];   //[muo_n]
    Int_t           muo_hits[50];   //[muo_n]
    Int_t           muo_truth[50];   //[muo_n]
 
@@ -228,6 +232,7 @@ public :
    TBranch        *b_ele_phi;   //!
    TBranch        *b_ele_charge;   //!
    TBranch        *b_ele_TrkIso;   //!
+   TBranch        *b_ele_RelTrkIso;   //!
    TBranch        *b_ele_ECalIso;   //!
    TBranch        *b_ele_HCalIso;   //!
    TBranch        *b_ele_AllIso;   //!
@@ -246,10 +251,13 @@ public :
    TBranch        *b_muo_phi;   //!
    TBranch        *b_muo_charge;   //!
    TBranch        *b_muo_TrkIso;   //!
+   TBranch        *b_muo_RelTrkIso;   //!
    TBranch        *b_muo_ECalIso;   //!
    TBranch        *b_muo_HCalIso;   //!
    TBranch        *b_muo_AllIso;   //!
    TBranch        *b_muo_TrkChiNorm;   //!
+   TBranch        *b_muo_d0;   //!
+   TBranch        *b_muo_sd0;   //!
    TBranch        *b_muo_hits;   //!
    TBranch        *b_muo_truth;   //!
 
@@ -417,6 +425,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_eta", ele_eta, &b_ele_eta);
    fChain->SetBranchAddress("ele_phi", ele_phi, &b_ele_phi);
    fChain->SetBranchAddress("ele_charge", ele_charge, &b_ele_charge);
+   fChain->SetBranchAddress("ele_RelTrkIso", ele_RelTrkIso, &b_ele_RelTrkIso);
    fChain->SetBranchAddress("ele_TrkIso", ele_TrkIso, &b_ele_TrkIso);
    fChain->SetBranchAddress("ele_ECalIso", ele_ECalIso, &b_ele_ECalIso);
    fChain->SetBranchAddress("ele_HCalIso", ele_HCalIso, &b_ele_HCalIso);
@@ -435,11 +444,14 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_eta", muo_eta, &b_muo_eta);
    fChain->SetBranchAddress("muo_phi", muo_phi, &b_muo_phi);
    fChain->SetBranchAddress("muo_charge", muo_charge, &b_muo_charge);
+   fChain->SetBranchAddress("muo_RelTrkIso", muo_RelTrkIso, &b_muo_RelTrkIso);
    fChain->SetBranchAddress("muo_TrkIso", muo_TrkIso, &b_muo_TrkIso);
    fChain->SetBranchAddress("muo_ECalIso", muo_ECalIso, &b_muo_ECalIso);
    fChain->SetBranchAddress("muo_HCalIso", muo_HCalIso, &b_muo_HCalIso);
    fChain->SetBranchAddress("muo_AllIso", muo_AllIso, &b_muo_AllIso);
    fChain->SetBranchAddress("muo_TrkChiNorm", muo_TrkChiNorm, &b_muo_TrkChiNorm);
+   fChain->SetBranchAddress("muo_d0", muo_d0, &b_muo_d0);
+   fChain->SetBranchAddress("muo_sd0", muo_sd0, &b_muo_sd0);
    fChain->SetBranchAddress("muo_hits", muo_hits, &b_muo_hits);
    fChain->SetBranchAddress("muo_truth", muo_truth, &b_muo_truth);
    Notify();

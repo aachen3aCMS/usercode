@@ -83,11 +83,12 @@ int main(int argc, char *argv[]) {
       f = new TFile(inFile);
 
     TTree *tree = (TTree*)f->Get("ACSkimAnalysis/allData");
+
     fth = new SUSYAna(tree);
   }
   else {
     cout << endl;
-    cout << " Usage: RunSUSY [-in <input> | -inlist <inputlist>] -out <outputfile>" << endl;
+    cout << " Usage: RunSUSY [-in <input> | -inlist <inputlist>] -out <outputfile>  [ -debug ] " << endl;
     cout << endl;
     exit(-1);
   }
@@ -95,8 +96,8 @@ int main(int argc, char *argv[]) {
   fth->setMode(deb);
   cout << "RunSUSY: Starting Event Loop" << endl;
   gSystem->GetProcInfo(&info);
-  cout << "RunSUSY: resident mem (kB) : " << info.fMemResident << endl;
-  cout << "RunSUSY: virtual  mem (kB) : " << info.fMemVirtual << endl;
+  cout << "RunSUSY: resident mem (MB) : " << info.fMemResident/1000. << endl;
+  cout << "RunSUSY: virtual  mem (MB) : " << info.fMemVirtual/1000. << endl;
   cout << endl;
 
   fth->Loop();
@@ -109,8 +110,8 @@ int main(int argc, char *argv[]) {
   cout << "RunSUSY: DONE " << endl;
   cout << "RunSUSY: REAL time (s)     : " << timer.RealTime() << endl;
   cout << "RunSUSY: CPU  time (s)     : " << timer.CpuTime() << endl; 
-  cout << "RunSUSY: resident mem (kB) : " << info.fMemResident << endl;
-  cout << "RunSUSY: virtual  mem (kB) : " << info.fMemVirtual << endl;
+  cout << "RunSUSY: resident mem (MB) : " << info.fMemResident/1000. << endl;
+  cout << "RunSUSY: virtual  mem (MB) : " << info.fMemVirtual/1000. << endl;
   cout << endl;
   gSystem->Exec("TEMPDATE=`date`; echo 'RunSUSY:' $TEMPDATE");
   cout << endl;

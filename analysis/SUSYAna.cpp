@@ -29,14 +29,15 @@ void SUSYAna::Loop() {
   
   Long64_t nentries = fChain->GetEntries();
   
-  cout << "Running over " << nentries << " events" << endl;
+  cout << "SUSYAna: Running over " << nentries << " events" << endl;
 
-  if (DEBUG) cout << " -> in debug mode" << endl;
+  if (DEBUG) cout << "SUSYAna: DEBUG modus " << endl;
+
+  TString trigger;
 
   init(2);
 
   Long64_t nbytes = 0, nb = 0;
-
 
   // main event loop
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -45,18 +46,29 @@ void SUSYAna::Loop() {
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
+    //    if (DEBUG && jentry == 10000) break;
+    
     if (fmod((double)jentry,(double)1000)==0) 
       cout << "Event " << jentry << endl;
 
     if (fmod((double)jentry,(double)10000)==0) {
       gSystem->GetProcInfo(&info);
-      cout << " -> Memory in kB : " << info.fMemResident << " (resident) " 
-	   << info.fMemVirtual << " (virtual) " << endl;
+      cout << " -> Memory in MB : " << info.fMemResident/1000. << " (resident) " 
+	   << info.fMemVirtual/1000. << " (virtual) " << endl;
+    }
+
+    trigger = global_HLT;
+    if (trigger.Contains(":HLT_Mu7:")) {
+      //      cout << "SUSYAna: " << trigger.SubString("HLT_Mu7") << endl;
+    }
+
+    if (find_duplicate(global_run, global_event, pdf_x1, pdf_x2)) {
+      cout << "SUSYAna: found duplicate " << endl;
     }
 
     // do your analysis
     for (int j=0; j<muo_n; j++) {
-      
+
       h1_mu_pt[0]     -> Fill(muo_pt[j]);
       h1_mu_TrkIso[0] -> Fill(muo_TrkIso[j]);
 
@@ -70,6 +82,26 @@ void SUSYAna::Loop() {
   }
 
   write(2);
+}
+
+// duplicates finder
+bool SUSYAna::find_duplicate(int run, int evt, double x1, double x2) {
+
+  pair<int,int> temp1(run,evt);
+  pair<double,double> temp2(x1,x2);
+  Key key (temp1, temp2);
+  
+  KeyIter pos = _keys.find (key);
+  
+  if (pos == _keys.end()) {
+    _keys.insert (key);
+    return false;
+  }
+  else {
+    if (DEBUG) cout << "SUSYAna: duplicate run " << run << " , evt " << evt << " , x1 " << x1 << " , x2 " << x2 << endl;
+    return true;
+  }
+    
 }
 
 // initialize histograms

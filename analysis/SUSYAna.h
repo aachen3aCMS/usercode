@@ -4,12 +4,13 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-#include <vector>
 #include <TH1.h>
 #include <TH2.h>
-#include <algorithm>
 
+#include <algorithm>
 #include <iostream>
+#include <vector>
+#include <set>
 
 #include "TreeContent.h"
 
@@ -32,7 +33,15 @@ public :
   
   void init(int stages);
   void write(int stages);
+
+  bool find_duplicate(int run, int evt, double x1, double x2);
   
+  typedef std::pair< pair<int,int> , pair<double,double> > Key;
+  typedef std::set<Key> KeySet;
+  typedef KeySet::const_iterator KeyIter;
+  
+  KeySet _keys;
+
   std::vector<TH1F*> h1_mu_pt;
   std::vector<TH1F*> h1_mu_TrkIso;
   

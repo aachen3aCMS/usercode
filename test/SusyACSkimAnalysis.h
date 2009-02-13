@@ -230,6 +230,7 @@ private:
   double mTreeEleEta[50];
   double mTreeElePhi[50];
   double mTreeEleTrkIso[50];
+  double mTreeEleRelTrkIso[50];
   double mTreeEleECalIso[50];
   double mTreeEleHCalIso[50];
   double mTreeEleAllIso[50];
@@ -249,11 +250,14 @@ private:
   double mTreeMuoEta[50];
   double mTreeMuoPhi[50];
   double mTreeMuoTrkIso[50];
+  double mTreeMuoRelTrkIso[50];
   double mTreeMuoECalIso[50];
   double mTreeMuoHCalIso[50];
   double mTreeMuoAllIso[50];
   double mTreeMuoTrkChiNorm[50];
   double mTreeMuoCharge[50];
+  double mTreeMuod0[50];
+  double mTreeMuosd0[50];
 
   int    mTreeNvtx;
   int    mTreeVtxntr[50];

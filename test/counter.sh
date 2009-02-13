@@ -7,6 +7,16 @@
 #   Carsten Magass, January 2009
 #
 
+if [ $# -ne 2 ]
+then
+  echo
+  echo " ERROR "
+  echo " Wrong number of arguments !"
+  echo " Usage: ./counter.sh <version> <tag> "
+  echo
+  exit
+fi
+
 echo ""  
 echo "  -- Counting Files in dcache --"
 echo
@@ -19,14 +29,6 @@ echo ""
 echo "  -- Counting Events using logfiles --"
 echo
 
-if [ $# -ne 2 ]
-then
-  echo " ERROR "
-  echo " Wrong number of arguments !"
-  echo " Usage: ./counter.sh <version> <tag> "
-  echo
-  exit
-fi
 
 DIR=`echo "CRAB-"$2"-$1"`
 if [ ! -d $DIR ]

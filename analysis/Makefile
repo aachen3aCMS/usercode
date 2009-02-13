@@ -12,6 +12,7 @@ CXXFLAGS = -g  --exceptions  -I$(ROOTSYS)/include
 CPP    = g++
 
 SRC= Run.cpp SUSYAna.cpp TreeContent.cpp
+
 #=====================================================================
 
 %.o: %.cpp
@@ -28,8 +29,10 @@ Run: $(SRC:.cpp=.o)
 		@echo
 		@echo ' --> RunSUSY created'
 		@echo
+
 #====================================================================
 
 clean:
 		@rm -f *~ *.o
 		@rm -f RunSUSY
+		@echo ' clean'

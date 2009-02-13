@@ -71,6 +71,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   using namespace edm;
   using namespace trigger;
+  using namespace reco;
 
   // Get some event information (process ID, weight)
 
@@ -662,21 +663,21 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       cout << endl;
       */
 
-      mTreeEleP[countele]       = eles[i].p();
-      mTreeElePt[countele]      = eles[i].pt();
-      mTreeEleE[countele]       = eles[i].energy();
-      mTreeEleEt[countele]      = eles[i].et();
-      mTreeElePx[countele]      = eles[i].momentum().X();
-      mTreeElePy[countele]      = eles[i].momentum().Y();
-      mTreeElePz[countele]      = eles[i].momentum().Z();
-      mTreeEleEta[countele]     = eles[i].eta();
-      mTreeElePhi[countele]     = eles[i].phi();
-      mTreeEleTrkIso[countele]  = ( eles[i].trackIso()+eles[i].et() )/eles[i].et();
-      mTreeEleCharge[countele]  = eles[i].charge();
-      
-      mTreeEleECalIso[countele] = eles[i].ecalIso();
-      mTreeEleHCalIso[countele] = eles[i].hcalIso();
-      mTreeEleAllIso[countele]  = eles[i].caloIso();
+      mTreeEleP[countele]         = eles[i].p();
+      mTreeElePt[countele]        = eles[i].pt();
+      mTreeEleE[countele]         = eles[i].energy();
+      mTreeEleEt[countele]        = eles[i].et();
+      mTreeElePx[countele]        = eles[i].momentum().X();
+      mTreeElePy[countele]        = eles[i].momentum().Y();
+      mTreeElePz[countele]        = eles[i].momentum().Z();
+      mTreeEleEta[countele]       = eles[i].eta();
+      mTreeElePhi[countele]       = eles[i].phi();
+      mTreeEleTrkIso[countele]    = eles[i].trackIso();
+      mTreeEleRelTrkIso[countele] = ( eles[i].trackIso()+eles[i].et() )/eles[i].et();
+      mTreeEleCharge[countele]    = eles[i].charge();
+      mTreeEleECalIso[countele]   = eles[i].ecalIso();
+      mTreeEleHCalIso[countele]   = eles[i].hcalIso();
+      mTreeEleAllIso[countele]    = eles[i].caloIso();
       
       if (eles[i].gsfTrack().isNonnull()) {
 	if (eles[i].gsfTrack().get()->ndof() > 0)
@@ -742,36 +743,42 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	}
       }
+      
+ 
 
-      mTreeMuoP[countmuo]       = muons[i].p();
-      mTreeMuoPt[countmuo]      = muons[i].pt();
-      mTreeMuoE[countmuo]       = muons[i].energy();
-      mTreeMuoEt[countmuo]      = muons[i].et();
-      mTreeMuoPx[countmuo]      = muons[i].momentum().X();
-      mTreeMuoPy[countmuo]      = muons[i].momentum().Y();
-      mTreeMuoPz[countmuo]      = muons[i].momentum().Z();
-      mTreeMuoEta[countmuo]     = muons[i].eta();
-      mTreeMuoPhi[countmuo]     = muons[i].phi();
-      mTreeMuoTrkIso[countmuo]  = ( muons[i].trackIso()+muons[i].et() )/muons[i].et();
-      mTreeMuoCharge[countmuo]  = muons[i].charge();
-      mTreeMuoECalIso[countmuo] = muons[i].ecalIso();
-      mTreeMuoHCalIso[countmuo] = muons[i].hcalIso() ;
-      mTreeMuoAllIso[countmuo]  = muons[i].caloIso() ;
+      mTreeMuoP[countmuo]         = muons[i].p();
+      mTreeMuoPt[countmuo]        = muons[i].pt();
+      mTreeMuoE[countmuo]         = muons[i].energy();
+      mTreeMuoEt[countmuo]        = muons[i].et();
+      mTreeMuoPx[countmuo]        = muons[i].momentum().X();
+      mTreeMuoPy[countmuo]        = muons[i].momentum().Y();
+      mTreeMuoPz[countmuo]        = muons[i].momentum().Z();
+      mTreeMuoEta[countmuo]       = muons[i].eta();
+      mTreeMuoPhi[countmuo]       = muons[i].phi();
+      mTreeMuoRelTrkIso[countmuo] = ( muons[i].trackIso()+muons[i].et() )/muons[i].et();
+      mTreeMuoTrkIso[countmuo]    = muons[i].trackIso();
+      mTreeMuoCharge[countmuo]    = muons[i].charge();
+      mTreeMuoECalIso[countmuo]   = muons[i].ecalIso();
+      mTreeMuoHCalIso[countmuo]   = muons[i].hcalIso() ;
+      mTreeMuoAllIso[countmuo]    = muons[i].caloIso() ;
 
-      // globalTrack() returns combinedMuon()
-      if ( muons[i].globalTrack().isNonnull() ) {
-	if (muons[i].globalTrack().get()->ndof() > 0) 
-	  mTreeMuoTrkChiNorm[countmuo] = muons[i].globalTrack().get() ->chi2()/ muons[i].globalTrack().get()->ndof();
+      if ( muons[i].combinedMuon().isNonnull() ) {
+
+	mTreeMuoHits[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
+	mTreeMuod0[countmuo]   = muons[i].combinedMuon().get()->d0();
+	mTreeMuosd0[countmuo]  = muons[i].combinedMuon().get()->d0Error();
+
+	if (muons[i].combinedMuon().get()->ndof() > 0) 
+	  mTreeMuoTrkChiNorm[countmuo] = muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof();
 	else  
 	  mTreeMuoTrkChiNorm[countmuo] = 999.;
       }
-      else  
+      else {
 	mTreeMuoTrkChiNorm[countmuo] = 999.;
-
-      if ( muons[i].combinedMuon().isNonnull() ) 
-	mTreeMuoHits[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
-      else
-	mTreeMuoHits[countmuo] = -1;
+	mTreeMuoHits[countmuo]       = -1;
+	mTreeMuod0[countmuo]         = 999.;
+	mTreeMuosd0[countmuo]        = 999.;
+      }
 
       // CM Trigger not working
       /*
@@ -1154,6 +1161,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_eta",        mTreeEleEta,        "ele_eta[ele_n]/double");
   mAllData->Branch("ele_phi",        mTreeElePhi,        "ele_phi[ele_n]/double");
   mAllData->Branch("ele_charge",     mTreeEleCharge,     "ele_charge[ele_n]/double");
+  mAllData->Branch("ele_RelTrkIso",  mTreeEleRelTrkIso,  "ele_RelTrkIso[ele_n]/double");
   mAllData->Branch("ele_TrkIso",     mTreeEleTrkIso,     "ele_TrkIso[ele_n]/double");
   mAllData->Branch("ele_ECalIso",    mTreeEleECalIso,    "ele_ECalIso[ele_n]/double");
   mAllData->Branch("ele_HCalIso",    mTreeEleHCalIso,    "ele_HCalIso[ele_n]/double");
@@ -1174,11 +1182,14 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_eta",        mTreeMuoEta,        "muo_eta[muo_n]/double");
   mAllData->Branch("muo_phi",        mTreeMuoPhi,        "muo_phi[muo_n]/double");
   mAllData->Branch("muo_charge",     mTreeMuoCharge,     "muo_charge[muo_n]/double");
+  mAllData->Branch("muo_RelTrkIso",  mTreeMuoRelTrkIso,  "muo_RelTrkIso[muo_n]/double");
   mAllData->Branch("muo_TrkIso",     mTreeMuoTrkIso,     "muo_TrkIso[muo_n]/double");
   mAllData->Branch("muo_ECalIso",    mTreeMuoECalIso,    "muo_ECalIso[muo_n]/double");
   mAllData->Branch("muo_HCalIso",    mTreeMuoHCalIso,    "muo_HCalIso[muo_n]/double");
   mAllData->Branch("muo_AllIso",     mTreeMuoAllIso,     "muo_AllIso[muo_n]/double");
   mAllData->Branch("muo_TrkChiNorm", mTreeMuoTrkChiNorm, "muo_TrkChiNorm[muo_n]/double");
+  mAllData->Branch("muo_d0",         mTreeMuod0,         "muo_d0[muo_n]/double");
+  mAllData->Branch("muo_sd0",        mTreeMuosd0,        "muo_sd0[muo_n]/double");
   mAllData->Branch("muo_hits",       mTreeMuoHits,       "muo_hits[muo_n]/I");
   mAllData->Branch("muo_truth",      mTreeMuoTruth,      "muo_truth[muo_n]/I");
 
