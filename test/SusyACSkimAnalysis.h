@@ -43,6 +43,7 @@
 #include "SusyAnalysis/EventSelector/interface/SelectorSequence.h"
 #include "SusyAnalysis/EventSelector/interface/uncorrectionTypeMET.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"

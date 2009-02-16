@@ -1,4 +1,7 @@
 2009-02-16 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* fix in muon d0: now wrt to primary vertex position
+	* tagged as version v2-3
+2009-02-16 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* bug in geometry fixed
 	* tagged as version v2-2
 2009-02-13 Carsten Magass <magass -at- physik.rwth-aachen.de>

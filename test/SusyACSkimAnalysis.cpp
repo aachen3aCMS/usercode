@@ -183,6 +183,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   //  Handle< reco::Vertex > vertexHandle;
   iEvent.getByLabel(vertexTag_, vertexHandle);
 
+  math::XYZPoint Point(0,0,0);
+
   if ( !vertexHandle.isValid() ) {
     edm::LogWarning("SusyACSkimAnalysis") << "No reco::Vertex found for InputTag " << vertexTag_;
   }
@@ -200,6 +202,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeVtxz[i]   = (*vertexHandle)[i].z();
     }
   }
+  if (mTreeNvtx>0) Point.SetXYZ(mTreeVtxx[0], mTreeVtxy[0], mTreeVtxz[0]);
 
 
   // Truth tree
@@ -744,8 +747,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
       
- 
-
       mTreeMuoP[countmuo]         = muons[i].p();
       mTreeMuoPt[countmuo]        = muons[i].pt();
       mTreeMuoE[countmuo]         = muons[i].energy();
@@ -765,8 +766,27 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( muons[i].combinedMuon().isNonnull() ) {
 
 	mTreeMuoHits[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
-	mTreeMuod0[countmuo]   = muons[i].combinedMuon().get()->d0();
+	mTreeMuod0[countmuo]   = (-1.)* muons[i].combinedMuon().get()->dxy(Point);
 	mTreeMuosd0[countmuo]  = muons[i].combinedMuon().get()->d0Error();
+
+	/*
+	  /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) 
+	  ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). 
+	  See also function dxy(myBeamSpot) below.
+	  
+	  double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
+
+	  /// dxy parameter in perigee convention (d0 = - dxy)
+	  double d0() const { return - dxy(); }
+
+	  /// dxy parameter with respect to a user-given beamSpot (WARNING: 
+	  this quantity can only be interpreted as a minimum transverse distance 
+	  if beamSpot, if the beam spot is reasonably close to the refPoint, since 
+	  linear approximations are involved). This is a good approximation for Tracker tracks.
+	  double dxy(const Point& myBeamSpot) const { 
+	  return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
+	  }
+	*/
 
 	if (muons[i].combinedMuon().get()->ndof() > 0) 
 	  mTreeMuoTrkChiNorm[countmuo] = muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof();
