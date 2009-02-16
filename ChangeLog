@@ -1,3 +1,6 @@
+2009-02-16 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* bug in geometry fixed
+	* tagged as version v2-2
 2009-02-13 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* name change _TrkIso was relative => _RelTrkIso
 	* new variable _TrkIso (absolute track isolation)
