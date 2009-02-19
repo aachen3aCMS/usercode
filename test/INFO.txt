@@ -12,7 +12,7 @@
     ./prepare.sh <datasetpath> <version> <tag>
     You might have to edit prepare.sh because there
     are some hardcoded things set 
-    (like my dcms directory and email)
+    (like my dcms directory and email, or black/white list)
     This will create a directory CRAB-<tag>-<version>
 (3) Just change to this directory, do
     crab -create and crab -submit

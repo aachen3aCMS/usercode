@@ -27,6 +27,10 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   trigTag_   = iConfig.getParameter<edm::InputTag>("trigTag");
   vertexTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
 
+  is_MC = iConfig.getParameter<bool>("is_MC");
+
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC = " << is_MC << endl;
+
   gen  = iConfig.getParameter<std::string>("generator");
 
   string cor  = iConfig.getParameter<std::string>("correction");
@@ -79,24 +83,26 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mTreeEventWeight  = 1.;
   mTreePthat        = -999.;
 
-  Handle<int> myProcess;
-  iEvent.getByLabel("genEventProcID",myProcess);
-  
-  if (myProcess.isValid())
-    mTreeProcID = (*myProcess);
-
-  Handle<double> genEventScale;
-  iEvent.getByLabel("genEventScale", genEventScale);
-
-  if (genEventScale.isValid())
+  if (is_MC) {
+    
+    Handle<int> myProcess;
+    iEvent.getByLabel("genEventProcID",myProcess);
+    
+    if (myProcess.isValid())
+      mTreeProcID = (*myProcess);
+    
+    Handle<double> genEventScale;
+    iEvent.getByLabel("genEventScale", genEventScale);
+    
+    if (genEventScale.isValid())
     mTreePthat = (*genEventScale);
-
-  Handle<double> genEventWeight;
-  iEvent.getByLabel("genEventWeight", genEventWeight);
-
-  if (genEventWeight.isValid())
-    mTreeEventWeight = (*genEventWeight);
-
+    
+    Handle<double> genEventWeight;
+    iEvent.getByLabel("genEventWeight", genEventWeight);
+    
+    if (genEventWeight.isValid())
+      mTreeEventWeight = (*genEventWeight);
+  }
   /*
   edm::LogInfo("SusyACSkimAnalysis") << " Event properties: EvtWeight = " << mTreeEventWeight 
 				     << "  ProcID = " << mTreeProcID 
@@ -162,20 +168,23 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   strcpy(mTreeHLT, tempname.c_str());
 
-  // PDF information 
-  Handle<reco::PdfInfo> pdfi;
-  iEvent.getByLabel("genEventPdfInfo", pdfi);
+  if (is_MC) {
 
-  if ( !pdfi.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No reco::PdfInfo found for Tag genEventPdfInfo ";
-  else {
-    mTreepdfid1   = (int)(*pdfi).id1;
-    mTreepdfid2   = (int)(*pdfi).id2;
-    mTreepdfx1    = (*pdfi).x1;
-    mTreepdfx2    = (*pdfi).x2;
-    mTreepdff1    = (*pdfi).pdf1;
-    mTreepdff2    = (*pdfi).pdf2;
-    mTreepdfscale = (*pdfi).scalePDF;
+    // PDF information 
+    Handle<reco::PdfInfo> pdfi;
+    iEvent.getByLabel("genEventPdfInfo", pdfi);
+    
+    if ( !pdfi.isValid() )
+      edm::LogWarning("SusyACSkimAnalysis") << "No reco::PdfInfo found for Tag genEventPdfInfo ";
+    else {
+      mTreepdfid1   = (int)(*pdfi).id1;
+      mTreepdfid2   = (int)(*pdfi).id2;
+      mTreepdfx1    = (*pdfi).x1;
+      mTreepdfx2    = (*pdfi).x2;
+      mTreepdff1    = (*pdfi).pdf1;
+      mTreepdff2    = (*pdfi).pdf2;
+      mTreepdfscale = (*pdfi).scalePDF;
+    }
   }
 
   // Vertex
@@ -209,7 +218,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mTreeNtruth  = 0;
   mTreeNtruthl = 0;
 
-  if (gen == "source") {
+  if (is_MC && gen == "source") {
     
     Handle<HepMCProduct> mc;
     iEvent.getByLabel("source", mc);
@@ -374,7 +383,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<const reco::Candidate*> truthl;
   std::vector<const reco::Candidate*> truth;
 
-  if (gen == "genParticles") {
+  if (is_MC && gen == "genParticles") {
     
     Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByLabel("genParticles", genParticles);    
@@ -562,36 +571,39 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // Truth jets
   mTreeNtruthjet = 0;
 
-  Handle<reco::GenJetCollection> genjet;
-  iEvent.getByLabel(genJetTag_, genjet);
-
-  std::vector<reco::GenJet> genjets;
-
-  if ( !genjet.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenJet found for InputTag " << genJetTag_;
-  else {
-
-    mTreeNtruthjet = genjet->size();
-
-    for (int i=0; i<mTreeNtruthjet; i++) {
-      genjets.push_back((*genjet)[i]);
-    }
-
-    sort(genjets.begin(), genjets.end(), ptcomp_genjet);  
-
-    if ( mTreeNtruthjet > 50 ) mTreeNtruthjet = 50;
-
-    for (int i=0; i<mTreeNtruthjet; ++ i ) {
-
-      mTreetruthJetP[i]   = genjets[i].p();
-      mTreetruthJetPt[i]  = genjets[i].pt();
-      mTreetruthJetE[i]   = genjets[i].energy();
-      mTreetruthJetEt[i]  = genjets[i].et();
-      mTreetruthJetPx[i]  = genjets[i].momentum().X();
-      mTreetruthJetPy[i]  = genjets[i].momentum().Y();
-      mTreetruthJetPz[i]  = genjets[i].momentum().Z();
-      mTreetruthJetEta[i] = genjets[i].eta();
-      mTreetruthJetPhi[i] = genjets[i].phi();
+  if (is_MC) {
+    
+    Handle<reco::GenJetCollection> genjet;
+    iEvent.getByLabel(genJetTag_, genjet);
+    
+    std::vector<reco::GenJet> genjets;
+    
+    if ( !genjet.isValid() )
+      edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenJet found for InputTag " << genJetTag_;
+    else {
+      
+      mTreeNtruthjet = genjet->size();
+      
+      for (int i=0; i<mTreeNtruthjet; i++) {
+	genjets.push_back((*genjet)[i]);
+      }
+      
+      sort(genjets.begin(), genjets.end(), ptcomp_genjet);  
+      
+      if ( mTreeNtruthjet > 50 ) mTreeNtruthjet = 50;
+      
+      for (int i=0; i<mTreeNtruthjet; ++ i ) {
+	
+	mTreetruthJetP[i]   = genjets[i].p();
+	mTreetruthJetPt[i]  = genjets[i].pt();
+	mTreetruthJetE[i]   = genjets[i].energy();
+	mTreetruthJetEt[i]  = genjets[i].et();
+	mTreetruthJetPx[i]  = genjets[i].momentum().X();
+	mTreetruthJetPy[i]  = genjets[i].momentum().Y();
+	mTreetruthJetPz[i]  = genjets[i].momentum().Z();
+	mTreetruthJetEta[i] = genjets[i].eta();
+	mTreetruthJetPhi[i] = genjets[i].phi();
+      }
     }
   }
 
@@ -927,43 +939,57 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumETSignif[0] = metHandle->front().mEtSig();
   }
 
-  // genMET 
-  edm::Handle< std::vector<reco::GenMET> > genmetHandle;
-  iEvent.getByLabel("genMet", genmetHandle);
-  if ( !genmetHandle.isValid() ) 
-    edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMet";
-  if ( genmetHandle->size()!=1 ) 
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << genmetHandle->size() << " instead of 1";
-  if ( genmetHandle.isValid() && genmetHandle->size()==1 ) {
-
-    mTreeMET[1]         = genmetHandle->front().et();
-    mTreeMEX[1]         = genmetHandle->front().momentum().X();
-    mTreeMEY[1]         = genmetHandle->front().momentum().Y();
-    mTreeSumET[1]       = genmetHandle->front().sumEt();
-    mTreeMETeta[1]      = genmetHandle->front().eta();
-    mTreeMETphi[1]      = genmetHandle->front().phi();
-    mTreeSumETSignif[1] = genmetHandle->front().mEtSig();
-
+  if (is_MC) {
+    
+    // genMET 
+    edm::Handle< std::vector<reco::GenMET> > genmetHandle;
+    iEvent.getByLabel("genMet", genmetHandle);
+    if ( !genmetHandle.isValid() ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMet";
+    if ( genmetHandle->size()!=1 ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
+					    << genmetHandle->size() << " instead of 1";
+    if ( genmetHandle.isValid() && genmetHandle->size()==1 ) {
+      
+      mTreeMET[1]         = genmetHandle->front().et();
+      mTreeMEX[1]         = genmetHandle->front().momentum().X();
+      mTreeMEY[1]         = genmetHandle->front().momentum().Y();
+      mTreeSumET[1]       = genmetHandle->front().sumEt();
+      mTreeMETeta[1]      = genmetHandle->front().eta();
+      mTreeMETphi[1]      = genmetHandle->front().phi();
+      mTreeSumETSignif[1] = genmetHandle->front().mEtSig();
+      
+    }
+    
+    edm::Handle< std::vector<reco::GenMET> > genmet2Handle;
+    iEvent.getByLabel("genMetNoNuBSM", genmet2Handle);
+    if ( !genmet2Handle.isValid() ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMetNoNuBSM";
+    if ( genmet2Handle->size()!=1 ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
+					    << genmet2Handle->size() << " instead of 1";
+    if ( genmet2Handle.isValid() && genmet2Handle->size()==1 ) {
+      
+      mTreeMET[2]         = genmet2Handle->front().et();
+      mTreeMEX[2]         = genmet2Handle->front().momentum().X();
+      mTreeMEY[2]         = genmet2Handle->front().momentum().Y();
+      mTreeSumET[2]       = genmet2Handle->front().sumEt();
+      mTreeMETeta[2]      = genmet2Handle->front().eta();
+      mTreeMETphi[2]      = genmet2Handle->front().phi();
+      mTreeSumETSignif[2] = genmet2Handle->front().mEtSig();
+      
+    }
   }
-
-  edm::Handle< std::vector<reco::GenMET> > genmet2Handle;
-  iEvent.getByLabel("genMetNoNuBSM", genmet2Handle);
-  if ( !genmet2Handle.isValid() ) 
-    edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMetNoNuBSM";
-  if ( genmet2Handle->size()!=1 ) 
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << genmet2Handle->size() << " instead of 1";
-  if ( genmet2Handle.isValid() && genmet2Handle->size()==1 ) {
-
-    mTreeMET[2]         = genmet2Handle->front().et();
-    mTreeMEX[2]         = genmet2Handle->front().momentum().X();
-    mTreeMEY[2]         = genmet2Handle->front().momentum().Y();
-    mTreeSumET[2]       = genmet2Handle->front().sumEt();
-    mTreeMETeta[2]      = genmet2Handle->front().eta();
-    mTreeMETphi[2]      = genmet2Handle->front().phi();
-    mTreeSumETSignif[2] = genmet2Handle->front().mEtSig();
-
+  else {
+    for (int k=1; k<=2; k++) {
+      mTreeMET[k]         = 0.;
+      mTreeMEX[k]         = 0.;
+      mTreeMEY[k]         = 0.;
+      mTreeSumET[k]       = 0.;
+      mTreeMETeta[k]      = 0.;
+      mTreeMETphi[k]      = 0.;
+      mTreeSumETSignif[k] = 0.;
+    }
   }
 
   // This filter

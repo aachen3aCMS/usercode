@@ -80,8 +80,9 @@ echo "storage_element = grid-srm.physik.rwth-aachen.de" >> $CRABFILE
 echo "storage_path = /pnfs/physik.rwth-aachen.de" >> $CRABFILE
 echo "user_remote_dir = dcms/magass/output/$2/$3/" >> $CRABFILE
 echo "" >> $CRABFILE
-echo "[EDG]" >> $CRABFILE
-echo "ce_black_list = ucsd.edu" >> $CRABFILE
+echo "#[EDG]" >> $CRABFILE
+echo "#ce_black_list = in2p3,ifca,infn" >> $CRABFILE
+echo "#ce_white_list = rwth,ucsd.edu" >> $CRABFILE
 echo "" >> $CRABFILE
 
 

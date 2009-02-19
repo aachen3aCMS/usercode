@@ -21,7 +21,9 @@ SUSYAna::SUSYAna(TTree *tree) : TreeContent(tree) {
 }
 
 // main event loop
-void SUSYAna::Loop() {
+void SUSYAna::Loop(TString fout, bool debug, TString type) {
+
+  DEBUG = debug;
 
   ProcInfo_t info;
 
@@ -32,6 +34,13 @@ void SUSYAna::Loop() {
   cout << "SUSYAna: Running over " << nentries << " events" << endl;
 
   if (DEBUG) cout << "SUSYAna: DEBUG modus " << endl;
+
+  if (type == "data") 
+    cout << "SUSYAna: You are running with flag 'data'" << endl;
+  else if (type == "mc")
+    cout << "SUSYAna: You are running with flag 'mc'" << endl;
+  else 
+    cout << "SUSYAna: No flag specified !" << endl;
 
   TString trigger;
 
@@ -81,7 +90,7 @@ void SUSYAna::Loop() {
     
   }
 
-  write(2);
+  write(fout, 2);
 }
 
 // duplicates finder
@@ -134,9 +143,9 @@ void SUSYAna::init(int nstages) {
 }
 
 // write histograms to file
-void SUSYAna::write(int nstages) {
+void SUSYAna::write(TString fout, int nstages) {
   
-  TFile *f = new TFile(_fname,"recreate");
+  TFile *f = new TFile(fout,"recreate");
  
   for (Int_t jj=0; jj<nstages; jj++) {
     

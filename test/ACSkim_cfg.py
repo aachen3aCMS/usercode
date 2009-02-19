@@ -54,6 +54,8 @@ vtxTag    = cms.InputTag("offlinePrimaryVertices")
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
     
+    is_MC = cms.bool(True),  # set to False for real Data!
+
     jetTag    = jetTag,
     elecTag   = elecTag,
     muonTag   = muonTag,

@@ -3,12 +3,12 @@
   ============
 
    Carsten Magass, January 2009
-
+                   February 2009 (update)
 
 (1) Edit analysis code in SUSYAna.cpp and header SUSYAna.h
 (2) make
-(3) ./RunSUSY -inlist <inlist> -out <outfile>  [-debug]
-    ./RunSUSY -in <filename>   -out <outfile>  [-debug]
+(3) ./RunSUSY -in     <inputfile> -out <outputfile> -type <data|mc|signal> [ -debug ] 
+    ./RunSUSY -inlist <inputlist> -out <outputfile> -type <data|mc|signal> [ -debug ]
 
 If the content of the root tuple changes, one has to
 recreate TreeContent.h. This is rather easy:

@@ -10,11 +10,13 @@ using std::endl;
 
 char inFile[1000];
 char outFile[100];
+char ag[100];
 bool useInFile;
 bool useList;
 bool deb;
 
 void parseCommandLine(int argc, char *argv[]);
+void usage();
 
 int main(int argc, char *argv[]) {
 
@@ -40,10 +42,21 @@ int main(int argc, char *argv[]) {
 
   parseCommandLine(argc,argv);
 
-  SUSYAna *fth;
+  SUSYAna *susy;
 
   TString s(inFile);
- 
+  TString type(ag);
+  TString outf(outFile);
+
+  if (type == "\0") {
+    cout << "RunSUSY: You MUST provide the input type !" << endl;
+    usage();
+  }
+  if (outf == "\0") {
+    cout << "RunSUSY: You MUST provide an output file !" << endl;
+    usage();
+  }
+
   if (useList) {
 
     cout << "RunSUSY: Collecting input files" << endl;
@@ -70,7 +83,7 @@ int main(int argc, char *argv[]) {
       //  if( nfiles==nmax ) break;
     }
     cout << "            " << "(" << nfiles << " files)" << endl;
-    fth = new SUSYAna(fChain);
+    susy = new SUSYAna(fChain);
   }
   
   else if (useInFile) {
@@ -84,23 +97,22 @@ int main(int argc, char *argv[]) {
 
     TTree *tree = (TTree*)f->Get("ACSkimAnalysis/allData");
 
-    fth = new SUSYAna(tree);
+    susy = new SUSYAna(tree);
   }
   else {
-    cout << endl;
-    cout << " Usage: RunSUSY [-in <input> | -inlist <inputlist>] -out <outputfile>  [ -debug ] " << endl;
-    cout << endl;
-    exit(-1);
+    cout << "RunSUSY: You MUST provide the input files or file lists !" << endl;
+    usage();
   }
-  fth->setOutFile(outFile);
-  fth->setMode(deb);
+
   cout << "RunSUSY: Starting Event Loop" << endl;
+
   gSystem->GetProcInfo(&info);
+
   cout << "RunSUSY: resident mem (MB) : " << info.fMemResident/1000. << endl;
   cout << "RunSUSY: virtual  mem (MB) : " << info.fMemVirtual/1000. << endl;
   cout << endl;
 
-  fth->Loop();
+  susy->Loop(outf, deb, type);
 
   timer.Stop();
 
@@ -113,32 +125,36 @@ int main(int argc, char *argv[]) {
   cout << "RunSUSY: resident mem (MB) : " << info.fMemResident/1000. << endl;
   cout << "RunSUSY: virtual  mem (MB) : " << info.fMemVirtual/1000. << endl;
   cout << endl;
+
   gSystem->Exec("TEMPDATE=`date`; echo 'RunSUSY:' $TEMPDATE");
+
   cout << endl;
   cout << endl;
 
 }
 
+void usage() {
+  cout << endl;
+  cout << " Usage: RunSUSY -in     <inputfile> -out <outputfile> -type <data|mc|signal> [ -debug ] " << endl;
+  cout << " Usage: RunSUSY -inlist <inputlist> -out <outputfile> -type <data|mc|signal> [ -debug ] " << endl;
+  cout << endl;
+  exit(-1);
+}
 
 // stolen from O. Peter's DataFilter
 
 void parseCommandLine(int argc, char *argv[]) {
+  if (argc==1)
+    usage();
+
   for (int arg=1; arg<argc; arg++) {
     if (strcmp(argv[arg], "-out") == 0) {
-      if (argc < arg+1) {
-	cout << "RunSUSY: Missing output filename" << endl;
-	exit(-1);
-      }
       strcpy(outFile,argv[arg+1]);
       cout << "RunSUSY: Outputfile " << outFile << endl;
       arg++;
       continue;
     } 
     else if (strcmp(argv[arg], "-in") == 0) {
-      if (argc < arg+1) {
-	cout << "RunSUSY: Missing filename" << endl;
-	exit(-1);
-      }
       strcpy(inFile,argv[arg+1]);
       cout << "RunSUSY: Inputfile " << inFile << endl;
       arg++;
@@ -147,10 +163,6 @@ void parseCommandLine(int argc, char *argv[]) {
       continue; 
     } 
     else if (strcmp(argv[arg], "-inlist") == 0) {
-      if (argc < arg+1) {
-	cout << "RunSUSY: Missing filename" << endl;
-	exit(-1);
-      }
       strcpy(inFile,argv[arg+1]);
       cout << "RunSUSY: Inputfilelist " << inFile << endl;
       arg++;
@@ -161,9 +173,14 @@ void parseCommandLine(int argc, char *argv[]) {
     else if (strcmp(argv[arg], "-debug") == 0) {
       deb = true;
       cout << "RunSUSY: Debug mode " << endl;
-      arg++;
       continue;
     }
+    else if (strcmp(argv[arg], "-type") == 0) {
+      strcpy(ag,argv[arg+1]);
+      cout << "RunSUSY: Input type " << ag << endl;
+      arg++;
+      continue; 
+    } 
   }
 }
 

@@ -109,6 +109,8 @@ private:
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
 
+  bool is_MC;
+
   std::string gen;
 
   pat::JetCorrFactors::CorrStep correction_;

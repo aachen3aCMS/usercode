@@ -23,16 +23,12 @@ class SUSYAna : public TreeContent {
 public :
     
   SUSYAna(TTree *tree=0);
-  void Loop();
+  void Loop(TString fout, bool debug, TString type);
  
-  char _fname[100];
-  void setOutFile(char fn[100]){strcpy(_fname,fn);}
-
   bool DEBUG;
-  void setMode(bool bset){DEBUG = bset;}
   
   void init(int stages);
-  void write(int stages);
+  void write(TString fout, int stages);
 
   bool find_duplicate(int run, int evt, double x1, double x2);
   
