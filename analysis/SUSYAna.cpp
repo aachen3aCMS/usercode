@@ -71,7 +71,10 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       //      cout << "SUSYAna: " << trigger.SubString("HLT_Mu7") << endl;
     }
 
-    if (find_duplicate(global_run, global_event, pdf_x1, pdf_x2)) {
+    double v=0.;
+    if (vtx_n>0) v = vtx_z[0]; 
+
+    if (find_duplicate(global_run, global_event, pdf_scale, v)) {
       cout << "SUSYAna: found duplicate " << endl;
     }
 
@@ -107,7 +110,7 @@ bool SUSYAna::find_duplicate(int run, int evt, double x1, double x2) {
     return false;
   }
   else {
-    if (DEBUG) cout << "SUSYAna: duplicate run " << run << " , evt " << evt << " , x1 " << x1 << " , x2 " << x2 << endl;
+    if (DEBUG) cout << "SUSYAna: duplicate run " << run << " , evt " << evt << " , scale " << x1 << " , vtx_z " << x2 << endl;
     return true;
   }
     

@@ -7,7 +7,7 @@
 // Original Author:  Carsten Magass
 //         Created:  November 2008
 //
-#include "SusyAnalysis/ACSusyAnalysis/test/SusyACSkimAnalysis.h"
+#include "aachen3a/ACSusyAnalysis/test/SusyACSkimAnalysis.h"
 
 ////////////////////////////////
 //

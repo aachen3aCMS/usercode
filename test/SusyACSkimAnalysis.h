@@ -38,11 +38,6 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-// SUSY include files
-#include "SusyAnalysis/EventSelector/interface/SusyEventSelector.h"
-#include "SusyAnalysis/EventSelector/interface/SelectorSequence.h"
-#include "SusyAnalysis/EventSelector/interface/uncorrectionTypeMET.h"
-
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"

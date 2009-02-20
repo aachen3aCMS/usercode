@@ -5,7 +5,9 @@
    Carsten Magass, January 2009
                    February 2009 (update)
 
-(1) To compile SusyACSkimAnalysis.cpp use
+(1) Checkout UserCode/aachen3a/ACSusyAnalysis in <CMSSW>/src,
+    then mv UserCode/aachen3a aachen3a (IMPORTANT !).
+    To compile SusyACSkimAnalysis.cpp use
       scramv1 b
     as usual.
 (2) Prepare submission to crab:
