@@ -1,9 +1,13 @@
+2009-04-06 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* moved code from test into proper directories
+	* new feature: run on fast sim
+	* tagged as version v2-6
 2009-02-20 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* bugfix dependencies & compiling (thanks to Markus)
 	* tagged as version v2-5
 2009-02-19 Carsten Magass <magass -at- physik.rwth-aachen.de>
         * improved analysis code & wrapper (new functionality)
-	* new flag in Filler (is_MC, has to set for data and MC accordingly) 
+	* new flag in Filler (is_MC, has to be set for data and MC accordingly) 
 	* tagged as version v2-4
 2009-02-16 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* fix in muon d0: now wrt to primary vertex position

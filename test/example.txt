@@ -1,3 +1,9 @@
-./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v0 lm1
-./prepare.sh /SUSY_LM2-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v0 lm2
-./counter.sh v0 lm1
+./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v26 lm0 full
+./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26 lm1 full
+./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v26a lm0 full
+./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26a lm1 full
+./prepare.sh /SUSY_LM2-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26 lm2 full
+./prepare.sh /TTJets-madgraph/Fall08_IDEAL_V9_v2/GEN-SIM-RECO v26 ttbar full
+./prepare.sh /ZJets-madgraph/Fall08_IDEAL_V9_reco-v2/GEN-SIM-RECO v26 zj full
+./prepare.sh /WJets-madgraph/Fall08_IDEAL_V9_v1/GEN-SIM-RECO v26 wj full
+
