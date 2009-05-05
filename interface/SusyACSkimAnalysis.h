@@ -218,6 +218,7 @@ private:
   int    mTreeNele;
   int    mTreeEleID[50][5];
   int    mTreeEleTruth[50];
+  int    mTreeEleHits[50];
   double mTreeEleEt[50];
   double mTreeEleP[50];
   double mTreeElePt[50];
@@ -234,10 +235,13 @@ private:
   double mTreeEleAllIso[50];
   double mTreeEleTrkChiNorm[50];
   double mTreeEleCharge[50];
+  double mTreeEled0[50];
+  double mTreeElesd0[50];
 
   int    mTreeNmuo;
   int    mTreeMuoTruth[50];
   int    mTreeMuoHits[50];
+  int    mTreeMuoGood[50];
   double mTreeMuoEt[50];
   double mTreeMuoP[50];
   double mTreeMuoPt[50];

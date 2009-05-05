@@ -64,7 +64,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     trigTag   = trigTag,
     vtxTag    = vtxTag,
 
-    muopt  = cms.double(20.),
+    muopt  = cms.double(10.),
     muoeta = cms.double(2.5),
     elept  = cms.double(20.),
     eleeta = cms.double(2.5),

@@ -1,3 +1,7 @@
+2009-05-05 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* new variables: ele_d0, ele_sd0, ele_hits, muo_prompttight
+	* updated muon pt cut of 10 GeV in cfg
+	* tagged as version v2-7
 2009-04-06 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* moved code from test into proper directories
 	* new feature: run on fast sim

@@ -695,12 +695,22 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleAllIso[countele]    = eles[i].caloIso();
       
       if (eles[i].gsfTrack().isNonnull()) {
+
+	mTreeEleHits[countele] = eles[i].gsfTrack().get()->numberOfValidHits();
+	mTreeEled0[countele]   = (-1.)* eles[i].gsfTrack().get()->dxy(Point);
+	mTreeElesd0[countele]  = eles[i].gsfTrack().get()->d0Error();
+
 	if (eles[i].gsfTrack().get()->ndof() > 0)
 	  mTreeEleTrkChiNorm[countele] = eles[i].gsfTrack().get()->chi2()/ eles[i].gsfTrack().get()->ndof();
 	else  mTreeEleTrkChiNorm[countele] = 999.;
       }
-      else  mTreeEleTrkChiNorm[countele] = 999.;
-      
+      else {
+	mTreeEleHits[countele]       = -1;
+	mTreeEleTrkChiNorm[countele] = 999.;
+ 	mTreeEled0[countele]         = 999.;
+	mTreeElesd0[countele]        = 999.;
+      }
+   
       // CM Trigger not working
       /*
       const std::vector<pat::TriggerPrimitive> & eletrig = eles[i].triggerMatches();
@@ -774,6 +784,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMuoECalIso[countmuo]   = muons[i].ecalIso();
       mTreeMuoHCalIso[countmuo]   = muons[i].hcalIso() ;
       mTreeMuoAllIso[countmuo]    = muons[i].caloIso() ;
+      mTreeMuoGood[countmuo]      = muons[i].isGood(pat::Muon::GlobalMuonPromptTight);
 
       if ( muons[i].combinedMuon().isNonnull() ) {
 
@@ -812,7 +823,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	mTreeMuosd0[countmuo]        = 999.;
       }
 
-      // CM Trigger not working
+     // CM Trigger not working
       /*
       const std::vector<pat::TriggerPrimitive> & muotrig = muons[i].triggerMatches();
       cout << "muotrig " << muotrig.size() << endl;
@@ -1213,6 +1224,9 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_HCalIso",    mTreeEleHCalIso,    "ele_HCalIso[ele_n]/double");
   mAllData->Branch("ele_AllIso",     mTreeEleAllIso,     "ele_AllIso[ele_n]/double");
   mAllData->Branch("ele_TrkChiNorm", mTreeEleTrkChiNorm, "ele_TrkChiNorm[ele_n]/double");
+  mAllData->Branch("ele_d0",         mTreeEled0,         "ele_d0[ele_n]/double");
+  mAllData->Branch("ele_sd0",        mTreeElesd0,        "ele_sd0[ele_n]/double");
+  mAllData->Branch("ele_hits",       mTreeEleHits,       "ele_hits[ele_n]/I");
   mAllData->Branch("ele_truth",      mTreeEleTruth,      "ele_truth[ele_n]/I");
   mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/int");
 
@@ -1236,6 +1250,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_TrkChiNorm", mTreeMuoTrkChiNorm, "muo_TrkChiNorm[muo_n]/double");
   mAllData->Branch("muo_d0",         mTreeMuod0,         "muo_d0[muo_n]/double");
   mAllData->Branch("muo_sd0",        mTreeMuosd0,        "muo_sd0[muo_n]/double");
+  mAllData->Branch("muo_prompttight",mTreeMuoGood,       "muo_prompttight[muo_n]/I");
   mAllData->Branch("muo_hits",       mTreeMuoHits,       "muo_hits[muo_n]/I");
   mAllData->Branch("muo_truth",      mTreeMuoTruth,      "muo_truth[muo_n]/I");
 

@@ -115,6 +115,9 @@ public :
    Double_t        ele_HCalIso[50];   //[ele_n]
    Double_t        ele_AllIso[50];   //[ele_n]
    Double_t        ele_TrkChiNorm[50];   //[ele_n]
+   Double_t        ele_d0[50];   //[ele_n]
+   Double_t        ele_sd0[50];   //[ele_n]
+   Int_t           ele_hits[50];   //[ele_n]
    Int_t           ele_truth[50];   //[ele_n]
    UInt_t          ele_ID[50][5];   //[ele_n]
    UInt_t          muo_n;
@@ -136,6 +139,7 @@ public :
    Double_t        muo_TrkChiNorm[50];   //[muo_n]
    Double_t        muo_d0[50];   //[muo_n]
    Double_t        muo_sd0[50];   //[muo_n]
+   Int_t           muo_prompttight[50];   //[muo_n]
    Int_t           muo_hits[50];   //[muo_n]
    Int_t           muo_truth[50];   //[muo_n]
 
@@ -237,6 +241,9 @@ public :
    TBranch        *b_ele_HCalIso;   //!
    TBranch        *b_ele_AllIso;   //!
    TBranch        *b_ele_TrkChiNorm;   //!
+   TBranch        *b_ele_d0;   //!
+   TBranch        *b_ele_sd0;   //!
+   TBranch        *b_ele_hits;   //!
    TBranch        *b_ele_truth;   //!
    TBranch        *b_ele_ID;   //!
    TBranch        *b_muo_n;   //!
@@ -258,6 +265,7 @@ public :
    TBranch        *b_muo_TrkChiNorm;   //!
    TBranch        *b_muo_d0;   //!
    TBranch        *b_muo_sd0;   //!
+   TBranch        *b_muo_prompttight;   //!
    TBranch        *b_muo_hits;   //!
    TBranch        *b_muo_truth;   //!
 
@@ -431,6 +439,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_HCalIso", ele_HCalIso, &b_ele_HCalIso);
    fChain->SetBranchAddress("ele_AllIso", ele_AllIso, &b_ele_AllIso);
    fChain->SetBranchAddress("ele_TrkChiNorm", ele_TrkChiNorm, &b_ele_TrkChiNorm);
+   fChain->SetBranchAddress("ele_d0", ele_d0, &b_ele_d0);
+   fChain->SetBranchAddress("ele_sd0", ele_sd0, &b_ele_sd0);
+   fChain->SetBranchAddress("ele_hits", ele_hits, &b_ele_hits);
    fChain->SetBranchAddress("ele_truth", ele_truth, &b_ele_truth);
    fChain->SetBranchAddress("ele_ID", ele_ID, &b_ele_ID);
    fChain->SetBranchAddress("muo_n", &muo_n, &b_muo_n);
@@ -452,6 +463,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_TrkChiNorm", muo_TrkChiNorm, &b_muo_TrkChiNorm);
    fChain->SetBranchAddress("muo_d0", muo_d0, &b_muo_d0);
    fChain->SetBranchAddress("muo_sd0", muo_sd0, &b_muo_sd0);
+   fChain->SetBranchAddress("muo_prompttight", muo_prompttight, &b_muo_prompttight);
    fChain->SetBranchAddress("muo_hits", muo_hits, &b_muo_hits);
    fChain->SetBranchAddress("muo_truth", muo_truth, &b_muo_truth);
    Notify();
