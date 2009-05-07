@@ -113,6 +113,9 @@ public :
    Double_t        ele_TrkIso[50];   //[ele_n]
    Double_t        ele_ECalIso[50];   //[ele_n]
    Double_t        ele_HCalIso[50];   //[ele_n]
+   Double_t        ele_TrkIsoDep[50];   //[ele_n]
+   Double_t        ele_ECalIsoDep[50];   //[ele_n]
+   Double_t        ele_HCalIsoDep[50];   //[ele_n]
    Double_t        ele_AllIso[50];   //[ele_n]
    Double_t        ele_TrkChiNorm[50];   //[ele_n]
    Double_t        ele_d0[50];   //[ele_n]
@@ -135,6 +138,9 @@ public :
    Double_t        muo_TrkIso[50];   //[muo_n]
    Double_t        muo_ECalIso[50];   //[muo_n]
    Double_t        muo_HCalIso[50];   //[muo_n]
+   Double_t        muo_TrkIsoDep[50];   //[muo_n]
+   Double_t        muo_ECalIsoDep[50];   //[muo_n]
+   Double_t        muo_HCalIsoDep[50];   //[muo_n]
    Double_t        muo_AllIso[50];   //[muo_n]
    Double_t        muo_TrkChiNorm[50];   //[muo_n]
    Double_t        muo_d0[50];   //[muo_n]
@@ -235,10 +241,13 @@ public :
    TBranch        *b_ele_eta;   //!
    TBranch        *b_ele_phi;   //!
    TBranch        *b_ele_charge;   //!
-   TBranch        *b_ele_TrkIso;   //!
    TBranch        *b_ele_RelTrkIso;   //!
+   TBranch        *b_ele_TrkIso;   //!
    TBranch        *b_ele_ECalIso;   //!
    TBranch        *b_ele_HCalIso;   //!
+   TBranch        *b_ele_TrkIsoDep;   //!
+   TBranch        *b_ele_ECalIsoDep;   //!
+   TBranch        *b_ele_HCalIsoDep;   //!
    TBranch        *b_ele_AllIso;   //!
    TBranch        *b_ele_TrkChiNorm;   //!
    TBranch        *b_ele_d0;   //!
@@ -257,10 +266,13 @@ public :
    TBranch        *b_muo_eta;   //!
    TBranch        *b_muo_phi;   //!
    TBranch        *b_muo_charge;   //!
-   TBranch        *b_muo_TrkIso;   //!
    TBranch        *b_muo_RelTrkIso;   //!
+   TBranch        *b_muo_TrkIso;   //!
    TBranch        *b_muo_ECalIso;   //!
    TBranch        *b_muo_HCalIso;   //!
+   TBranch        *b_muo_TrkIsoDep;   //!
+   TBranch        *b_muo_ECalIsoDep;   //!
+   TBranch        *b_muo_HCalIsoDep;   //!
    TBranch        *b_muo_AllIso;   //!
    TBranch        *b_muo_TrkChiNorm;   //!
    TBranch        *b_muo_d0;   //!
@@ -437,6 +449,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_TrkIso", ele_TrkIso, &b_ele_TrkIso);
    fChain->SetBranchAddress("ele_ECalIso", ele_ECalIso, &b_ele_ECalIso);
    fChain->SetBranchAddress("ele_HCalIso", ele_HCalIso, &b_ele_HCalIso);
+   fChain->SetBranchAddress("ele_TrkIsoDep", ele_TrkIsoDep, &b_ele_TrkIsoDep);
+   fChain->SetBranchAddress("ele_ECalIsoDep", ele_ECalIsoDep, &b_ele_ECalIsoDep);
+   fChain->SetBranchAddress("ele_HCalIsoDep", ele_HCalIsoDep, &b_ele_HCalIsoDep);
    fChain->SetBranchAddress("ele_AllIso", ele_AllIso, &b_ele_AllIso);
    fChain->SetBranchAddress("ele_TrkChiNorm", ele_TrkChiNorm, &b_ele_TrkChiNorm);
    fChain->SetBranchAddress("ele_d0", ele_d0, &b_ele_d0);
@@ -459,6 +474,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_TrkIso", muo_TrkIso, &b_muo_TrkIso);
    fChain->SetBranchAddress("muo_ECalIso", muo_ECalIso, &b_muo_ECalIso);
    fChain->SetBranchAddress("muo_HCalIso", muo_HCalIso, &b_muo_HCalIso);
+   fChain->SetBranchAddress("muo_TrkIsoDep", muo_TrkIsoDep, &b_muo_TrkIsoDep);
+   fChain->SetBranchAddress("muo_ECalIsoDep", muo_ECalIsoDep, &b_muo_ECalIsoDep);
+   fChain->SetBranchAddress("muo_HCalIsoDep", muo_HCalIsoDep, &b_muo_HCalIsoDep);
    fChain->SetBranchAddress("muo_AllIso", muo_AllIso, &b_muo_AllIso);
    fChain->SetBranchAddress("muo_TrkChiNorm", muo_TrkChiNorm, &b_muo_TrkChiNorm);
    fChain->SetBranchAddress("muo_d0", muo_d0, &b_muo_d0);

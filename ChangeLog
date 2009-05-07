@@ -1,3 +1,6 @@
+2009-05-07 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* new variables: ele/muo TrkIsoDep, ECalIsoDep, HCalIsoDep
+	* tagged as version 2-8
 2009-05-05 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* new variables: ele_d0, ele_sd0, ele_hits, muo_prompttight
 	* updated muon pt cut of 10 GeV in cfg

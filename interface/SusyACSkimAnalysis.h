@@ -233,6 +233,9 @@ private:
   double mTreeEleECalIso[50];
   double mTreeEleHCalIso[50];
   double mTreeEleAllIso[50];
+  double mTreeEleECalIsoDep[50];
+  double mTreeEleHCalIsoDep[50];
+  double mTreeEleTrkIsoDep[50];
   double mTreeEleTrkChiNorm[50];
   double mTreeEleCharge[50];
   double mTreeEled0[50];
@@ -256,6 +259,9 @@ private:
   double mTreeMuoECalIso[50];
   double mTreeMuoHCalIso[50];
   double mTreeMuoAllIso[50];
+  double mTreeMuoECalIsoDep[50];
+  double mTreeMuoHCalIsoDep[50];
+  double mTreeMuoTrkIsoDep[50];
   double mTreeMuoTrkChiNorm[50];
   double mTreeMuoCharge[50];
   double mTreeMuod0[50];
