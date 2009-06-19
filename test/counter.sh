@@ -20,8 +20,10 @@ fi
 echo ""  
 echo "  -- Counting Files in dcache --"
 echo
-f=`echo "/pnfs/physik.rwth-aachen.de/dcms/magass/output/"$1"/"$2`
-n=`ls $f/*root | wc -l`
+f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/"$1"/"$2`
+#n=`ls $f/*root | wc -l`
+#n=`srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | grep root | wc -l`
+n=`mysrmls.sh output/$1/$2 | grep root | wc -l`
 echo "  found "$n" files in $f"
 echo
 

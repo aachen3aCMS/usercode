@@ -1,5 +1,5 @@
 //
-// Package:    SusyACSkimAnalysis
+// Package:    UserCode/aachen3a/ACSusyAnalysis
 // Class:      SusyACSkimAnalysis
 // 
 // Description: Skeleton analysis for SUSY search with Lepton + Jets + MET
@@ -23,22 +23,23 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   metTag_    = iConfig.getParameter<edm::InputTag>("metTag");
   elecTag_   = iConfig.getParameter<edm::InputTag>("elecTag");
   muonTag_   = iConfig.getParameter<edm::InputTag>("muonTag");
+  genTag_    = iConfig.getParameter<edm::InputTag>("genTag");
   genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
   trigTag_   = iConfig.getParameter<edm::InputTag>("trigTag");
   vertexTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
 
-  is_MC = iConfig.getParameter<bool>("is_MC");
+  is_MC     = iConfig.getParameter<bool>("is_MC");
+  is_SHERPA = iConfig.getParameter<bool>("is_SHERPA");
 
-  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC = " << is_MC << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC     = " << is_MC << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_SHERPA = " << is_SHERPA << endl;
 
-  gen  = iConfig.getParameter<std::string>("generator");
+  cor_  = iConfig.getParameter<std::string>("correction");
+  flav_ = iConfig.getParameter<std::string>("flavour");
 
-  string cor  = iConfig.getParameter<std::string>("correction");
-  string flav = iConfig.getParameter<std::string>("flavour");
-
-  correction_ = pat::JetCorrFactors::corrStep(cor, flav);
+  correction_ = pat::JetCorrFactors::corrStep(cor_, flav_);
  
-  edm::LogVerbatim("SusyACSkimAnalysis") << " Using the following Jet correction: " << cor << " , flavour: " << flav << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Using the following Jet correction: " << cor_ << ", flavour: " << flav_ << endl;
 
   // get the cuts
   muopt_  = iConfig.getParameter<double>("muopt");
@@ -56,7 +57,7 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
 
   localPi = acos(-1.0);
 
-  // Initialise plots
+  // Initialize plots
   initPlots();
 
 }
@@ -76,9 +77,96 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace edm;
   using namespace trigger;
   using namespace reco;
+  using namespace pat;
+  
+  mTreeNtrig = 0;
+
+  Handle< pat::TriggerEvent > myTriggerEvent;
+  iEvent.getByLabel( "patTriggerEvent", myTriggerEvent );
+
+  if ( !myTriggerEvent.isValid() )
+    edm::LogWarning("SusyACSkimAnalysis") << "No pat::TriggerEvent found for InputTag patTriggerEvent";
+  else {
+
+    int *tlname = pack(myTriggerEvent->nameHltTable().c_str());
+    for (int l=0; l<get_size(tlname); l++) mTreetrighltname[l] = tlname[l];
+    
+    const TriggerPathRefVector mypath = myTriggerEvent->acceptedPaths();
+    for (TriggerPathRefVector::const_iterator it = mypath.begin();
+	 it != mypath.end(); ++it) {
+      
+      TString ttname = (*it)->name();
+      std::string tname   = (*it)->name();
+
+      // save only muon trigger results
+      if ( (ttname.Contains("HLT_Mu") || ttname.Contains("HLT_IsoMu") || 
+	    ttname.Contains("HLT_L1Mu") || ttname.Contains("HLT_L2Mu") ||
+	    ttname.Contains("HLT_DoubleMu")) &&
+	   !ttname.Contains("Jet") && !ttname.Contains("Tau") && 
+	   !ttname.Contains("Ele") && !ttname.Contains("HT") &&
+	   myTriggerEvent->path(tname)->wasAccept() ) {
+
+	//	cout << "   --> " << ttname << endl;
+	
+	int *tempname = pack(tname.c_str());
+
+	const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
+	for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll ) {
+	  TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
+	  for ( TriggerObjectRefVector::const_iterator itt = torv.begin(); 
+		itt != torv.end(); ++itt ) {
+	    const TriggerObjectRef objRef( *itt );
+	    
+	    //	    cout << "  " << (*ll)->label() << "  " << (*itt)->pt() << "  "  << (*itt)->eta() << endl;
+	    int *filtname = pack((*ll)->label().c_str());
+
+	    for (int l=0; l<get_size(tempname); l++) mTreetrigname[mTreeNtrig][l] = tempname[l];
+	    for (int l=0; l<get_size(filtname); l++) mTreefiltname[mTreeNtrig][l] = filtname[l];
+	    
+	    mTreetrigpre[mTreeNtrig] = (*it)->prescale();
+	    mTreetrigpt[mTreeNtrig]  = objRef->pt();
+	    mTreetrigeta[mTreeNtrig] = objRef->eta();
+	    mTreetrigphi[mTreeNtrig] = objRef->phi();
+	    mTreeNtrig++;
+	    if (mTreeNtrig==200) break;
+	  }
+	  if (mTreeNtrig==200) break;
+	}
+	if (mTreeNtrig==200) break;
+	
+	/*
+	const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
+	for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll )
+	  cout << (*ll)->label() << "  " << (*ll)->type() << endl;
+
+	// object ID according to HLTReco/interface/TriggerTypeDefs.h
+	// 81 : TriggerL1Mu
+	// 93 : TriggerMuon
+
+	const TriggerObjectRefVector triggerMuonsL2L3 = myTriggerEvent->objects( 93 ); 
+	for ( TriggerObjectRefVector::const_iterator tt = triggerMuonsL2L3.begin(); 
+	      tt != triggerMuonsL2L3.end(); ++tt ) {
+	  const TriggerObjectRef objRef( *tt );
+
+	  if ( myTriggerEvent->objectInPath(*tt, tname) ) 
+	    cout << "  " << (*tt)->pt() << "  "  << (*tt)->eta() << endl;
+	}
+	
+	const TriggerObjectRefVector triggerMuonsL1 = myTriggerEvent->objects( 81 ); 
+	for ( TriggerObjectRefVector::const_iterator tt = triggerMuonsL1.begin(); 
+	      tt != triggerMuonsL1.end(); ++tt ) {
+	  const TriggerObjectRef objRef( *tt );
+	  
+	  if ( myTriggerEvent->objectInPath(*tt, tname) ) 
+	    cout << "  " << (*tt)->pt() << "  "  << (*tt)->eta() << endl;
+	}
+	*/
+      }
+    }
+  }
+  
 
   // Get some event information (process ID, weight)
-
   mTreeProcID       = 0;
   mTreeEventWeight  = 1.;
   mTreePthat        = -999.;
@@ -119,22 +207,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mTreeorbit   = iEvent.orbitNumber();
   mTreeexp     = iEvent.experimentType();
   mTreedata    = iEvent.isRealData();
-  mTreestore   = 0;
+  mTreestore   = iEvent.eventAuxiliary().storeNumber();
 
-  // Global Event information
-  // does not work at all !
-  //  Handle<EventAuxiliary> evt;
-  //  iEvent.getByLabel("EventAuxiliary", evt);
-
-  //  cout << " fooled you " << (*evt).storeNumber() << endl;
-    /* 
-  if ( !evt.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No edm::EventAuxiliary is found with tag EventAuxiliary ";
-  else {
-    mTreestore   = (*evt).storeNumber();
-    cout << " fooled you " << (*evt).storeNumber() << endl;
-    }*/
-  
   // Trigger information
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByLabel(trigTag_,triggerResults);
@@ -200,7 +274,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   else {
 
     mTreeNvtx = vertexHandle->size();
-    if ( mTreeNvtx > 50 ) mTreeNvtx = 50;
+    if ( mTreeNvtx > 100 ) mTreeNvtx = 100;
 
     for (int i=0; i<mTreeNvtx; ++ i ) {
 
@@ -218,175 +292,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mTreeNtruth  = 0;
   mTreeNtruthl = 0;
 
-  if (is_MC && gen == "source") {
-    
-    Handle<HepMCProduct> mc;
-    iEvent.getByLabel("source", mc);
-    
-    if ( !mc.isValid() ) 
-      edm::LogWarning("SusyACSkimAnalysis") << "No HepMCProduct found with InputTag source ";
-    else {
-      
-      HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(mc->GetEvent()));
-      
-      //  myGenEvent->print();
-      //      cout << " ProcessID  : " << myGenEvent->signal_process_id() << endl;
-      //      cout << " Eventscale : " << myGenEvent->event_scale() << endl; 
-    
-      bool primary = true;
-      int pvid = 0;
-    
-      int ntruth = 0;
-    
-      for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	    p != myGenEvent->particles_end(); ++p ) {
-      
-	int id = (*p)->pdg_id();
-	int st = (*p)->status();
-      
-	// stable e/mu in final state
-	if (st == 1 && (abs(id) == 11 || abs(id) == 13)) {
-	  mTreetruthlpdgid[mTreeNtruthl] = (*p)->pdg_id();
-	  mTreetruthlE[mTreeNtruthl]     = (*p)->momentum().e();
-	  mTreetruthlp[mTreeNtruthl]     = (*p)->momentum().mag();
-	  mTreetruthlpt[mTreeNtruthl]    = (*p)->momentum().perp();
-	  mTreetruthlpx[mTreeNtruthl]    = (*p)->momentum().px();
-	  mTreetruthlpy[mTreeNtruthl]    = (*p)->momentum().py();
-	  mTreetruthlpz[mTreeNtruthl]    = (*p)->momentum().pz();
-	  mTreetruthleta[mTreeNtruthl]   = (*p)->momentum().eta();
-	  mTreetruthlphi[mTreeNtruthl]   = (*p)->momentum().phi();
-	  mTreeNtruthl++;
-	}
-
-	HepMC::GenVertex* bVertex = (*p)->production_vertex();
-	HepMC::GenVertex* eVertex = (*p)->end_vertex();
-      
-	int bvtxid = -999;
-	int evtxid = -999;
-      
-	if (bVertex) bvtxid = bVertex->barcode();
-	if (eVertex) evtxid = eVertex->barcode();
-      
-	// (1) primary interaction vertex
-	if ( primary && st == 3 && isDecaying(id) ) {
-	
-	  //	  cout << " Found primary interaction vertex ! " << endl;
-	
-	  if (bVertex) {
-	  
-	    pvid = bvtxid;
-	  
-	    //	    cout << " + Now analysing incoming particles at vtx " << bvtxid << endl;
-	  
-	    for (HepMC::GenVertex::particles_in_const_iterator iter = bVertex->particles_in_const_begin();
-		 iter != bVertex->particles_in_const_end(); iter++) {
-	    
-	      if ((*iter)->status() != 3) continue;
-	    
-	      mTreetruthpdgid[ntruth] = (*iter)->pdg_id();
-	      mTreetruthbvtxid[ntruth] = 0;
-	      mTreetruthevtxid[ntruth] = bvtxid;
-
-	      mTreetruthE[ntruth]   = (*iter)->momentum().e();
-	      mTreetruthp[ntruth]   = (*iter)->momentum().mag();
-	      mTreetruthpt[ntruth]  = (*iter)->momentum().perp();
-	      mTreetruthpx[ntruth]  = (*iter)->momentum().px();
-	      mTreetruthpy[ntruth]  = (*iter)->momentum().py();
-	      mTreetruthpz[ntruth]  = (*iter)->momentum().pz();
-	      mTreetrutheta[ntruth] = (*iter)->momentum().eta();
-	      mTreetruthphi[ntruth] = (*iter)->momentum().phi();
-	      mTreetruthm[ntruth]  = (*iter)->momentum().m();
-
-	      //	      cout << ntruth << "   --> in " << " [" << (*iter)->barcode() << "] " << mTreetruthpdgid[ntruth] << endl;
-	    
-	      ntruth++;
-	    
-	    }
-	  
-	    //	    cout << " + Now analysing outgoing particles at vtx " << bvtxid << endl;
-	  
-	    for (HepMC::GenVertex::particles_out_const_iterator iter = bVertex->particles_out_const_begin();
-		 iter != bVertex->particles_out_const_end(); iter++) {
-	    
-	      if ((*iter)->status() != 3) continue;
-	    
-	      HepMC::GenVertex* eVertex2 = (*iter)->end_vertex();
-	      int ev = -999;
-	      if (eVertex) ev = eVertex2->barcode();
-	    
-	      if (isStable((*iter)->pdg_id())) ev = -999;
-	    
-	      mTreetruthpdgid[ntruth] = (*iter)->pdg_id();
-	      mTreetruthbvtxid[ntruth] = bvtxid;
-	      mTreetruthevtxid[ntruth] = ev;
-	    
-	      mTreetruthE[ntruth]   = (*iter)->momentum().e();
-	      mTreetruthp[ntruth]   = (*iter)->momentum().mag();
-	      mTreetruthpt[ntruth]  = (*iter)->momentum().perp();
-	      mTreetruthpx[ntruth]  = (*iter)->momentum().px();
-	      mTreetruthpy[ntruth]  = (*iter)->momentum().py();
-	      mTreetruthpz[ntruth]  = (*iter)->momentum().pz();
-	      mTreetrutheta[ntruth] = (*iter)->momentum().eta();
-	      mTreetruthphi[ntruth] = (*iter)->momentum().phi();
-	      mTreetruthm[ntruth]   = (*iter)->momentum().m();
-
-	      //	      cout << ntruth << "   --> out " << " [" << (*iter)->barcode() << "] " 
-	      //		   << mTreetruthpdgid[ntruth] << " --> " << mTreetruthevtxid[ntruth] << endl;
-	    
-	      ntruth++;
-	    }
-	  }
-	  //	  cout << endl;
-	  primary = false;
-	}
-      
-	// (2) Now decay cascade of primary particles
-	if ( !primary && st == 3 && isDecaying(id) ) {
-	
-	  //	  cout << " + Now analysing outgoing particles at vtx " << evtxid << endl;
-	
-	  for (HepMC::GenVertex::particles_out_const_iterator iter = eVertex->particles_out_const_begin();
-	       iter != eVertex->particles_out_const_end(); iter++) {
-	  
-	    if ((*iter)->status() != 3) continue;
-	    HepMC::GenVertex* eVertex2 = (*iter)->end_vertex();
-	    int ev = -999;
-	    if (eVertex) ev = eVertex2->barcode();
-	  
-	    if (isStable((*iter)->pdg_id())) ev = -999;
-	  
-	    mTreetruthpdgid[ntruth] = (*iter)->pdg_id();
-	    mTreetruthbvtxid[ntruth] = evtxid;
-	    mTreetruthevtxid[ntruth] = ev;
-	  
-	    mTreetruthE[ntruth]   = (*iter)->momentum().e();
-	    mTreetruthp[ntruth]   = (*iter)->momentum().mag();
-	    mTreetruthpt[ntruth]  = (*iter)->momentum().perp();
-	    mTreetruthpx[ntruth]  = (*iter)->momentum().px();
-	    mTreetruthpy[ntruth]  = (*iter)->momentum().py();
-	    mTreetruthpz[ntruth]  = (*iter)->momentum().pz();
-	    mTreetrutheta[ntruth] = (*iter)->momentum().eta();
-	    mTreetruthphi[ntruth] = (*iter)->momentum().phi();
-	    mTreetruthm[ntruth]   = (*iter)->momentum().m();
-	  
-	    //	    cout << ntruth << "   --> out " << " [" << (*iter)->barcode() << "] " 
-	    //		 << mTreetruthpdgid[ntruth] << "  --> " << mTreetruthevtxid[ntruth] << endl;
-	  
-	    ntruth++;
-	  }
-	}
-      }
-      mTreeNtruth = ntruth;
-    }
-  }
-
   std::vector<const reco::Candidate*> truthl;
   std::vector<const reco::Candidate*> truth;
 
-  if (is_MC && gen == "genParticles") {
+  if (is_MC) {
     
     Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByLabel("genParticles", genParticles);    
+    iEvent.getByLabel(genTag_, genParticles);    
     
     if ( !genParticles.isValid() ) 
       edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenParticleCollection found with InputTag genParticles ";
@@ -418,21 +330,29 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  truthl.push_back(&p);
 
 	  mTreeNtruthl++;
-	  if (mTreeNtruthl == 50) break;
+	  if (mTreeNtruthl == 100) break;
 	}
       }
 
       // (1) Reconstruct 2 -> 2 primary process, if t, W, Z, tau or SUSY particles are involved
+      int count_sherpa = 0; 
       for( size_t i = 0; i < genParticles->size(); ++ i ) {
 	const reco::Candidate& p = (*genParticles)[ i ];
       
-	if (isDecaying(p.pdgId()) && p.status() == 3) {
-	
-	  if (p.numberOfMothers()==2) {
+	if (is_SHERPA && p.status() == 3) {
+
+	  count_sherpa++;  
+	  //	  cout << i << "  PDGID : " << p.pdgId() << "  " << p.numberOfMothers() << endl;
+	}
+
+	if (p.numberOfMothers()==2) {
 	  
+	  if ( (!is_SHERPA && isDecaying(p.pdgId()) && p.status() == 3) || 
+	       ( is_SHERPA && count_sherpa == 3) ) {
+	    
 	    const reco::Candidate &m0 = *(p.mother(0));
 	    const reco::Candidate &m1 = *(p.mother(1));
-
+	    
 	    mTreetruthpdgid[0]  = m0.pdgId();
 	    mTreetruthbvtxid[0] = 0;
 	    mTreetruthevtxid[0] = 1;
@@ -446,7 +366,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mTreetrutheta[0]    = m0.p4().eta();
 	    mTreetruthphi[0]    = m0.p4().phi();
 	    mTreetruthm[0]      = m0.p4().M();
-
+	    
 	    mTreetruthpdgid[1]  = m1.pdgId();
 	    mTreetruthbvtxid[1] = 0;
 	    mTreetruthevtxid[1] = 1;
@@ -460,10 +380,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mTreetrutheta[1]    = m1.p4().eta();
 	    mTreetruthphi[1]    = m1.p4().phi();
 	    mTreetruthm[1]      = m1.p4().M();
-
+	    
 	    truth.push_back(p.mother(0));
 	    truth.push_back(p.mother(1));
-	  
+	    
 	    for (unsigned int j=0; j<m0.numberOfDaughters(); j++) {
 	      part1.push_back(m0.daughter(j));
 	      bvtx1.push_back(1);
@@ -590,7 +510,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       sort(genjets.begin(), genjets.end(), ptcomp_genjet);  
       
-      if ( mTreeNtruthjet > 50 ) mTreeNtruthjet = 50;
+      if ( mTreeNtruthjet > 100 ) mTreeNtruthjet = 100;
       
       for (int i=0; i<mTreeNtruthjet; ++ i ) {
 	
@@ -629,7 +549,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     sort(eles.begin(), eles.end(), ptcomp_ele);  
 
-    if ( mTreeNele > 50 ) mTreeNele = 50;
+    if ( mTreeNele > 100 ) mTreeNele = 100;
 
     // Electron ID :
     //  0  -  eidLoose
@@ -751,7 +671,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     sort(muons.begin(), muons.end(), ptcomp_muo);  
 
-    if ( mTreeNmuo > 50 ) mTreeNmuo = 50;
+    if ( mTreeNmuo > 100 ) mTreeNmuo = 100;
     
     for (int i=0; i<mTreeNmuo; i++) {
 
@@ -773,6 +693,16 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
       
+      mTreeNmuotrign[countmuo] = 0;
+      for (int k=0; k<mTreeNtrig; k++) {
+	if (DeltaPhi(muons[i].phi(), mTreetrigphi[k])<0.1 &&
+	    fabs(muons[i].eta()-mTreetrigeta[k])<0.1) {
+	  mTreeMuotrig[countmuo][mTreeNmuotrign[countmuo]] = k;
+	  //	  cout << " MUO " << muons[i].eta() << " TRIG " << mTreetrigeta[k] << "  " << unpack(mTreetrigname[k]) << endl;
+	  mTreeNmuotrign[countmuo]++;
+	}
+      }
+
       mTreeMuoP[countmuo]          = muons[i].p();
       mTreeMuoPt[countmuo]         = muons[i].pt();
       mTreeMuoE[countmuo]          = muons[i].energy();
@@ -818,8 +748,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	*/
 
-	if (muons[i].combinedMuon().get()->ndof() > 0) 
+	if (muons[i].combinedMuon().get()->ndof() > 0) {
 	  mTreeMuoTrkChiNorm[countmuo] = muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof();
+	  /*
+	  cout << " offline pt " << muons[i].pt() << "  eta " << muons[i].eta() 
+	       << "  phi " << muons[i].phi() << "  trackchi " 
+	       << muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof() 
+	       << "  trackiso " << muons[i].trackIso() << endl;
+	  */
+	}
 	else  
 	  mTreeMuoTrkChiNorm[countmuo] = 999.;
       }
@@ -830,15 +767,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	mTreeMuosd0[countmuo]        = 999.;
       }
 
-     // CM Trigger not working
-      /*
-      const std::vector<pat::TriggerPrimitive> & muotrig = muons[i].triggerMatches();
-      cout << "muotrig " << muotrig.size() << endl;
-      for(unsigned int j=0; j<muotrig.size(); ++j) {
-	cout << "triggerPrimitive["<< j << "] :  filterName = " << muotrig[j].filterName() 
-	     << " , triggerObjId = "<< muotrig[j].triggerObjectId() << endl;
-      }
-      */
       countmuo++;
     }
     mTreeNmuo = countmuo;
@@ -866,26 +794,28 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     sort(jets.begin(), jets.end(), ptcomp_jet);  
 
-    if ( mTreeNjet >50 ) mTreeNjet = 50;
+    if ( mTreeNjet > 100 ) mTreeNjet = 100;
     
     for (int i=0; i<mTreeNjet; i++) {
       
       const pat::Jet& jet = jets[i];
       float correction = 1.;
-      if ( correction_ != jet.jetCorrStep() )
-	correction = jet.jetCorrFactors().correction(correction_);
+
+      if ( cor_ != jet.corrStep() || flav_ != jet.corrFlavour())  
+	correction = jet.corrFactor(cor_, flav_);
 
       // Jet Corrections:
-      //  L0 : RAW
-      //  L1 : OFF
-      //  L2 : REL
-      //  L3 : ABS  <-- default
-      //  L4 : EMF
-      //  L5 : HAD  with GLU/UDS/C/B
-      //  L6 : UE   with GLU/UDS/C/B
-      //  L7 : PART with GLU/UDS/C/B
+      //  L0 : raw
+      //  L1 : off
+      //  L2 : rel
+      //  L3 : abs  <-- default
+      //  L4 : emf
+      //  L5 : had  with glu/uds/c/b
+      //  L6 : ue   with glu/uds/c/b
+      //  L7 : part with glu/uds/c/b
 
-      // cout << " Jet Correction [ " << i << " ] " << correction << endl;
+      //      cout << " Jet Correction [ " << i << " ]  (" << jet.corrStep() << ", " << jet.corrFlavour() 
+      //   << " ) -> (" << cor_ << ", " << flav_ << ") : " << correction << endl;
 
       if ((jets[i].pt() * correction) < jetpt_ || fabs(jets[i].eta()) > jeteta_ ||
 	  jets[i].emEnergyFraction() > jetfem_) continue;
@@ -1129,7 +1059,16 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("global_orbit",   &mTreeorbit,       "global_orbit/I");
   mAllData->Branch("global_exp",     &mTreeexp,         "global_exp/I");
   mAllData->Branch("global_isdata",  &mTreedata,        "global_isdata/I");
-  mAllData->Branch("global_HLT",     &mTreeHLT,        "global_HLT/C");
+  mAllData->Branch("global_HLT",     &mTreeHLT,         "global_HLT/C");
+
+  mAllData->Branch("trig_HLTName",   &mTreetrighltname, "trig_HLTName[50]/I");
+  mAllData->Branch("trig_n",         &mTreeNtrig,       "trig_n/I");
+  mAllData->Branch("trig_prescale",   mTreetrigpre,     "trig_prescale[trig_n]/I");
+  mAllData->Branch("trig_name",       mTreetrigname,    "trig_name[trig_n][100]/I");
+  mAllData->Branch("trig_filter",     mTreefiltname,    "trig_filter[trig_n][100]/I");
+  mAllData->Branch("trig_pt",         mTreetrigpt,      "trig_pt[trig_n]/double");
+  mAllData->Branch("trig_eta",        mTreetrigeta,     "trig_eta[trig_n]/double");
+  mAllData->Branch("trig_phi",        mTreetrigphi,     "trig_phi[trig_n]/double");
 
   // Truth
   mAllData->Branch("truth_n",      &mTreeNtruth,      "truth_n/I");
@@ -1266,8 +1205,22 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_prompttight",mTreeMuoGood,       "muo_prompttight[muo_n]/I");
   mAllData->Branch("muo_hits",       mTreeMuoHits,       "muo_hits[muo_n]/I");
   mAllData->Branch("muo_truth",      mTreeMuoTruth,      "muo_truth[muo_n]/I");
+  mAllData->Branch("muo_trign",      mTreeNmuotrign,     "muo_trign[muo_n]/int");
+  mAllData->Branch("muo_trig" ,      mTreeMuotrig,       "muo_trig[muo_n][100]/int");  
 
 }
+////////////////////////////////
+//
+// Helpers
+//
+double SusyACSkimAnalysis::DeltaPhi(double a, double b) {
+  double temp = fabs(a-b);
+  if (temp <= localPi)
+    return temp;
+  else
+    return  2.*localPi - temp;
+}
+
 
 // Define this as a plug-in
 DEFINE_FWK_MODULE(SusyACSkimAnalysis);

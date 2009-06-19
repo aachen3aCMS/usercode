@@ -67,8 +67,8 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     }
 
     trigger = global_HLT;
-    if (trigger.Contains(":HLT_Mu7:")) {
-      //      cout << "SUSYAna: " << trigger.SubString("HLT_Mu7") << endl;
+    if (trigger.Contains(":HLT_Mu9:")) {
+      cout << "SUSYAna: HLT_Mu9 fired (in Trigger List " << unpack(trig_HLTName) << ") " << endl;
     }
 
     double v=0.;
@@ -79,7 +79,24 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     }
 
     // do your analysis
+
+    // list Trigger Objects
+    for (int i=0; i<trig_n; i++) {
+      cout << "  " << unpack(trig_name[i]) << "  "  << trig_prescale[i] << "  " << trig_pt[i] 
+	   << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+    }
+
     for (int j=0; j<muo_n; j++) {
+
+      // list matched trigger objects
+      for (int i=0; i<muo_trign[j]; i++) {
+	int id = muo_trig[j][i];
+	TString name = unpack((int*)trig_name[id]);
+	TString filt = unpack(trig_filter[id]);
+	cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] 
+	     << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
+      }
+
 
       h1_mu_pt[0]     -> Fill(muo_pt[j]);
       h1_mu_TrkIso[0] -> Fill(muo_TrkIso[j]);

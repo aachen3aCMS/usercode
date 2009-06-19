@@ -1,9 +1,22 @@
-./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v26 lm0 full
-./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26 lm1 full
-./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v26a lm0 full
-./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26a lm1 full
-./prepare.sh /SUSY_LM2-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v26 lm2 full
-./prepare.sh /TTJets-madgraph/Fall08_IDEAL_V9_v2/GEN-SIM-RECO v26 ttbar full
-./prepare.sh /ZJets-madgraph/Fall08_IDEAL_V9_reco-v2/GEN-SIM-RECO v26 zj full
-./prepare.sh /WJets-madgraph/Fall08_IDEAL_V9_v1/GEN-SIM-RECO v26 wj full
+./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v30 lm0 full
+./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v30 lm1 full
+./prepare.sh /SUSY_LM0-sftsht/Summer08_IDEAL_V11_v1/GEN-SIM-RECO v30a lm0 full
+./prepare.sh /SUSY_LM1-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v30a lm1 full
+./prepare.sh /SUSY_LM2-sftsht/Summer08_IDEAL_V9_AODSIM_v1/AODSIM v30 lm2 full
 
+./prepare.sh /TTJets-madgraph/Fall08_IDEAL_V9_v2/GEN-SIM-RECO v30 ttbar full
+./prepare.sh /ZJets-madgraph/Fall08_IDEAL_V9_reco-v2/GEN-SIM-RECO v30 zj full
+./prepare.sh /WJets-madgraph/Fall08_IDEAL_V9_v1/GEN-SIM-RECO v30 wj full
+
+./prepare.sh /Wjets-madgraph/Winter09_IDEAL_V11_FastSim_v1/GEN-SIM-DIGI-RECO v30 wjfast fast
+
+./prepare.sh /QCDpt15/Summer08_IDEAL_V9_v3/GEN-SIM-RECO v30 qcd15 full
+./prepare.sh /QCDpt30/Summer08_IDEAL_V9_v4/GEN-SIM-RECO v30 qcd30 full
+./prepare.sh /QCDpt80/Summer08_IDEAL_V9_v2/GEN-SIM-RECO v30 qcd80 full
+./prepare.sh /QCDpt170/Summer08_IDEAL_V9_v3/GEN-SIM-RECO v30 qcd170 full
+./prepare.sh /QCDpt300/Summer08_IDEAL_V9_v1/GEN-SIM-RECO v30 qcd300 full
+./prepare.sh /QCDpt470/Summer08_IDEAL_V9_v1/GEN-SIM-RECO v30 qcd470 full
+./prepare.sh /QCDpt800/Summer08_IDEAL_V9_reco-v5/GEN-SIM-RECO v30 qcd800 full
+./prepare.sh /QCDpt1400/Summer08_IDEAL_V9_reco-v5/GEN-SIM-RECO v30 qcd1400 full
+./prepare.sh /QCDpt2200/Summer08_IDEAL_V9_reco-v1/GEN-SIM-RECO v30 qcd2200 full
+./prepare.sh /QCDpt3000/Summer08_IDEAL_V9_reco-v2/GEN-SIM-RECO v30 qcd3000 full

@@ -5,15 +5,9 @@ process = cms.Process("ANA")
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.extend(['SelectorSequence',
-                                         'EventSelectorAND',
-                                         'HLTEventSelector',
-                                         'JetEventSelector',
-                                         'MetEventSelector',
-                                         'SusyACSkimAnalysis',
-                                         'PATLayer0Summary'])
+process.MessageLogger.categories.extend(['SusyACSkimAnalysis'])
 process.MessageLogger.cerr.default.limit = -1
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # Include PAT Layer 0 & 1 if not running on pattified data
@@ -22,8 +16,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('IDEAL_V11::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("PhysicsTools.PatAlgos.patLayer0_cff")
-process.load("PhysicsTools.PatAlgos.patLayer1_cff")
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
 switchJECSet(process,newName='Winter09',oldName='Summer08Redigi') # change from old to Winter08
@@ -48,7 +41,8 @@ process.TFileService = cms.Service("TFileService",
 elecTag   = cms.InputTag("selectedLayer1Electrons")
 jetTag    = cms.InputTag("selectedLayer1Jets")
 muonTag   = cms.InputTag("selectedLayer1Muons")
-metTag    = cms.InputTag("selectedLayer1METs")                         
+metTag    = cms.InputTag("layer1METs")                         
+genTag    = cms.InputTag("genParticles")
 genJetTag = cms.InputTag("iterativeCone5GenJets")
 trigTag   = cms.InputTag("TriggerResults::HLT")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
@@ -57,19 +51,21 @@ vtxTag    = cms.InputTag("offlinePrimaryVertices")
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
     
-    is_MC = cms.bool(True),  # set to False for real Data!
-
+    is_MC     = cms.bool(True),  # set to 'False' for real Data !
+    is_SHERPA = cms.bool(False),  # set to 'True' if running on SHERPA
+    
     jetTag    = jetTag,
     elecTag   = elecTag,
     muonTag   = muonTag,
     metTag    = metTag,
+    genTag    = genTag,
     genJetTag = genJetTag,
     trigTag   = trigTag,
     vtxTag    = vtxTag,
 
     muopt  = cms.double(10.),
     muoeta = cms.double(2.5),
-    elept  = cms.double(20.),
+    elept  = cms.double(10.),
     eleeta = cms.double(2.5),
     jetpt  = cms.double(20.),
     jeteta = cms.double(2.5),
@@ -79,36 +75,26 @@ process.ACSkimAnalysis = cms.EDFilter(
     nmuo   = cms.int32(1),
     njet   = cms.int32(3),
     
-    generator  = cms.string('genParticles'), # genParticles or source
-    correction = cms.string('ABS'),
-    flavour    = cms.string(''),
+    correction = cms.string('abs'),
+    flavour    = cms.string('glu'),
     
 )
-
-# Output file
-process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('test-SKIM.root'),
-                               # save only events passing the full path
-                               dropMetaDataForDroppedData = cms.untracked.bool(True), # Magic setting to reduce output size
-                               outputCommands = cms.untracked.vstring('drop *',
-                                                                      'keep *_selectedLayer1*_*_*',
-                                                                      'keep *_TriggerResults_*_HLT',
-                                                                      'keep *GenJet*_iterativeCone5GenJets_*_*',
-                                                                      'keep *_genEvent*_*_*',
-                                                                      'keep *_genMet*_*_*',
-                                                                      'keep *_offlinePrimaryVertices_*_*',
-                                                                      'keep *_genParticles_*_*'),
-                               SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
-                               )
-
 
 ## Necessary fixes to run 2.2.X on 2.1.X data
 #from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
 #run22XonSummer08AODSIM(process)
 
+from PhysicsTools.PatAlgos.tools.trigTools import *
+switchOffTriggerMatchingOld( process )
+
+##switchOnTrigger( process )
+process.patTriggerSequence.remove( process.patTriggerMatcher )
+process.patTriggerEvent.patTriggerMatches  = ()
+
 ### Define the paths
 process.p = cms.Path(
-    process.patLayer0*process.patLayer1*
+    process.patDefaultSequence*
+    process.patTrigger*
+    process.patTriggerEvent*
     process.ACSkimAnalysis
-)
-##process.outpath = cms.EndPath(process.out)
+    )

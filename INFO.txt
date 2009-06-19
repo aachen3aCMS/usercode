@@ -5,6 +5,7 @@
    Carsten Magass, January 2009
                    February 2009 (update)
                    April 2009 (update)
+		   June 2009 (update)
 
 (1) Checkout UserCode/aachen3a/ACSusyAnalysis in <CMSSW>/src,
     then mv UserCode/aachen3a aachen3a (IMPORTANT !).
@@ -23,10 +24,17 @@
 (4) Wait until the job has finished, and check, if the output
     is acceptable. Use
     ./counter.sh <version> <tag>
+   You have to fix the paths in the helper script mysrmls.
+
+Modify
+   is_SHERPA = cms.bool(False),
+if running on SHERPA.
 
 Do NOT forget to change
   process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
 to the tag used for production, e.g. IDEAL_V11 !
+So do not ignore the warning from ./prepare.sh :-)
+
 
 
 That's it !

@@ -12,8 +12,60 @@
 #include <TChain.h>
 #include <TFile.h>
 
+#define INTSIZE 4
+
 class TreeContent {
 public :
+
+  union u64 {
+    char c[INTSIZE];
+    int i;
+  };
+  
+  int get_size(const int* a) {
+    int size=0;
+    u64 tmp;
+    for(int i=0; ; ++i ) {
+      tmp.i = a[i];
+      size++;
+      for(int j=0; j < INTSIZE ; ++j )
+	if(tmp.c[j] == '\x0')
+	  return size;
+    }
+    return -1;
+  }
+  
+  std::string unpack(const int* a) {
+    int size = get_size(a);
+    u64 tmp;
+    char* c = new char[size*INTSIZE];
+    for(int i=0; i < size ; ++i) {
+      tmp.i = a[i];
+      for(int j=0; j < INTSIZE; ++j )
+	c[i*INTSIZE+j] = tmp.c[j];
+    }
+    return c;
+  }
+  
+  int* pack(const char* c) {
+    u64 tmp;
+    int j=0,count=0;
+    int size = strlen(c)/INTSIZE+1;
+    int* ii=new int[size];
+    for(int i=0 ; ; i++) {
+      tmp.c[j++]=c[i];
+      ii[count]=tmp.i;
+      if(j==INTSIZE) {
+	j=0;
+	count++;
+      }
+      if(c[i] == '\x0')
+	break;
+    }
+    return ii;
+  }
+
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -29,33 +81,41 @@ public :
    Int_t           global_orbit;
    Int_t           global_exp;
    Int_t           global_isdata;
-   Char_t          global_HLT[91237];
+   Char_t          global_HLT[100000];
+   Int_t           trig_HLTName[50];
+   Int_t           trig_n;
+   Int_t           trig_prescale[200];
+   Int_t           trig_name[200][100];   //[trig_n]
+   Int_t           trig_filter[200][100];   //[trig_n]
+   Double_t        trig_pt[200];   //[trig_n]
+   Double_t        trig_eta[200];   //[trig_n]
+   Double_t        trig_phi[200];   //[trig_n]
    Int_t           truth_n;
-   Int_t           truth_pdgid[170];   //[truth_n]
-   Int_t           truth_bvtxid[170];   //[truth_n]
-   Int_t           truth_evtxid[170];   //[truth_n]
-   Double_t        truth_E[170];   //[truth_n]
-   Double_t        truth_Et[170];   //[truth_n]
-   Double_t        truth_p[170];   //[truth_n]
-   Double_t        truth_pt[170];   //[truth_n]
-   Double_t        truth_px[170];   //[truth_n]
-   Double_t        truth_py[170];   //[truth_n]
-   Double_t        truth_pz[170];   //[truth_n]
-   Double_t        truth_eta[170];   //[truth_n]
-   Double_t        truth_phi[170];   //[truth_n]
-   Double_t        truth_m[170];   //[truth_n]
+   Int_t           truth_pdgid[100];   //[truth_n]
+   Int_t           truth_bvtxid[100];   //[truth_n]
+   Int_t           truth_evtxid[100];   //[truth_n]
+   Double_t        truth_E[100];   //[truth_n]
+   Double_t        truth_Et[100];   //[truth_n]
+   Double_t        truth_p[100];   //[truth_n]
+   Double_t        truth_pt[100];   //[truth_n]
+   Double_t        truth_px[100];   //[truth_n]
+   Double_t        truth_py[100];   //[truth_n]
+   Double_t        truth_pz[100];   //[truth_n]
+   Double_t        truth_eta[100];   //[truth_n]
+   Double_t        truth_phi[100];   //[truth_n]
+   Double_t        truth_m[100];   //[truth_n]
    Int_t           truthl_n;
-   Int_t           truthl_ori[90];   //[truthl_n]
-   Int_t           truthl_pdgid[90];   //[truthl_n]
-   Double_t        truthl_E[90];   //[truthl_n]
-   Double_t        truthl_Et[90];   //[truthl_n]
-   Double_t        truthl_p[90];   //[truthl_n]
-   Double_t        truthl_pt[90];   //[truthl_n]
-   Double_t        truthl_px[90];   //[truthl_n]
-   Double_t        truthl_py[90];   //[truthl_n]
-   Double_t        truthl_pz[90];   //[truthl_n]
-   Double_t        truthl_eta[90];   //[truthl_n]
-   Double_t        truthl_phi[90];   //[truthl_n]
+   Int_t           truthl_ori[100];   //[truthl_n]
+   Int_t           truthl_pdgid[100];   //[truthl_n]
+   Double_t        truthl_E[100];   //[truthl_n]
+   Double_t        truthl_Et[100];   //[truthl_n]
+   Double_t        truthl_p[100];   //[truthl_n]
+   Double_t        truthl_pt[100];   //[truthl_n]
+   Double_t        truthl_px[100];   //[truthl_n]
+   Double_t        truthl_py[100];   //[truthl_n]
+   Double_t        truthl_pz[100];   //[truthl_n]
+   Double_t        truthl_eta[100];   //[truthl_n]
+   Double_t        truthl_phi[100];   //[truthl_n]
    Int_t           pdf_id1;
    Int_t           pdf_id2;
    Float_t         pdf_x1;
@@ -64,11 +124,11 @@ public :
    Float_t         pdf_f2;
    Float_t         pdf_scale;
    UInt_t          vtx_n;
-   UInt_t          vtx_ntr[10];   //[vtx_n]
-   Double_t        vtx_x[10];   //[vtx_n]
-   Double_t        vtx_y[10];   //[vtx_n]
-   Double_t        vtx_z[10];   //[vtx_n]
-   Double_t        vtx_chi[10];   //[vtx_n]
+   UInt_t          vtx_ntr[100];   //[vtx_n]
+   Double_t        vtx_x[100];   //[vtx_n]
+   Double_t        vtx_y[100];   //[vtx_n]
+   Double_t        vtx_z[100];   //[vtx_n]
+   Double_t        vtx_chi[100];   //[vtx_n]
    Double_t        met[3];
    Double_t        mex[3];
    Double_t        mey[3];
@@ -77,77 +137,79 @@ public :
    Double_t        sumet[3];
    Double_t        sumetsig[3];
    UInt_t          jet_n;
-   Double_t        jet_E[60];   //[jet_n]
-   Double_t        jet_Et[60];   //[jet_n]
-   Double_t        jet_p[60];   //[jet_n]
-   Double_t        jet_pt[60];   //[jet_n]
-   Double_t        jet_px[60];   //[jet_n]
-   Double_t        jet_py[60];   //[jet_n]
-   Double_t        jet_pz[60];   //[jet_n]
-   Double_t        jet_eta[60];   //[jet_n]
-   Double_t        jet_phi[60];   //[jet_n]
-   Double_t        jet_fem[60];   //[jet_n]
-   Int_t           jet_truth[60];   //[jet_n]
+   Double_t        jet_E[100];   //[jet_n]
+   Double_t        jet_Et[100];   //[jet_n]
+   Double_t        jet_p[100];   //[jet_n]
+   Double_t        jet_pt[100];   //[jet_n]
+   Double_t        jet_px[100];   //[jet_n]
+   Double_t        jet_py[100];   //[jet_n]
+   Double_t        jet_pz[100];   //[jet_n]
+   Double_t        jet_eta[100];   //[jet_n]
+   Double_t        jet_phi[100];   //[jet_n]
+   Double_t        jet_fem[100];   //[jet_n]
+   Int_t           jet_truth[100];   //[jet_n]
    UInt_t          truthjet_n;
-   Double_t        truthjet_E[230];   //[truthjet_n]
-   Double_t        truthjet_Et[230];   //[truthjet_n]
-   Double_t        truthjet_p[230];   //[truthjet_n]
-   Double_t        truthjet_pt[230];   //[truthjet_n]
-   Double_t        truthjet_px[230];   //[truthjet_n]
-   Double_t        truthjet_py[230];   //[truthjet_n]
-   Double_t        truthjet_pz[230];   //[truthjet_n]
-   Double_t        truthjet_eta[230];   //[truthjet_n]
-   Double_t        truthjet_phi[230];   //[truthjet_n]
+   Double_t        truthjet_E[100];   //[truthjet_n]
+   Double_t        truthjet_Et[100];   //[truthjet_n]
+   Double_t        truthjet_p[100];   //[truthjet_n]
+   Double_t        truthjet_pt[100];   //[truthjet_n]
+   Double_t        truthjet_px[100];   //[truthjet_n]
+   Double_t        truthjet_py[100];   //[truthjet_n]
+   Double_t        truthjet_pz[100];   //[truthjet_n]
+   Double_t        truthjet_eta[100];   //[truthjet_n]
+   Double_t        truthjet_phi[100];   //[truthjet_n]
    UInt_t          ele_n;
-   Double_t        ele_E[50];   //[ele_n]
-   Double_t        ele_Et[50];   //[ele_n]
-   Double_t        ele_p[50];   //[ele_n]
-   Double_t        ele_pt[50];   //[ele_n]
-   Double_t        ele_px[50];   //[ele_n]
-   Double_t        ele_py[50];   //[ele_n]
-   Double_t        ele_pz[50];   //[ele_n]
-   Double_t        ele_eta[50];   //[ele_n]
-   Double_t        ele_phi[50];   //[ele_n]
-   Double_t        ele_charge[50];   //[ele_n]
-   Double_t        ele_RelTrkIso[50];   //[ele_n]
-   Double_t        ele_TrkIso[50];   //[ele_n]
-   Double_t        ele_ECalIso[50];   //[ele_n]
-   Double_t        ele_HCalIso[50];   //[ele_n]
-   Double_t        ele_TrkIsoDep[50];   //[ele_n]
-   Double_t        ele_ECalIsoDep[50];   //[ele_n]
-   Double_t        ele_HCalIsoDep[50];   //[ele_n]
-   Double_t        ele_AllIso[50];   //[ele_n]
-   Double_t        ele_TrkChiNorm[50];   //[ele_n]
-   Double_t        ele_d0[50];   //[ele_n]
-   Double_t        ele_sd0[50];   //[ele_n]
-   Int_t           ele_hits[50];   //[ele_n]
-   Int_t           ele_truth[50];   //[ele_n]
-   UInt_t          ele_ID[50][5];   //[ele_n]
+   Double_t        ele_E[100];   //[ele_n]
+   Double_t        ele_Et[100];   //[ele_n]
+   Double_t        ele_p[100];   //[ele_n]
+   Double_t        ele_pt[100];   //[ele_n]
+   Double_t        ele_px[100];   //[ele_n]
+   Double_t        ele_py[100];   //[ele_n]
+   Double_t        ele_pz[100];   //[ele_n]
+   Double_t        ele_eta[100];   //[ele_n]
+   Double_t        ele_phi[100];   //[ele_n]
+   Double_t        ele_charge[100];   //[ele_n]
+   Double_t        ele_RelTrkIso[100];   //[ele_n]
+   Double_t        ele_TrkIso[100];   //[ele_n]
+   Double_t        ele_ECalIso[100];   //[ele_n]
+   Double_t        ele_HCalIso[100];   //[ele_n]
+   Double_t        ele_TrkIsoDep[100];   //[ele_n]
+   Double_t        ele_ECalIsoDep[100];   //[ele_n]
+   Double_t        ele_HCalIsoDep[100];   //[ele_n]
+   Double_t        ele_AllIso[100];   //[ele_n]
+   Double_t        ele_TrkChiNorm[100];   //[ele_n]
+   Double_t        ele_d0[100];   //[ele_n]
+   Double_t        ele_sd0[100];   //[ele_n]
+   Int_t           ele_hits[100];   //[ele_n]
+   Int_t           ele_truth[100];   //[ele_n]
+   UInt_t          ele_ID[100][5];   //[ele_n]
    UInt_t          muo_n;
-   Double_t        muo_E[50];   //[muo_n]
-   Double_t        muo_Et[50];   //[muo_n]
-   Double_t        muo_p[50];   //[muo_n]
-   Double_t        muo_pt[50];   //[muo_n]
-   Double_t        muo_px[50];   //[muo_n]
-   Double_t        muo_py[50];   //[muo_n]
-   Double_t        muo_pz[50];   //[muo_n]
-   Double_t        muo_eta[50];   //[muo_n]
-   Double_t        muo_phi[50];   //[muo_n]
-   Double_t        muo_charge[50];   //[muo_n]
-   Double_t        muo_RelTrkIso[50];   //[muo_n]
-   Double_t        muo_TrkIso[50];   //[muo_n]
-   Double_t        muo_ECalIso[50];   //[muo_n]
-   Double_t        muo_HCalIso[50];   //[muo_n]
-   Double_t        muo_TrkIsoDep[50];   //[muo_n]
-   Double_t        muo_ECalIsoDep[50];   //[muo_n]
-   Double_t        muo_HCalIsoDep[50];   //[muo_n]
-   Double_t        muo_AllIso[50];   //[muo_n]
-   Double_t        muo_TrkChiNorm[50];   //[muo_n]
-   Double_t        muo_d0[50];   //[muo_n]
-   Double_t        muo_sd0[50];   //[muo_n]
-   Int_t           muo_prompttight[50];   //[muo_n]
-   Int_t           muo_hits[50];   //[muo_n]
-   Int_t           muo_truth[50];   //[muo_n]
+   Double_t        muo_E[100];   //[muo_n]
+   Double_t        muo_Et[100];   //[muo_n]
+   Double_t        muo_p[100];   //[muo_n]
+   Double_t        muo_pt[100];   //[muo_n]
+   Double_t        muo_px[100];   //[muo_n]
+   Double_t        muo_py[100];   //[muo_n]
+   Double_t        muo_pz[100];   //[muo_n]
+   Double_t        muo_eta[100];   //[muo_n]
+   Double_t        muo_phi[100];   //[muo_n]
+   Double_t        muo_charge[100];   //[muo_n]
+   Double_t        muo_RelTrkIso[100];   //[muo_n]
+   Double_t        muo_TrkIso[100];   //[muo_n]
+   Double_t        muo_ECalIso[100];   //[muo_n]
+   Double_t        muo_HCalIso[100];   //[muo_n]
+   Double_t        muo_TrkIsoDep[100];   //[muo_n]
+   Double_t        muo_ECalIsoDep[100];   //[muo_n]
+   Double_t        muo_HCalIsoDep[100];   //[muo_n]
+   Double_t        muo_AllIso[100];   //[muo_n]
+   Double_t        muo_TrkChiNorm[100];   //[muo_n]
+   Double_t        muo_d0[100];   //[muo_n]
+   Double_t        muo_sd0[100];   //[muo_n]
+   Int_t           muo_prompttight[100];   //[muo_n]
+   Int_t           muo_hits[100];   //[muo_n]
+   Int_t           muo_truth[100];   //[muo_n]
+   UInt_t          muo_trign[100];   //[muo_n]
+   UInt_t          muo_trig[100][100];   //[muo_n]
 
    // List of branches
    TBranch        *b_global_weight;   //!
@@ -162,6 +224,14 @@ public :
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
    TBranch        *b_global_HLT;   //!
+   TBranch        *b_trig_HLTName;   //!
+   TBranch        *b_trig_n;   //!
+   TBranch        *b_trig_prescale;   //!
+   TBranch        *b_trig_name;   //!
+   TBranch        *b_trig_filter;   //!
+   TBranch        *b_trig_pt;   //!
+   TBranch        *b_trig_eta;   //!
+   TBranch        *b_trig_phi;   //!
    TBranch        *b_truth_n;   //!
    TBranch        *b_truth_pdgid;   //!
    TBranch        *b_truth_bvtxid;   //!
@@ -241,8 +311,8 @@ public :
    TBranch        *b_ele_eta;   //!
    TBranch        *b_ele_phi;   //!
    TBranch        *b_ele_charge;   //!
-   TBranch        *b_ele_RelTrkIso;   //!
    TBranch        *b_ele_TrkIso;   //!
+   TBranch        *b_ele_RelTrkIso;   //!
    TBranch        *b_ele_ECalIso;   //!
    TBranch        *b_ele_HCalIso;   //!
    TBranch        *b_ele_TrkIsoDep;   //!
@@ -266,8 +336,8 @@ public :
    TBranch        *b_muo_eta;   //!
    TBranch        *b_muo_phi;   //!
    TBranch        *b_muo_charge;   //!
-   TBranch        *b_muo_RelTrkIso;   //!
    TBranch        *b_muo_TrkIso;   //!
+   TBranch        *b_muo_RelTrkIso;   //!
    TBranch        *b_muo_ECalIso;   //!
    TBranch        *b_muo_HCalIso;   //!
    TBranch        *b_muo_TrkIsoDep;   //!
@@ -280,6 +350,8 @@ public :
    TBranch        *b_muo_prompttight;   //!
    TBranch        *b_muo_hits;   //!
    TBranch        *b_muo_truth;   //!
+   TBranch        *b_muo_trign;   //!
+   TBranch        *b_muo_trig;   //!
 
    TreeContent(TTree *tree=0);
    virtual ~TreeContent();
@@ -366,6 +438,14 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
    fChain->SetBranchAddress("global_HLT", global_HLT, &b_global_HLT);
+   fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
+   fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
+   fChain->SetBranchAddress("trig_prescale", trig_prescale, &b_trig_prescale);
+   fChain->SetBranchAddress("trig_name", trig_name, &b_trig_name);
+   fChain->SetBranchAddress("trig_filter", trig_filter, &b_trig_filter);
+   fChain->SetBranchAddress("trig_pt", trig_pt, &b_trig_pt);
+   fChain->SetBranchAddress("trig_eta", trig_eta, &b_trig_eta);
+   fChain->SetBranchAddress("trig_phi", trig_phi, &b_trig_phi);
    fChain->SetBranchAddress("truth_n", &truth_n, &b_truth_n);
    fChain->SetBranchAddress("truth_pdgid", truth_pdgid, &b_truth_pdgid);
    fChain->SetBranchAddress("truth_bvtxid", truth_bvtxid, &b_truth_bvtxid);
@@ -484,6 +564,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_prompttight", muo_prompttight, &b_muo_prompttight);
    fChain->SetBranchAddress("muo_hits", muo_hits, &b_muo_hits);
    fChain->SetBranchAddress("muo_truth", muo_truth, &b_muo_truth);
+   fChain->SetBranchAddress("muo_trig", muo_trig, &b_muo_trig);
+   fChain->SetBranchAddress("muo_trign", muo_trign, &b_muo_trign);
    Notify();
 }
 

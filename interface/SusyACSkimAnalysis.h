@@ -1,5 +1,5 @@
 //
-// Package:    SusyACSkimAnalysis
+// Package:    UserCode/aachen3a/ACSusyAnalysis
 // Class:      SusyACSkimAnalysis
 // 
 // Description: Skeleton analysis for SUSY search with Lepton + Jets + MET
@@ -47,6 +47,7 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -54,8 +55,11 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
+#include "aachen3a/ACSusyAnalysis/interface/TriggerTools.h"
+
 using namespace std;
 using namespace pat;
+using namespace ACSusyAnalysis;
 
 ////////////////////////////////
 //
@@ -87,6 +91,8 @@ private:
   /// Define all plots
   virtual void initPlots();
 
+  double DeltaPhi(double a, double b);
+
 private:
 
   // Plots
@@ -105,9 +111,10 @@ private:
   edm::InputTag vertexTag_;
 
   bool is_MC;
+  bool is_SHERPA;
 
-  std::string gen;
-
+  std::string cor_;
+  std::string flav_;
   pat::JetCorrFactors::CorrStep correction_;
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
@@ -145,8 +152,18 @@ private:
   int mTreeexp;
   int mTreedata;
 
-  Char_t mTreeHLT[10000];
+  Char_t mTreeHLT[100000];
 
+  int mTreetrighltname[50];
+  
+  int mTreeNtrig;
+  int mTreetrigpre[200];
+  int mTreetrigname[200][100];
+  int mTreefiltname[200][100];
+  double mTreetrigpt[200];
+  double mTreetrigeta[200];
+  double mTreetrigphi[200];
+  
   double mTreeMET[3];
   double mTreeMEX[3];
   double mTreeMEY[3];
@@ -171,17 +188,17 @@ private:
   double mTreetruthm[100];
 
   int mTreeNtruthl;
-  int mTreetruthlpdgid[50];
-  int mTreetruthlori[50];
-  double mTreetruthlE[50];
-  double mTreetruthlEt[50];
-  double mTreetruthlp[50];
-  double mTreetruthlpt[50];
-  double mTreetruthlpx[50];
-  double mTreetruthlpy[50];
-  double mTreetruthlpz[50];
-  double mTreetruthleta[50];
-  double mTreetruthlphi[50];
+  int mTreetruthlpdgid[100];
+  int mTreetruthlori[100];
+  double mTreetruthlE[100];
+  double mTreetruthlEt[100];
+  double mTreetruthlp[100];
+  double mTreetruthlpt[100];
+  double mTreetruthlpx[100];
+  double mTreetruthlpy[100];
+  double mTreetruthlpz[100];
+  double mTreetruthleta[100];
+  double mTreetruthlphi[100];
 
   int mTreepdfid1;
   int mTreepdfid2;
@@ -192,87 +209,89 @@ private:
   float mTreepdfscale;
 
   int    mTreeNjet;
-  int    mTreeJetTruth[50];
-  double mTreeJetEt[50];
-  double mTreeJetPt[50];
-  double mTreeJetP[50];
-  double mTreeJetPx[50];
-  double mTreeJetPy[50];
-  double mTreeJetPz[50];
-  double mTreeJetE[50];
-  double mTreeJetEta[50];
-  double mTreeJetPhi[50];
-  double mTreeJetFem[50];
+  int    mTreeJetTruth[100];
+  double mTreeJetEt[100];
+  double mTreeJetPt[100];
+  double mTreeJetP[100];
+  double mTreeJetPx[100];
+  double mTreeJetPy[100];
+  double mTreeJetPz[100];
+  double mTreeJetE[100];
+  double mTreeJetEta[100];
+  double mTreeJetPhi[100];
+  double mTreeJetFem[100];
 
   int    mTreeNtruthjet;
-  double mTreetruthJetEt[50];
-  double mTreetruthJetPt[50];
-  double mTreetruthJetP[50];
-  double mTreetruthJetPx[50];
-  double mTreetruthJetPy[50];
-  double mTreetruthJetPz[50];
-  double mTreetruthJetE[50];
-  double mTreetruthJetEta[50];
-  double mTreetruthJetPhi[50];
+  double mTreetruthJetEt[100];
+  double mTreetruthJetPt[100];
+  double mTreetruthJetP[100];
+  double mTreetruthJetPx[100];
+  double mTreetruthJetPy[100];
+  double mTreetruthJetPz[100];
+  double mTreetruthJetE[100];
+  double mTreetruthJetEta[100];
+  double mTreetruthJetPhi[100];
 
   int    mTreeNele;
-  int    mTreeEleID[50][5];
-  int    mTreeEleTruth[50];
-  int    mTreeEleHits[50];
-  double mTreeEleEt[50];
-  double mTreeEleP[50];
-  double mTreeElePt[50];
-  double mTreeElePx[50];
-  double mTreeElePy[50];
-  double mTreeElePz[50];
-  double mTreeEleE[50];
-  double mTreeEleEta[50];
-  double mTreeElePhi[50];
-  double mTreeEleTrkIso[50];
-  double mTreeEleRelTrkIso[50];
-  double mTreeEleECalIso[50];
-  double mTreeEleHCalIso[50];
-  double mTreeEleAllIso[50];
-  double mTreeEleECalIsoDep[50];
-  double mTreeEleHCalIsoDep[50];
-  double mTreeEleTrkIsoDep[50];
-  double mTreeEleTrkChiNorm[50];
-  double mTreeEleCharge[50];
-  double mTreeEled0[50];
-  double mTreeElesd0[50];
+  int    mTreeEleID[100][5];
+  int    mTreeEleTruth[100];
+  int    mTreeEleHits[100];
+  double mTreeEleEt[100];
+  double mTreeEleP[100];
+  double mTreeElePt[100];
+  double mTreeElePx[100];
+  double mTreeElePy[100];
+  double mTreeElePz[100];
+  double mTreeEleE[100];
+  double mTreeEleEta[100];
+  double mTreeElePhi[100];
+  double mTreeEleTrkIso[100];
+  double mTreeEleRelTrkIso[100];
+  double mTreeEleECalIso[100];
+  double mTreeEleHCalIso[100];
+  double mTreeEleAllIso[100];
+  double mTreeEleECalIsoDep[100];
+  double mTreeEleHCalIsoDep[100];
+  double mTreeEleTrkIsoDep[100];
+  double mTreeEleTrkChiNorm[100];
+  double mTreeEleCharge[100];
+  double mTreeEled0[100];
+  double mTreeElesd0[100];
 
   int    mTreeNmuo;
-  int    mTreeMuoTruth[50];
-  int    mTreeMuoHits[50];
-  int    mTreeMuoGood[50];
-  double mTreeMuoEt[50];
-  double mTreeMuoP[50];
-  double mTreeMuoPt[50];
-  double mTreeMuoPx[50];
-  double mTreeMuoPy[50];
-  double mTreeMuoPz[50];
-  double mTreeMuoE[50];
-  double mTreeMuoEta[50];
-  double mTreeMuoPhi[50];
-  double mTreeMuoTrkIso[50];
-  double mTreeMuoRelTrkIso[50];
-  double mTreeMuoECalIso[50];
-  double mTreeMuoHCalIso[50];
-  double mTreeMuoAllIso[50];
-  double mTreeMuoECalIsoDep[50];
-  double mTreeMuoHCalIsoDep[50];
-  double mTreeMuoTrkIsoDep[50];
-  double mTreeMuoTrkChiNorm[50];
-  double mTreeMuoCharge[50];
-  double mTreeMuod0[50];
-  double mTreeMuosd0[50];
+  int    mTreeNmuotrign[100];
+  int    mTreeMuotrig[100][100];
+  int    mTreeMuoTruth[100];
+  int    mTreeMuoHits[100];
+  int    mTreeMuoGood[100];
+  double mTreeMuoEt[100];
+  double mTreeMuoP[100];
+  double mTreeMuoPt[100];
+  double mTreeMuoPx[100];
+  double mTreeMuoPy[100];
+  double mTreeMuoPz[100];
+  double mTreeMuoE[100];
+  double mTreeMuoEta[100];
+  double mTreeMuoPhi[100];
+  double mTreeMuoTrkIso[100];
+  double mTreeMuoRelTrkIso[100];
+  double mTreeMuoECalIso[100];
+  double mTreeMuoHCalIso[100];
+  double mTreeMuoAllIso[100];
+  double mTreeMuoECalIsoDep[100];
+  double mTreeMuoHCalIsoDep[100];
+  double mTreeMuoTrkIsoDep[100];
+  double mTreeMuoTrkChiNorm[100];
+  double mTreeMuoCharge[100];
+  double mTreeMuod0[100];
+  double mTreeMuosd0[100];
 
   int    mTreeNvtx;
-  int    mTreeVtxntr[50];
-  double mTreeVtxx[50];
-  double mTreeVtxy[50];
-  double mTreeVtxz[50];
-  double mTreeVtxchi[50];
+  int    mTreeVtxntr[100];
+  double mTreeVtxx[100];
+  double mTreeVtxy[100];
+  double mTreeVtxz[100];
+  double mTreeVtxchi[100];
 
   double mTreeEventWeight;
   int    mTreeProcID;

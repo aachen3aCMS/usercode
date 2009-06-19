@@ -110,9 +110,9 @@ echo "storage_element = T2_DE_RWTH" >> $CRABFILE
 echo "# storage_path = /pnfs/physik.rwth-aachen.de" >> $CRABFILE
 echo "user_remote_dir = output/$2/$3/" >> $CRABFILE
 echo "" >> $CRABFILE
-echo "#[EDG]" >> $CRABFILE
-echo "#ce_black_list = in2p3,ifca,infn" >> $CRABFILE
-echo "#ce_white_list = rwth,ucsd.edu" >> $CRABFILE
+echo "[EDG]" >> $CRABFILE
+echo "ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
+echo "ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD" >> $CRABFILE
 echo "" >> $CRABFILE
 
 
@@ -123,7 +123,7 @@ echo "         DONE "
 echo
 echo " You may now proceed with "
 echo "   cd "$DIR
-echo "   voms-proxy-init -voms cms:/cms/dcms"
+echo "   voms-proxy-init -voms cms:/cms/dcms -valid 164:00"
 echo "   crab -create"
 echo "   crab -submit"
 echo "   crab -status"

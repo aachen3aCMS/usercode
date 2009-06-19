@@ -1,3 +1,10 @@
+2009-06-19 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* new full trigger information
+	* trigger match to reco muons
+	* fix for running on SHERPA
+	* missing event info now extracted from EventAuxiliary
+	* cleanup
+	* tagged as version 3-0
 2009-05-07 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* new variables: ele/muo TrkIsoDep, ECalIsoDep, HCalIsoDep
 	* tagged as version 2-8
