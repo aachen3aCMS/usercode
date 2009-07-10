@@ -262,7 +262,8 @@ private:
   int    mTreeNmuotrign[100];
   int    mTreeMuotrig[100][100];
   int    mTreeMuoTruth[100];
-  int    mTreeMuoHits[100];
+  int    mTreeMuoHitsCm[100];
+  int    mTreeMuoHitsTk[100];
   int    mTreeMuoGood[100];
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
@@ -281,10 +282,13 @@ private:
   double mTreeMuoECalIsoDep[100];
   double mTreeMuoHCalIsoDep[100];
   double mTreeMuoTrkIsoDep[100];
-  double mTreeMuoTrkChiNorm[100];
+  double mTreeMuoTrkChiNormCm[100];
+  double mTreeMuoTrkChiNormTk[100];
   double mTreeMuoCharge[100];
-  double mTreeMuod0[100];
-  double mTreeMuosd0[100];
+  double mTreeMuod0Cm[100];
+  double mTreeMuod0Tk[100];
+  double mTreeMuosd0Cm[100];
+  double mTreeMuosd0Tk[100];
 
   int    mTreeNvtx;
   int    mTreeVtxntr[100];

@@ -41,7 +41,6 @@ then
   exit
 fi
 
-DIR2=`echo $DIR"/crab_*/res"`
 DIR3=`ls -td $DIR/crab_*/res | head -n1`
 if [ ! -d $DIR3 ]
 then
@@ -77,6 +76,36 @@ then
       let k=k+1
       continue
     fi
+    file2=`echo $file | sed s/"err"/"out"/g`
+    EX2=`grep "60303" $file2`
+    if  [ "$EX2" ]
+    then
+      echo "  -> File already exists in SE in " $file2
+      let k=k+1
+      continue
+    fi
+    SE=`grep "60307" $file2`
+    if [ "$SE" ]
+    then
+      echo "  -> Stage out problem in " $file2
+      let k=k+1
+      continue
+    fi
+    EXB=`grep "JOB_EXIT_STATUS = -1" $file2`
+    if [ "$EXB" ]
+    then
+      echo "  -> Exit status -1 in " $file2
+      let k=k+1
+      continue
+    fi
+    EXC=`grep "8001" $file2`
+    if [ "$EXC" ]
+    then
+      echo "  -> Exit status -1 in " $file2
+      let k=k+1
+      continue
+    fi
+
     EVENTS1=`grep "Events" $file | awk '{print $5}'`
     EVENTS2=`grep "Events" $file | awk '{print $8}'`
 #    echo $file "  " $EVENTS1 "  " $EVENTS2
@@ -94,8 +123,8 @@ then
   echo '  compare with crab submit '$LAST ': '
 #  JOBS=`grep "can" $1/crab_*/log/crab.log | awk '{print $1}'`
 #  EV=`grep "can" $1/crab_*/log/crab.log | awk '{print $6}'`
-  JOBS=`grep "job(s)" $LAST/log/crab.log | awk '{print $1}'`
-  EV=`grep "job(s)" $LAST/log/crab.log | awk '{print $6}'`
+  JOBS=`grep "job(s)" $LAST/log/crab.log | awk '{print $4}'`
+  EV=`grep "job(s)" $LAST/log/crab.log | awk '{print $9}'`
   echo '     ' $JOBS 'jobs over' $EV 'events'
 echo
 else

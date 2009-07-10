@@ -37,13 +37,22 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('out.root')
                                    )
 
+from PhysicsTools.PatAlgos.tools.jetTools import *
+switchJetCollection(process,
+                           cms.InputTag('sisCone5CaloJets'),
+                           doJTA=True,            # Run Jet-Track association & JetCharge
+                           doBTagging=True,       # Run b-tagging
+                           jetCorrLabel=('SC5','Calo'), # example jet correction name; set to None for no JEC
+                           doType1MET=True,       # recompute Type1MET using these jets
+                           genJetCollection=cms.InputTag("sisCone5GenJets"))
+
 ### Definition of all tags here
 elecTag   = cms.InputTag("selectedLayer1Electrons")
 jetTag    = cms.InputTag("selectedLayer1Jets")
 muonTag   = cms.InputTag("selectedLayer1Muons")
 metTag    = cms.InputTag("layer1METs")                         
 genTag    = cms.InputTag("genParticles")
-genJetTag = cms.InputTag("iterativeCone5GenJets")
+genJetTag = cms.InputTag("sisCone5GenJets")
 trigTag   = cms.InputTag("TriggerResults::HLT")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
 

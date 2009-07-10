@@ -34,7 +34,7 @@ else
   exit
 fi
 
-mysrmls.sh output/$2/$3 >& ttt
+./mysrmls.sh output/$2/$3 >& ttt
 str=`cat ttt | grep "path does not exist"`
 rm -f ttt
 if [ "$str" ]
@@ -93,13 +93,13 @@ touch $CRABFILE
 echo "[CRAB]" >> $CRABFILE
 echo "jobtype = cmssw" >> $CRABFILE
 echo "scheduler = glite" >> $CRABFILE
-echo "server_name = bari" >> $CRABFILE
+echo "server_name = cern" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[CMSSW]" >> $CRABFILE
 echo "datasetpath = $1" >> $CRABFILE
 echo "pset = " $cfg >> $CRABFILE
 echo "total_number_of_events = -1" >> $CRABFILE
-echo "events_per_job = 10000" >> $CRABFILE
+echo "events_per_job = 20000" >> $CRABFILE
 echo "output_file = out.root" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[USER]" >> $CRABFILE
@@ -110,7 +110,7 @@ echo "storage_element = T2_DE_RWTH" >> $CRABFILE
 echo "# storage_path = /pnfs/physik.rwth-aachen.de" >> $CRABFILE
 echo "user_remote_dir = output/$2/$3/" >> $CRABFILE
 echo "" >> $CRABFILE
-echo "[EDG]" >> $CRABFILE
+echo "[GRID]" >> $CRABFILE
 echo "ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
 echo "ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD" >> $CRABFILE
 echo "" >> $CRABFILE
@@ -122,8 +122,8 @@ echo
 echo "         DONE "
 echo
 echo " You may now proceed with "
-echo "   cd "$DIR
 echo "   voms-proxy-init -voms cms:/cms/dcms -valid 164:00"
+echo "   cd "$DIR
 echo "   crab -create"
 echo "   crab -submit"
 echo "   crab -status"

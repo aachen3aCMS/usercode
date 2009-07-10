@@ -347,7 +347,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	if (p.numberOfMothers()==2) {
 	  
-	  if ( (!is_SHERPA && isDecaying(p.pdgId()) && p.status() == 3) || 
+	  if ( (!is_SHERPA && p.status() == 3) || // && isDecaying(p.pdgId())
 	       ( is_SHERPA && count_sherpa == 3) ) {
 	    
 	    const reco::Candidate &m0 = *(p.mother(0));
@@ -399,6 +399,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	while (part1.size()>0) {
 	
 	  for (unsigned int d=0; d<part1.size(); d++) {
+
+	    //	    cout << (*part1[d]).pdgId() << "  " << (*part1[d]).status() << endl;
 
 	    //	    if (!isStable((*part1[d]).pdgId())) {
 	    if (isDecaying((*part1[d]).pdgId())) {
@@ -723,11 +725,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMuoECalIsoDep[countmuo] = muons[i].ecalIsoDeposit()->candEnergy();
       mTreeMuoHCalIsoDep[countmuo] = muons[i].hcalIsoDeposit()->candEnergy();
 
+      // combined muon
       if ( muons[i].combinedMuon().isNonnull() ) {
 
-	mTreeMuoHits[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
-	mTreeMuod0[countmuo]   = (-1.)* muons[i].combinedMuon().get()->dxy(Point);
-	mTreeMuosd0[countmuo]  = muons[i].combinedMuon().get()->d0Error();
+	mTreeMuoHitsCm[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
+	mTreeMuod0Cm[countmuo]   = (-1.)* muons[i].combinedMuon().get()->dxy(Point);
+	mTreeMuosd0Cm[countmuo]  = muons[i].combinedMuon().get()->d0Error();
 
 	/*
 	  /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) 
@@ -749,7 +752,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	*/
 
 	if (muons[i].combinedMuon().get()->ndof() > 0) {
-	  mTreeMuoTrkChiNorm[countmuo] = muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof();
+	  mTreeMuoTrkChiNormCm[countmuo] = muons[i].combinedMuon().get() ->chi2()/ muons[i].combinedMuon().get()->ndof();
 	  /*
 	  cout << " offline pt " << muons[i].pt() << "  eta " << muons[i].eta() 
 	       << "  phi " << muons[i].phi() << "  trackchi " 
@@ -758,14 +761,42 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  */
 	}
 	else  
-	  mTreeMuoTrkChiNorm[countmuo] = 999.;
+	  mTreeMuoTrkChiNormCm[countmuo] = 999.;
       }
       else {
-	mTreeMuoTrkChiNorm[countmuo] = 999.;
-	mTreeMuoHits[countmuo]       = -1;
-	mTreeMuod0[countmuo]         = 999.;
-	mTreeMuosd0[countmuo]        = 999.;
+	mTreeMuoTrkChiNormCm[countmuo] = 999.;
+	mTreeMuoHitsCm[countmuo]       = -1;
+	mTreeMuod0Cm[countmuo]         = 999.;
+	mTreeMuosd0Cm[countmuo]        = 999.;
       }
+
+      // tracker muon
+      if ( muons[i].innerTrack().isNonnull() ) {
+
+	mTreeMuoHitsTk[countmuo] = muons[i].innerTrack().get()->numberOfValidHits();
+	mTreeMuod0Tk[countmuo]   = (-1.)* muons[i].innerTrack().get()->dxy(Point);
+	mTreeMuosd0Tk[countmuo]  = muons[i].innerTrack().get()->d0Error();
+
+	if (muons[i].innerTrack().get()->ndof() > 0) {
+	  mTreeMuoTrkChiNormTk[countmuo] = muons[i].innerTrack().get() ->chi2()/ muons[i].innerTrack().get()->ndof();
+	  /*
+	  cout << " offline pt " << muons[i].pt() << "  eta " << muons[i].eta() 
+	       << "  phi " << muons[i].phi() << "  trackchi " 
+	       << muons[i].innerTrack().get() ->chi2()/ muons[i].innerTrack().get()->ndof() 
+	       << "  trackiso " << muons[i].trackIso() << endl;
+	  */
+	}
+	else  
+	  mTreeMuoTrkChiNormTk[countmuo] = 999.;
+      }
+      else {
+	mTreeMuoTrkChiNormTk[countmuo] = 999.;
+	mTreeMuoHitsTk[countmuo]       = -1;
+	mTreeMuod0Tk[countmuo]         = 999.;
+	mTreeMuosd0Tk[countmuo]        = 999.;
+      }
+
+
 
       countmuo++;
     }
@@ -1110,8 +1141,8 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("pdf_scale", &mTreepdfscale, "pdf_scale/F");
 
   // Vertex
-  mAllData->Branch("vtx_n",  &mTreeNvtx,   "vtx_n/int");
-  mAllData->Branch("vtx_ntr", mTreeVtxntr, "vtx_ntr[vtx_n]/int");
+  mAllData->Branch("vtx_n",  &mTreeNvtx,   "vtx_n/I");
+  mAllData->Branch("vtx_ntr", mTreeVtxntr, "vtx_ntr[vtx_n]/I");
   mAllData->Branch("vtx_x",   mTreeVtxx,   "vtx_x[vtx_n]/double");
   mAllData->Branch("vtx_y",   mTreeVtxy,   "vtx_y[vtx_n]/double");
   mAllData->Branch("vtx_z",   mTreeVtxz,   "vtx_z[vtx_n]/double");
@@ -1127,7 +1158,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("sumetsig", &mTreeSumETSignif, "sumetsig[3]/double");
 
   // Jets
-  mAllData->Branch("jet_n",    &mTreeNjet,     "jet_n/int");  
+  mAllData->Branch("jet_n",    &mTreeNjet,     "jet_n/I");  
   mAllData->Branch("jet_E" ,    mTreeJetE,     "jet_E[jet_n]/double");
   mAllData->Branch("jet_Et",    mTreeJetEt,    "jet_Et[jet_n]/double");
   mAllData->Branch("jet_p",     mTreeJetP,     "jet_p[jet_n]/double");
@@ -1141,7 +1172,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("jet_truth", mTreeJetTruth, "jet_truth[jet_n]/I");
 
   // Generator Jets
-  mAllData->Branch("truthjet_n",   &mTreeNtruthjet,   "truthjet_n/int");  
+  mAllData->Branch("truthjet_n",   &mTreeNtruthjet,   "truthjet_n/I");  
   mAllData->Branch("truthjet_E" ,   mTreetruthJetE,   "truthjet_E[truthjet_n]/double");
   mAllData->Branch("truthjet_Et",   mTreetruthJetEt,  "truthjet_Et[truthjet_n]/double");
   mAllData->Branch("truthjet_p",    mTreetruthJetP,   "truthjet_p[truthjet_n]/double");
@@ -1153,7 +1184,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("truthjet_phi",  mTreetruthJetPhi, "truthjet_phi[truthjet_n]/double");
 
   // Electrons
-  mAllData->Branch("ele_n",         &mTreeNele,          "ele_n/int");  
+  mAllData->Branch("ele_n",         &mTreeNele,          "ele_n/I");  
   mAllData->Branch("ele_E",          mTreeEleE,          "ele_E[ele_n]/double");
   mAllData->Branch("ele_Et",         mTreeEleEt,         "ele_Et[ele_n]/double");
   mAllData->Branch("ele_p",          mTreeEleP,          "ele_p[ele_n]/double");
@@ -1177,36 +1208,40 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_sd0",        mTreeElesd0,        "ele_sd0[ele_n]/double");
   mAllData->Branch("ele_hits",       mTreeEleHits,       "ele_hits[ele_n]/I");
   mAllData->Branch("ele_truth",      mTreeEleTruth,      "ele_truth[ele_n]/I");
-  mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/int");
+  mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/I");
 
   // Muons
-  mAllData->Branch("muo_n" ,        &mTreeNmuo,          "muo_n/int");  
-  mAllData->Branch("muo_E" ,         mTreeMuoE,          "muo_E[muo_n]/double");
-  mAllData->Branch("muo_Et",         mTreeMuoEt,         "muo_Et[muo_n]/double");
-  mAllData->Branch("muo_p",          mTreeMuoP,          "muo_p[muo_n]/double");
-  mAllData->Branch("muo_pt",         mTreeMuoPt,         "muo_pt[muo_n]/double");
-  mAllData->Branch("muo_px",         mTreeMuoPx,         "muo_px[muo_n]/double");
-  mAllData->Branch("muo_py",         mTreeMuoPy,         "muo_py[muo_n]/double");
-  mAllData->Branch("muo_pz",         mTreeMuoPz,         "muo_pz[muo_n]/double");
-  mAllData->Branch("muo_eta",        mTreeMuoEta,        "muo_eta[muo_n]/double");
-  mAllData->Branch("muo_phi",        mTreeMuoPhi,        "muo_phi[muo_n]/double");
-  mAllData->Branch("muo_charge",     mTreeMuoCharge,     "muo_charge[muo_n]/double");
-  mAllData->Branch("muo_RelTrkIso",  mTreeMuoRelTrkIso,  "muo_RelTrkIso[muo_n]/double");
-  mAllData->Branch("muo_TrkIso",     mTreeMuoTrkIso,     "muo_TrkIso[muo_n]/double");
-  mAllData->Branch("muo_ECalIso",    mTreeMuoECalIso,    "muo_ECalIso[muo_n]/double");
-  mAllData->Branch("muo_HCalIso",    mTreeMuoHCalIso,    "muo_HCalIso[muo_n]/double");
-  mAllData->Branch("muo_TrkIsoDep",  mTreeMuoTrkIsoDep,  "muo_TrkIsoDep[muo_n]/double");
-  mAllData->Branch("muo_ECalIsoDep", mTreeMuoECalIsoDep, "muo_ECalIsoDep[muo_n]/double");
-  mAllData->Branch("muo_HCalIsoDep", mTreeMuoHCalIsoDep, "muo_HCalIsoDep[muo_n]/double");
-  mAllData->Branch("muo_AllIso",     mTreeMuoAllIso,     "muo_AllIso[muo_n]/double");
-  mAllData->Branch("muo_TrkChiNorm", mTreeMuoTrkChiNorm, "muo_TrkChiNorm[muo_n]/double");
-  mAllData->Branch("muo_d0",         mTreeMuod0,         "muo_d0[muo_n]/double");
-  mAllData->Branch("muo_sd0",        mTreeMuosd0,        "muo_sd0[muo_n]/double");
-  mAllData->Branch("muo_prompttight",mTreeMuoGood,       "muo_prompttight[muo_n]/I");
-  mAllData->Branch("muo_hits",       mTreeMuoHits,       "muo_hits[muo_n]/I");
-  mAllData->Branch("muo_truth",      mTreeMuoTruth,      "muo_truth[muo_n]/I");
-  mAllData->Branch("muo_trign",      mTreeNmuotrign,     "muo_trign[muo_n]/int");
-  mAllData->Branch("muo_trig" ,      mTreeMuotrig,       "muo_trig[muo_n][100]/int");  
+  mAllData->Branch("muo_n" ,           &mTreeNmuo,            "muo_n/I");  
+  mAllData->Branch("muo_E" ,            mTreeMuoE,            "muo_E[muo_n]/double");
+  mAllData->Branch("muo_Et",            mTreeMuoEt,           "muo_Et[muo_n]/double");
+  mAllData->Branch("muo_p",             mTreeMuoP,            "muo_p[muo_n]/double");
+  mAllData->Branch("muo_pt",            mTreeMuoPt,           "muo_pt[muo_n]/double");
+  mAllData->Branch("muo_px",            mTreeMuoPx,           "muo_px[muo_n]/double");
+  mAllData->Branch("muo_py",            mTreeMuoPy,           "muo_py[muo_n]/double");
+  mAllData->Branch("muo_pz",            mTreeMuoPz,           "muo_pz[muo_n]/double");
+  mAllData->Branch("muo_eta",           mTreeMuoEta,          "muo_eta[muo_n]/double");
+  mAllData->Branch("muo_phi",           mTreeMuoPhi,          "muo_phi[muo_n]/double");
+  mAllData->Branch("muo_charge",        mTreeMuoCharge,       "muo_charge[muo_n]/double");
+  mAllData->Branch("muo_RelTrkIso",     mTreeMuoRelTrkIso,    "muo_RelTrkIso[muo_n]/double");
+  mAllData->Branch("muo_TrkIso",        mTreeMuoTrkIso,       "muo_TrkIso[muo_n]/double");
+  mAllData->Branch("muo_ECalIso",       mTreeMuoECalIso,      "muo_ECalIso[muo_n]/double");
+  mAllData->Branch("muo_HCalIso",       mTreeMuoHCalIso,      "muo_HCalIso[muo_n]/double");
+  mAllData->Branch("muo_TrkIsoDep",     mTreeMuoTrkIsoDep,    "muo_TrkIsoDep[muo_n]/double");
+  mAllData->Branch("muo_ECalIsoDep",    mTreeMuoECalIsoDep,   "muo_ECalIsoDep[muo_n]/double");
+  mAllData->Branch("muo_HCalIsoDep",    mTreeMuoHCalIsoDep,   "muo_HCalIsoDep[muo_n]/double");
+  mAllData->Branch("muo_AllIso",        mTreeMuoAllIso,       "muo_AllIso[muo_n]/double");
+  mAllData->Branch("muo_cm_TrkChiNorm", mTreeMuoTrkChiNormCm, "muo_cm_TrkChiNorm[muo_n]/double");
+  mAllData->Branch("muo_tk_TrkChiNorm", mTreeMuoTrkChiNormTk, "muo_tk_TrkChiNorm[muo_n]/double");
+  mAllData->Branch("muo_cm_d0",         mTreeMuod0Cm,         "muo_cm_d0[muo_n]/double");
+  mAllData->Branch("muo_tk_d0",         mTreeMuod0Tk,         "muo_tk_d0[muo_n]/double");
+  mAllData->Branch("muo_cm_sd0",        mTreeMuosd0Cm,        "muo_cm_sd0[muo_n]/double");
+  mAllData->Branch("muo_tk_sd0",        mTreeMuosd0Tk,        "muo_tk_sd0[muo_n]/double");
+  mAllData->Branch("muo_prompttight",   mTreeMuoGood,         "muo_prompttight[muo_n]/I");
+  mAllData->Branch("muo_cm_hits",       mTreeMuoHitsCm,       "muo_cm_hits[muo_n]/I");
+  mAllData->Branch("muo_tk_hits",       mTreeMuoHitsTk,       "muo_tk_hits[muo_n]/I");
+  mAllData->Branch("muo_truth",         mTreeMuoTruth,        "muo_truth[muo_n]/I");
+  mAllData->Branch("muo_trign",         mTreeNmuotrign,       "muo_trign[muo_n]/I");
+  mAllData->Branch("muo_trig" ,         mTreeMuotrig,         "muo_trig[muo_n][100]/I");  
 
 }
 ////////////////////////////////

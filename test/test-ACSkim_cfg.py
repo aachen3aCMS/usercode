@@ -28,9 +28,9 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
     'file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_2_X_2008-11-03-STARTUP_V7-AODSIM.100.root'
 #        '/pnfs/physik.rwth-aachen.de/cms/store/user/ata/test/ata/ADD_150_450_1jet_Mf2p5_2n_GRW_10TeV/ADD_150_450_1jet_Mf2p5_2n_GRW_10TeV_RECO/bfb9b1ca5534929b93d8c7d7bdccf0e7/RECO_2.root'
-
-#    'file:/home/home1/institut_3a/magass/wprime_mu.root'
-#    'file:/opt/user/magass/RECO_19.root'
+#    'file:/opt/user/magass/wprime_mu.root'
+#    'file:/opt/user/magass/UNFILE_RECO_76.root'
+#    '/pnfs/physik.rwth-aachen.de/cms/store/mc/Summer08/QCDpt2200/GEN-SIM-RECO/IDEAL_V9_reco-v1/0003/340BCBD7-13FD-DD11-AFB3-003048C3E7AF.root'
 #    '/pnfs/physik.rwth-aachen.de/cms/store/mc/Winter09/Wjets-madgraph/GEN-SIM-DIGI-RECO/IDEAL_V11_FastSim_v1/0043/B2B774A3-A7D3-DD11-A098-0011114FBAD4.root'
     )
 )
@@ -42,13 +42,23 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('out.root')
                                    )
 
+from PhysicsTools.PatAlgos.tools.jetTools import *
+switchJetCollection(process,
+                           cms.InputTag('sisCone5CaloJets'),
+                           doJTA=True,            # Run Jet-Track association & JetCharge
+                           doBTagging=True,       # Run b-tagging
+                           jetCorrLabel=('SC5','Calo'), # example jet correction name; set to None for no JEC
+                           doType1MET=True,       # recompute Type1MET using these jets
+                           genJetCollection=cms.InputTag("sisCone5GenJets"))
+
 ### Definition of all tags here
 elecTag   = cms.InputTag("selectedLayer1Electrons")
 jetTag    = cms.InputTag("selectedLayer1Jets")
 muonTag   = cms.InputTag("selectedLayer1Muons")
 metTag    = cms.InputTag("layer1METs")
 genTag    = cms.InputTag("genParticles")
-genJetTag = cms.InputTag("iterativeCone5GenJets")
+genJetTag = cms.InputTag("sisCone5GenJets")
+#genJetTag = cms.InputTag("iterativeCone5GenJets")
 trigTag   = cms.InputTag("TriggerResults::HLT")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
 
@@ -85,26 +95,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
-# Output file
-process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('test-SKIM.root'),
-                               # save only events passing the full path
-                               dropMetaDataForDroppedData = cms.untracked.bool(True), # Magic setting to reduce output size
-                               outputCommands = cms.untracked.vstring('drop *',
-                                                                      'keep *_selectedLayer1*_*_*',
-                                                                      'keep *_TriggerResults_*_HLT',
-                                                                      'keep *GenJet*_iterativeCone5GenJets_*_*',
-                                                                      'keep *_genEvent*_*_*',
-                                                                      'keep *_genMet*_*_*',
-                                                                      'keep *_offlinePrimaryVertices_*_*',
-                                                                      'keep *_genParticles_*_*',
-                                                                      'keep *_patTrigger_*_*',
-                                                                      'keep *_patTriggerEvent_*_*'
-                                                                      ),
-                               SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
-                               )
-
-
 ## Necessary fixes to run 2.2.X on 2.1.X data
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
 run22XonSummer08AODSIM(process)
@@ -124,4 +114,3 @@ process.p = cms.Path(
     process.ACSkimAnalysis
     )
 
-##process.outpath = cms.EndPath(process.out)
