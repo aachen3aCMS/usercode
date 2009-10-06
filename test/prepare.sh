@@ -4,7 +4,7 @@
 #
 # Usage: ./prepare.sh <datasetpath> <version> <tag> <fast|full>
 #
-#   Carsten Magass, January 2009, April 2009
+#   Carsten Magass, January 2009, April 2009, October 2009
 #
 
 echo ""  
@@ -15,21 +15,22 @@ if [ $# -ne 4 ]
 then
   echo " ERROR  "
   echo " Wrong number of arguments !"
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <fast|full>"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>"
   echo
   exit
 fi
 
-if [ $4 == "fast" ]
+
+if [ $4 == "reco" ]
 then
-  cfg=ACSkim_cfg_fast.py
-elif [ $4 == "full" ]
+  cfg=ACSkim_cfg_reco.py
+elif [ $4 == "pat" ]
 then
-  cfg=ACSkim_cfg_full.py
+  cfg=ACSkim_cfg_pat.py
 else
-  echo " ERROR : Specify 'fast' or 'full' "
+  echo " ERROR : Specify 'reco' or 'pat' "
   echo
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <fast|full>"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>"
   echo
   exit
 fi
@@ -62,16 +63,17 @@ fi
 geo=`grep globaltag $cfg | cut -f1 -d":" | cut -b43-`
 echo " You IMPLICITLY specified the following option "
 echo "  + process.GlobalTag.globaltag : " $geo
+echo ""
 
-if echo "$1" | grep $geo >/dev/null
-then
-  echo ""
-else
-  echo
-  echo " ERROR : Descrepancy between '$1' and '$geo' in '"$cfg"' !"
-  echo
-  exit
-fi
+#if echo "$1" | grep $geo >/dev/null
+#then
+#  echo ""
+#else
+#  echo
+#  echo " ERROR : Discrepancy between '$1' and '$geo' in '"$cfg"' !"
+#  echo
+#  exit
+#fi
 
 echo " You specified the following options "
 echo "  + datasetpath     : $1 "
@@ -112,7 +114,7 @@ echo "user_remote_dir = output/$2/$3/" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[GRID]" >> $CRABFILE
 echo "ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
-echo "ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD" >> $CRABFILE
+echo "ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Purdue" >> $CRABFILE
 echo "" >> $CRABFILE
 
 

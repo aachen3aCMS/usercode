@@ -29,16 +29,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -46,14 +37,19 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "aachen3a/ACSusyAnalysis/interface/TriggerTools.h"
 
@@ -73,7 +69,7 @@ public:
 private:
   //*** CMSSW interface
   /// Called once per job, at start
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(const edm::EventSetup&);
   /// Called for each event
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   /// Called once per job, at end
@@ -106,7 +102,6 @@ private:
   edm::InputTag elecTag_;
   edm::InputTag muonTag_;
   edm::InputTag genTag_;
-  edm::InputTag trigTag_;
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
 
@@ -152,17 +147,21 @@ private:
   int mTreeexp;
   int mTreedata;
 
+  int mTreenoisel;
+  int mTreenoiset;
+  int mTreenoiseh;
+
   Char_t mTreeHLT[100000];
 
   int mTreetrighltname[50];
   
   int mTreeNtrig;
-  int mTreetrigpre[200];
-  int mTreetrigname[200][100];
-  int mTreefiltname[200][100];
-  double mTreetrigpt[200];
-  double mTreetrigeta[200];
-  double mTreetrigphi[200];
+  int mTreetrigpre[500];
+  int mTreetrigname[500][100];
+  int mTreefiltname[500][100];
+  double mTreetrigpt[500];
+  double mTreetrigeta[500];
+  double mTreetrigphi[500];
   
   double mTreeMET[3];
   double mTreeMEX[3];
@@ -210,6 +209,7 @@ private:
 
   int    mTreeNjet;
   int    mTreeJetTruth[100];
+  int    mTreeJetPart[100];
   double mTreeJetEt[100];
   double mTreeJetPt[100];
   double mTreeJetP[100];
@@ -220,6 +220,7 @@ private:
   double mTreeJetEta[100];
   double mTreeJetPhi[100];
   double mTreeJetFem[100];
+  double mTreeJetBtag[100];
 
   int    mTreeNtruthjet;
   double mTreetruthJetEt[100];

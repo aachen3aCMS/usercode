@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Fri Jul 10 16:04:33 2009 by ROOT version 5.18/00a
+// Tue Oct  6 09:55:10 2009 by ROOT version 5.22/00a
 // from TTree allData/data after cuts
 // found on file: out.root
 //////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@
 #define INTSIZE 4
 
 class TreeContent {
-public :
-
+ public :
+  
   union u64 {
     char c[INTSIZE];
     int i;
@@ -29,8 +29,8 @@ public :
       tmp.i = a[i];
       size++;
       for(int j=0; j < INTSIZE ; ++j )
-	if(tmp.c[j] == '\x0')
-	  return size;
+        if(tmp.c[j] == '\x0')
+          return size;
     }
     return -1;
   }
@@ -42,7 +42,7 @@ public :
     for(int i=0; i < size ; ++i) {
       tmp.i = a[i];
       for(int j=0; j < INTSIZE; ++j )
-	c[i*INTSIZE+j] = tmp.c[j];
+        c[i*INTSIZE+j] = tmp.c[j];
     }
     return c;
   }
@@ -56,11 +56,11 @@ public :
       tmp.c[j++]=c[i];
       ii[count]=tmp.i;
       if(j==INTSIZE) {
-	j=0;
-	count++;
+        j=0;
+        count++;
       }
       if(c[i] == '\x0')
-	break;
+        break;
     }
     return ii;
   }
@@ -81,14 +81,17 @@ public :
    Int_t           global_exp;
    Int_t           global_isdata;
    Char_t          global_HLT[100000];
+   Int_t           noise_pLoose;
+   Int_t           noise_pTight;
+   Int_t           noise_pHigh;
    Int_t           trig_HLTName[50];
    Int_t           trig_n;
-   Int_t           trig_prescale[200];   //[trig_n]
-   Int_t           trig_name[200][100];   //[trig_n]
-   Int_t           trig_filter[200][100];   //[trig_n]
-   Double_t        trig_pt[200];   //[trig_n]
-   Double_t        trig_eta[200];   //[trig_n]
-   Double_t        trig_phi[200];   //[trig_n]
+   Int_t           trig_prescale[500];   //[trig_n]
+   Int_t           trig_name[500][100];   //[trig_n]
+   Int_t           trig_filter[500][100];   //[trig_n]
+   Double_t        trig_pt[500];   //[trig_n]
+   Double_t        trig_eta[500];   //[trig_n]
+   Double_t        trig_phi[500];   //[trig_n]
    Int_t           truth_n;
    Int_t           truth_pdgid[100];   //[truth_n]
    Int_t           truth_bvtxid[100];   //[truth_n]
@@ -146,6 +149,8 @@ public :
    Double_t        jet_eta[100];   //[jet_n]
    Double_t        jet_phi[100];   //[jet_n]
    Double_t        jet_fem[100];   //[jet_n]
+   Double_t        jet_btag[100];   //[jet_n]
+   Int_t           jet_flav[100];   //[jet_n]
    Int_t           jet_truth[100];   //[jet_n]
    Int_t           truthjet_n;
    Double_t        truthjet_E[100];   //[truthjet_n]
@@ -227,6 +232,9 @@ public :
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
    TBranch        *b_global_HLT;   //!
+   TBranch        *b_noise_pLoose;   //!
+   TBranch        *b_noise_pTight;   //!
+   TBranch        *b_noise_pHigh;   //!
    TBranch        *b_trig_HLTName;   //!
    TBranch        *b_trig_n;   //!
    TBranch        *b_trig_prescale;   //!
@@ -292,6 +300,8 @@ public :
    TBranch        *b_jet_eta;   //!
    TBranch        *b_jet_phi;   //!
    TBranch        *b_jet_fem;   //!
+   TBranch        *b_jet_btag;   //!
+   TBranch        *b_jet_flav;   //!
    TBranch        *b_jet_truth;   //!
    TBranch        *b_truthjet_n;   //!
    TBranch        *b_truthjet_E;   //!
@@ -445,6 +455,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
    fChain->SetBranchAddress("global_HLT", global_HLT, &b_global_HLT);
+   fChain->SetBranchAddress("noise_pLoose", &noise_pLoose, &b_noise_pLoose);
+   fChain->SetBranchAddress("noise_pTight", &noise_pTight, &b_noise_pTight);
+   fChain->SetBranchAddress("noise_pHigh", &noise_pHigh, &b_noise_pHigh);
    fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
    fChain->SetBranchAddress("trig_prescale", trig_prescale, &b_trig_prescale);
@@ -510,6 +523,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("jet_eta", jet_eta, &b_jet_eta);
    fChain->SetBranchAddress("jet_phi", jet_phi, &b_jet_phi);
    fChain->SetBranchAddress("jet_fem", jet_fem, &b_jet_fem);
+   fChain->SetBranchAddress("jet_btag", jet_btag, &b_jet_btag);
+   fChain->SetBranchAddress("jet_flav", jet_flav, &b_jet_flav);
    fChain->SetBranchAddress("jet_truth", jet_truth, &b_jet_truth);
    fChain->SetBranchAddress("truthjet_n", &truthjet_n, &b_truthjet_n);
    fChain->SetBranchAddress("truthjet_E", truthjet_E, &b_truthjet_E);

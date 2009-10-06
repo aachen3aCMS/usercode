@@ -1,3 +1,9 @@
+2009-10-06 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* version for CMSSW_3_1_X
+	* new default jet collection (antikt5CaloJets)
+	* new b tagging information
+	* new HCAL noise tags (hcalnoise)
+	* tagged as versions v4-0
 2009-07-10 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* new jet collections (sisCone5CaloJets)
 	* extended muons (combinedMuon, innerTrack)

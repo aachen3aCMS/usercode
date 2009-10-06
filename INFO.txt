@@ -7,6 +7,7 @@
                    April 2009 (update)
 		   June 2009 (update)
 		   July 2009 (update)
+                   October 2009 (update)
 
 (1) Checkout UserCode/aachen3a/ACSusyAnalysis in <CMSSW>/src,
     then mv UserCode/aachen3a aachen3a (IMPORTANT !).
@@ -15,12 +16,10 @@
     as usual.
 (2) Modify the ACSkim_cfg*py files:
       - is_SHERPA = cms.bool(True) if running on SHERPA samples
-      - Change process.GlobalTag.globaltag = cms.string('IDEAL_V9::All')
+      - Change process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
         to the tag used for production, e.g. IDEAL_V11.
-        So do not ignore the warning from ./prepare.sh :-)
 (3) Goto /test directory. Prepare submission to crab.
     First inform yourself about the actual crab server
-    https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users
     and change the server name in prepare.sh if necessary.
     Please change also other hardcoded things like dcache 
     directory, email and black/white list.
