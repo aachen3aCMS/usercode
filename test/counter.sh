@@ -82,7 +82,7 @@ then
     then
       echo "  -> File already exists in SE in " $file2
       let k=k+1
-      continue
+#      continue
     fi
     SE=`grep "60307" $file2`
     if [ "$SE" ]

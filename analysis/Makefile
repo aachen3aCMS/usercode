@@ -33,6 +33,7 @@ Run: $(SRC:.cpp=.o)
 #====================================================================
 
 clean:
+		@echo "rm -f RunSUSY  *~  *.o"
 		@rm -f *~ *.o
 		@rm -f RunSUSY
-		@echo ' clean'
+		@echo ' --> clean'

@@ -1,3 +1,7 @@
+2009-10-14 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* changed variable names (_cm_, _tk_, met) 
+	* new pthat cut configurable via prepare.sh
+	* tagged as version v4-1
 2009-10-06 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* version for CMSSW_3_1_X
 	* new default jet collection (antikt5CaloJets)

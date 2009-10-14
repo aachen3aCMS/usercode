@@ -59,6 +59,10 @@ process.ACSkimAnalysis = cms.EDFilter(
     is_MC     = cms.bool(True),  # set to 'False' for real Data !
     is_SHERPA = cms.bool(False),  # set to 'True' if running on SHERPA
 
+    # IMPORTANT for QCD ! ! !
+    pthat_low  = cms.double(-1.),
+    pthat_high = cms.double(-1.),
+
     jetTag    = jetTag,
     elecTag   = elecTag,
     muonTag   = muonTag,

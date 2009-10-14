@@ -8,13 +8,14 @@
 //         Created:  November 2008
 //
 #include "aachen3a/ACSusyAnalysis/interface/SusyACSkimAnalysis.h"
-
+ 
 ////////////////////////////////
 //
 // Constructor
 //
 SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   nrEventTotalRaw_(0),
+  nrEventPassedPthatRaw_(0),
   nrEventPassedRaw_(0)
 {
 
@@ -53,6 +54,9 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   nele_ = iConfig.getParameter<int>("nele");
   nmuo_ = iConfig.getParameter<int>("nmuo");
   njet_ = iConfig.getParameter<int>("njet");
+
+  pthat_low_  = iConfig.getParameter<double>("pthat_low");
+  pthat_high_ = iConfig.getParameter<double>("pthat_high");
 
   localPi = acos(-1.0);
 
@@ -206,7 +210,19 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreepdff2    = tpdf->xPDF.second;
       mTreepdfscale = tpdf->scalePDF;
     }
+
+    // IMPORTANT for QCD : avoid overlap of samples
+    if (mTreePthat>-990. && pthat_low_ > -1. && pthat_high_> -1.) {
+      
+      if (mTreePthat < pthat_low_ || mTreePthat > pthat_high_)
+    
+	return 0;
+
+    }
+    nrEventPassedPthatRaw_++;
   }
+
+
   /*
   edm::LogInfo("SusyACSkimAnalysis") << " Event properties: EvtWeight = " << mTreeEventWeight 
 				     << "  ProcID = " << mTreeProcID 
@@ -1019,7 +1035,8 @@ void SusyACSkimAnalysis::beginJob(const edm::EventSetup&) {}
 void SusyACSkimAnalysis::endJob() {
 
   h_counters->SetBinContent(1, nrEventTotalRaw_);
-  h_counters->SetBinContent(2, nrEventPassedRaw_);
+  h_counters->SetBinContent(2, nrEventPassedPthatRaw_);
+  h_counters->SetBinContent(3, nrEventPassedRaw_);
 
   printSummary();
 

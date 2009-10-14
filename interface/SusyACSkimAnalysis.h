@@ -131,12 +131,16 @@ private:
   double jeteta_;
   double met_;
 
+  double pthat_low_;
+  double pthat_high_;
+
   // Counters
   unsigned int nrEventTotalRaw_;
+  unsigned int nrEventPassedPthatRaw_;
   unsigned int nrEventPassedRaw_;
 
   double localPi;
-
+  
   // Tree variables
   int mTreerun;
   int mTreeevent;

@@ -85,7 +85,7 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       cout << "  " << unpack(trig_name[i]) << "  "  << trig_prescale[i] << "  " << trig_pt[i] 
 	   << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
     }
-
+    
     for (int j=0; j<muo_n; j++) {
 
       // list matched trigger objects
@@ -101,7 +101,7 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       h1_mu_pt[0]     -> Fill(muo_pt[j]);
       h1_mu_TrkIso[0] -> Fill(muo_TrkIso[j]);
 
-      if (muo_TrkIso[j] < 6.) {
+      if (muo_TrkIso[j] < 6. && muo_TrkChiNormCm[j]<10) {
 	h1_mu_pt[1]     -> Fill(muo_pt[j]);
 	h1_mu_TrkIso[1] -> Fill(muo_TrkIso[j]);
 

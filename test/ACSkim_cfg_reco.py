@@ -83,6 +83,10 @@ process.ACSkimAnalysis = cms.EDFilter(
     is_MC     = cms.bool(True),  # set to 'False' for real Data !
     is_SHERPA = cms.bool(False),  # set to 'True' if running on SHERPA
 
+    # IMPORTANT for QCD -> configured via ./prepare.sh 
+    pthat_low  = cms.double(-1.),
+    pthat_high = cms.double(-1.),
+
     jetTag    = jetTag,
     elecTag   = elecTag,
     muonTag   = muonTag,
@@ -112,6 +116,11 @@ from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger( process )
 process.patTriggerSequence.remove( process.patTriggerMatcher )
 process.patTriggerEvent.patTriggerMatches  = ()
+
+# Be Careful !!!
+# process.patTrigger.processName = "HLT8E29"
+# process.patTriggerEvent.processName = "HLT8E29"
+
 
 ### Define the paths
 process.p = cms.Path(

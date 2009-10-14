@@ -18,6 +18,7 @@
       - is_SHERPA = cms.bool(True) if running on SHERPA samples
       - Change process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
         to the tag used for production, e.g. IDEAL_V11.
+      - Change the HLT trigger name - if necessary. 
 (3) Goto /test directory. Prepare submission to crab.
     First inform yourself about the actual crab server
     and change the server name in prepare.sh if necessary.
@@ -27,6 +28,10 @@
     ./prepare.sh <datasetpath> <version> <tag>
     This will create a directory CRAB-<tag>-<version>
     if there are no error messages.
+    
+    If running on QCD you *must* make sure that samples
+    do not overlap. This can also be configured via ./prepare.sh:
+    ./prepare.sh <datasetpath> <version> <tag> <reco|pat> <pthat_low> <pthat_high>
 (4) Just change to this directory, do
     crab -create and crab -submit
 (5) Wait until the job has finished, and check, if the output

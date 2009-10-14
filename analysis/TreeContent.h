@@ -131,13 +131,13 @@ class TreeContent {
    Double_t        vtx_y[100];   //[vtx_n]
    Double_t        vtx_z[100];   //[vtx_n]
    Double_t        vtx_chi[100];   //[vtx_n]
-   Double_t        met[3];
-   Double_t        mex[3];
-   Double_t        mey[3];
-   Double_t        meteta[3];
-   Double_t        metphi[3];
-   Double_t        sumet[3];
-   Double_t        sumetsig[3];
+   Double_t        met_et[3];
+   Double_t        met_ex[3];
+   Double_t        met_ey[3];
+   Double_t        met_eta[3];
+   Double_t        met_phi[3];
+   Double_t        met_sumet[3];
+   Double_t        met_sumetsig[3];
    Int_t           jet_n;
    Double_t        jet_E[100];   //[jet_n]
    Double_t        jet_Et[100];   //[jet_n]
@@ -206,15 +206,15 @@ class TreeContent {
    Double_t        muo_ECalIsoDep[100];   //[muo_n]
    Double_t        muo_HCalIsoDep[100];   //[muo_n]
    Double_t        muo_AllIso[100];   //[muo_n]
-   Double_t        muo_cm_TrkChiNorm[100];   //[muo_n]
-   Double_t        muo_tk_TrkChiNorm[100];   //[muo_n]
-   Double_t        muo_cm_d0[100];   //[muo_n]
-   Double_t        muo_tk_d0[100];   //[muo_n]
-   Double_t        muo_cm_sd0[100];   //[muo_n]
-   Double_t        muo_tk_sd0[100];   //[muo_n]
+   Double_t        muo_TrkChiNormCm[100];   //[muo_n]
+   Double_t        muo_TrkChiNormTk[100];   //[muo_n]
+   Double_t        muo_d0Cm[100];   //[muo_n]
+   Double_t        muo_d0Tk[100];   //[muo_n]
+   Double_t        muo_sd0Cm[100];   //[muo_n]
+   Double_t        muo_sd0Tk[100];   //[muo_n]
    Int_t           muo_prompttight[100];   //[muo_n]
-   Int_t           muo_cm_hits[100];   //[muo_n]
-   Int_t           muo_tk_hits[100];   //[muo_n]
+   Int_t           muo_hitsCm[100];   //[muo_n]
+   Int_t           muo_hitsTk[100];   //[muo_n]
    Int_t           muo_truth[100];   //[muo_n]
    Int_t           muo_trign[100];   //[muo_n]
    Int_t           muo_trig[100][100];   //[muo_n]
@@ -282,13 +282,13 @@ class TreeContent {
    TBranch        *b_vtx_y;   //!
    TBranch        *b_vtx_z;   //!
    TBranch        *b_vtx_chi;   //!
-   TBranch        *b_met;   //!
-   TBranch        *b_mex;   //!
-   TBranch        *b_mey;   //!
-   TBranch        *b_meteta;   //!
-   TBranch        *b_metphi;   //!
-   TBranch        *b_sumet;   //!
-   TBranch        *b_sumetsig;   //!
+   TBranch        *b_met_et;   //!
+   TBranch        *b_met_ex;   //!
+   TBranch        *b_met_ey;   //!
+   TBranch        *b_met_eta;   //!
+   TBranch        *b_met_phi;   //!
+   TBranch        *b_met_sumet;   //!
+   TBranch        *b_met_sumetsig;   //!
    TBranch        *b_jet_n;   //!
    TBranch        *b_jet_E;   //!
    TBranch        *b_jet_Et;   //!
@@ -357,15 +357,15 @@ class TreeContent {
    TBranch        *b_muo_ECalIsoDep;   //!
    TBranch        *b_muo_HCalIsoDep;   //!
    TBranch        *b_muo_AllIso;   //!
-   TBranch        *b_muo_cm_TrkChiNorm;   //!
-   TBranch        *b_muo_tk_TrkChiNorm;   //!
-   TBranch        *b_muo_cm_d0;   //!
-   TBranch        *b_muo_tk_d0;   //!
-   TBranch        *b_muo_cm_sd0;   //!
-   TBranch        *b_muo_tk_sd0;   //!
+   TBranch        *b_muo_TrkChiNormCm;   //!
+   TBranch        *b_muo_TrkChiNormTk;   //!
+   TBranch        *b_muo_d0Cm;   //!
+   TBranch        *b_muo_d0Tk;   //!
+   TBranch        *b_muo_sd0Cm;   //!
+   TBranch        *b_muo_sd0Tk;   //!
    TBranch        *b_muo_prompttight;   //!
-   TBranch        *b_muo_cm_hits;   //!
-   TBranch        *b_muo_tk_hits;   //!
+   TBranch        *b_muo_hitsCm;   //!
+   TBranch        *b_muo_hitsTk;   //!
    TBranch        *b_muo_truth;   //!
    TBranch        *b_muo_trign;   //!
    TBranch        *b_muo_trig;   //!
@@ -505,13 +505,13 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("vtx_y", vtx_y, &b_vtx_y);
    fChain->SetBranchAddress("vtx_z", vtx_z, &b_vtx_z);
    fChain->SetBranchAddress("vtx_chi", vtx_chi, &b_vtx_chi);
-   fChain->SetBranchAddress("met_et", met, &b_met);
-   fChain->SetBranchAddress("met_ex", mex, &b_mex);
-   fChain->SetBranchAddress("met_ey", mey, &b_mey);
-   fChain->SetBranchAddress("met_eta", meteta, &b_meteta);
-   fChain->SetBranchAddress("met_phi", metphi, &b_metphi);
-   fChain->SetBranchAddress("met_sumet", sumet, &b_sumet);
-   fChain->SetBranchAddress("met_sumetsig", sumetsig, &b_sumetsig);
+   fChain->SetBranchAddress("met_et", met_et, &b_met_et);
+   fChain->SetBranchAddress("met_ex", met_ex, &b_met_ex);
+   fChain->SetBranchAddress("met_ey", met_ey, &b_met_ey);
+   fChain->SetBranchAddress("met_eta", met_eta, &b_met_eta);
+   fChain->SetBranchAddress("met_phi", met_phi, &b_met_phi);
+   fChain->SetBranchAddress("met_sumet", met_sumet, &b_met_sumet);
+   fChain->SetBranchAddress("met_sumetsig", met_sumetsig, &b_met_sumetsig);
    fChain->SetBranchAddress("jet_n", &jet_n, &b_jet_n);
    fChain->SetBranchAddress("jet_E", jet_E, &b_jet_E);
    fChain->SetBranchAddress("jet_Et", jet_Et, &b_jet_Et);
@@ -580,15 +580,15 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_ECalIsoDep", muo_ECalIsoDep, &b_muo_ECalIsoDep);
    fChain->SetBranchAddress("muo_HCalIsoDep", muo_HCalIsoDep, &b_muo_HCalIsoDep);
    fChain->SetBranchAddress("muo_AllIso", muo_AllIso, &b_muo_AllIso);
-   fChain->SetBranchAddress("muo_TrkChiNormCm", muo_cm_TrkChiNorm, &b_muo_cm_TrkChiNorm);
-   fChain->SetBranchAddress("muo_TrkChiNormTk", muo_tk_TrkChiNorm, &b_muo_tk_TrkChiNorm);
-   fChain->SetBranchAddress("muo_d0Cm", muo_cm_d0, &b_muo_cm_d0);
-   fChain->SetBranchAddress("muo_d0Tk", muo_tk_d0, &b_muo_tk_d0);
-   fChain->SetBranchAddress("muo_sd0Cm", muo_cm_sd0, &b_muo_cm_sd0);
-   fChain->SetBranchAddress("muo_sd0Tk", muo_tk_sd0, &b_muo_tk_sd0);
+   fChain->SetBranchAddress("muo_TrkChiNormCm", muo_TrkChiNormCm, &b_muo_TrkChiNormCm);
+   fChain->SetBranchAddress("muo_TrkChiNormTk", muo_TrkChiNormTk, &b_muo_TrkChiNormTk);
+   fChain->SetBranchAddress("muo_d0Cm", muo_d0Cm, &b_muo_d0Cm);
+   fChain->SetBranchAddress("muo_d0Tk", muo_d0Tk, &b_muo_d0Tk);
+   fChain->SetBranchAddress("muo_sd0Cm", muo_sd0Cm, &b_muo_sd0Cm);
+   fChain->SetBranchAddress("muo_sd0Tk", muo_sd0Tk, &b_muo_sd0Tk);
    fChain->SetBranchAddress("muo_prompttight", muo_prompttight, &b_muo_prompttight);
-   fChain->SetBranchAddress("muo_hitsCm", muo_cm_hits, &b_muo_cm_hits);
-   fChain->SetBranchAddress("muo_hitsTk", muo_tk_hits, &b_muo_tk_hits);
+   fChain->SetBranchAddress("muo_hitsCm", muo_hitsCm, &b_muo_hitsCm);
+   fChain->SetBranchAddress("muo_hitsTk", muo_hitsTk, &b_muo_hitsTk);
    fChain->SetBranchAddress("muo_truth", muo_truth, &b_muo_truth);
    fChain->SetBranchAddress("muo_trign", muo_trign, &b_muo_trign);
    fChain->SetBranchAddress("muo_trig", muo_trig, &b_muo_trig);

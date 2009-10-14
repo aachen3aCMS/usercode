@@ -11,11 +11,11 @@ echo ""
 echo "  -- Preparing crab submission --"
 echo
 
-if [ $# -ne 4 ]
+if [ $# -le 3 ] || [ $# -gt 6 ] || [ $# -eq 5 ] 
 then
   echo " ERROR  "
   echo " Wrong number of arguments !"
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>  [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi
@@ -30,7 +30,7 @@ then
 else
   echo " ERROR : Specify 'reco' or 'pat' "
   echo
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>  [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi
@@ -98,6 +98,7 @@ echo "scheduler = glite" >> $CRABFILE
 echo "server_name = cern" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[CMSSW]" >> $CRABFILE
+echo "# dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_02/servlet/DBSServlet" >> $CRABFILE
 echo "datasetpath = $1" >> $CRABFILE
 echo "pset = " $cfg >> $CRABFILE
 echo "total_number_of_events = -1" >> $CRABFILE
@@ -109,16 +110,24 @@ echo "return_data = 0" >> $CRABFILE
 echo "email=magass@cern.ch" >> $CRABFILE
 echo "copy_data = 1" >> $CRABFILE
 echo "storage_element = T2_DE_RWTH" >> $CRABFILE
-echo "# storage_path = /pnfs/physik.rwth-aachen.de" >> $CRABFILE
 echo "user_remote_dir = output/$2/$3/" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[GRID]" >> $CRABFILE
-echo "ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
-echo "ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Purdue" >> $CRABFILE
+echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
+echo "#ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Purdue,T2_US_Florida" >> $CRABFILE
 echo "" >> $CRABFILE
 
+if [ $# -eq 6 ]
+then
+  echo $DIR/temp.txt $5 $6
+  sed s/"pthat_low  = cms.double(-1.)"/"pthat_low  = cms.double($5)"/g < $cfg > $DIR/temp.txt
+  sed s/"pthat_high = cms.double(-1.)"/"pthat_high = cms.double($6)"/g < $DIR/temp.txt > $DIR/$cfg
+  rm -f $DIR/temp.txt
+else
+  cp $cfg $DIR/.
+fi
 
-cp $cfg $DIR/.
+
 mv $CRABFILE $DIR/crab.cfg
 echo
 echo "         DONE "
