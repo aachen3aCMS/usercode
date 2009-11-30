@@ -2,9 +2,9 @@
 #
 # Prepare crab submission for a given dataset
 #
-# Usage: ./prepare.sh <datasetpath> <version> <tag> <fast|full>
+# Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]
 #
-#   Carsten Magass, January 2009, April 2009, October 2009
+#   Carsten Magass, January 2009, April 2009, October 2009, November 2009
 #
 
 echo ""  
@@ -15,7 +15,7 @@ if [ $# -le 3 ] || [ $# -gt 6 ] || [ $# -eq 5 ]
 then
   echo " ERROR  "
   echo " Wrong number of arguments !"
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>  [ <pthat_low> <pthat_high> ]"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi
@@ -27,10 +27,13 @@ then
 elif [ $4 == "pat" ]
 then
   cfg=ACSkim_cfg_pat.py
+elif [ $4 == "datareco" ]
+then
+  cfg=ACSkim_cfg_data.py
 else
-  echo " ERROR : Specify 'reco' or 'pat' "
+  echo " ERROR : Specify 'reco', 'pat' or 'datareco' "
   echo
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat>  [ <pthat_low> <pthat_high> ]"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi

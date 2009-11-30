@@ -106,8 +106,8 @@ then
       continue
     fi
 
-    EVENTS1=`grep "Events" $file | awk '{print $5}'`
-    EVENTS2=`grep "Events" $file | awk '{print $8}'`
+    EVENTS1=`grep "events" $file | awk '{print $6}'`
+    EVENTS2=`grep "events" $file | awk '{print $10}'`
 #    echo $file "  " $EVENTS1 "  " $EVENTS2
     IN_EVENTS=$(echo "$IN_EVENTS+$EVENTS1" | bc)
     OUT_EVENTS=$(echo "$OUT_EVENTS+$EVENTS2" | bc)

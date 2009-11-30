@@ -52,8 +52,10 @@ vtxTag    = cms.InputTag("offlinePrimaryVertices")
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
     
-    is_MC     = cms.bool(True),  # set to 'False' for real Data !
-    is_SHERPA = cms.bool(False),  # set to 'True' if running on SHERPA
+    is_MC     = cms.bool(True),    # set to 'False' for real Data !
+    is_SHERPA = cms.bool(False),   # set to 'True' if running on SHERPA
+    do_fatjets = cms.bool(False),  # set to 'True' for fat jets
+                                   # if 'True', include process.BoostedHiggsSubjets (see example)
 
     # IMPORTANT for QCD -> configured via ./prepare.sh 
     pthat_low  = cms.double(-1.),
@@ -81,6 +83,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     
     correction = cms.string('abs'),
     flavour    = cms.string('glu'),
+
+    btag       = cms.string('trackCountingHighEffBJetTags'),
     
 )
 

@@ -28,14 +28,17 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
   vertexTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
 
-  is_MC     = iConfig.getParameter<bool>("is_MC");
-  is_SHERPA = iConfig.getParameter<bool>("is_SHERPA");
+  is_MC      = iConfig.getParameter<bool>("is_MC");
+  is_SHERPA  = iConfig.getParameter<bool>("is_SHERPA");
+  do_fatjets = iConfig.getParameter<bool>("do_fatjets");
 
-  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC     = " << is_MC << endl;
-  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_SHERPA = " << is_SHERPA << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC      = " << is_MC << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_SHERPA  = " << is_SHERPA << endl;
+  edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag do_fatjets = " << do_fatjets << endl;
 
   cor_  = iConfig.getParameter<std::string>("correction");
   flav_ = iConfig.getParameter<std::string>("flavour");
+  btag_ = iConfig.getParameter<std::string>("btag");
 
   correction_ = pat::JetCorrFactors::corrStep(cor_, flav_);
  
@@ -598,7 +601,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleECalIso[countele]    = eles[i].ecalIso();
       mTreeEleHCalIso[countele]    = eles[i].hcalIso();
       mTreeEleAllIso[countele]     = eles[i].caloIso();
-      mTreeEleTrkIsoDep[countele]  = eles[i].trackerIsoDeposit()->candEnergy();
+      mTreeEleTrkIsoDep[countele]  = eles[i].trackIsoDeposit()->candEnergy();
       mTreeEleECalIsoDep[countele] = eles[i].ecalIsoDeposit()->candEnergy();
       mTreeEleHCalIsoDep[countele] = eles[i].hcalIsoDeposit()->candEnergy();
       
@@ -704,7 +707,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMuoHCalIso[countmuo]    = muons[i].hcalIso() ;
       mTreeMuoAllIso[countmuo]     = muons[i].caloIso() ;
       mTreeMuoGood[countmuo]       = muons[i].isGood("GlobalMuonPromptTight");
-      mTreeMuoTrkIsoDep[countmuo]  = muons[i].trackerIsoDeposit()->candEnergy();
+      mTreeMuoTrkIsoDep[countmuo]  = muons[i].trackIsoDeposit()->candEnergy();
       mTreeMuoECalIsoDep[countmuo] = muons[i].ecalIsoDeposit()->candEnergy();
       mTreeMuoHCalIsoDep[countmuo] = muons[i].hcalIsoDeposit()->candEnergy();
 
@@ -786,6 +789,103 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeNmuo = countmuo;
   }
    
+  // fatjets
+  mTreeNfatjet = 0;
+
+  for (int k=0; k<100; k++) {
+    _jeta[k] = -100.;
+    _jphi[k] = -100.;
+  }
+
+  if (do_fatjets) {
+
+    edm::Handle< std::vector<pat::Jet> > jetHandle2;
+    iEvent.getByLabel("allLayer1JetsBHS", jetHandle2);
+
+    mTreeNjet = 0;
+
+    // this is required for JES corrected subjets
+    if ( !jetHandle2.isValid() ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "No Jet results found for InputTag allLayer1JetsBHS";
+    else {
+
+      mTreeNjet = jetHandle2->size();
+      
+      if ( mTreeNjet > 100 ) mTreeNjet = 100;
+      
+      for (int i=0; i<mTreeNjet; i++) {
+	
+	_jeta[i] = (*jetHandle2)[i].eta();
+	_jphi[i] = (*jetHandle2)[i].phi();
+	
+      }
+    }
+
+    // now associate fat jets and subjets
+    edm::Handle<vector<reco::BasicJet> > subjets;
+    iEvent.getByLabel("BoostedHiggsSubjets", subjets);
+
+    if ( !subjets.isValid() ) 
+      edm::LogWarning("SusyACSkimAnalysis") << "No Jet results found for InputTag BoostedHiggsSubjets";
+    else {
+      
+      const vector<reco::BasicJet>* c_jets = subjets.product();
+      
+      if (c_jets->size()<100)
+	mTreeNfatjet = c_jets->size();
+      else
+	mTreeNfatjet = 100;
+	
+      int cjet = 0;
+
+      for(int j=0; j < mTreeNfatjet; j++){
+	
+	const reco::BasicJet & fat_jet = c_jets->at(j);
+	
+	mTreefatjetpt[cjet]   = fat_jet.pt();
+	mTreefatjetpx[cjet]   = fat_jet.px();
+	mTreefatjetpy[cjet]   = fat_jet.py();
+	mTreefatjetpz[cjet]   = fat_jet.pz();
+	mTreefatjete[cjet ]   = fat_jet.energy();
+	mTreefatjeteta[cjet]  = fat_jet.eta();
+	mTreefatjetphi[cjet]  = fat_jet.phi();
+	mTreefatjetnsub[cjet] = fat_jet.numberOfDaughters();
+	
+	for (UInt_t k = 0; k < fat_jet.numberOfDaughters(); k++) {
+
+	  mTreefatjetsubeta[cjet][k] = fat_jet.daughter(k)->eta();
+	  mTreefatjetsubphi[cjet][k] = fat_jet.daughter(k)->phi();
+
+	  // matching
+	  for (int l=0; l<mTreeNjet; l++) {
+	    if (fabs(mTreefatjetsubeta[cjet][k]-_jeta[l])<1e-7 && fabs(mTreefatjetsubphi[cjet][k]-_jphi[l])<1e-7) {
+ 
+	      const pat::Jet& jet = (*jetHandle2)[k];
+
+	      mTreefatjetsubpt[cjet][k]   = jet.pt();
+	      mTreefatjetsubpx[cjet][k]   = jet.px();
+	      mTreefatjetsubpy[cjet][k]   = jet.py();
+	      mTreefatjetsubpz[cjet][k]   = jet.pz();
+	      mTreefatjetsube[cjet][k]    = jet.energy();
+	      mTreefatjetsubfem[cjet][k]  = jet.emEnergyFraction();
+	      mTreefatjetsubfhad[cjet][k] = jet.energyFractionHadronic();
+	      mTreefatjetsubbtag[cjet][k] = jet.bDiscriminator(btag_);
+	      break;
+	    }
+	  }
+	  
+	  if (k==10) {
+	    mTreefatjetnsub[cjet] = 10;
+	    break;
+	  }
+	}
+	
+	cjet++;
+	if (cjet == 100) break;
+      }
+    }
+  }
+
   // Jets
   mTreeNjet = 0;
 
@@ -843,19 +943,21 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if ((jets[i].pt() * correction) < jetpt_ || fabs(jets[i].eta()) > jeteta_ ||
 	  jets[i].emEnergyFraction() > jetfem_) continue;
      
-      mTreeJetP[countjets]    = jets[i].p() * correction;
-      mTreeJetPt[countjets]   = jets[i].pt() * correction;
-      mTreeJetE[countjets]    = jets[i].energy() * correction;
-      mTreeJetEt[countjets]   = jets[i].et() * correction;
-      mTreeJetPx[countjets]   = jets[i].momentum().X() * correction;
-      mTreeJetPy[countjets]   = jets[i].momentum().Y() * correction;
-      mTreeJetPz[countjets]   = jets[i].momentum().Z() * correction;
-      mTreeJetEta[countjets]  = jets[i].eta();
-      mTreeJetPhi[countjets]  = jets[i].phi();
-      mTreeJetFem[countjets]  = jets[i].emEnergyFraction();
-      mTreeJetPart[countjets] = jets[i].partonFlavour();
+      mTreeJetP[countjets]      = jets[i].p() * correction;
+      mTreeJetPt[countjets]     = jets[i].pt() * correction;
+      mTreeJetE[countjets]      = jets[i].energy() * correction;
+      mTreeJetEt[countjets]     = jets[i].et() * correction;
+      mTreeJetPx[countjets]     = jets[i].momentum().X() * correction;
+      mTreeJetPy[countjets]     = jets[i].momentum().Y() * correction;
+      mTreeJetPz[countjets]     = jets[i].momentum().Z() * correction;
+      mTreeJetEta[countjets]    = jets[i].eta();
+      mTreeJetPhi[countjets]    = jets[i].phi();
+      mTreeJetFem[countjets]    = jets[i].emEnergyFraction();
+      mTreeJetFhad[countjets]   = jets[i].energyFractionHadronic();
+      mTreeJetPart[countjets]   = jets[i].partonFlavour();
       // default b tagger
-      mTreeJetBtag[countjets] = jets[i].bDiscriminator("trackCountingHighEffBJetTags"); 
+      mTreeJetBtag[countjets]   = jets[i].bDiscriminator(btag_);
+      mTreeJetCharge[countjets] = jets[i].jetCharge();
 
       mTreeJetTruth[countjets] = -1;
       const reco::GenJet * gl = jets[i].genJet();
@@ -1016,7 +1118,7 @@ bool SusyACSkimAnalysis::isDecaying(int pdgid) {
   if ( (tid>1000000 && tid<1000017) ||
        (tid>1000020 && tid<1000040 && tid!=1000022) ||
        (tid>2000000 && tid<2000016) ||
-       tid==24 || tid==23 || tid==6 || tid==15 )
+       tid==25 || tid==24 || tid==23 || tid==6 || tid==15 )
     return true;
   else
     return false;
@@ -1157,20 +1259,22 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[3]/double");
 
   // Jets
-  mAllData->Branch("jet_n",    &mTreeNjet,     "jet_n/I");  
-  mAllData->Branch("jet_E" ,    mTreeJetE,     "jet_E[jet_n]/double");
-  mAllData->Branch("jet_Et",    mTreeJetEt,    "jet_Et[jet_n]/double");
-  mAllData->Branch("jet_p",     mTreeJetP,     "jet_p[jet_n]/double");
-  mAllData->Branch("jet_pt",    mTreeJetPt,    "jet_pt[jet_n]/double");
-  mAllData->Branch("jet_px",    mTreeJetPx,    "jet_px[jet_n]/double");
-  mAllData->Branch("jet_py",    mTreeJetPy,    "jet_py[jet_n]/double");
-  mAllData->Branch("jet_pz",    mTreeJetPz,    "jet_pz[jet_n]/double");
-  mAllData->Branch("jet_eta",   mTreeJetEta,   "jet_eta[jet_n]/double");
-  mAllData->Branch("jet_phi",   mTreeJetPhi,   "jet_phi[jet_n]/double");
-  mAllData->Branch("jet_fem",   mTreeJetFem,   "jet_fem[jet_n]/double");
-  mAllData->Branch("jet_btag",  mTreeJetBtag,  "jet_btag[jet_n]/double");
-  mAllData->Branch("jet_flav",  mTreeJetPart,  "jet_flav[jet_n]/I");
-  mAllData->Branch("jet_truth", mTreeJetTruth, "jet_truth[jet_n]/I");
+  mAllData->Branch("jet_n",     &mTreeNjet,      "jet_n/I");  
+  mAllData->Branch("jet_E" ,     mTreeJetE,      "jet_E[jet_n]/double");
+  mAllData->Branch("jet_Et",     mTreeJetEt,     "jet_Et[jet_n]/double");
+  mAllData->Branch("jet_p",      mTreeJetP,      "jet_p[jet_n]/double");
+  mAllData->Branch("jet_pt",     mTreeJetPt,     "jet_pt[jet_n]/double");
+  mAllData->Branch("jet_px",     mTreeJetPx,     "jet_px[jet_n]/double");
+  mAllData->Branch("jet_py",     mTreeJetPy,     "jet_py[jet_n]/double");
+  mAllData->Branch("jet_pz",     mTreeJetPz,     "jet_pz[jet_n]/double");
+  mAllData->Branch("jet_eta",    mTreeJetEta,    "jet_eta[jet_n]/double");
+  mAllData->Branch("jet_phi",    mTreeJetPhi,    "jet_phi[jet_n]/double");
+  mAllData->Branch("jet_fem",    mTreeJetFem,    "jet_fem[jet_n]/double");
+  mAllData->Branch("jet_fhad",   mTreeJetFhad,   "jet_fhad[jet_n]/double");
+  mAllData->Branch("jet_btag",   mTreeJetBtag,   "jet_btag[jet_n]/double");
+  mAllData->Branch("jet_charge", mTreeJetCharge, "jet_charge[jet_n]/double");
+  mAllData->Branch("jet_flav",   mTreeJetPart,   "jet_flav[jet_n]/I");
+  mAllData->Branch("jet_truth",  mTreeJetTruth,  "jet_truth[jet_n]/I");
 
   // Generator Jets
   mAllData->Branch("truthjet_n",   &mTreeNtruthjet,    "truthjet_n/I");  
@@ -1183,6 +1287,27 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("truthjet_pz",   mTreetruthJetPz,   "truthjet_pz[truthjet_n]/double");
   mAllData->Branch("truthjet_eta",  mTreetruthJetEta,  "truthjet_eta[truthjet_n]/double");
   mAllData->Branch("truthjet_phi",  mTreetruthJetPhi,  "truthjet_phi[truthjet_n]/double");
+
+  // Fat Jets
+  mAllData->Branch("fatjet_n",       &mTreeNfatjet,       "fatjet_n/I");
+  mAllData->Branch("fatjet_nsub",     mTreefatjetnsub,    "fatjet_nsub[fatjet_n]/I");
+  mAllData->Branch("fatjet_pt",       mTreefatjetpt,      "fatjet_pt[fatjet_n]/double");
+  mAllData->Branch("fatjet_px",       mTreefatjetpx,      "fatjet_px[fatjet_n]/double");
+  mAllData->Branch("fatjet_py",       mTreefatjetpy,      "fatjet_py[fatjet_n]/double");
+  mAllData->Branch("fatjet_pz",       mTreefatjetpz,      "fatjet_pz[fatjet_n]/double");
+  mAllData->Branch("fatjet_E",        mTreefatjete,       "fatjet_E[fatjet_n]/double");
+  mAllData->Branch("fatjet_eta",      mTreefatjeteta,     "fatjet_eta[fatjet_n]/double");
+  mAllData->Branch("fatjet_phi",      mTreefatjetphi,     "fatjet_phi[fatjet_n]/double");
+  mAllData->Branch("fatjet_sub_pt",   mTreefatjetsubpt,   "fatjet_sub_pt[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_px",   mTreefatjetsubpx,   "fatjet_sub_px[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_py",   mTreefatjetsubpy,   "fatjet_sub_py[fatjet_n][20]/double");
+  mAllData->Branch("fatjet_sub_pz",   mTreefatjetsubpz,   "fatjet_sub_pz[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_E",    mTreefatjetsube,    "fatjet_sub_E[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_eta",  mTreefatjetsubeta,  "fatjet_sub_eta[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_phi",  mTreefatjetsubphi,  "fatjet_sub_phi[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_fem",  mTreefatjetsubfem,  "fatjet_sub_fem[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_fhad", mTreefatjetsubfhad, "fatjet_sub_fhad[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_btag", mTreefatjetsubbtag, "fatjet_sub_btag[fatjet_n][10]/double");
 
   // Electrons
   mAllData->Branch("ele_n",         &mTreeNele,          "ele_n/I");  

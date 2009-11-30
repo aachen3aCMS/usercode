@@ -20,9 +20,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 #-- JES -----------------------------------------------------------------------
-#process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff")
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff")
 #process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_cff")
-
 
 #-- Tuning of Monte Carlo matching --------------------------------------------
 # Also match with leptons of opposite charge
@@ -30,24 +29,14 @@ process.electronMatch.checkCharge = False
 process.muonMatch.checkCharge     = False
 process.tauMatch.checkCharge      = False
 
-#from PhysicsTools.PatAlgos.tools.jetTools import *
-#switchJECSet(process,newName='Winter09',oldName='Summer08Redigi') # change from old to Winter08
-
 ### Input / output ###
 
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-#    'file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_2_X_2008-11-03-STARTUP_V7-AODSIM.100.root'
-#    'file:/user/magass/LM1_RECO_CMSSW3.root'
     'file:/user/magass/HIGGS_RECO_1.root',
     'file:/user/magass/HIGGS_RECO_2.root',
     'file:/user/magass/HIGGS_RECO_3.root'
-#        '/pnfs/physik.rwth-aachen.de/cms/store/user/ata/test/ata/ADD_150_450_1jet_Mf2p5_2n_GRW_10TeV/ADD_150_450_1jet_Mf2p5_2n_GRW_10TeV_RECO/bfb9b1ca5534929b93d8c7d7bdccf0e7/RECO_2.root'
-#    'file:/opt/user/magass/wprime_mu.root'
-#    'file:/opt/user/magass/UNFILE_RECO_76.root'
-#    '/pnfs/physik.rwth-aachen.de/cms/store/mc/Summer08/QCDpt2200/GEN-SIM-RECO/IDEAL_V9_reco-v1/0003/340BCBD7-13FD-DD11-AFB3-003048C3E7AF.root'
-#    '/pnfs/physik.rwth-aachen.de/cms/store/mc/Winter09/Wjets-madgraph/GEN-SIM-DIGI-RECO/IDEAL_V11_FastSim_v1/0043/B2B774A3-A7D3-DD11-A098-0011114FBAD4.root'
     ),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
@@ -64,7 +53,7 @@ process.out = cms.OutputModule(
     dropMetaData   = cms.untracked.string('DROPPED'),
     outputCommands = cms.untracked.vstring('drop *')
 #                                           'keep *_BoostedHiggsSubjets_*_*',
-#                                           'keep *_cleanLayer1Jets_*_*')
+#                                           'keep *_cleanLayer1Jets*_*_*')
     )
 
 
@@ -73,28 +62,22 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
-#switchJetCollection(process,
-#                           cms.InputTag('sisCone5CaloJets'),
-#                           doJTA=True,            # Run Jet-Track association & JetCharge
-#                           doBTagging=True,       # Run b-tagging
-#                           jetCorrLabel=('SC5','Calo'), # example jet correction name; set to None for no JEC
-#                           doType1MET=True,       # recompute Type1MET using these jets
-#                           genJetCollection=cms.InputTag("sisCone5GenJets"))
 addJetCollection(process,
                  cms.InputTag('BoostedHiggsSubjets'), 'BHS',
                  doJTA            = False,
                  doBTagging       = True,
-                 jetCorrLabel     = ('AK5','Calo'),
+                 jetCorrLabel     = ('AK5','Calo'), # DANGEROUS !!!!!!!!!!!!!!!!
                  doType1MET       = False,
-                 doJetID      = False,
+                 doJetID          = False,
                  genJetCollection = cms.InputTag("antikt5GenJets"))
+
 switchJetCollection(process,
-                           cms.InputTag('antikt5CaloJets'),
-                           doJTA            = True,           # Run Jet-Track association & JetCharge
-                           doBTagging       = True,           # Run b-tagging
-                           jetCorrLabel     = ('AK5','Calo'), # jet correction name; set to None for no JEC
-                           doType1MET       = True,           # recompute Type1MET using these jets
-                           genJetCollection = cms.InputTag("antikt5GenJets"))
+                    cms.InputTag('antikt5CaloJets'),
+                    doJTA            = True,           # Run Jet-Track association & JetCharge
+                    doBTagging       = True,           # Run b-tagging
+                    jetCorrLabel     = ('AK5','Calo'), # jet correction name; set to None for no JEC
+                    doType1MET       = True,           # recompute Type1MET using these jets
+                    genJetCollection = cms.InputTag("antikt5GenJets"))
 
 # Add latest HcalNoiseSummary
 process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
@@ -108,17 +91,15 @@ muonTag   = cms.InputTag("cleanLayer1Muons")
 metTag    = cms.InputTag("layer1METs")
 genTag    = cms.InputTag("genParticles")
 genJetTag = cms.InputTag("antikt5GenJets")
-#genJetTag = cms.InputTag("sisCone5GenJets")
-#genJetTag = cms.InputTag("iterativeCone5GenJets")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
 
 ### Analysis configuration ###
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
-    is_MC      = cms.bool(True),  # set to 'False' for real Data !
+    is_MC      = cms.bool(True),   # set to 'False' for real Data !
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
-    do_fatjets = cms.bool(True),  # set to 'True' for fat jets
+    do_fatjets = cms.bool(True),   # set to 'True' for fat jets
                                    # if 'True', include process.BoostedHiggsSubjets below
 
     # IMPORTANT for QCD ! ! !
@@ -135,11 +116,11 @@ process.ACSkimAnalysis = cms.EDFilter(
 
     muopt  = cms.double(0.),
     muoeta = cms.double(2.5),
-    elept  = cms.double(10.),
+    elept  = cms.double(0.),
     eleeta = cms.double(2.5),
-    jetpt  = cms.double(10.),
+    jetpt  = cms.double(0.),
     jeteta = cms.double(2.5),
-    jetfem = cms.double(0.9),
+    jetfem = cms.double(100.),
     met    = cms.double(0.),
     nele   = cms.int32(0),
     nmuo   = cms.int32(0),
@@ -184,11 +165,11 @@ process.BoostedHiggsSubjets.rtyCut        = cms.double(0.3)
 process.BoostedHiggsSubjets.ptMin         = cms.double(100.0)  # not JES corrected !!!
 process.BoostedHiggsSubjets.nSubjets      = cms.int32(3)       # b bbar + radiation
 
-
+# Hack required for running 33 on 31 samples
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 run33xOn31xMC(process,
-                  jetSrc = cms.InputTag("antikt5CaloJets"),
-                  jetIdTag = "antikt5" )
+              jetSrc = cms.InputTag("antikt5CaloJets"),
+              jetIdTag = "antikt5" )
 
 ### Define the paths
 process.p = cms.Path(
@@ -199,5 +180,4 @@ process.p = cms.Path(
     process.patTriggerEvent*
     process.ACSkimAnalysis
     )
-# process.e = cms.EndPath( process.out )
 

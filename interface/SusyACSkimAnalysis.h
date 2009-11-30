@@ -33,6 +33,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -107,9 +108,11 @@ private:
 
   bool is_MC;
   bool is_SHERPA;
+  bool do_fatjets;
 
   std::string cor_;
   std::string flav_;
+  std::string btag_;
   pat::JetCorrFactors::CorrStep correction_;
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
@@ -118,6 +121,9 @@ private:
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
 
   typedef std::pair<std::string,float> IdPair;
+
+  double _jeta[100];
+  double _jphi[100];
 
   int nele_;
   int nmuo_;
@@ -224,7 +230,9 @@ private:
   double mTreeJetEta[100];
   double mTreeJetPhi[100];
   double mTreeJetFem[100];
+  double mTreeJetFhad[100];
   double mTreeJetBtag[100];
+  double mTreeJetCharge[100];
 
   int    mTreeNtruthjet;
   double mTreetruthJetEt[100];
@@ -236,6 +244,26 @@ private:
   double mTreetruthJetE[100];
   double mTreetruthJetEta[100];
   double mTreetruthJetPhi[100];
+
+  int    mTreeNfatjet;
+  int    mTreefatjetnsub[100];
+  double mTreefatjetpt[100];
+  double mTreefatjetpx[100];
+  double mTreefatjetpy[100];
+  double mTreefatjetpz[100];
+  double mTreefatjete[100];
+  double mTreefatjeteta[100];
+  double mTreefatjetphi[100];
+  double mTreefatjetsubpt[100][10];
+  double mTreefatjetsubpx[100][10];
+  double mTreefatjetsubpy[100][10];
+  double mTreefatjetsubpz[100][10];
+  double mTreefatjetsube[100][10];
+  double mTreefatjetsubeta[100][10];
+  double mTreefatjetsubphi[100][10];
+  double mTreefatjetsubfem[100][10];
+  double mTreefatjetsubfhad[100][10];
+  double mTreefatjetsubbtag[100][10];
 
   int    mTreeNele;
   int    mTreeEleID[100][5];

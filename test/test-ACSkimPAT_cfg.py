@@ -86,6 +86,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     correction = cms.string('abs'),   # abs
     flavour    = cms.string('glu'),   # glu
 
+    btag       = cms.string('trackCountingHighEffBJetTags'),
+
 )
 
 

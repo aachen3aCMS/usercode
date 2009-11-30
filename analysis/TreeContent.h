@@ -149,7 +149,9 @@ class TreeContent {
    Double_t        jet_eta[100];   //[jet_n]
    Double_t        jet_phi[100];   //[jet_n]
    Double_t        jet_fem[100];   //[jet_n]
+   Double_t        jet_fhad[100];   //[jet_n]
    Double_t        jet_btag[100];   //[jet_n]
+   Double_t        jet_charge[100];   //[jet_n]
    Int_t           jet_flav[100];   //[jet_n]
    Int_t           jet_truth[100];   //[jet_n]
    Int_t           truthjet_n;
@@ -162,6 +164,25 @@ class TreeContent {
    Double_t        truthjet_pz[100];   //[truthjet_n]
    Double_t        truthjet_eta[100];   //[truthjet_n]
    Double_t        truthjet_phi[100];   //[truthjet_n]
+   Int_t           fatjet_n;
+   Int_t           fatjet_nsub[100];   //[fatjet_n]
+   Double_t        fatjet_pt[100];   //[fatjet_n]
+   Double_t        fatjet_px[100];   //[fatjet_n]
+   Double_t        fatjet_py[100];   //[fatjet_n]
+   Double_t        fatjet_pz[100];   //[fatjet_n]
+   Double_t        fatjet_E[100];   //[fatjet_n]
+   Double_t        fatjet_eta[100];   //[fatjet_n]
+   Double_t        fatjet_phi[100];   //[fatjet_n]
+   Double_t        fatjet_sub_pt[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_px[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_py[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_pz[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_E[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_eta[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_phi[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_fem[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_fhad[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_btag[100][10];   //[fatjet_n]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -300,7 +321,9 @@ class TreeContent {
    TBranch        *b_jet_eta;   //!
    TBranch        *b_jet_phi;   //!
    TBranch        *b_jet_fem;   //!
+   TBranch        *b_jet_fhad;   //!   
    TBranch        *b_jet_btag;   //!
+   TBranch        *b_jet_charge;   //!
    TBranch        *b_jet_flav;   //!
    TBranch        *b_jet_truth;   //!
    TBranch        *b_truthjet_n;   //!
@@ -313,6 +336,25 @@ class TreeContent {
    TBranch        *b_truthjet_pz;   //!
    TBranch        *b_truthjet_eta;   //!
    TBranch        *b_truthjet_phi;   //!
+   TBranch        *b_fatjet_n;   //!
+   TBranch        *b_fatjet_nsub;   //!
+   TBranch        *b_fatjet_pt;   //!
+   TBranch        *b_fatjet_px;   //!
+   TBranch        *b_fatjet_py;   //!
+   TBranch        *b_fatjet_pz;   //!
+   TBranch        *b_fatjet_E;   //!
+   TBranch        *b_fatjet_eta;   //!
+   TBranch        *b_fatjet_phi;   //!
+   TBranch        *b_fatjet_sub_pt;   //!
+   TBranch        *b_fatjet_sub_px;   //!
+   TBranch        *b_fatjet_sub_py;   //!
+   TBranch        *b_fatjet_sub_pz;   //!
+   TBranch        *b_fatjet_sub_E;   //!
+   TBranch        *b_fatjet_sub_eta;   //!
+   TBranch        *b_fatjet_sub_phi;   //!
+   TBranch        *b_fatjet_sub_fem;   //!
+   TBranch        *b_fatjet_sub_fhad;   //!
+   TBranch        *b_fatjet_sub_btag;   //!
    TBranch        *b_ele_n;   //!
    TBranch        *b_ele_E;   //!
    TBranch        *b_ele_Et;   //!
@@ -523,7 +565,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("jet_eta", jet_eta, &b_jet_eta);
    fChain->SetBranchAddress("jet_phi", jet_phi, &b_jet_phi);
    fChain->SetBranchAddress("jet_fem", jet_fem, &b_jet_fem);
+   fChain->SetBranchAddress("jet_fhad", jet_fhad, &b_jet_fhad);
    fChain->SetBranchAddress("jet_btag", jet_btag, &b_jet_btag);
+   fChain->SetBranchAddress("jet_charge", jet_charge, &b_jet_charge);
    fChain->SetBranchAddress("jet_flav", jet_flav, &b_jet_flav);
    fChain->SetBranchAddress("jet_truth", jet_truth, &b_jet_truth);
    fChain->SetBranchAddress("truthjet_n", &truthjet_n, &b_truthjet_n);
@@ -536,6 +580,25 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("truthjet_pz", truthjet_pz, &b_truthjet_pz);
    fChain->SetBranchAddress("truthjet_eta", truthjet_eta, &b_truthjet_eta);
    fChain->SetBranchAddress("truthjet_phi", truthjet_phi, &b_truthjet_phi);
+   fChain->SetBranchAddress("fatjet_n", &fatjet_n, &b_fatjet_n);
+   fChain->SetBranchAddress("fatjet_nsub", fatjet_nsub, &b_fatjet_nsub);
+   fChain->SetBranchAddress("fatjet_pt", fatjet_pt, &b_fatjet_pt);
+   fChain->SetBranchAddress("fatjet_px", fatjet_px, &b_fatjet_px);
+   fChain->SetBranchAddress("fatjet_py", fatjet_py, &b_fatjet_py);
+   fChain->SetBranchAddress("fatjet_pz", fatjet_pz, &b_fatjet_pz);
+   fChain->SetBranchAddress("fatjet_E", fatjet_E, &b_fatjet_E);
+   fChain->SetBranchAddress("fatjet_eta", fatjet_eta, &b_fatjet_eta);
+   fChain->SetBranchAddress("fatjet_phi", fatjet_phi, &b_fatjet_phi);
+   fChain->SetBranchAddress("fatjet_sub_pt", fatjet_sub_pt, &b_fatjet_sub_pt);
+   fChain->SetBranchAddress("fatjet_sub_px", fatjet_sub_px, &b_fatjet_sub_px);
+   fChain->SetBranchAddress("fatjet_sub_py", fatjet_sub_py, &b_fatjet_sub_py);
+   fChain->SetBranchAddress("fatjet_sub_pz", fatjet_sub_pz, &b_fatjet_sub_pz);
+   fChain->SetBranchAddress("fatjet_sub_E", fatjet_sub_E, &b_fatjet_sub_E);
+   fChain->SetBranchAddress("fatjet_sub_eta", fatjet_sub_eta, &b_fatjet_sub_eta);
+   fChain->SetBranchAddress("fatjet_sub_phi", fatjet_sub_phi, &b_fatjet_sub_phi);
+   fChain->SetBranchAddress("fatjet_sub_fem", fatjet_sub_fem, &b_fatjet_sub_fem);
+   fChain->SetBranchAddress("fatjet_sub_fhad", fatjet_sub_fhad, &b_fatjet_sub_fhad);
+   fChain->SetBranchAddress("fatjet_sub_btag", fatjet_sub_btag, &b_fatjet_sub_btag);
    fChain->SetBranchAddress("ele_n", &ele_n, &b_ele_n);
    fChain->SetBranchAddress("ele_E", ele_E, &b_ele_E);
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
