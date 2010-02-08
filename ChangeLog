@@ -1,3 +1,9 @@
+2010-02-08 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* many new variables
+	* new ECAL noise information 
+	* easier handling of globaltag via prepare.sh
+	* code for alpha_T
+	* tagged as version v4-3
 2009-11-30 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* implementation of BoostedHiggsAlgorithm
 	* new config files for DATA 

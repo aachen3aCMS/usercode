@@ -14,7 +14,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+#process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -27,6 +28,10 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 #-- Remove all Monte Carlo matching -------------------------------------------
 from PhysicsTools.PatAlgos.tools.coreTools import *
 removeMCMatching(process, 'All')
+
+# get the 900 GeV jet corrections
+from PhysicsTools.PatAlgos.tools.jetTools import *
+switchJECSet( process, "900GeV")
 
 
 ### Input / output ###
@@ -101,11 +106,11 @@ process.ACSkimAnalysis = cms.EDFilter(
     vtxTag    = vtxTag,
 
     muopt  = cms.double(0.),
-    muoeta = cms.double(2.5),
+    muoeta = cms.double(25.),
     elept  = cms.double(0.),
-    eleeta = cms.double(2.5),
+    eleeta = cms.double(25.),
     jetpt  = cms.double(0.),
-    jeteta = cms.double(2.5),
+    jeteta = cms.double(25.),
     jetfem = cms.double(10.),
     met    = cms.double(0.),
     nele   = cms.int32(0),
@@ -124,9 +129,15 @@ switchOnTrigger( process )
 process.patTriggerSequence.remove( process.patTriggerMatcher )
 process.patTriggerEvent.patTriggerMatches  = ()
 
+# configure HLT to select bit 40 || 41
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
 ### Define the paths
 process.p = cms.Path(
+    process.hltLevel1GTSeed*  # remove 
     process.hcalnoise*
     process.patDefaultSequence*
     process.patTrigger*

@@ -2,20 +2,20 @@
 #
 # Prepare crab submission for a given dataset
 #
-# Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]
+# Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco> <globaltag> [ <pthat_low> <pthat_high> ]
 #
-#   Carsten Magass, January 2009, April 2009, October 2009, November 2009
+#   Carsten Magass, January 2009, April 2009, October 2009, November 2009, December 2009
 #
 
 echo ""  
 echo "  -- Preparing crab submission --"
 echo
 
-if [ $# -le 3 ] || [ $# -gt 6 ] || [ $# -eq 5 ] 
+if [ $# -le 4 ] || [ $# -gt 7 ] || [ $# -eq 6 ] 
 then
   echo " ERROR  "
   echo " Wrong number of arguments !"
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco> <globaltag> [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi
@@ -33,7 +33,7 @@ then
 else
   echo " ERROR : Specify 'reco', 'pat' or 'datareco' "
   echo
-  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco>  [ <pthat_low> <pthat_high> ]"
+  echo " Usage: ./prepare.sh <datasetpath> <version> <tag> <reco|pat|datareco> <globaltag> [ <pthat_low> <pthat_high> ]"
   echo
   exit
 fi
@@ -63,10 +63,10 @@ then
   exit
 fi
 
-geo=`grep globaltag $cfg | cut -f1 -d":" | cut -b43-`
-echo " You IMPLICITLY specified the following option "
-echo "  + process.GlobalTag.globaltag : " $geo
-echo ""
+#geo=`grep globaltag $cfg | cut -f1 -d":" | cut -b43-`
+#echo " You IMPLICITLY specified the following option "
+#echo "  + process.GlobalTag.globaltag : " $geo
+#echo ""
 
 #if echo "$1" | grep $geo >/dev/null
 #then
@@ -79,8 +79,9 @@ echo ""
 #fi
 
 echo " You specified the following options "
-echo "  + datasetpath     : $1 "
-echo "  + user_remote_dir : output/$2/$3 "
+echo "  + datasetpath                 : $1 "
+echo "  + user_remote_dir             : output/$2/$3 "
+echo "  + process.GlobalTag.globaltag : $5"
 
 if [ ! -d $DIR ] 
 then
@@ -120,14 +121,16 @@ echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
 echo "#ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Purdue,T2_US_Florida" >> $CRABFILE
 echo "" >> $CRABFILE
 
-if [ $# -eq 6 ]
+sed s/"globaltag = cms.string('')"/"globaltag = cms.string('$5')"/g < $cfg > $DIR/temp.txt
+
+if [ $# -eq 7 ]
 then
-  echo $DIR/temp.txt $5 $6
-  sed s/"pthat_low  = cms.double(-1.)"/"pthat_low  = cms.double($5)"/g < $cfg > $DIR/temp.txt
-  sed s/"pthat_high = cms.double(-1.)"/"pthat_high = cms.double($6)"/g < $DIR/temp.txt > $DIR/$cfg
-  rm -f $DIR/temp.txt
+#  echo $DIR/temp.txt $6 $7
+  sed s/"pthat_low  = cms.double(-1.)"/"pthat_low  = cms.double($6)"/g < $DIR/temp.txt > $DIR/temp2.txt
+  sed s/"pthat_high = cms.double(-1.)"/"pthat_high = cms.double($7)"/g < $DIR/temp2.txt > $DIR/$cfg
+  rm -f $DIR/temp*.txt
 else
-  cp $cfg $DIR/.
+  mv $DIR/temp.txt $DIR/$cfg
 fi
 
 

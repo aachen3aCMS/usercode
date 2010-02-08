@@ -31,6 +31,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
@@ -161,6 +169,20 @@ private:
   int mTreenoiset;
   int mTreenoiseh;
 
+  double mTreeecalr9;
+  double mTreeecale;
+  double mTreeecalpt;
+  double mTreeecalpx;
+  double mTreeecalpy;
+  double mTreeecalpz;
+  double mTreeecaleta;
+  double mTreeecalphi;
+  double mTreeecaltime;
+  double mTreeecalchi;
+  int    mTreeecalieta;
+  int    mTreeecaliphi;
+  int    mTreeecalflag;
+
   Char_t mTreeHLT[100000];
 
   int mTreetrighltname[50];
@@ -233,6 +255,9 @@ private:
   double mTreeJetFhad[100];
   double mTreeJetBtag[100];
   double mTreeJetCharge[100];
+  double mTreeJetn90[100];
+  double mTreeJetfhpd[100];
+  double mTreeJetfrbx[100];
 
   int    mTreeNtruthjet;
   double mTreetruthJetEt[100];
@@ -264,6 +289,9 @@ private:
   double mTreefatjetsubfem[100][10];
   double mTreefatjetsubfhad[100][10];
   double mTreefatjetsubbtag[100][10];
+  double mTreefatjetsubn90[100][10];
+  double mTreefatjetsubfhpd[100][10];
+  double mTreefatjetsubfrbx[100][10];
 
   int    mTreeNele;
   int    mTreeEleID[100][5];
@@ -325,6 +353,7 @@ private:
 
   int    mTreeNvtx;
   int    mTreeVtxntr[100];
+  double mTreeVtxndf[100];
   double mTreeVtxx[100];
   double mTreeVtxy[100];
   double mTreeVtxz[100];

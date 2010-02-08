@@ -177,3 +177,101 @@ void SUSYAna::write(TString fout, int nstages) {
   f->Close();
    
 }
+// helper
+Double_t SUSYAna::DeltaPhi(double a, double b) {
+
+  double temp = fabs(a-b);
+  if (temp <= TMath::Pi())
+    return temp;
+  else
+    return  2.*TMath::Pi() - temp;
+}
+Double_t SUSYAna::mT(double et1, double phi1, double et2, double phi2) {
+
+  double mm = 2 * et1 * et2 * ( 1. - cos(phi1 - phi2) );
+  return sqrt(mm);
+
+}
+Double_t SUSYAna::MinDEt(const std::vector<TLorentzVector> & objects, 
+			 std::vector<UInt_t> * lista, 
+			 std::vector<UInt_t> * listb) {
+  
+  // Find the combination with the lowest DEt
+  UInt_t n = objects.size();
+  if (n==0) return 0.;
+  if (n==1) return objects[0].Et();
+  if (n>10)  {
+    cout << "MinDEt: n too big : " << n << endl;
+    return -1;
+  }
+  if (lista!=0 && listb!=0) { lista->clear(); listb->clear(); }
+  
+  double mindiff = 1000000000., diff = 0.;
+  
+  // Determine the combination that minimises the difference
+  std::vector< std::vector<UInt_t> > combinationset1;
+  std::vector< std::vector<UInt_t> > combinationset2;
+  Combinations::mycombinations(n, combinationset1, combinationset2);
+  
+  if (combinationset1.size() != combinationset2.size() ) {
+    cout << "MinDEt: Combination set sizes to not match - something has gone wrong..." << endl;
+  }
+  
+  for (UInt_t set = 0; set<combinationset1.size(); set++) {
+    
+    std::vector<UInt_t> la = combinationset1[set]; //!< Temporary list a for calculating best combo
+    std::vector<UInt_t> lb = combinationset2[set]; //!< Temporary list b for calculating best combo
+    
+    Double_t aEt = 0., bEt = 0.;
+    for (std::vector<UInt_t>::iterator ia=la.begin();ia!=la.end();++ia) {
+      //      cout << (*ia) << " ";
+      aEt += objects[ (*ia) ].Et();
+    }
+    //    cout << ", ";
+    for (std::vector<UInt_t>::iterator ib=lb.begin();ib!=lb.end();++ib) {
+      bEt += objects[ (*ib) ].Et();
+      //      cout << (*ib) << " ";
+    }
+    //    cout << endl;
+    diff = fabs(aEt - bEt);
+    //    cout << "Difference in Et is " << diff << endl;
+    if (diff < mindiff) {
+      mindiff = diff;
+      if (lista!=0 && listb!=0) { *lista = la; *listb = lb; }
+    }
+    la.clear(); lb.clear();
+    
+  } // end of loop over combination sets
+  
+  //  cout << "Minimum difference is " << mindiff << endl << endl << endl;
+  //  cout << "===========================================" << endl;
+  
+  return mindiff;
+  
+}
+Double_t SUSYAna::AlphaT(const std::vector<TLorentzVector> & objects) {
+
+  return 0.5*((SumET(objects) - MinDEt(objects))/(MT(objects)));
+
+}
+
+Double_t SUSYAna::SumET(const std::vector<TLorentzVector> & objects) {
+
+  Double_t sEt = 0;    
+  for (std::vector<TLorentzVector>::const_iterator o=objects.begin();o!=objects.end();++o) { 
+    sEt+=o->Et(); 
+  }
+  return sEt;
+
+}
+
+Double_t SUSYAna::MT(const std::vector<TLorentzVector> & objects) {
+
+  Double_t sEt = 0, sPx = 0, sPy = 0;
+  for (std::vector<TLorentzVector>::const_iterator o=objects.begin();o!=objects.end();++o) { 
+    sEt+=o->Et();sPx+=o->Px();sPy+=o->Py(); 
+  }
+  Double_t MTsq = sEt*sEt - sPx*sPx - sPy*sPy;
+  return MTsq >= 0. ? sqrt(MTsq) : -sqrt(-MTsq);
+
+}

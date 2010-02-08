@@ -192,6 +192,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mTreeEventWeight  = 1.;
   mTreePthat        = -999.;
 
+  //  if (mTreeevent!=9703142 && mTreeevent!=4215340 && mTreeevent!=12799746) return 0;
+
   if (is_MC) {
 
     Handle<GenEventInfoProduct> evt_info;
@@ -266,6 +268,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       mTreeVtxchi[i] = (*vertexHandle)[i].normalizedChi2();
       mTreeVtxntr[i] = (*vertexHandle)[i].tracksSize();
+      mTreeVtxndf[i] = (*vertexHandle)[i].ndof();
       mTreeVtxx[i]   = (*vertexHandle)[i].x();
       mTreeVtxy[i]   = (*vertexHandle)[i].y();
       mTreeVtxz[i]   = (*vertexHandle)[i].z();
@@ -870,6 +873,9 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	      mTreefatjetsubfem[cjet][k]  = jet.emEnergyFraction();
 	      mTreefatjetsubfhad[cjet][k] = jet.energyFractionHadronic();
 	      mTreefatjetsubbtag[cjet][k] = jet.bDiscriminator(btag_);
+	      mTreefatjetsubn90[cjet][k]  = jet.jetID().n90Hits;
+	      mTreefatjetsubfhpd[cjet][k] = jet.jetID().fHPD;
+	      mTreefatjetsubfrbx[cjet][k] = jet.jetID().fRBX;
 	      break;
 	    }
 	  }
@@ -958,6 +964,9 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       // default b tagger
       mTreeJetBtag[countjets]   = jets[i].bDiscriminator(btag_);
       mTreeJetCharge[countjets] = jets[i].jetCharge();
+      mTreeJetn90[countjets]    = jets[i].jetID().n90Hits;
+      mTreeJetfhpd[countjets]   = jets[i].jetID().fHPD;
+      mTreeJetfrbx[countjets]   = jets[i].jetID().fRBX;
 
       mTreeJetTruth[countjets] = -1;
       const reco::GenJet * gl = jets[i].genJet();
@@ -972,6 +981,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	}
       }
+
       countjets++;
     }
     mTreeNjet = countjets;
@@ -1075,6 +1085,68 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   if (mTreeMET[0] < met_) return 0;
 
   nrEventPassedRaw_++;
+
+  // ECal Noise
+  edm::Handle<EcalRecHitCollection> pEBRecHits;
+  iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", pEBRecHits );
+  
+  if ( pEBRecHits.isValid() ) {
+    const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+    
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    const CaloGeometry* geo = pG.product();
+
+    edm::ESHandle<CaloTopology> pTopology;
+    iSetup.get<CaloTopologyRecord>().get(pTopology);
+
+    if ( pTopology.isValid() && pG.isValid() ) {
+
+      const CaloTopology *topology = pTopology.product();
+      
+      Double_t energy = 0.;
+      EcalRecHit maxhit;
+
+      for (EcalRecHitCollection::const_iterator elem = ebRecHits->begin(); 
+	   elem != ebRecHits->end(); ++elem) {
+	
+	if (elem->energy() > energy) {
+          energy = elem->energy();
+	  maxhit = *elem;
+	}        
+      }   
+
+      EBDetId EBId = maxhit.id();  
+      GlobalPoint pos = geo->getPosition(maxhit.detid());
+
+      const reco::BasicCluster *cluster = 0;  // dummy
+      Double_t e3x3 = EcalClusterTools::matrixEnergy( *cluster, ebRecHits, topology, maxhit.id(), -1, 1, -1, 1 );
+
+      double ctgTheta = (pos.z() - Point.Z())/pos.perp();
+      double newEta = asinh(ctgTheta);  
+      double pf = 1.0/cosh(newEta);
+
+      mTreeecalr9   = energy/e3x3;
+      mTreeecale    = energy;
+      mTreeecalpt   = energy*pf ;
+      mTreeecaleta  = newEta;
+      mTreeecalphi  = pos.phi();
+      mTreeecalpx   = mTreeecalpt*cos(mTreeecalphi);
+      mTreeecalpy   = mTreeecalpt*sin(mTreeecalphi);
+      mTreeecalpz   = mTreeecale*TMath::TanH(mTreeecaleta);
+      mTreeecaltime = maxhit.time();
+      mTreeecalchi  = maxhit.chi2Prob();
+      mTreeecalflag = maxhit.recoFlag();
+      mTreeecalieta = EBId.ieta();
+      mTreeecaliphi = EBId.iphi();
+
+      //      cout << iEvent.time().value() << " -> " << energy << "  " << energy/e3x3 << "  " << maxhit.time() << "  " 
+      //	   << maxhit.outOfTimeEnergy() << "  " << maxhit.chi2Prob() << endl;
+      //      cout << " -> " << energy << "  " << e3x3 << "  " << pos.eta() << "  " << pos.phi() 
+      //   << "  " << energy*pf << "  " << newEta  << "  " << mTreeecalpx << "  " 
+      //   << mTreeecalpy << "  " << mTreeecalpz << endl;
+    }
+  }
 
   // Fill the tree
   mAllData->Fill();
@@ -1193,6 +1265,20 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("noise_pTight", &mTreenoiset, "noise_pTight/I");
   mAllData->Branch("noise_pHigh",  &mTreenoiseh, "noise_pHigh/I");
 
+  mAllData->Branch("noise_ecal_r9",   &mTreeecalr9,   "noise_ecal_r9/double");
+  mAllData->Branch("noise_ecal_E",    &mTreeecale,    "noise_ecal_E/double");
+  mAllData->Branch("noise_ecal_pt",   &mTreeecalpt,   "noise_ecal_pt/double");
+  mAllData->Branch("noise_ecal_px",   &mTreeecalpx,   "noise_ecal_px/double");
+  mAllData->Branch("noise_ecal_py",   &mTreeecalpy,   "noise_ecal_py/double");
+  mAllData->Branch("noise_ecal_pz" ,  &mTreeecalpz,   "noise_ecal_pz/double");
+  mAllData->Branch("noise_ecal_eta",  &mTreeecaleta,  "noise_ecal_eta/double");
+  mAllData->Branch("noise_ecal_phi",  &mTreeecalphi,  "noise_ecal_phi/double");
+  mAllData->Branch("noise_ecal_time", &mTreeecaltime, "noise_ecal_time/double");
+  mAllData->Branch("noise_ecal_chi",  &mTreeecalchi,  "noise_ecal_chi/double");
+  mAllData->Branch("noise_ecal_flag", &mTreeecalflag, "noise_ecal_flag/I");
+  mAllData->Branch("noise_ecal_ieta", &mTreeecalieta, "noise_ecal_ieta/I");
+  mAllData->Branch("noise_ecal_iphi", &mTreeecaliphi, "noise_ecal_iphi/I");
+
   mAllData->Branch("trig_HLTName",   &mTreetrighltname, "trig_HLTName[50]/I");
   mAllData->Branch("trig_n",         &mTreeNtrig,       "trig_n/I");
   mAllData->Branch("trig_prescale",   mTreetrigpre,     "trig_prescale[trig_n]/I");
@@ -1242,12 +1328,13 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("pdf_scale", &mTreepdfscale, "pdf_scale/F");
 
   // Vertex
-  mAllData->Branch("vtx_n",  &mTreeNvtx,   "vtx_n/I");
-  mAllData->Branch("vtx_ntr", mTreeVtxntr, "vtx_ntr[vtx_n]/I");
-  mAllData->Branch("vtx_x",   mTreeVtxx,   "vtx_x[vtx_n]/double");
-  mAllData->Branch("vtx_y",   mTreeVtxy,   "vtx_y[vtx_n]/double");
-  mAllData->Branch("vtx_z",   mTreeVtxz,   "vtx_z[vtx_n]/double");
-  mAllData->Branch("vtx_chi", mTreeVtxchi, "vtx_chi[vtx_n]/double");
+  mAllData->Branch("vtx_n",   &mTreeNvtx,   "vtx_n/I");
+  mAllData->Branch("vtx_ntr",  mTreeVtxntr, "vtx_ntr[vtx_n]/I");
+  mAllData->Branch("vtx_ndof", mTreeVtxndf, "vtx_ndof[vtx_n]/double");
+  mAllData->Branch("vtx_x",    mTreeVtxx,   "vtx_x[vtx_n]/double");
+  mAllData->Branch("vtx_y",    mTreeVtxy,   "vtx_y[vtx_n]/double");
+  mAllData->Branch("vtx_z",    mTreeVtxz,   "vtx_z[vtx_n]/double");
+  mAllData->Branch("vtx_chi",  mTreeVtxchi, "vtx_chi[vtx_n]/double");
 
   // MET
   mAllData->Branch("met_et",       &mTreeMET,         "met_et[3]/double");
@@ -1273,6 +1360,9 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("jet_fhad",   mTreeJetFhad,   "jet_fhad[jet_n]/double");
   mAllData->Branch("jet_btag",   mTreeJetBtag,   "jet_btag[jet_n]/double");
   mAllData->Branch("jet_charge", mTreeJetCharge, "jet_charge[jet_n]/double");
+  mAllData->Branch("jet_n90",    mTreeJetn90,    "jet_n90[jet_n]/double");
+  mAllData->Branch("jet_fHPD",   mTreeJetfhpd,   "jet_fHPD[jet_n]/double");
+  mAllData->Branch("jet_fRBX",   mTreeJetfrbx,   "jet_fRBX[jet_n]/double");
   mAllData->Branch("jet_flav",   mTreeJetPart,   "jet_flav[jet_n]/I");
   mAllData->Branch("jet_truth",  mTreeJetTruth,  "jet_truth[jet_n]/I");
 
@@ -1308,6 +1398,9 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("fatjet_sub_fem",  mTreefatjetsubfem,  "fatjet_sub_fem[fatjet_n][10]/double");
   mAllData->Branch("fatjet_sub_fhad", mTreefatjetsubfhad, "fatjet_sub_fhad[fatjet_n][10]/double");
   mAllData->Branch("fatjet_sub_btag", mTreefatjetsubbtag, "fatjet_sub_btag[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_n90",  mTreefatjetsubn90,  "fatjet_sub_n90[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_fHPD", mTreefatjetsubfhpd, "fatjet_sub_fHPD[fatjet_n][10]/double");
+  mAllData->Branch("fatjet_sub_fRBX", mTreefatjetsubfrbx, "fatjet_sub_fRBX[fatjet_n][10]/double");
 
   // Electrons
   mAllData->Branch("ele_n",         &mTreeNele,          "ele_n/I");  

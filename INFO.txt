@@ -8,6 +8,7 @@
 		   June 2009 (update)
 		   July 2009 (update)
                    October 2009 (update)
+		   February 2010 (update)
 
 (1) Checkout UserCode/aachen3a/ACSusyAnalysis in <CMSSW>/src,
     then mv UserCode/aachen3a aachen3a (IMPORTANT !).
@@ -16,22 +17,20 @@
     as usual.
 (2) Modify the ACSkim_cfg*py files:
       - is_SHERPA = cms.bool(True) if running on SHERPA samples
-      - Change process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
-        to the tag used for production, e.g. IDEAL_V11.
       - Change the HLT trigger name - if necessary. 
+      - Change the Jet Energy Correction - if necessary.
 (3) Goto /test directory. Prepare submission to crab.
     First inform yourself about the actual crab server
     and change the server name in prepare.sh if necessary.
     Please change also other hardcoded things like dcache 
     directory, email and black/white list.
-    Then call
-    ./prepare.sh <datasetpath> <version> <tag>
-    This will create a directory CRAB-<tag>-<version>
-    if there are no error messages.
+    Then use prepare.sh to create a directory CRAB-<tag>-<version>.
+    Just type
+    ./prepare.sh
+    for help.
     
     If running on QCD you *must* make sure that samples
-    do not overlap. This can also be configured via ./prepare.sh:
-    ./prepare.sh <datasetpath> <version> <tag> <reco|pat> <pthat_low> <pthat_high>
+    do not overlap. This can also be configured via ./prepare.sh.
 (4) Just change to this directory, do
     crab -create and crab -submit
 (5) Wait until the job has finished, and check, if the output
