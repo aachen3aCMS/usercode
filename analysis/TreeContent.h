@@ -76,11 +76,15 @@ class TreeContent {
    Int_t           global_run;
    Int_t           global_event;
    Int_t           global_bx;
-   Int_t           global_lumiblk;
    Int_t           global_orbit;
    Int_t           global_exp;
    Int_t           global_isdata;
    Char_t          global_HLT[100000];
+   Int_t           lumi_section;
+   Double_t        lumi_del;
+   Double_t        lumi_rec;
+   Double_t        lumi_delerr;
+   Double_t        lumi_recerr;
    Int_t           noise_pLoose;
    Int_t           noise_pTight;
    Int_t           noise_pHigh;
@@ -140,11 +144,14 @@ class TreeContent {
    Float_t         pdf_scale;
    Int_t           vtx_n;
    Int_t           vtx_ntr[100];   //[vtx_n]
+   Int_t           vtx_fake[100];   //[vtx_n]
+   Double_t        vtx_ndof[100];   //[vtx_n]
    Double_t        vtx_x[100];   //[vtx_n]
    Double_t        vtx_y[100];   //[vtx_n]
    Double_t        vtx_z[100];   //[vtx_n]
    Double_t        vtx_chi[100];   //[vtx_n]
-   Double_t        vtx_ndof[100];   //[vtx_n]
+   Int_t           tracks_n;
+   Double_t        tracks_hqf;
    Double_t        met_et[3];
    Double_t        met_ex[3];
    Double_t        met_ey[3];
@@ -164,11 +171,11 @@ class TreeContent {
    Double_t        jet_phi[100];   //[jet_n]
    Double_t        jet_fem[100];   //[jet_n]
    Double_t        jet_fhad[100];   //[jet_n]
+   Double_t        jet_btag[100];   //[jet_n]
+   Double_t        jet_charge[100];   //[jet_n]
    Double_t        jet_n90[100];   //[jet_n]
    Double_t        jet_fHPD[100];   //[jet_n]
    Double_t        jet_fRBX[100];   //[jet_n]
-   Double_t        jet_btag[100];   //[jet_n]
-   Double_t        jet_charge[100];   //[jet_n]
    Int_t           jet_flav[100];   //[jet_n]
    Int_t           jet_truth[100];   //[jet_n]
    Int_t           truthjet_n;
@@ -199,10 +206,10 @@ class TreeContent {
    Double_t        fatjet_sub_phi[100][10];   //[fatjet_n]
    Double_t        fatjet_sub_fem[100][10];   //[fatjet_n]
    Double_t        fatjet_sub_fhad[100][10];   //[fatjet_n]
-   Double_t        fatjet_sub_n90[100];   //[fatjet_n]
-   Double_t        fatjet_sub_fHPD[100];   //[fatjet_n]
-   Double_t        fatjet_sub_fRBX[100];   //[fatjet_n]
    Double_t        fatjet_sub_btag[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_n90[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_fHPD[100][10];   //[fatjet_n]
+   Double_t        fatjet_sub_fRBX[100][10];   //[fatjet_n]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -253,6 +260,8 @@ class TreeContent {
    Double_t        muo_d0Tk[100];   //[muo_n]
    Double_t        muo_sd0Cm[100];   //[muo_n]
    Double_t        muo_sd0Tk[100];   //[muo_n]
+   Double_t        muo_calocomp[100];   //[muo_n]
+   Double_t        muo_calotower_e[100];   //[muo_n]
    Int_t           muo_prompttight[100];   //[muo_n]
    Int_t           muo_hitsCm[100];   //[muo_n]
    Int_t           muo_hitsTk[100];   //[muo_n]
@@ -268,11 +277,15 @@ class TreeContent {
    TBranch        *b_global_run;   //!
    TBranch        *b_global_event;   //!
    TBranch        *b_global_bx;   //!
-   TBranch        *b_global_lumiblk;   //!
    TBranch        *b_global_orbit;   //!
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
    TBranch        *b_global_HLT;   //!
+   TBranch        *b_lumi_section;   //!
+   TBranch        *b_lumi_del;   //!
+   TBranch        *b_lumi_rec;   //!
+   TBranch        *b_lumi_delerr;   //!
+   TBranch        *b_lumi_recerr;   //!
    TBranch        *b_noise_pLoose;   //!
    TBranch        *b_noise_pTight;   //!
    TBranch        *b_noise_pHigh;   //!
@@ -332,11 +345,14 @@ class TreeContent {
    TBranch        *b_pdf_scale;   //!
    TBranch        *b_vtx_n;   //!
    TBranch        *b_vtx_ntr;   //!
+   TBranch        *b_vtx_fake;   //!
+   TBranch        *b_vtx_ndof;   //!
    TBranch        *b_vtx_x;   //!
    TBranch        *b_vtx_y;   //!
    TBranch        *b_vtx_z;   //!
    TBranch        *b_vtx_chi;   //!
-   TBranch        *b_vtx_ndof;   //!
+   TBranch        *b_tracks_n;   //!
+   TBranch        *b_tracks_hqf;   //!
    TBranch        *b_met_et;   //!
    TBranch        *b_met_ex;   //!
    TBranch        *b_met_ey;   //!
@@ -355,12 +371,12 @@ class TreeContent {
    TBranch        *b_jet_eta;   //!
    TBranch        *b_jet_phi;   //!
    TBranch        *b_jet_fem;   //!
-   TBranch        *b_jet_fhad;   //!   
-   TBranch        *b_jet_n90;   //!   
-   TBranch        *b_jet_fHPD;   //!   
-   TBranch        *b_jet_fRBX;   //!   
+   TBranch        *b_jet_fhad;   //!
    TBranch        *b_jet_btag;   //!
    TBranch        *b_jet_charge;   //!
+   TBranch        *b_jet_n90;   //!
+   TBranch        *b_jet_fHPD;   //!
+   TBranch        *b_jet_fRBX;   //!
    TBranch        *b_jet_flav;   //!
    TBranch        *b_jet_truth;   //!
    TBranch        *b_truthjet_n;   //!
@@ -391,10 +407,10 @@ class TreeContent {
    TBranch        *b_fatjet_sub_phi;   //!
    TBranch        *b_fatjet_sub_fem;   //!
    TBranch        *b_fatjet_sub_fhad;   //!
-   TBranch        *b_fatjet_sub_n90;   //!   
-   TBranch        *b_fatjet_sub_fHPD;   //!   
-   TBranch        *b_fatjet_sub_fRBX;   //!   
    TBranch        *b_fatjet_sub_btag;   //!
+   TBranch        *b_fatjet_sub_n90;   //!
+   TBranch        *b_fatjet_sub_fHPD;   //!
+   TBranch        *b_fatjet_sub_fRBX;   //!
    TBranch        *b_ele_n;   //!
    TBranch        *b_ele_E;   //!
    TBranch        *b_ele_Et;   //!
@@ -445,6 +461,8 @@ class TreeContent {
    TBranch        *b_muo_d0Tk;   //!
    TBranch        *b_muo_sd0Cm;   //!
    TBranch        *b_muo_sd0Tk;   //!
+   TBranch        *b_muo_calocomp;   //!
+   TBranch        *b_muo_calotower_e;   //!
    TBranch        *b_muo_prompttight;   //!
    TBranch        *b_muo_hitsCm;   //!
    TBranch        *b_muo_hitsTk;   //!
@@ -532,11 +550,15 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_run", &global_run, &b_global_run);
    fChain->SetBranchAddress("global_event", &global_event, &b_global_event);
    fChain->SetBranchAddress("global_bx", &global_bx, &b_global_bx);
-   fChain->SetBranchAddress("global_lumiblk", &global_lumiblk, &b_global_lumiblk);
    fChain->SetBranchAddress("global_orbit", &global_orbit, &b_global_orbit);
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
    fChain->SetBranchAddress("global_HLT", global_HLT, &b_global_HLT);
+   fChain->SetBranchAddress("lumi_section", &lumi_section, &b_lumi_section);
+   fChain->SetBranchAddress("lumi_del", &lumi_del, &b_lumi_del);
+   fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
+   fChain->SetBranchAddress("lumi_delerr", &lumi_delerr, &b_lumi_delerr);
+   fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
    fChain->SetBranchAddress("noise_pLoose", &noise_pLoose, &b_noise_pLoose);
    fChain->SetBranchAddress("noise_pTight", &noise_pTight, &b_noise_pTight);
    fChain->SetBranchAddress("noise_pHigh", &noise_pHigh, &b_noise_pHigh);
@@ -596,11 +618,14 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("pdf_scale", &pdf_scale, &b_pdf_scale);
    fChain->SetBranchAddress("vtx_n", &vtx_n, &b_vtx_n);
    fChain->SetBranchAddress("vtx_ntr", vtx_ntr, &b_vtx_ntr);
+   fChain->SetBranchAddress("vtx_fake", vtx_fake, &b_vtx_fake);
+   fChain->SetBranchAddress("vtx_ndof", vtx_ndof, &b_vtx_ndof);
    fChain->SetBranchAddress("vtx_x", vtx_x, &b_vtx_x);
    fChain->SetBranchAddress("vtx_y", vtx_y, &b_vtx_y);
    fChain->SetBranchAddress("vtx_z", vtx_z, &b_vtx_z);
    fChain->SetBranchAddress("vtx_chi", vtx_chi, &b_vtx_chi);
-   fChain->SetBranchAddress("vtx_ndof", vtx_ndof, &b_vtx_ndof);
+   fChain->SetBranchAddress("tracks_n", &tracks_n, &b_tracks_n);
+   fChain->SetBranchAddress("tracks_hqf", &tracks_hqf, &b_tracks_hqf);
    fChain->SetBranchAddress("met_et", met_et, &b_met_et);
    fChain->SetBranchAddress("met_ex", met_ex, &b_met_ex);
    fChain->SetBranchAddress("met_ey", met_ey, &b_met_ey);
@@ -620,11 +645,11 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("jet_phi", jet_phi, &b_jet_phi);
    fChain->SetBranchAddress("jet_fem", jet_fem, &b_jet_fem);
    fChain->SetBranchAddress("jet_fhad", jet_fhad, &b_jet_fhad);
+   fChain->SetBranchAddress("jet_btag", jet_btag, &b_jet_btag);
+   fChain->SetBranchAddress("jet_charge", jet_charge, &b_jet_charge);
    fChain->SetBranchAddress("jet_n90", jet_n90, &b_jet_n90);
    fChain->SetBranchAddress("jet_fHPD", jet_fHPD, &b_jet_fHPD);
    fChain->SetBranchAddress("jet_fRBX", jet_fRBX, &b_jet_fRBX);
-   fChain->SetBranchAddress("jet_btag", jet_btag, &b_jet_btag);
-   fChain->SetBranchAddress("jet_charge", jet_charge, &b_jet_charge);
    fChain->SetBranchAddress("jet_flav", jet_flav, &b_jet_flav);
    fChain->SetBranchAddress("jet_truth", jet_truth, &b_jet_truth);
    fChain->SetBranchAddress("truthjet_n", &truthjet_n, &b_truthjet_n);
@@ -638,27 +663,27 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("truthjet_eta", truthjet_eta, &b_truthjet_eta);
    fChain->SetBranchAddress("truthjet_phi", truthjet_phi, &b_truthjet_phi);
    fChain->SetBranchAddress("fatjet_n", &fatjet_n, &b_fatjet_n);
-   fChain->SetBranchAddress("fatjet_nsub", fatjet_nsub, &b_fatjet_nsub);
-   fChain->SetBranchAddress("fatjet_pt", fatjet_pt, &b_fatjet_pt);
-   fChain->SetBranchAddress("fatjet_px", fatjet_px, &b_fatjet_px);
-   fChain->SetBranchAddress("fatjet_py", fatjet_py, &b_fatjet_py);
-   fChain->SetBranchAddress("fatjet_pz", fatjet_pz, &b_fatjet_pz);
-   fChain->SetBranchAddress("fatjet_E", fatjet_E, &b_fatjet_E);
-   fChain->SetBranchAddress("fatjet_eta", fatjet_eta, &b_fatjet_eta);
-   fChain->SetBranchAddress("fatjet_phi", fatjet_phi, &b_fatjet_phi);
-   fChain->SetBranchAddress("fatjet_sub_pt", fatjet_sub_pt, &b_fatjet_sub_pt);
-   fChain->SetBranchAddress("fatjet_sub_px", fatjet_sub_px, &b_fatjet_sub_px);
-   fChain->SetBranchAddress("fatjet_sub_py", fatjet_sub_py, &b_fatjet_sub_py);
-   fChain->SetBranchAddress("fatjet_sub_pz", fatjet_sub_pz, &b_fatjet_sub_pz);
-   fChain->SetBranchAddress("fatjet_sub_E", fatjet_sub_E, &b_fatjet_sub_E);
-   fChain->SetBranchAddress("fatjet_sub_eta", fatjet_sub_eta, &b_fatjet_sub_eta);
-   fChain->SetBranchAddress("fatjet_sub_phi", fatjet_sub_phi, &b_fatjet_sub_phi);
-   fChain->SetBranchAddress("fatjet_sub_fem", fatjet_sub_fem, &b_fatjet_sub_fem);
-   fChain->SetBranchAddress("fatjet_sub_fhad", fatjet_sub_fhad, &b_fatjet_sub_fhad);
-   fChain->SetBranchAddress("fatjet_sub_n90", fatjet_sub_n90, &b_fatjet_sub_n90);
-   fChain->SetBranchAddress("fatjet_sub_fHPD", fatjet_sub_fHPD, &b_fatjet_sub_fHPD);
-   fChain->SetBranchAddress("fatjet_sub_fRBX", fatjet_sub_fRBX, &b_fatjet_sub_fRBX);
-   fChain->SetBranchAddress("fatjet_sub_btag", fatjet_sub_btag, &b_fatjet_sub_btag);
+   fChain->SetBranchAddress("fatjet_nsub", &fatjet_nsub, &b_fatjet_nsub);
+   fChain->SetBranchAddress("fatjet_pt", &fatjet_pt, &b_fatjet_pt);
+   fChain->SetBranchAddress("fatjet_px", &fatjet_px, &b_fatjet_px);
+   fChain->SetBranchAddress("fatjet_py", &fatjet_py, &b_fatjet_py);
+   fChain->SetBranchAddress("fatjet_pz", &fatjet_pz, &b_fatjet_pz);
+   fChain->SetBranchAddress("fatjet_E", &fatjet_E, &b_fatjet_E);
+   fChain->SetBranchAddress("fatjet_eta", &fatjet_eta, &b_fatjet_eta);
+   fChain->SetBranchAddress("fatjet_phi", &fatjet_phi, &b_fatjet_phi);
+   fChain->SetBranchAddress("fatjet_sub_pt", &fatjet_sub_pt, &b_fatjet_sub_pt);
+   fChain->SetBranchAddress("fatjet_sub_px", &fatjet_sub_px, &b_fatjet_sub_px);
+   fChain->SetBranchAddress("fatjet_sub_py", &fatjet_sub_py, &b_fatjet_sub_py);
+   fChain->SetBranchAddress("fatjet_sub_pz", &fatjet_sub_pz, &b_fatjet_sub_pz);
+   fChain->SetBranchAddress("fatjet_sub_E", &fatjet_sub_E, &b_fatjet_sub_E);
+   fChain->SetBranchAddress("fatjet_sub_eta", &fatjet_sub_eta, &b_fatjet_sub_eta);
+   fChain->SetBranchAddress("fatjet_sub_phi", &fatjet_sub_phi, &b_fatjet_sub_phi);
+   fChain->SetBranchAddress("fatjet_sub_fem", &fatjet_sub_fem, &b_fatjet_sub_fem);
+   fChain->SetBranchAddress("fatjet_sub_fhad", &fatjet_sub_fhad, &b_fatjet_sub_fhad);
+   fChain->SetBranchAddress("fatjet_sub_btag", &fatjet_sub_btag, &b_fatjet_sub_btag);
+   fChain->SetBranchAddress("fatjet_sub_n90", &fatjet_sub_n90, &b_fatjet_sub_n90);
+   fChain->SetBranchAddress("fatjet_sub_fHPD", &fatjet_sub_fHPD, &b_fatjet_sub_fHPD);
+   fChain->SetBranchAddress("fatjet_sub_fRBX", &fatjet_sub_fRBX, &b_fatjet_sub_fRBX);
    fChain->SetBranchAddress("ele_n", &ele_n, &b_ele_n);
    fChain->SetBranchAddress("ele_E", ele_E, &b_ele_E);
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
@@ -709,6 +734,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_d0Tk", muo_d0Tk, &b_muo_d0Tk);
    fChain->SetBranchAddress("muo_sd0Cm", muo_sd0Cm, &b_muo_sd0Cm);
    fChain->SetBranchAddress("muo_sd0Tk", muo_sd0Tk, &b_muo_sd0Tk);
+   fChain->SetBranchAddress("muo_calocomp", muo_calocomp, &b_muo_calocomp);
+   fChain->SetBranchAddress("muo_calotower_e", muo_calotower_e, &b_muo_calotower_e);
    fChain->SetBranchAddress("muo_prompttight", muo_prompttight, &b_muo_prompttight);
    fChain->SetBranchAddress("muo_hitsCm", muo_hitsCm, &b_muo_hitsCm);
    fChain->SetBranchAddress("muo_hitsTk", muo_hitsTk, &b_muo_hitsTk);

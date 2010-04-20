@@ -2,17 +2,18 @@
 #
 # Count jobs, number of processed & written events for a given joboutput
 #
-# Usage: ./counter.sh <version> <tag> 
+# Usage: ./counter.sh <user> <version> <tag> 
 #
 #   Carsten Magass, January 2009
+#                   April 2010 (update)
 #
 
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
   echo
   echo " ERROR "
   echo " Wrong number of arguments !"
-  echo " Usage: ./counter.sh <version> <tag> "
+  echo " Usage: ./counter.sh <user> <version> <tag> "
   echo
   exit
 fi
@@ -20,10 +21,11 @@ fi
 echo ""  
 echo "  -- Counting Files in dcache --"
 echo
-f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/"$1"/"$2`
+f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/"$1"/output/"$2"/"$3`
+#echo $f
 #n=`ls $f/*root | wc -l`
 #n=`srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | grep root | wc -l`
-n=`mysrmls.sh output/$1/$2 | grep root | wc -l`
+n=`./mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
 echo "  found "$n" files in $f"
 echo
 
@@ -32,7 +34,7 @@ echo "  -- Counting Events using logfiles --"
 echo
 
 
-DIR=`echo "CRAB-"$2"-$1"`
+DIR=`echo "CRAB-"$3"-$2"`
 if [ ! -d $DIR ]
 then
   echo " ERROR "
@@ -57,7 +59,8 @@ if [ "$LIST" ]
 then
   j=0
   k=0
-  IN_EVENTS=0
+  TOTAL_EVENTS=0
+  PASS_EVENTS=0
   OUT_EVENTS=0
   for file in $LIST
   do
@@ -77,11 +80,12 @@ then
       continue
     fi
     file2=`echo $file | sed s/"err"/"out"/g`
+
     EX2=`grep "60303" $file2`
     if  [ "$EX2" ]
     then
       echo "  -> File already exists in SE in " $file2
-      let k=k+1
+#      let k=k+1
 #      continue
     fi
     SE=`grep "60307" $file2`
@@ -98,25 +102,36 @@ then
       let k=k+1
       continue
     fi
-    EXC=`grep "8001" $file2`
+    EXC=`grep "8001" $file2 | grep -v "record"`
     if [ "$EXC" ]
     then
-      echo "  -> Exit status -1 in " $file2
+      echo "  -> Exit status 8001 in " $file2
       let k=k+1
       continue
     fi
+    EXA=`grep "EXECUTABLE_EXIT_STATUS = 8" $file2`
 
-    EVENTS1=`grep "events" $file | awk '{print $6}'`
-    EVENTS2=`grep "events" $file | awk '{print $10}'`
-#    echo $file "  " $EVENTS1 "  " $EVENTS2
-    IN_EVENTS=$(echo "$IN_EVENTS+$EVENTS1" | bc)
-    OUT_EVENTS=$(echo "$OUT_EVENTS+$EVENTS2" | bc)
+    if [ "$EXA" ]
+    then
+      echo "  -> Exit status 8 in " $file2
+      let k=k+1
+      continue
+    fi	
+
+    EVENTS1=`grep "Events total" $file2 | awk '{print $5}'`
+    EVENTS2=`grep "of events" $file2 | awk '{print $6}'`
+    EVENTS3=`grep "of events" $file2 | awk '{print $10}'`
+#    echo $file "  "$EVENTS1"|"$EVENTS2"|"$EVENTS3
+    TOTAL_EVENTS=$(echo "$TOTAL_EVENTS+$EVENTS1" | bc)
+    PASS_EVENTS=$(echo "$PASS_EVENTS+$EVENTS2" | bc)
+    OUT_EVENTS=$(echo "$OUT_EVENTS+$EVENTS3" | bc)
     let k=k+1
     let j=j+1
   done
   echo
   echo '  checked '$j' (out of '$k') CMSSW_*.stderr files '
-  echo '       ==>  #events read    : ' $IN_EVENTS
+  echo '       ==>  #events read    : ' $TOTAL_EVENTS
+  echo '       ==>  #events presel  : ' $PASS_EVENTS
   echo '       ==>  #events written : ' $OUT_EVENTS
   echo
   LAST=`ls -td $DIR/crab_* | head -n1`

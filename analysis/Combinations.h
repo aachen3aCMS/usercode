@@ -95,7 +95,7 @@ namespace Combinations {
         std::stringstream ss1;
         for ( uint16_t ii = 0; ii < size; ++ii ) { ss1 << ii; }
         char cc1[100];
-        std::strcpy( cc1, ss1.str().c_str() );
+        strcpy( cc1, ss1.str().c_str() );
     
         char cc2[100];
 
@@ -105,7 +105,7 @@ namespace Combinations {
                 //for ( uint16_t jj = 0; jj < size/2; ++jj ) { ss2 << jj; }
                 ss2 << jj;
             }
-            std::strcpy( cc2, ss2.str().c_str() );
+            strcpy( cc2, ss2.str().c_str() );
 
             UInt_t size1 = ss1.str().size();
             UInt_t size2 = ss2.str().size();

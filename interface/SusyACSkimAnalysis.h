@@ -38,6 +38,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -54,7 +55,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -78,7 +79,7 @@ public:
 private:
   //*** CMSSW interface
   /// Called once per job, at start
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   /// Called for each event
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   /// Called once per job, at end
@@ -158,12 +159,17 @@ private:
   // Tree variables
   int mTreerun;
   int mTreeevent;
-  int mTreelumiblk;
   int mTreestore;
   int mTreebx;
   int mTreeorbit;
   int mTreeexp;
   int mTreedata;
+
+  int mTreelumiblk;
+  double mTreedellumi;
+  double mTreereclumi;
+  double mTreedellumierr;
+  double mTreereclumierr;
 
   int mTreenoisel;
   int mTreenoiset;
@@ -202,6 +208,9 @@ private:
   double mTreeMETeta[3];
   double mTreeSumET[3];
   double mTreeSumETSignif[3];
+
+  int    mTreeNtracks;
+  double mTreetrackshqf;
 
   int mTreeNtruth;
   int mTreetruthpdgid[100];
@@ -350,9 +359,12 @@ private:
   double mTreeMuod0Tk[100];
   double mTreeMuosd0Cm[100];
   double mTreeMuosd0Tk[100];
+  double mTreeMuocalocomp[100];
+  double mTreeMuocaltowe[100];
 
   int    mTreeNvtx;
   int    mTreeVtxntr[100];
+  int    mTreeVtxfake[100];
   double mTreeVtxndf[100];
   double mTreeVtxx[100];
   double mTreeVtxy[100];

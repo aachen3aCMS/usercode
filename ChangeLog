@@ -1,3 +1,9 @@
+2010-04-20 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* switch to SLC5
+	* updated scripts (prepare, counter)
+	* many new variables (tracks, muons)
+	* new luminosity information
+	* tagged as version v5-0
 2010-02-08 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* many new variables
 	* new ECAL noise information 
