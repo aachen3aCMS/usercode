@@ -59,6 +59,7 @@ if [ "$LIST" ]
 then
   j=0
   k=0
+  m=0
   TOTAL_EVENTS=0
   PASS_EVENTS=0
   OUT_EVENTS=0
@@ -70,6 +71,7 @@ then
     then
       echo "  -> segmentation violation in " $file
       let k=k+1
+      let m=m+1
       continue
     fi
     EX=`grep "CMSException" $file`
@@ -77,22 +79,25 @@ then
     then
       echo "  -> CMSException in " $file
       let k=k+1
+      let m=m+1
       continue
     fi
     file2=`echo $file | sed s/"err"/"out"/g`
 
-    EX2=`grep "60303" $file2`
+    EX2=`grep "StageOutExitStatus = 60303" $file2`
     if  [ "$EX2" ]
     then
       echo "  -> File already exists in SE in " $file2
 #      let k=k+1
+       let m=m+1
 #      continue
     fi
-    SE=`grep "60307" $file2`
+    SE=`grep "StageOutExitStatus = 60307" $file2`
     if [ "$SE" ]
     then
       echo "  -> Stage out problem in " $file2
       let k=k+1
+      let m=m+1
       continue
     fi
     EXB=`grep "JOB_EXIT_STATUS = -1" $file2`
@@ -100,13 +105,15 @@ then
     then
       echo "  -> Exit status -1 in " $file2
       let k=k+1
+      let m=m+1
       continue
     fi
-    EXC=`grep "8001" $file2 | grep -v "record"`
+    EXC=`grep "StageOutExitStatus = 8001" $file2 | grep -v "record"`
     if [ "$EXC" ]
     then
       echo "  -> Exit status 8001 in " $file2
       let k=k+1
+      let m=m+1
       continue
     fi
     EXA=`grep "EXECUTABLE_EXIT_STATUS = 8" $file2`
@@ -115,6 +122,7 @@ then
     then
       echo "  -> Exit status 8 in " $file2
       let k=k+1
+      let m=m+1
       continue
     fi	
 
@@ -130,19 +138,29 @@ then
   done
   echo
   echo '  checked '$j' (out of '$k') CMSSW_*.stderr files '
+  echo '       --> '$m' files contain error messages '
   echo '       ==>  #events read    : ' $TOTAL_EVENTS
   echo '       ==>  #events presel  : ' $PASS_EVENTS
   echo '       ==>  #events written : ' $OUT_EVENTS
   echo
+else
+  echo "  ERROR "
+  echo "  Directory ($DIR) does not contain log files of type CMSSW_*.stderr."
+  echo
+fi
+
   LAST=`ls -td $DIR/crab_* | head -n1`
   echo '  compare with crab submit '$LAST ': '
 #  JOBS=`grep "can" $1/crab_*/log/crab.log | awk '{print $1}'`
 #  EV=`grep "can" $1/crab_*/log/crab.log | awk '{print $6}'`
+if [ -f $LAST/log/crab.log ]
+then
   JOBS=`grep "job(s)" $LAST/log/crab.log | awk '{print $4}'`
   EV=`grep "job(s)" $LAST/log/crab.log | awk '{print $9}'`
   echo '     ' $JOBS 'jobs over' $EV 'events'
-echo
 else
-  echo " Directory ($DIR) does not contain log files of type CMSSW_*.stderr."
   echo
+  echo "  ERROR"
+  echo "  Log file ($LAST/log/crab.log) does not exist ! " 
 fi
+echo

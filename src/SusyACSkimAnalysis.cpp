@@ -51,7 +51,6 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   eleeta_ = iConfig.getParameter<double>("eleeta");
   jetpt_  = iConfig.getParameter<double>("jetpt");
   jeteta_ = iConfig.getParameter<double>("jeteta");
-  jetfem_ = iConfig.getParameter<double>("jetfem");
   met_    = iConfig.getParameter<double>("met");
 
   nele_ = iConfig.getParameter<int>("nele");
@@ -276,7 +275,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle< reco::VertexCollection > vertexHandle;
   iEvent.getByLabel(vertexTag_, vertexHandle);
 
-  math::XYZPoint Point(0,0,0);
+  math::XYZPoint vtxPoint(0,0,0);
 
   if ( !vertexHandle.isValid() ) {
     edm::LogWarning("SusyACSkimAnalysis") << "No reco::Vertex found for InputTag " << vertexTag_;
@@ -297,8 +296,67 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeVtxz[i]    = (*vertexHandle)[i].z();
     }
   }
-  if (mTreeNvtx>0) Point.SetXYZ(mTreeVtxx[0], mTreeVtxy[0], mTreeVtxz[0]);
+  if (mTreeNvtx>0) vtxPoint.SetXYZ(mTreeVtxx[0], mTreeVtxy[0], mTreeVtxz[0]);
 
+  // Beam Spot
+  edm::Handle< reco::BeamSpot > BeamSpotHandle;
+  iEvent.getByLabel("offlineBeamSpot", BeamSpotHandle);
+
+  math::XYZPoint bsPoint(0,0,0);
+
+  if ( !BeamSpotHandle.isValid() ) {
+    edm::LogWarning("SusyACSkimAnalysis") << "No reco::BeamSpot found for InputTag offlineBeamSpot";
+  }
+  else {
+  
+    const reco::BeamSpot offlineBeamSpot = *BeamSpotHandle;
+
+    mTreebspX = BeamSpotHandle->x0();
+    mTreebspY = BeamSpotHandle->y0();
+    mTreebspZ = BeamSpotHandle->z0();
+    bsPoint.SetXYZ(mTreebspX, mTreebspY, mTreebspZ);
+  }
+    
+  // Track information
+  edm::Handle<reco::TrackCollection> tkRef;
+  iEvent.getByLabel("generalTracks", tkRef);   
+
+  if (tkRef.isValid()) {
+    const reco::TrackCollection* tkColl = tkRef.product();
+
+    mTreeNtracks = tkColl->size();
+
+    int numhighpurity = 0;
+    reco::TrackBase::TrackQuality  _trackQuality = reco::TrackBase::qualityByName("highPurity");
+
+    reco::TrackCollection::const_iterator itk   = tkColl->begin();
+    reco::TrackCollection::const_iterator itk_e = tkColl->end();
+
+    for ( ; itk!=itk_e; ++itk) {
+
+      if (itk->quality(_trackQuality)) numhighpurity++;
+    }
+    mTreetrackshqf = (double)numhighpurity/(double)mTreeNtracks;
+  }
+
+  // Magnet Fiels
+  edm::Handle<DcsStatusCollection> dcsHandle;
+  iEvent.getByLabel("scalersRawToDigi", dcsHandle);
+
+  if (is_MC) {
+
+    ESHandle<MagneticField> magneticField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+        
+    bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+
+  }
+  else {
+
+    float currentToBFieldScaleFactor = 2.09237036221512717e-04;
+    float current = (*dcsHandle)[0].magnetCurrent();
+    bfield = current*currentToBFieldScaleFactor;
+  }
 
   // Truth tree
   mTreeNtruth  = 0;
@@ -612,9 +670,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       cout << endl;
       */
 
-      mTreeEleTrkIsoDep[countele]  = -1.;
-      mTreeEleECalIsoDep[countele] = -1.;
-      mTreeEleHCalIsoDep[countele] = -1.;
 
       mTreeEleP[countele]          = eles[i].p();
       mTreeElePt[countele]         = eles[i].pt();
@@ -625,34 +680,57 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeElePz[countele]         = eles[i].momentum().Z();
       mTreeEleEta[countele]        = eles[i].eta();
       mTreeElePhi[countele]        = eles[i].phi();
-      mTreeEleTrkIso[countele]     = eles[i].trackIso();
-      mTreeEleRelTrkIso[countele]  = ( eles[i].trackIso()+eles[i].et() )/eles[i].et();
       mTreeEleCharge[countele]     = eles[i].charge();
-      mTreeEleECalIso[countele]    = eles[i].ecalIso();
-      mTreeEleHCalIso[countele]    = eles[i].hcalIso();
-      mTreeEleAllIso[countele]     = eles[i].caloIso();
-      if (eles[i].trackIsoDeposit())
-	mTreeEleTrkIsoDep[countele]  = eles[i].trackIsoDeposit()->candEnergy();
-      if (eles[i].ecalIsoDeposit())
-	mTreeEleECalIsoDep[countele] = eles[i].ecalIsoDeposit()->candEnergy();
-      if (eles[i].hcalIsoDeposit())
-	mTreeEleHCalIsoDep[countele] = eles[i].hcalIsoDeposit()->candEnergy();
+
+      mTreeEleHCalOverEm[countele]          = eles[i].hadronicOverEm(); 
+      mTreeEleDr03TkSumPt[countele]         = eles[i].dr03TkSumPt(); 
+      mTreeEleDr04HCalTowerSumEt[countele]  = eles[i].dr04HcalTowerSumEt();
+      mTreeEleDr04ECalRecHitSumEt[countele] = eles[i].dr04EcalRecHitSumEt(); 
+
+      // weighted cluster rms along eta and inside 5x5
+      mTreeEleSigmaIetaIeta[countele] = eles[i].sigmaIetaIeta(); 
+
+      // the supercluster eta - track eta position at calo extrapolated from innermost track state
+      mTreeEleDeltaEtaSuperClusterTrackAtVtx[countele] = eles[i].deltaEtaSuperClusterTrackAtVtx(); 
+
+      // the supercluster phi - track phi position at calo extrapolated from the innermost track state
+      mTreeEleDeltaPhiSuperClusterTrackAtVtx[countele] = eles[i].deltaPhiSuperClusterTrackAtVtx(); 
+
+      // Check for conversions
+      reco::GsfElectron el = eles[i];
       
+      ConversionFinder convFinder;
+      ConversionInfo convInfo = convFinder.getConversionInfo(el, tkRef, bfield);
+      
+      mTreeEleConvdist[countele] = convInfo.dist();
+      mTreeEleConvdcot[countele] = convInfo.dcot();
+      mTreeEleConvr[countele]    = convInfo.radiusOfConversion();
+
+
       if (eles[i].gsfTrack().isNonnull()) {
 
-	mTreeEleHits[countele] = eles[i].gsfTrack().get()->numberOfValidHits();
-	mTreeEled0[countele]   = (-1.)* eles[i].gsfTrack().get()->dxy(Point);
-	mTreeElesd0[countele]  = eles[i].gsfTrack().get()->d0Error();
+	mTreeEleHits[countele]  = eles[i].gsfTrack().get()->numberOfValidHits();
+	mTreeEled0vtx[countele] = (-1.)* eles[i].gsfTrack().get()->dxy(vtxPoint);
+	mTreeElesd0[countele]   = eles[i].gsfTrack().get()->d0Error();
+
+	mTreeEled0bs[countele]  = fabs(eles[i].gsfTrack()->dxy(bsPoint));
+	// hit pattern used for expected crossed layers after the last trajectory's hit 
+	mTreeEleTrkExpHitsInner[countele] = eles[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
+	// has valid hit in Pixel layer 1
+	mTreeEleValidHitFirstPxlB[countele] = eles[i].gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel(); 
 
 	if (eles[i].gsfTrack().get()->ndof() > 0)
 	  mTreeEleTrkChiNorm[countele] = eles[i].gsfTrack().get()->chi2()/ eles[i].gsfTrack().get()->ndof();
 	else  mTreeEleTrkChiNorm[countele] = 999.;
       }
       else {
-	mTreeEleHits[countele]       = -1;
-	mTreeEleTrkChiNorm[countele] = 999.;
- 	mTreeEled0[countele]         = 999.;
-	mTreeElesd0[countele]        = 999.;
+	mTreeEleHits[countele]              = -1;
+	mTreeEleTrkChiNorm[countele]        = 999.;
+ 	mTreeEled0vtx[countele]             = 999.;
+	mTreeElesd0[countele]               = 999.;
+ 	mTreeEled0bs[countele]              = 999.;
+	mTreeEleTrkExpHitsInner[countele]   = -1;
+	mTreeEleValidHitFirstPxlB[countele] = -1;
       }
 
       // CM Trigger not working
@@ -676,7 +754,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(muonTag_, muonHandle);
 
   std::vector<pat::Muon> muons;
-  
+
   if ( !muonHandle.isValid() ) 
     edm::LogWarning("SusyACSkimAnalysis") << "No Muon results found for InputTag " << muonTag_;
   else {
@@ -727,6 +805,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMuoECalIsoDep[countmuo] = -1.;
       mTreeMuoHCalIsoDep[countmuo] = -1.;
  
+      for (int j=0; j<24; j++) {
+	mTreeMuoID[countmuo][j] = muons[i].muonID(ACmuonID[j].Data());
+      }
+
       mTreeMuoP[countmuo]          = muons[i].p();
       mTreeMuoPt[countmuo]         = muons[i].pt();
       mTreeMuoE[countmuo]          = muons[i].energy();
@@ -756,7 +838,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( muons[i].combinedMuon().isNonnull() ) {
 
 	mTreeMuoHitsCm[countmuo] = muons[i].combinedMuon().get()->numberOfValidHits();
-	mTreeMuod0Cm[countmuo]   = (-1.)* muons[i].combinedMuon().get()->dxy(Point);
+	mTreeMuod0Cm[countmuo]   = (-1.)* muons[i].combinedMuon().get()->dxy(vtxPoint);
 	mTreeMuosd0Cm[countmuo]  = muons[i].combinedMuon().get()->d0Error();
 
 	/*
@@ -801,7 +883,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( muons[i].innerTrack().isNonnull() ) {
 
 	mTreeMuoHitsTk[countmuo] = muons[i].innerTrack().get()->numberOfValidHits();
-	mTreeMuod0Tk[countmuo]   = (-1.)* muons[i].innerTrack().get()->dxy(Point);
+	mTreeMuod0Tk[countmuo]   = (-1.)* muons[i].innerTrack().get()->dxy(vtxPoint);
 	mTreeMuosd0Tk[countmuo]  = muons[i].innerTrack().get()->d0Error();
 
 	if (muons[i].innerTrack().get()->ndof() > 0) {
@@ -901,7 +983,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  for (int l=0; l<mTreeNjet; l++) {
 	    if (fabs(mTreefatjetsubeta[cjet][k]-_jeta[l])<1e-7 && fabs(mTreefatjetsubphi[cjet][k]-_jphi[l])<1e-7) {
  
-	      const pat::Jet& jet = (*jetHandle2)[k];
+	      const pat::Jet& jet = (*jetHandle2)[l];
 
 	      mTreefatjetsubpt[cjet][k]   = jet.pt();
 	      mTreefatjetsubpx[cjet][k]   = jet.px();
@@ -970,7 +1052,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if ( cor_ != jet.corrStep() || flav_ != jet.corrFlavour())  
 	correction = jet.corrFactor(cor_, flav_);
-
+      
       // Jet Corrections:
       //  L0 : raw
       //  L1 : off
@@ -980,13 +1062,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       //  L5 : had  with glu/uds/c/b
       //  L6 : ue   with glu/uds/c/b
       //  L7 : part with glu/uds/c/b
-
-      //      cout << " Jet Correction [ " << i << " ]  (" << jet.corrStep() << ", " << jet.corrFlavour() 
+      
+      //cout << " Jet Correction [ " << i << " ]  (" << jet.corrStep() << ", " << jet.corrFlavour() 
       //   << " ) -> (" << cor_ << ", " << flav_ << ") : " << correction << endl;
-
-      if ((jets[i].pt() * correction) < jetpt_ || fabs(jets[i].eta()) > jeteta_ ||
-	  jets[i].emEnergyFraction() > jetfem_) continue;
-     
+      
+      if ((jets[i].pt() * correction) < jetpt_ || fabs(jets[i].eta()) > jeteta_) continue;
+    
       mTreeJetP[countjets]      = jets[i].p() * correction;
       mTreeJetPt[countjets]     = jets[i].pt() * correction;
       mTreeJetE[countjets]      = jets[i].energy() * correction;
@@ -996,15 +1077,34 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeJetPz[countjets]     = jets[i].momentum().Z() * correction;
       mTreeJetEta[countjets]    = jets[i].eta();
       mTreeJetPhi[countjets]    = jets[i].phi();
-      mTreeJetFem[countjets]    = jets[i].emEnergyFraction();
-      mTreeJetFhad[countjets]   = jets[i].energyFractionHadronic();
-      mTreeJetPart[countjets]   = jets[i].partonFlavour();
+
+      if (jets[i].isCaloJet()) {
+	mTreeJetFem[countjets]   = jets[i].emEnergyFraction();
+	mTreeJetFhad[countjets]  = jets[i].energyFractionHadronic();
+	mTreeJetConst[countjets] = jets[i].getCaloConstituents().size();
+      }
+      if (jets[i].isPFJet()) {
+	mTreeJetF[countjets][0]  = jets[i].chargedHadronEnergyFraction();
+	mTreeJetN[countjets][0]  = jets[i].chargedMultiplicity();     // pfSpecific().chargedHadronMultiplicity();
+	mTreeJetF[countjets][1]  = jets[i].neutralHadronEnergyFraction(); 
+	mTreeJetN[countjets][1]  = jets[i].neutralMultiplicity();     // pfSpecific().neutralHadronMultiplicity();
+	mTreeJetF[countjets][2]  = jets[i].neutralEmEnergyFraction(); // photonEnergyFraction();
+	mTreeJetN[countjets][2]  = 0;                                 // jets[i].pfSpecific().photonMultiplicity();
+	mTreeJetF[countjets][3]  = jets[i].chargedEmEnergyFraction(); // electronEnergyFraction();
+	mTreeJetN[countjets][3]  = 0;                                 // jets[i].pfSpecific().electronMultiplicity();
+	mTreeJetF[countjets][4]  = jets[i].chargedMuEnergyFraction(); // muonEnergyFraction();
+	mTreeJetN[countjets][4]  = jets[i].muonMultiplicity();        // pfSpecific().muonMultiplicity();
+
+	mTreeJetConst[countjets] = jets[i].getPFConstituents().size();
+      }
+      mTreeJetPart[countjets]    = jets[i].partonFlavour();
       // default b tagger
-      mTreeJetBtag[countjets]   = jets[i].bDiscriminator(btag_);
-      mTreeJetCharge[countjets] = jets[i].jetCharge();
-      mTreeJetn90[countjets]    = jets[i].jetID().n90Hits;
-      mTreeJetfhpd[countjets]   = jets[i].jetID().fHPD;
-      mTreeJetfrbx[countjets]   = jets[i].jetID().fRBX;
+      mTreeJetBtag[countjets]    = jets[i].bDiscriminator(btag_);
+      mTreeJetCharge[countjets]  = jets[i].jetCharge();
+      mTreeJetn90[countjets]     = jets[i].n90();
+      mTreeJetn90hits[countjets] = jets[i].jetID().n90Hits;
+      mTreeJetfhpd[countjets]    = jets[i].jetID().fHPD;
+      mTreeJetfrbx[countjets]    = jets[i].jetID().fRBX;
 
       mTreeJetTruth[countjets] = -1;
       const reco::GenJet * gl = jets[i].genJet();
@@ -1124,28 +1224,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   nrEventPassedRaw_++;
 
-  // Track information
-  edm::Handle<reco::TrackCollection> tkRef;
-  iEvent.getByLabel("generalTracks", tkRef);   
-
-  if (tkRef.isValid()) {
-    const reco::TrackCollection* tkColl = tkRef.product();
-
-    mTreeNtracks = tkColl->size();
-
-    int numhighpurity = 0;
-    reco::TrackBase::TrackQuality  _trackQuality = reco::TrackBase::qualityByName("highPurity");
-
-    reco::TrackCollection::const_iterator itk   = tkColl->begin();
-    reco::TrackCollection::const_iterator itk_e = tkColl->end();
-
-    for ( ; itk!=itk_e; ++itk) {
-
-      if (itk->quality(_trackQuality)) numhighpurity++;
-    }
-    mTreetrackshqf = (double)numhighpurity/(double)mTreeNtracks;
-  }
-  
   // ECal Noise
   edm::Handle<EcalRecHitCollection> pEBRecHits;
   iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", pEBRecHits );
@@ -1182,7 +1260,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       const reco::BasicCluster *cluster = 0;  // dummy
       Double_t e3x3 = EcalClusterTools::matrixEnergy( *cluster, ebRecHits, topology, maxhit.id(), -1, 1, -1, 1 );
 
-      double ctgTheta = (pos.z() - Point.Z())/pos.perp();
+      double ctgTheta = (pos.z() - vtxPoint.Z())/pos.perp();
       double newEta = asinh(ctgTheta);  
       double pf = 1.0/cosh(newEta);
 
@@ -1402,6 +1480,11 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("vtx_z",    mTreeVtxz,   "vtx_z[vtx_n]/double");
   mAllData->Branch("vtx_chi",  mTreeVtxchi, "vtx_chi[vtx_n]/double");
 
+  // Beam Spot
+  mAllData->Branch("bs_x", &mTreebspX, "bs_x/double");
+  mAllData->Branch("bs_y", &mTreebspY, "bs_y/double");
+  mAllData->Branch("bs_z", &mTreebspZ, "bs_z/double");
+
   // Tracks
   mAllData->Branch("tracks_n",   &mTreeNtracks,   "tracks_n/I");
   mAllData->Branch("tracks_hqf", &mTreetrackshqf, "tracks_hqf/double");
@@ -1430,11 +1513,15 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("jet_fhad",   mTreeJetFhad,   "jet_fhad[jet_n]/double");
   mAllData->Branch("jet_btag",   mTreeJetBtag,   "jet_btag[jet_n]/double");
   mAllData->Branch("jet_charge", mTreeJetCharge, "jet_charge[jet_n]/double");
-  mAllData->Branch("jet_n90",    mTreeJetn90,    "jet_n90[jet_n]/double");
   mAllData->Branch("jet_fHPD",   mTreeJetfhpd,   "jet_fHPD[jet_n]/double");
   mAllData->Branch("jet_fRBX",   mTreeJetfrbx,   "jet_fRBX[jet_n]/double");
+  mAllData->Branch("jet_n90hits",mTreeJetn90hits,"jet_n90hits[jet_n]/I");
+  mAllData->Branch("jet_n90",    mTreeJetn90,    "jet_n90[jet_n]/I");
   mAllData->Branch("jet_flav",   mTreeJetPart,   "jet_flav[jet_n]/I");
   mAllData->Branch("jet_truth",  mTreeJetTruth,  "jet_truth[jet_n]/I");
+  mAllData->Branch("jet_const",  mTreeJetConst,  "jet_const[jet_n]/I");
+  mAllData->Branch("jet_PFN",    mTreeJetN,      "jet_PFN[jet_n][5]/I");
+  mAllData->Branch("jet_PFF",    mTreeJetF,      "jet_PFF[jet_n][5]/double");
 
   // Generator Jets
   mAllData->Branch("truthjet_n",   &mTreeNtruthjet,    "truthjet_n/I");  
@@ -1484,20 +1571,25 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_eta",        mTreeEleEta,        "ele_eta[ele_n]/double");
   mAllData->Branch("ele_phi",        mTreeElePhi,        "ele_phi[ele_n]/double");
   mAllData->Branch("ele_charge",     mTreeEleCharge,     "ele_charge[ele_n]/double");
-  mAllData->Branch("ele_RelTrkIso",  mTreeEleRelTrkIso,  "ele_RelTrkIso[ele_n]/double");
-  mAllData->Branch("ele_TrkIso",     mTreeEleTrkIso,     "ele_TrkIso[ele_n]/double");
-  mAllData->Branch("ele_ECalIso",    mTreeEleECalIso,    "ele_ECalIso[ele_n]/double");
-  mAllData->Branch("ele_HCalIso",    mTreeEleHCalIso,    "ele_HCalIso[ele_n]/double");
-  mAllData->Branch("ele_TrkIsoDep",  mTreeEleTrkIsoDep,  "ele_TrkIsoDep[ele_n]/double");
-  mAllData->Branch("ele_ECalIsoDep", mTreeEleECalIsoDep, "ele_ECalIsoDep[ele_n]/double");
-  mAllData->Branch("ele_HCalIsoDep", mTreeEleHCalIsoDep, "ele_HCalIsoDep[ele_n]/double");
-  mAllData->Branch("ele_AllIso",     mTreeEleAllIso,     "ele_AllIso[ele_n]/double");
   mAllData->Branch("ele_TrkChiNorm", mTreeEleTrkChiNorm, "ele_TrkChiNorm[ele_n]/double");
-  mAllData->Branch("ele_d0",         mTreeEled0,         "ele_d0[ele_n]/double");
+  mAllData->Branch("ele_d0vtx",      mTreeEled0vtx,      "ele_d0vtx[ele_n]/double");
+  mAllData->Branch("ele_d0bs",       mTreeEled0bs,       "ele_d0bs[ele_n]/double");
   mAllData->Branch("ele_sd0",        mTreeElesd0,        "ele_sd0[ele_n]/double");
   mAllData->Branch("ele_hits",       mTreeEleHits,       "ele_hits[ele_n]/I");
   mAllData->Branch("ele_truth",      mTreeEleTruth,      "ele_truth[ele_n]/I");
   mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/I");
+  mAllData->Branch("ele_ValidHitFirstPxlB",mTreeEleValidHitFirstPxlB,              "ele_ValidHitFirstPxlB[ele_n]/I");
+  mAllData->Branch("ele_TrkExpHitsInner",  mTreeEleTrkExpHitsInner,                "ele_EleTrkExpHitsInner[ele_n]/double");
+  mAllData->Branch("ele_HCalOverEm",       mTreeEleHCalOverEm,                     "ele_HCalOverEm[ele_n]/double");
+  mAllData->Branch("ele_Dr03TkSumPt",      mTreeEleDr03TkSumPt,                    "ele_Dr03TkSumPt[ele_n]/double");
+  mAllData->Branch("ele_Dr04HCalSumEt",    mTreeEleDr04HCalTowerSumEt,             "ele_Dr04HCalSumEt[ele_n]/double");
+  mAllData->Branch("ele_Dr04ECalSumEt",    mTreeEleDr04ECalRecHitSumEt,            "ele_Dr04ECalSumEt[ele_n]/double");
+  mAllData->Branch("ele_SigmaIetaIeta",    mTreeEleSigmaIetaIeta,                  "ele_SigmaIetaIeta[ele_n]/double");
+  mAllData->Branch("ele_dEtaSCTrackAtVtx", mTreeEleDeltaEtaSuperClusterTrackAtVtx, "ele_dEtaSCTrackAtVtx[ele_n]/double");
+  mAllData->Branch("ele_dPhiSCTrackAtVtx", mTreeEleDeltaPhiSuperClusterTrackAtVtx, "ele_dPhiSCTrackAtVtx[ele_n]/double");
+  mAllData->Branch("ele_convdist", mTreeEleConvdist, "ele_convdist[ele_n]/double");
+  mAllData->Branch("ele_convdcot", mTreeEleConvdcot, "ele_convdcot[ele_n]/double");
+  mAllData->Branch("ele_convr",    mTreeEleConvr,    "ele_convr[ele_n]/double");
 
   // Muons
   mAllData->Branch("muo_n" ,           &mTreeNmuo,            "muo_n/I");  
@@ -1533,6 +1625,35 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_truth",         mTreeMuoTruth,        "muo_truth[muo_n]/I");
   mAllData->Branch("muo_trign",         mTreeNmuotrign,       "muo_trign[muo_n]/I");
   mAllData->Branch("muo_trig" ,         mTreeMuotrig,         "muo_trig[muo_n][100]/I");  
+  mAllData->Branch("muo_ID",            mTreeMuoID,           "muo_ID[muo_n][24]/I");
+
+  // DataFormats/MuonReco/interface/MuonSelectors.h
+  ACmuonID[0]  = "All";                     // dummy options - always true
+  ACmuonID[1]  = "AllGlobalMuons";          // checks isGlobalMuon flag
+  ACmuonID[2]  = "AllStandAloneMuons";      // checks isStandAloneMuon flag
+  ACmuonID[3]  = "AllTrackerMuons";         // checks isTrackerMuon flag
+  ACmuonID[4]  = "TrackerMuonArbitrated";   // resolve ambiguity of sharing segments
+  ACmuonID[5]  = "AllArbitrated";           // all muons with the tracker muon arbitrated
+  ACmuonID[6]  = "GlobalMuonPromptTight";   // global muons with tighter fit requirements
+  ACmuonID[7]  = "TMLastStationLoose";      // penetration depth loose selector
+  ACmuonID[8]  = "TMLastStationTight";      // penetration depth tight selector
+  ACmuonID[9]  = "TM2DCompatibilityLoose";  // likelihood based loose selector
+  ACmuonID[10] = "TM2DCompatibilityTight";  // likelihood based tight selector
+  ACmuonID[11] = "TMOneStationLoose";       // require one well matched segment
+  ACmuonID[12] = "TMOneStationTight";       // require one well matched segment
+  ACmuonID[13] = "TMLastStationOptimizedLowPtLoose"; // combination of TMLastStation and TMOneStation
+  ACmuonID[14] = "TMLastStationOptimizedLowPtTight"; // combination of TMLastStation and TMOneStation
+  ACmuonID[15] = "GMTkChiCompatibility";    // require tk stub have good chi2 relative to glb track
+  ACmuonID[16] = "GMStaChiCompatibility";   // require sta stub have good chi2 compatibility relative to glb track
+  ACmuonID[17] = "GMTkKinkTight";           // require a small kink value in the tracker stub
+  ACmuonID[18] = "TMLastStationAngLoose";   // TMLastStationLoose with additional angular cuts
+  ACmuonID[19] = "TMLastStationAngTight";   // TMLastStationTight with additional angular cuts
+  ACmuonID[20] = "TMOneStationAngLoose";    // TMOneStationLoose with additional angular cuts
+  ACmuonID[21] = "TMOneStationAngTight";    // TMOneStationTight with additional angular cuts
+  ACmuonID[22] = "TMLastStationOptimizedBarrelLowPtLoose"; 
+			  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+  ACmuonID[23] = "TMLastStationOptimizedBarrelLowPtTight";
+			  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
 
 }
 

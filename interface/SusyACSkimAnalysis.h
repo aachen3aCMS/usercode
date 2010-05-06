@@ -30,16 +30,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
-
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
@@ -49,17 +51,21 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include "CommonTools/Utils/interface/PtComparator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "aachen3a/ACSusyAnalysis/interface/TriggerTools.h"
 
@@ -131,8 +137,12 @@ private:
 
   typedef std::pair<std::string,float> IdPair;
 
+  TString ACmuonID[24];
+
   double _jeta[100];
   double _jphi[100];
+
+  double bfield;
 
   int nele_;
   int nmuo_;
@@ -142,7 +152,6 @@ private:
   double elept_;
   double eleeta_;
   double jetpt_;
-  double jetfem_;
   double jeteta_;
   double met_;
 
@@ -251,6 +260,10 @@ private:
   int    mTreeNjet;
   int    mTreeJetTruth[100];
   int    mTreeJetPart[100];
+  int    mTreeJetConst[100];
+  int    mTreeJetN[100][5];
+  int    mTreeJetn90[100];
+  int    mTreeJetn90hits[100];
   double mTreeJetEt[100];
   double mTreeJetPt[100];
   double mTreeJetP[100];
@@ -264,9 +277,9 @@ private:
   double mTreeJetFhad[100];
   double mTreeJetBtag[100];
   double mTreeJetCharge[100];
-  double mTreeJetn90[100];
   double mTreeJetfhpd[100];
   double mTreeJetfrbx[100];
+  double mTreeJetF[100][5];
 
   int    mTreeNtruthjet;
   double mTreetruthJetEt[100];
@@ -306,6 +319,7 @@ private:
   int    mTreeEleID[100][5];
   int    mTreeEleTruth[100];
   int    mTreeEleHits[100];
+  int    mTreeEleValidHitFirstPxlB[100];
   double mTreeEleEt[100];
   double mTreeEleP[100];
   double mTreeElePt[100];
@@ -315,18 +329,22 @@ private:
   double mTreeEleE[100];
   double mTreeEleEta[100];
   double mTreeElePhi[100];
-  double mTreeEleTrkIso[100];
-  double mTreeEleRelTrkIso[100];
-  double mTreeEleECalIso[100];
-  double mTreeEleHCalIso[100];
-  double mTreeEleAllIso[100];
-  double mTreeEleECalIsoDep[100];
-  double mTreeEleHCalIsoDep[100];
-  double mTreeEleTrkIsoDep[100];
+  double mTreeEleHCalOverEm[100];
+  double mTreeEleTrkExpHitsInner[100];
+  double mTreeEleDr03TkSumPt[100];
+  double mTreeEleDr04HCalTowerSumEt[100];
+  double mTreeEleDr04ECalRecHitSumEt[100];
+  double mTreeEleSigmaIetaIeta[100];
+  double mTreeEleDeltaEtaSuperClusterTrackAtVtx[100];
+  double mTreeEleDeltaPhiSuperClusterTrackAtVtx[100];
   double mTreeEleTrkChiNorm[100];
   double mTreeEleCharge[100];
-  double mTreeEled0[100];
+  double mTreeEled0vtx[100];
+  double mTreeEled0bs[100];
   double mTreeElesd0[100];
+  double mTreeEleConvdist[100];
+  double mTreeEleConvdcot[100];
+  double mTreeEleConvr[100];
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];
@@ -335,6 +353,7 @@ private:
   int    mTreeMuoHitsCm[100];
   int    mTreeMuoHitsTk[100];
   int    mTreeMuoGood[100];
+  int    mTreeMuoID[100][24];
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
   double mTreeMuoPt[100];
@@ -370,6 +389,10 @@ private:
   double mTreeVtxy[100];
   double mTreeVtxz[100];
   double mTreeVtxchi[100];
+
+  double mTreebspX;
+  double mTreebspY;
+  double mTreebspZ;
 
   double mTreeEventWeight;
   int    mTreeProcID;

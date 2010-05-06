@@ -77,7 +77,8 @@ touch $CRABFILE
 echo "[CRAB]" >> $CRABFILE
 echo "jobtype = cmssw" >> $CRABFILE
 echo "scheduler = glite" >> $CRABFILE
-echo "server_name = cern" >> $CRABFILE
+echo "use_server = 1" >> $CRABFILE
+#echo "server_name = cern" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[CMSSW]" >> $CRABFILE
 echo "# dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_02/servlet/DBSServlet" >> $CRABFILE

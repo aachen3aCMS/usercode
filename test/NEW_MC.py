@@ -64,6 +64,10 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('out.root')
                                    )
 
+# add ParticleFlow met
+from PhysicsTools.PatAlgos.tools.metTools import *
+addPfMET(process, 'PF')
+
 # Boosted Higgs
 #addJetCollection(process,
 #                 cms.InputTag('BoostedHiggsSubjets'), 'BHS', '',
@@ -74,14 +78,29 @@ process.TFileService = cms.Service("TFileService",
 #                 doJetID          = False,
 #                 genJetCollection = cms.InputTag("antikt5GenJets"))
 
-# use anti-kt 5 jets
-switchJetCollection(process,
-                    cms.InputTag('ak5CaloJets'),
-                    doJTA            = True,           # Run Jet-Track association & JetCharge
-                    doBTagging       = True,           # Run b-tagging
-                    jetCorrLabel     = ('AK5','Calo'), # jet correction name; set to None for no JEC
-                    doType1MET       = True,           # recompute Type1MET using these jets
-                    genJetCollection = cms.InputTag("ak5GenJets"))
+# Add ParticleFlow jets
+addJetCollection(process,cms.InputTag('ak5PFJets'),
+                 'AK5', 'PF',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 jetCorrLabel = ('AK5','PF'),
+                 doType1MET   = False,
+                 doL1Cleaning = False,
+                 doL1Counters = False,
+                 genJetCollection=cms.InputTag("ak5GenJets"),
+                 doJetID      = True
+                 )
+
+# Add anti-kt 5 jets
+addJetCollection(process,cms.InputTag('ak5CaloJets'),
+                 'AK5', '',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 jetCorrLabel = ('AK5','Calo'),
+                 doType1MET   = True,
+                 genJetCollection=cms.InputTag("ak5GenJets"),
+                 doJetID      = True
+                 )
 
 
 ################################
@@ -93,9 +112,9 @@ switchJetCollection(process,
 
 ### Definition of all tags here
 elecTag   = cms.InputTag("patElectrons")
-jetTag    = cms.InputTag("patJets")
+jetTag    = cms.InputTag("patJetsAK5")   # patJetsAK5PF or patJetsAK5
 muonTag   = cms.InputTag("patMuons")
-metTag    = cms.InputTag("patMETs")
+metTag    = cms.InputTag("patMETsAK5")   # patMETsPF or patMETsAK5
 genTag    = cms.InputTag("genParticles")
 genJetTag = cms.InputTag("ak5GenJets")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
@@ -127,7 +146,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     eleeta = cms.double(25.),
     jetpt  = cms.double(0.),
     jeteta = cms.double(25.),
-    jetfem = cms.double(10.),
     met    = cms.double(0.),
     nele   = cms.int32(0),
     nmuo   = cms.int32(0),

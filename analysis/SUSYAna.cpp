@@ -88,6 +88,13 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     
     for (int j=0; j<muo_n; j++) {
 
+      cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
+      for (int k=0; k<24; k++)
+	cout << muo_ID[j][k] << " ";
+      cout << "] " << endl;
+      if (muo_ID[j][6] == 1)
+	cout << "  -> global prompt tight"<< endl;
+      
       // list matched trigger objects
       for (int i=0; i<muo_trign[j]; i++) {
 	int id = muo_trig[j][i];

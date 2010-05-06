@@ -5,6 +5,10 @@ elif [ $# -eq 3 ]
 then
   offset=$3
 else
+  echo
+  echo "Usage ./mysrmls.sh <username> <directory> "
+  echo " -> will list /pnfs/physik.rwth-aachen.de/cms/store/user/<username>/<directory>"
+  echo
   exit
 fi
 
