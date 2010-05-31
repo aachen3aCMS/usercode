@@ -78,6 +78,7 @@ int main(int argc, char *argv[]) {
 	ttex = "dcache:" + ttex;
       if( strcmp(tex,"//")==0 ) break;
       cout << "          " << ttex << endl;
+      fChain->SetCacheSize(0);
       fChain->Add(ttex);
       nfiles++;
       //  if( nfiles==nmax ) break;

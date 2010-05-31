@@ -236,7 +236,7 @@ class TreeContent {
    Int_t           ele_truth[100];   //[ele_n]
    Int_t           ele_ID[100][5];   //[ele_n]
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
-   Double_t        ele_TrkExpHitsInner[100];   //[ele_n]
+   Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
    Double_t        ele_HCalOverEm[100];   //[ele_n]
    Double_t        ele_Dr03TkSumPt[100];   //[ele_n]
    Double_t        ele_Dr04HCalSumEt[100];   //[ele_n]
@@ -743,7 +743,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_Dr04ECalSumEt", ele_Dr04ECalSumEt, &b_ele_Dr04ECalSumEt);
    fChain->SetBranchAddress("ele_SigmaIetaIeta", ele_SigmaIetaIeta, &b_ele_SigmaIetaIeta);
    fChain->SetBranchAddress("ele_dEtaSCTrackAtVtx", ele_dEtaSCTrackAtVtx, &b_ele_dEtaSCTrackAtVtx);
-   fChain->SetBranchAddress("ele_dPhiSCTrackAtVtx", ele_dPhiSCTrackAtVtx, &b_ele_dPhiSCTrackAtVtx);
    fChain->SetBranchAddress("ele_dPhiSCTrackAtVtx", ele_dPhiSCTrackAtVtx, &b_ele_dPhiSCTrackAtVtx);
    fChain->SetBranchAddress("ele_convdist", ele_convdist, &b_ele_convdist);
    fChain->SetBranchAddress("ele_convdcot", ele_convdcot, &b_ele_convdcot);

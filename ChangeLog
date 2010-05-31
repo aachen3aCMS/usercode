@@ -1,3 +1,8 @@
+2010-05-31 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* bugfix: METx and METy swapped
+	* updated for CMSSW_3_6_1
+	* improved scripts
+	* tagged version v5-2
 2010-05-06 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* new electron ID variables incl. conversion finder
 	* removed old electron ID variables

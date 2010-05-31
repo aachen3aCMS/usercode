@@ -706,7 +706,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleConvdcot[countele] = convInfo.dcot();
       mTreeEleConvr[countele]    = convInfo.radiusOfConversion();
 
-
       if (eles[i].gsfTrack().isNonnull()) {
 
 	mTreeEleHits[countele]  = eles[i].gsfTrack().get()->numberOfValidHits();
@@ -1491,8 +1490,8 @@ void SusyACSkimAnalysis::initPlots() {
 
   // MET
   mAllData->Branch("met_et",       &mTreeMET,         "met_et[3]/double");
-  mAllData->Branch("met_ex",       &mTreeMEY,         "met_ex[3]/double");
-  mAllData->Branch("met_ey",       &mTreeMEX,         "met_ey[3]/double");
+  mAllData->Branch("met_ex",       &mTreeMEX,         "met_ex[3]/double");
+  mAllData->Branch("met_ey",       &mTreeMEY,         "met_ey[3]/double");
   mAllData->Branch("met_eta",      &mTreeMETeta,      "met_eta[3]/double");
   mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[3]/double");
   mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[3]/double");
@@ -1579,7 +1578,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_truth",      mTreeEleTruth,      "ele_truth[ele_n]/I");
   mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/I");
   mAllData->Branch("ele_ValidHitFirstPxlB",mTreeEleValidHitFirstPxlB,              "ele_ValidHitFirstPxlB[ele_n]/I");
-  mAllData->Branch("ele_TrkExpHitsInner",  mTreeEleTrkExpHitsInner,                "ele_EleTrkExpHitsInner[ele_n]/double");
+  mAllData->Branch("ele_TrkExpHitsInner",  mTreeEleTrkExpHitsInner,                "ele_EleTrkExpHitsInner[ele_n]/I");
   mAllData->Branch("ele_HCalOverEm",       mTreeEleHCalOverEm,                     "ele_HCalOverEm[ele_n]/double");
   mAllData->Branch("ele_Dr03TkSumPt",      mTreeEleDr03TkSumPt,                    "ele_Dr03TkSumPt[ele_n]/double");
   mAllData->Branch("ele_Dr04HCalSumEt",    mTreeEleDr04HCalTowerSumEt,             "ele_Dr04HCalSumEt[ele_n]/double");

@@ -320,6 +320,7 @@ private:
   int    mTreeEleTruth[100];
   int    mTreeEleHits[100];
   int    mTreeEleValidHitFirstPxlB[100];
+  int    mTreeEleTrkExpHitsInner[100];
   double mTreeEleEt[100];
   double mTreeEleP[100];
   double mTreeElePt[100];
@@ -330,7 +331,6 @@ private:
   double mTreeEleEta[100];
   double mTreeElePhi[100];
   double mTreeEleHCalOverEm[100];
-  double mTreeEleTrkExpHitsInner[100];
   double mTreeEleDr03TkSumPt[100];
   double mTreeEleDr04HCalTowerSumEt[100];
   double mTreeEleDr04ECalRecHitSumEt[100];

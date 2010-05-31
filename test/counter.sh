@@ -19,17 +19,6 @@ then
 fi
 
 echo ""  
-echo "  -- Counting Files in dcache --"
-echo
-f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/"$1"/output/"$2"/"$3`
-#echo $f
-#n=`ls $f/*root | wc -l`
-#n=`srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | grep root | wc -l`
-n=`./mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
-echo "  found "$n" files in $f"
-echo
-
-echo ""  
 echo "  -- Counting Events using logfiles --"
 echo
 
@@ -116,11 +105,20 @@ then
       let m=m+1
       continue
     fi
-    EXA=`grep "EXECUTABLE_EXIT_STATUS = 8" $file2`
+    EXA=`grep "EXECUTABLE_EXIT_STATUS = 8001" $file2`
 
     if [ "$EXA" ]
     then
-      echo "  -> Exit status 8 in " $file2
+      echo "  -> Exit status 8001 in " $file2
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+    EXF=`grep "EXECUTABLE_EXIT_STATUS = 8020" $file2`
+
+    if [ "$EXF" ]
+    then
+      echo "  -> Exit status 8020 in " $file2
       let k=k+1
       let m=m+1
       continue
@@ -138,7 +136,7 @@ then
   done
   echo
   echo '  checked '$j' (out of '$k') CMSSW_*.stderr files '
-  echo '       --> '$m' files contain error messages '
+  echo '       -->  '$m' files contain error messages '
   echo '       ==>  #events read    : ' $TOTAL_EVENTS
   echo '       ==>  #events presel  : ' $PASS_EVENTS
   echo '       ==>  #events written : ' $OUT_EVENTS
@@ -163,4 +161,33 @@ else
   echo "  ERROR"
   echo "  Log file ($LAST/log/crab.log) does not exist ! " 
 fi
+
+echo ""  
+echo "  -- Counting Files in dcache --"
 echo
+f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/"$1"/output/"$2"/"$3`
+
+#echo $f
+#n=`ls $f/*root | wc -l`
+#n=`srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | grep root | wc -l`
+
+n=`./mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
+echo "  found "$n" files in $f"
+echo
+nu=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u | wc -l`
+if [ $nu -gt 0 ]
+then
+  echo "     -> the following files appear more than once:"
+  list=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u`
+  for s in $list
+  do
+    echo "        " $s
+  done
+else
+  echo "     -> no duplicate files found :-)"
+fi
+
+echo
+
+
+

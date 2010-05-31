@@ -14,7 +14,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('START3X_V25B::All')
+#process.GlobalTag.globaltag = cms.string('START3X_V26::All')
+#process.GlobalTag.globaltag = cms.string('START3X_V26B::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -26,7 +27,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 # get the jet corrections
 from PhysicsTools.PatAlgos.tools.jetTools import *
-switchJECSet( process, "Summer09_7TeV_ReReco332")
+switchJECSet( process, "Spring10")
 
 # add iso deposits
 from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
@@ -40,7 +41,9 @@ addElectronUserIsolation(process)
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0006/36FF3D94-083C-DF11-BF54-0026189437FA.root'
+    #'/store/mc/Spring10/LM0/GEN-SIM-RECO/START3X_V26_S09-v1//0025/A6A36FEC-0348-DF11-BA10-E41F13181AB4.root'
+    '/store/mc/Spring10/MinBias_7TeV-pythia8/GEN-SIM-RECO/START3X_V26B-v1/0002/2C0B016D-255E-DF11-B47D-0018FE284C82.root'
+#    '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0006/36FF3D94-083C-DF11-BF54-0026189437FA.root'
     ),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
@@ -67,6 +70,10 @@ process.TFileService = cms.Service("TFileService",
 # add ParticleFlow met
 from PhysicsTools.PatAlgos.tools.metTools import *
 addPfMET(process, 'PF')
+
+# run b-tagging sequences
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
+run36xOn35xInput( process, "ak5GenJets" )
 
 # Boosted Higgs
 #addJetCollection(process,
@@ -161,9 +168,8 @@ process.ACSkimAnalysis = cms.EDFilter(
 # Preselection
 
 # require physics declared
-process.physDecl = cms.EDFilter("PhysDecl",
-    applyfilter = cms.untracked.bool(True)
-)
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 # require scraping filter
 process.scrapingVeto = cms.EDFilter("FilterOutScraping",
@@ -177,7 +183,7 @@ process.scrapingVeto = cms.EDFilter("FilterOutScraping",
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
 
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
@@ -217,7 +223,7 @@ process.BoostedHiggsSubjets.nSubjets      = cms.int32(3)       # b bbar + radiat
 
 ### Define the paths
 process.p = cms.Path(
-#    process.physDecl*
+#    process.hltPhysicsDeclared*
 #    process.hltLevel1GTSeed*  
     process.scrapingVeto*
     process.primaryVertexFilter*
