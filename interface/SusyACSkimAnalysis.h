@@ -104,6 +104,7 @@ private:
   virtual void initPlots();
 
   double DeltaPhi(double a, double b);
+  double DeltaR(double a, double b, double c, double d);
 
 private:
 
@@ -115,6 +116,8 @@ private:
   // Data tags
   edm::InputTag jetTag_;
   edm::InputTag metTag_;
+  edm::InputTag metTagPF_;
+  edm::InputTag metTagTC_;
   edm::InputTag elecTag_;
   edm::InputTag muonTag_;
   edm::InputTag genTag_;
@@ -203,20 +206,20 @@ private:
   int mTreetrighltname[50];
   
   int mTreeNtrig;
-  int mTreetrigpre[500];
-  int mTreetrigname[500][100];
-  int mTreefiltname[500][100];
-  double mTreetrigpt[500];
-  double mTreetrigeta[500];
-  double mTreetrigphi[500];
+  int mTreetrigpre[1000];
+  int mTreetrigname[1000][100];
+  int mTreefiltname[1000][100];
+  double mTreetrigpt[1000];
+  double mTreetrigeta[1000];
+  double mTreetrigphi[1000];
   
-  double mTreeMET[3];
-  double mTreeMEX[3];
-  double mTreeMEY[3];
-  double mTreeMETphi[3];
-  double mTreeMETeta[3];
-  double mTreeSumET[3];
-  double mTreeSumETSignif[3];
+  double mTreeMET[5];
+  double mTreeMEX[5];
+  double mTreeMEY[5];
+  double mTreeMETphi[5];
+  double mTreeMETeta[5];
+  double mTreeSumET[5];
+  double mTreeSumETSignif[5];
 
   int    mTreeNtracks;
   double mTreetrackshqf;
@@ -315,9 +318,18 @@ private:
   double mTreefatjetsubfhpd[100][10];
   double mTreefatjetsubfrbx[100][10];
 
+  int    mTreeNSC;
+  int    mTreeSCTruth[200];
+  double mTreeSCE[200];
+  double mTreeSCPhi[200];
+  double mTreeSCEta[200];
+
   int    mTreeNele;
+  int    mTreeNeletrign[100];
+  int    mTreeEletrig[100][100];
   int    mTreeEleID[100][5];
   int    mTreeEleTruth[100];
+  int    mTreeEleSC[200];
   int    mTreeEleHits[100];
   int    mTreeEleValidHitFirstPxlB[100];
   int    mTreeEleTrkExpHitsInner[100];
@@ -333,7 +345,9 @@ private:
   double mTreeEleHCalOverEm[100];
   double mTreeEleDr03TkSumPt[100];
   double mTreeEleDr04HCalTowerSumEt[100];
+  double mTreeEleDr03HCalTowerSumEt[100];
   double mTreeEleDr04ECalRecHitSumEt[100];
+  double mTreeEleDr03ECalRecHitSumEt[100];
   double mTreeEleSigmaIetaIeta[100];
   double mTreeEleDeltaEtaSuperClusterTrackAtVtx[100];
   double mTreeEleDeltaPhiSuperClusterTrackAtVtx[100];
@@ -345,6 +359,7 @@ private:
   double mTreeEleConvdist[100];
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
+  double mTreeElefbrem[100];
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];

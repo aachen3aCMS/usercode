@@ -94,6 +94,7 @@ echo "email=$1@cern.ch" >> $CRABFILE
 echo "copy_data = 1" >> $CRABFILE
 echo "storage_element = T2_DE_RWTH" >> $CRABFILE
 echo "user_remote_dir = output/$3/$4/" >> $CRABFILE
+echo "check_user_remote_dir = 0" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[GRID]" >> $CRABFILE
 echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE

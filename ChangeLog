@@ -1,3 +1,8 @@
+2010-09-01 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* new: TCMet and PFMet are filled
+	* new: electron trigger objects & matching
+	* new: SuperCluster information
+	* tagged version v5-3
 2010-05-31 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* bugfix: METx and METy swapped
 	* updated for CMSSW_3_6_1

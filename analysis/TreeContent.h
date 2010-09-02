@@ -103,12 +103,12 @@ class TreeContent {
    Int_t           noise_ecal_iphi;
    Int_t           trig_HLTName[50];
    Int_t           trig_n;
-   Int_t           trig_prescale[500];   //[trig_n]
-   Int_t           trig_name[500][100];   //[trig_n]
-   Int_t           trig_filter[500][100];   //[trig_n]
-   Double_t        trig_pt[500];   //[trig_n]
-   Double_t        trig_eta[500];   //[trig_n]
-   Double_t        trig_phi[500];   //[trig_n]
+   Int_t           trig_prescale[1000];   //[trig_n]
+   Int_t           trig_name[1000][100];   //[trig_n]
+   Int_t           trig_filter[1000][100];   //[trig_n]
+   Double_t        trig_pt[1000];   //[trig_n]
+   Double_t        trig_eta[1000];   //[trig_n]
+   Double_t        trig_phi[1000];   //[trig_n]
    Int_t           truth_n;
    Int_t           truth_pdgid[100];   //[truth_n]
    Int_t           truth_bvtxid[100];   //[truth_n]
@@ -155,13 +155,13 @@ class TreeContent {
    Double_t        bs_z;
    Int_t           tracks_n;
    Double_t        tracks_hqf;
-   Double_t        met_et[3];
-   Double_t        met_ex[3];
-   Double_t        met_ey[3];
-   Double_t        met_eta[3];
-   Double_t        met_phi[3];
-   Double_t        met_sumet[3];
-   Double_t        met_sumetsig[3];
+   Double_t        met_et[5];
+   Double_t        met_ex[5];
+   Double_t        met_ey[5];
+   Double_t        met_eta[5];
+   Double_t        met_phi[5];
+   Double_t        met_sumet[5];
+   Double_t        met_sumetsig[5];
    Int_t           jet_n;
    Double_t        jet_E[100];   //[jet_n]
    Double_t        jet_Et[100];   //[jet_n]
@@ -217,6 +217,11 @@ class TreeContent {
    Double_t        fatjet_sub_n90[100][10];   //[fatjet_n]
    Double_t        fatjet_sub_fHPD[100][10];   //[fatjet_n]
    Double_t        fatjet_sub_fRBX[100][10];   //[fatjet_n]
+   Int_t           SC_n;
+   Int_t           SC_truth[200];   //[SC_n]
+   Double_t        SC_E[200];   //[SC_n]
+   Double_t        SC_phi[200];   //[SC_n]
+   Double_t        SC_eta[200];   //[SC_n]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -240,13 +245,19 @@ class TreeContent {
    Double_t        ele_HCalOverEm[100];   //[ele_n]
    Double_t        ele_Dr03TkSumPt[100];   //[ele_n]
    Double_t        ele_Dr04HCalSumEt[100];   //[ele_n]
+   Double_t        ele_Dr03HCalSumEt[100];   //[ele_n]
    Double_t        ele_Dr04ECalSumEt[100];   //[ele_n]
+   Double_t        ele_Dr03ECalSumEt[100];   //[ele_n]
    Double_t        ele_SigmaIetaIeta[100];   //[ele_n]
    Double_t        ele_dEtaSCTrackAtVtx[100];   //[ele_n]
    Double_t        ele_dPhiSCTrackAtVtx[100];   //[ele_n]
    Double_t        ele_convdist[100];   //[ele_n]
    Double_t        ele_convdcot[100];   //[ele_n]
    Double_t        ele_convr[100];   //[ele_n]
+   Double_t        ele_fbrem[100];   //[ele_n]
+   Int_t           ele_trign[100];   //[ele_n]
+   Int_t           ele_trig[100][100];   //[ele_n]
+   Int_t           ele_SC[100];   //[ele_n]
    Int_t           muo_n;
    Double_t        muo_E[100];   //[muo_n]
    Double_t        muo_Et[100];   //[muo_n]
@@ -431,6 +442,11 @@ class TreeContent {
    TBranch        *b_fatjet_sub_n90;   //!
    TBranch        *b_fatjet_sub_fHPD;   //!
    TBranch        *b_fatjet_sub_fRBX;   //!
+   TBranch        *b_SC_n;   //!
+   TBranch        *b_SC_truth;   //!
+   TBranch        *b_SC_E;   //!
+   TBranch        *b_SC_phi;   //!
+   TBranch        *b_SC_eta;   //!
    TBranch        *b_ele_n;   //!
    TBranch        *b_ele_E;   //!
    TBranch        *b_ele_Et;   //!
@@ -454,13 +470,19 @@ class TreeContent {
    TBranch        *b_ele_HCalOverEm;   //!
    TBranch        *b_ele_Dr03TkSumPt;   //!
    TBranch        *b_ele_Dr04HCalSumEt;   //!
+   TBranch        *b_ele_Dr03HCalSumEt;   //!
    TBranch        *b_ele_Dr04ECalSumEt;   //!
+   TBranch        *b_ele_Dr03ECalSumEt;   //!
    TBranch        *b_ele_SigmaIetaIeta;   //!
    TBranch        *b_ele_dEtaSCTrackAtVtx;   //!
    TBranch        *b_ele_dPhiSCTrackAtVtx;   //!
    TBranch        *b_ele_convdist;   //!
    TBranch        *b_ele_convdcot;   //!
    TBranch        *b_ele_convr;   //!
+   TBranch        *b_ele_fbrem;   //!
+   TBranch        *b_ele_trign;   //!
+   TBranch        *b_ele_trig;   //!
+   TBranch        *b_ele_SC;   //!
    TBranch        *b_muo_n;   //!
    TBranch        *b_muo_E;   //!
    TBranch        *b_muo_Et;   //!
@@ -717,6 +739,11 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("fatjet_sub_n90", fatjet_sub_n90, &b_fatjet_sub_n90);
    fChain->SetBranchAddress("fatjet_sub_fHPD", fatjet_sub_fHPD, &b_fatjet_sub_fHPD);
    fChain->SetBranchAddress("fatjet_sub_fRBX", fatjet_sub_fRBX, &b_fatjet_sub_fRBX);
+   fChain->SetBranchAddress("SC_n", &SC_n, &b_SC_n);
+   fChain->SetBranchAddress("SC_truth", SC_truth, &b_SC_truth);
+   fChain->SetBranchAddress("SC_E", SC_E, &b_SC_E);
+   fChain->SetBranchAddress("SC_phi", SC_phi, &b_SC_phi);
+   fChain->SetBranchAddress("SC_eta", SC_eta, &b_SC_eta);
    fChain->SetBranchAddress("ele_n", &ele_n, &b_ele_n);
    fChain->SetBranchAddress("ele_E", ele_E, &b_ele_E);
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
@@ -740,13 +767,19 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_HCalOverEm", ele_HCalOverEm, &b_ele_HCalOverEm);
    fChain->SetBranchAddress("ele_Dr03TkSumPt", ele_Dr03TkSumPt, &b_ele_Dr03TkSumPt);
    fChain->SetBranchAddress("ele_Dr04HCalSumEt", ele_Dr04HCalSumEt, &b_ele_Dr04HCalSumEt);
+   fChain->SetBranchAddress("ele_Dr03HCalSumEt", ele_Dr03HCalSumEt, &b_ele_Dr03HCalSumEt);
    fChain->SetBranchAddress("ele_Dr04ECalSumEt", ele_Dr04ECalSumEt, &b_ele_Dr04ECalSumEt);
+   fChain->SetBranchAddress("ele_Dr03ECalSumEt", ele_Dr03ECalSumEt, &b_ele_Dr03ECalSumEt);
    fChain->SetBranchAddress("ele_SigmaIetaIeta", ele_SigmaIetaIeta, &b_ele_SigmaIetaIeta);
    fChain->SetBranchAddress("ele_dEtaSCTrackAtVtx", ele_dEtaSCTrackAtVtx, &b_ele_dEtaSCTrackAtVtx);
    fChain->SetBranchAddress("ele_dPhiSCTrackAtVtx", ele_dPhiSCTrackAtVtx, &b_ele_dPhiSCTrackAtVtx);
    fChain->SetBranchAddress("ele_convdist", ele_convdist, &b_ele_convdist);
    fChain->SetBranchAddress("ele_convdcot", ele_convdcot, &b_ele_convdcot);
    fChain->SetBranchAddress("ele_convr", ele_convr, &b_ele_convr);
+   fChain->SetBranchAddress("ele_fbrem", ele_fbrem, &b_ele_fbrem);
+   fChain->SetBranchAddress("ele_trign", ele_trign, &b_ele_trign);
+   fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
+   fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
    fChain->SetBranchAddress("muo_n", &muo_n, &b_muo_n);
    fChain->SetBranchAddress("muo_E", muo_E, &b_muo_E);
    fChain->SetBranchAddress("muo_Et", muo_Et, &b_muo_Et);

@@ -70,6 +70,10 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.PatAlgos.tools.metTools import *
 addPfMET(process, 'PF')
 
+# add TrackCorrected  met
+from PhysicsTools.PatAlgos.tools.metTools import *
+addTcMET(process, 'TC')
+
 # run b-tagging sequences
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 run36xOn35xInput( process )
@@ -120,7 +124,9 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'),
 elecTag   = cms.InputTag("patElectrons")
 jetTag    = cms.InputTag("patJetsAK5")   # patJetsAK5PF or patJetsAK5
 muonTag   = cms.InputTag("patMuons")
-metTag    = cms.InputTag("patMETsAK5")   # patMETsPF or patMETsAK5
+metTag    = cms.InputTag("patMETsAK5")
+metTagTC  = cms.InputTag("patMETsTC")
+metTagPF  = cms.InputTag("patMETsPF")
 genTag    = cms.InputTag("genParticles")
 genJetTag = cms.InputTag("ak5GenJets")
 vtxTag    = cms.InputTag("offlinePrimaryVertices")
@@ -142,6 +148,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     elecTag   = elecTag,
     muonTag   = muonTag,
     metTag    = metTag,
+    metTagTC  = metTagTC,
+    metTagPF  = metTagPF,
     genTag    = genTag,
     genJetTag = genJetTag,
     vtxTag    = vtxTag,
@@ -164,38 +172,9 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
-# Preselection
-
-# require physics declared
-process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
-process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
-
-# require scraping filter
-process.scrapingVeto = cms.EDFilter("FilterOutScraping",
-                                    applyfilter = cms.untracked.bool(True),
-                                    debugOn = cms.untracked.bool(False),
-                                    numtrack = cms.untracked.uint32(10),
-                                    thresh = cms.untracked.double(0.2)
-                                    )
-
-# configure HLT
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-
-
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger( process )
-
-# select vertex
-process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
-                                           vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-                                           minimumNDOF = cms.uint32(4) ,
-                                           maxAbsZ = cms.double(15), 
-                                           maxd0 = cms.double(2) 
-                                           )
 
 # Boosted Higgs Configuration
 from RecoJets.JetProducers.CaloJetParameters_cfi import CaloJetParameters
@@ -223,10 +202,6 @@ process.BoostedHiggsSubjets.nSubjets      = cms.int32(3)       # b bbar + radiat
 
 ### Define the paths
 process.p = cms.Path(
-    process.hltPhysicsDeclared*
-    process.hltLevel1GTSeed*  
-    process.scrapingVeto*
-    process.primaryVertexFilter*
 #    process.BoostedHiggsSubjets*
     process.patDefaultSequence*
     process.ACSkimAnalysis
