@@ -15,6 +15,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaTools>
+<use name=HLTrigger/HLTcore>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Framework>
@@ -33,4 +34,5 @@
    <use name=CondFormats/EcalObjects>
    <use name=RecoEcal/EgammaCoreTools>
    <use name=RecoEgamma/EgammaTools>
+   <use name=HLTrigger/HLTcore>
 </export>

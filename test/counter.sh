@@ -42,7 +42,7 @@ then
 fi
 
 
-LIST=`find $DIR/crab_*/res -type f -print0 | xargs -0 ls | grep stderr`
+LIST=`find $DIR/crab_*/res -type f -print0 | xargs -0 ls | grep stdout`
 
 if [ "$LIST" ]
 then
@@ -71,62 +71,69 @@ then
       let m=m+1
       continue
     fi
-    file2=`echo $file | sed s/"err"/"out"/g`
+    EEX=`grep "StageOutExitStatus = 60317" $file`
+    if [ "$EEX" ]
+    then
+      echo "  -> 60317 - Forced timeout for stuck stage out for file " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi
 
-    EX2=`grep "StageOutExitStatus = 60303" $file2`
+    EX2=`grep "StageOutExitStatus = 60303" $file`
     if  [ "$EX2" ]
     then
-      echo "  -> File already exists in SE in " $file2
+      echo "  -> 60303 - File already exists in SE in " $file
 #      let k=k+1
        let m=m+1
 #      continue
     fi
-    SE=`grep "StageOutExitStatus = 60307" $file2`
+    SE=`grep "StageOutExitStatus = 60307" $file`
     if [ "$SE" ]
     then
-      echo "  -> Stage out problem in " $file2
+      echo "  -> 60307 - Stage out problem in " $file
       let k=k+1
       let m=m+1
       continue
     fi
-    EXB=`grep "JOB_EXIT_STATUS = -1" $file2`
+    EXB=`grep "JOB_EXIT_STATUS = -1" $file`
     if [ "$EXB" ]
     then
-      echo "  -> Exit status -1 in " $file2
+      echo "  -> Exit status -1 in " $file
       let k=k+1
       let m=m+1
       continue
     fi
-    EXC=`grep "StageOutExitStatus = 8001" $file2 | grep -v "record"`
+    EXC=`grep "StageOutExitStatus = 8001" $file | grep -v "record"`
     if [ "$EXC" ]
     then
-      echo "  -> Exit status 8001 in " $file2
+      echo "  -> Exit status 8001 in " $file
       let k=k+1
       let m=m+1
       continue
     fi
-    EXA=`grep "EXECUTABLE_EXIT_STATUS = 8001" $file2`
+    EXA=`grep "EXECUTABLE_EXIT_STATUS = 8001" $file`
 
     if [ "$EXA" ]
     then
-      echo "  -> Exit status 8001 in " $file2
+      echo "  -> Exit status 8001 in " $file
       let k=k+1
       let m=m+1
       continue
     fi	
-    EXF=`grep "EXECUTABLE_EXIT_STATUS = 8020" $file2`
+    EXF=`grep "EXECUTABLE_EXIT_STATUS = 8020" $file`
 
     if [ "$EXF" ]
     then
-      echo "  -> Exit status 8020 in " $file2
+      echo "  -> Exit status 8020 in " $file
       let k=k+1
       let m=m+1
       continue
     fi	
 
-    EVENTS1=`grep "Events total" $file2 | awk '{print $5}'`
-    EVENTS2=`grep "of events" $file2 | awk '{print $6}'`
-    EVENTS3=`grep "of events" $file2 | awk '{print $10}'`
+    EVENTS1=`grep "Events total" $file | awk '{print $5}'`
+    EVENTS2=`grep "of events" $file | awk '{print $6}'`
+    EVENTS3=`grep "of events" $file | awk '{print $10}'`
 #    echo $file "  "$EVENTS1"|"$EVENTS2"|"$EVENTS3
     TOTAL_EVENTS=$(echo "$TOTAL_EVENTS+$EVENTS1" | bc)
     PASS_EVENTS=$(echo "$PASS_EVENTS+$EVENTS2" | bc)
@@ -135,7 +142,7 @@ then
     let j=j+1
   done
   echo
-  echo '  checked '$j' (out of '$k') CMSSW_*.stderr files '
+  echo '  checked '$j' (out of '$k') CMSSW_*.stdout files '
   echo '       -->  '$m' files contain error messages '
   echo '       ==>  #events read    : ' $TOTAL_EVENTS
   echo '       ==>  #events presel  : ' $PASS_EVENTS
@@ -143,7 +150,7 @@ then
   echo
 else
   echo "  ERROR "
-  echo "  Directory ($DIR) does not contain log files of type CMSSW_*.stderr."
+  echo "  Directory ($DIR) does not contain log files of type CMSSW_*.stdout."
   echo
 fi
 
@@ -153,8 +160,8 @@ fi
 #  EV=`grep "can" $1/crab_*/log/crab.log | awk '{print $6}'`
 if [ -f $LAST/log/crab.log ]
 then
-  JOBS=`grep "job(s)" $LAST/log/crab.log | awk '{print $4}'`
-  EV=`grep "job(s)" $LAST/log/crab.log | awk '{print $9}'`
+  JOBS=`grep "Total of" $LAST/log/crab.log | grep submitted | awk '{print $6}' | head -n1`
+  EV=`grep "(s)" $LAST/log/crab.log | awk '{print $9}'`
   echo '     ' $JOBS 'jobs over' $EV 'events'
 else
   echo

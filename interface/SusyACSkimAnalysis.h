@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,9 +55,16 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
@@ -86,6 +93,8 @@ private:
   //*** CMSSW interface
   /// Called once per job, at start
   virtual void beginJob();
+  /// Called once per run, at start
+  virtual void beginMyRun(const edm::Run&, const edm::EventSetup&);
   /// Called for each event
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   /// Called once per job, at end
@@ -113,8 +122,12 @@ private:
 
   TH1F* h_counters;
 
+  HLTConfigProvider hltConfig_;
+  bool hltConfigInit_;
+
   // Data tags
-  edm::InputTag jetTag_;
+  edm::InputTag calojetTag_;
+  edm::InputTag pfjetTag_;
   edm::InputTag metTag_;
   edm::InputTag metTagPF_;
   edm::InputTag metTagTC_;
@@ -123,15 +136,14 @@ private:
   edm::InputTag genTag_;
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
+  edm::InputTag ebhitsTag_;
 
   bool is_MC;
   bool is_SHERPA;
   bool do_fatjets;
 
-  std::string cor_;
-  std::string flav_;
   std::string btag_;
-  pat::JetCorrFactors::CorrStep correction_;
+  std::string processName_; 
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
   GreaterByPt<pat::Electron>  ptcomp_ele;
@@ -139,6 +151,12 @@ private:
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
 
   typedef std::pair<std::string,float> IdPair;
+
+  JetIDSelectionFunctor jetId;
+  std::string vers_;
+  std::string qual_;
+  JetIDSelectionFunctor::Version_t vers;
+  JetIDSelectionFunctor::Quality_t qual;
 
   TString ACmuonID[24];
 
@@ -149,13 +167,16 @@ private:
 
   int nele_;
   int nmuo_;
-  int njet_;
+  int ncalojet_;
+  int npfjet_;
   double muopt_;
   double muoeta_;
   double elept_;
   double eleeta_;
-  double jetpt_;
-  double jeteta_;
+  double calojetpt_;
+  double calojeteta_;
+  double pfjetpt_;
+  double pfjeteta_;
   double met_;
 
   double pthat_low_;
@@ -166,8 +187,16 @@ private:
   unsigned int nrEventPassedPthatRaw_;
   unsigned int nrEventPassedRaw_;
 
+  int cele_;
+  int cmuo_;
+  int ccalojet_;
+  int cpfjet_;
+
   double localPi;
   
+  int pre1;
+  int pre2;
+
   // Tree variables
   int mTreerun;
   int mTreeevent;
@@ -201,14 +230,13 @@ private:
   int    mTreeecaliphi;
   int    mTreeecalflag;
 
-  Char_t mTreeHLT[100000];
-
-  int mTreetrighltname[50];
+  int mTreetrighltname[20];
   
   int mTreeNtrig;
-  int mTreetrigpre[1000];
-  int mTreetrigname[1000][100];
-  int mTreefiltname[1000][100];
+  int mTreetrigL1pre[1000];
+  int mTreetrigHLTpre[1000];
+  int mTreetrigname[1000][20];
+  int mTreefiltname[1000][20];
   double mTreetrigpt[1000];
   double mTreetrigeta[1000];
   double mTreetrigphi[1000];
@@ -260,29 +288,47 @@ private:
   float mTreepdff2;
   float mTreepdfscale;
 
-  int    mTreeNjet;
-  int    mTreeJetTruth[100];
-  int    mTreeJetPart[100];
-  int    mTreeJetConst[100];
-  int    mTreeJetN[100][5];
-  int    mTreeJetn90[100];
-  int    mTreeJetn90hits[100];
-  double mTreeJetEt[100];
-  double mTreeJetPt[100];
-  double mTreeJetP[100];
-  double mTreeJetPx[100];
-  double mTreeJetPy[100];
-  double mTreeJetPz[100];
-  double mTreeJetE[100];
-  double mTreeJetEta[100];
-  double mTreeJetPhi[100];
-  double mTreeJetFem[100];
-  double mTreeJetFhad[100];
-  double mTreeJetBtag[100];
-  double mTreeJetCharge[100];
-  double mTreeJetfhpd[100];
-  double mTreeJetfrbx[100];
-  double mTreeJetF[100][5];
+  int    mTreeNCalojet;
+  int    mTreeCaloJetTruth[100];
+  int    mTreeCaloJetPart[100];
+  int    mTreeCaloJetConst[100];
+  int    mTreeCaloJetn90[100];
+  int    mTreeCaloJetn90hits[100];
+  int    mTreeCaloJetID[100];
+  double mTreeCaloJetEt[100];
+  double mTreeCaloJetPt[100];
+  double mTreeCaloJetP[100];
+  double mTreeCaloJetPx[100];
+  double mTreeCaloJetPy[100];
+  double mTreeCaloJetPz[100];
+  double mTreeCaloJetE[100];
+  double mTreeCaloJetEta[100];
+  double mTreeCaloJetPhi[100];
+  double mTreeCaloJetFem[100];
+  double mTreeCaloJetFhad[100];
+  double mTreeCaloJetBtag[100];
+  double mTreeCaloJetCharge[100];
+  double mTreeCaloJetfhpd[100];
+  double mTreeCaloJetfrbx[100];
+
+  int    mTreeNPFjet;
+  int    mTreePFJetTruth[100];
+  int    mTreePFJetPart[100];
+  int    mTreePFJetConst[100];
+  int    mTreePFJetN[100][7];
+  int    mTreePFJetn90[100];
+  double mTreePFJetEt[100];
+  double mTreePFJetPt[100];
+  double mTreePFJetP[100];
+  double mTreePFJetPx[100];
+  double mTreePFJetPy[100];
+  double mTreePFJetPz[100];
+  double mTreePFJetE[100];
+  double mTreePFJetEta[100];
+  double mTreePFJetPhi[100];
+  double mTreePFJetBtag[100];
+  double mTreePFJetCharge[100];
+  double mTreePFJetF[100][7];
 
   int    mTreeNtruthjet;
   double mTreetruthJetEt[100];
@@ -329,10 +375,12 @@ private:
   int    mTreeEletrig[100][100];
   int    mTreeEleID[100][5];
   int    mTreeEleTruth[100];
-  int    mTreeEleSC[200];
+  int    mTreeEleSC[100];
   int    mTreeEleHits[100];
   int    mTreeEleValidHitFirstPxlB[100];
   int    mTreeEleTrkExpHitsInner[100];
+  int    mTreeEleisECal[100];
+  int    mTreeEleisTracker[100];
   double mTreeEleEt[100];
   double mTreeEleP[100];
   double mTreeElePt[100];
@@ -360,6 +408,10 @@ private:
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
   double mTreeElefbrem[100];
+  double mTreeEledr03HcalDepth1[100];
+  double mTreeEledr03HcalDepth2[100];
+  double mTreeElee2x5Max[100];
+  double mTreeElee5x5[100];
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];
@@ -368,6 +420,12 @@ private:
   int    mTreeMuoHitsCm[100];
   int    mTreeMuoHitsTk[100];
   int    mTreeMuoGood[100];
+  int    mTreeMuoValidMuonHitsCm[100];
+  int    mTreeMuoValidTrackerHitsCm[100];
+  int    mTreeMuoValidPixelHitsCm[100];
+  int    mTreeMuoChambersMatched[100];
+  int    mTreeMuoTrackerLayersMeasCm[100];
+  int    mTreeMuoTrackerLayersNotMeasCm[100];
   int    mTreeMuoID[100][24];
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
@@ -395,6 +453,12 @@ private:
   double mTreeMuosd0Tk[100];
   double mTreeMuocalocomp[100];
   double mTreeMuocaltowe[100];
+  double mTreeMuod0bsCm[100];
+  double mTreeMuod0OriginCm[100];
+
+  double mTreeMuoCocktailPt[100];
+  double mTreeMuoCocktailPhi[100];
+  double mTreeMuoCocktailEta[100];
 
   int    mTreeNvtx;
   int    mTreeVtxntr[100];
@@ -412,6 +476,7 @@ private:
   double mTreeEventWeight;
   int    mTreeProcID;
   double mTreePthat;
+  double mTreebfield;
 
 };
 

@@ -33,6 +33,18 @@ public :
   void init(int stages);
   void write(TString fout, int stages);
 
+  void BasicDump(int i);
+  void TriggerDump(TString sel);
+  void MuonDump(bool full=1);
+  void CaloJetDump();
+  void PFJetDump();
+  void TruthJetDump();
+  void TruthDump();
+  void VertexDump();
+  void METDump();
+  void SCDump();
+  void EleDump(bool full=1);
+
   bool find_duplicate(int run, int evt, double x1, double x2);
   
   Double_t DeltaPhi(double a, double b);

@@ -7,6 +7,8 @@
 #include <iostream>
 #include "TSystem.h"
 
+#include "SUSYDump.h"
+
 using std::cout;
 using std::endl;
 using namespace std;
@@ -66,11 +68,21 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
 	   << info.fMemVirtual/1000. << " (virtual) " << endl;
     }
 
-    trigger = global_HLT;
-    if (trigger.Contains(":HLT_Mu9:")) {
-      cout << "SUSYAna: HLT_Mu9 fired (in Trigger List " << unpack(trig_HLTName) << ") " << endl;
+    // Dump event/object information, see SUSYDump.h
+    if (DEBUG) {
+      BasicDump(jentry);
+      TriggerDump("*"); // select e.g all muon trigger with "Mu"
+      TruthDump();
+      VertexDump();
+      MuonDump(0);      // [less] detailed information 1 [0]
+      TruthJetDump();
+      CaloJetDump();
+      PFJetDump();
+      METDump();
+      SCDump();
+      EleDump(1);       // [less] detailed information 1 [0]
+      continue;
     }
-
     double v=0.;
     if (vtx_n>0) v = vtx_z[0]; 
 
@@ -79,11 +91,13 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     }
 
     // do your analysis
+    cout << endl;
+    cout << "Analysis example output " << endl;
 
     // list Trigger Objects
     for (int i=0; i<trig_n; i++) {
-      cout << "  " << unpack(trig_name[i]) << "  "  << trig_prescale[i] << "  " << trig_pt[i] 
-	   << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+      cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
+	   << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
     }
     
     for (int j=0; j<muo_n; j++) {

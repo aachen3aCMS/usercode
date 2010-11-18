@@ -72,6 +72,7 @@ class TreeContent {
    Double_t        global_weight;
    Int_t           global_procID;
    Double_t        global_pthat;
+   Double_t        global_bfield;
    Int_t           global_store;
    Int_t           global_run;
    Int_t           global_event;
@@ -79,7 +80,6 @@ class TreeContent {
    Int_t           global_orbit;
    Int_t           global_exp;
    Int_t           global_isdata;
-   Char_t          global_HLT[100000];
    Int_t           lumi_section;
    Double_t        lumi_del;
    Double_t        lumi_rec;
@@ -101,11 +101,12 @@ class TreeContent {
    Int_t           noise_ecal_flag;
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
-   Int_t           trig_HLTName[50];
+   Int_t           trig_HLTName[20];
    Int_t           trig_n;
-   Int_t           trig_prescale[1000];   //[trig_n]
-   Int_t           trig_name[1000][100];   //[trig_n]
-   Int_t           trig_filter[1000][100];   //[trig_n]
+   Int_t           trig_L1prescale[1000];   //[trig_n]
+   Int_t           trig_HLTprescale[1000];   //[trig_n]
+   Int_t           trig_name[1000][20];   //[trig_n]
+   Int_t           trig_filter[1000][20];   //[trig_n]
    Double_t        trig_pt[1000];   //[trig_n]
    Double_t        trig_eta[1000];   //[trig_n]
    Double_t        trig_phi[1000];   //[trig_n]
@@ -162,29 +163,46 @@ class TreeContent {
    Double_t        met_phi[5];
    Double_t        met_sumet[5];
    Double_t        met_sumetsig[5];
-   Int_t           jet_n;
-   Double_t        jet_E[100];   //[jet_n]
-   Double_t        jet_Et[100];   //[jet_n]
-   Double_t        jet_p[100];   //[jet_n]
-   Double_t        jet_pt[100];   //[jet_n]
-   Double_t        jet_px[100];   //[jet_n]
-   Double_t        jet_py[100];   //[jet_n]
-   Double_t        jet_pz[100];   //[jet_n]
-   Double_t        jet_eta[100];   //[jet_n]
-   Double_t        jet_phi[100];   //[jet_n]
-   Double_t        jet_fem[100];   //[jet_n]
-   Double_t        jet_fhad[100];   //[jet_n]
-   Double_t        jet_btag[100];   //[jet_n]
-   Double_t        jet_charge[100];   //[jet_n]
-   Double_t        jet_fHPD[100];   //[jet_n]
-   Double_t        jet_fRBX[100];   //[jet_n]
-   Int_t           jet_n90hits[100];   //[jet_n]
-   Int_t           jet_n90[100];   //[jet_n]
-   Int_t           jet_flav[100];   //[jet_n]
-   Int_t           jet_truth[100];   //[jet_n]
-   Int_t           jet_const[100];   //[jet_n]
-   Int_t           jet_PFN[100][5];   //[jet_n]
-   Double_t        jet_PFF[100][5];   //[jet_n]
+   Int_t           calojet_n;
+   Double_t        calojet_E[100];   //[calojet_n]
+   Double_t        calojet_Et[100];   //[calojet_n]
+   Double_t        calojet_p[100];   //[calojet_n]
+   Double_t        calojet_pt[100];   //[calojet_n]
+   Double_t        calojet_px[100];   //[calojet_n]
+   Double_t        calojet_py[100];   //[calojet_n]
+   Double_t        calojet_pz[100];   //[calojet_n]
+   Double_t        calojet_eta[100];   //[calojet_n]
+   Double_t        calojet_phi[100];   //[calojet_n]
+   Double_t        calojet_fem[100];   //[calojet_n]
+   Double_t        calojet_fhad[100];   //[calojet_n]
+   Double_t        calojet_btag[100];   //[calojet_n]
+   Double_t        calojet_charge[100];   //[calojet_n]
+   Double_t        calojet_fHPD[100];   //[calojet_n]
+   Double_t        calojet_fRBX[100];   //[calojet_n]
+   Int_t           calojet_n90hits[100];   //[calojet_n]
+   Int_t           calojet_n90[100];   //[calojet_n]
+   Int_t           calojet_flav[100];   //[calojet_n]
+   Int_t           calojet_truth[100];   //[calojet_n]
+   Int_t           calojet_const[100];   //[calojet_n]
+   Int_t           calojet_ID[100];   //[calojet_n]
+   Int_t           pfjet_n;
+   Double_t        pfjet_E[100];   //[pfjet_n]
+   Double_t        pfjet_Et[100];   //[pfjet_n]
+   Double_t        pfjet_p[100];   //[pfjet_n]
+   Double_t        pfjet_pt[100];   //[pfjet_n]
+   Double_t        pfjet_px[100];   //[pfjet_n]
+   Double_t        pfjet_py[100];   //[pfjet_n]
+   Double_t        pfjet_pz[100];   //[pfjet_n]
+   Double_t        pfjet_eta[100];   //[pfjet_n]
+   Double_t        pfjet_phi[100];   //[pfjet_n]
+   Double_t        pfjet_btag[100];   //[pfjet_n]
+   Double_t        pfjet_charge[100];   //[pfjet_n]
+   Int_t           pfjet_n90[100];   //[pfjet_n]
+   Int_t           pfjet_flav[100];   //[pfjet_n]
+   Int_t           pfjet_truth[100];   //[pfjet_n]
+   Int_t           pfjet_const[100];   //[pfjet_n]
+   Int_t           pfjet_PFN[100][7];   //[pfjet_n]
+   Double_t        pfjet_PFF[100][7];   //[pfjet_n]
    Int_t           truthjet_n;
    Double_t        truthjet_E[100];   //[truthjet_n]
    Double_t        truthjet_Et[100];   //[truthjet_n]
@@ -239,6 +257,8 @@ class TreeContent {
    Double_t        ele_sd0[100];   //[ele_n]
    Int_t           ele_hits[100];   //[ele_n]
    Int_t           ele_truth[100];   //[ele_n]
+   Int_t           ele_isECal[100];   //[ele_n]
+   Int_t           ele_isTracker[100];   //[ele_n]
    Int_t           ele_ID[100][5];   //[ele_n]
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
    Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
@@ -251,6 +271,10 @@ class TreeContent {
    Double_t        ele_SigmaIetaIeta[100];   //[ele_n]
    Double_t        ele_dEtaSCTrackAtVtx[100];   //[ele_n]
    Double_t        ele_dPhiSCTrackAtVtx[100];   //[ele_n]
+   Double_t        ele_dr03HcalDepth1[100];   //[ele_n]
+   Double_t        ele_dr03HcalDepth2[100];   //[ele_n]
+   Double_t        ele_e2x5Max[100];   //[ele_n]
+   Double_t        ele_e5x5[100];   //[ele_n]
    Double_t        ele_convdist[100];   //[ele_n]
    Double_t        ele_convdcot[100];   //[ele_n]
    Double_t        ele_convr[100];   //[ele_n]
@@ -292,11 +316,23 @@ class TreeContent {
    Int_t           muo_trign[100];   //[muo_n]
    Int_t           muo_trig[100][100];   //[muo_n]
    Int_t           muo_ID[100][24];   //[muo_n]
+   Int_t           muo_ValidMuonHitsCm[100];   //[muo_n]
+   Int_t           muo_ValidTrackerHitsCm[100];   //[muo_n]
+   Int_t           muo_ValidPixelHitsCm[100];   //[muo_n]
+   Int_t           muo_ChambersMatched[100];   //[muo_n]
+   Double_t        muo_d0bsCm[100];   //[muo_n]
+   Double_t        muo_d0OriginCm[100];   //[muo_n]
+   Int_t           muo_TrackerLayersMeasCm[100];   //[muo_n]
+   Int_t           muo_TrackerLayersNotMeasCm[100];   //[muo_n]
+   Double_t        muo_Cocktail_pt[100];   //[muo_n]
+   Double_t        muo_Cocktail_phi[100];   //[muo_n]
+   Double_t        muo_Cocktail_eta[100];   //[muo_n]
 
    // List of branches
    TBranch        *b_global_weight;   //!
    TBranch        *b_global_procID;   //!
    TBranch        *b_global_pthat;   //!
+   TBranch        *b_global_bfield;   //!
    TBranch        *b_global_store;   //!
    TBranch        *b_global_run;   //!
    TBranch        *b_global_event;   //!
@@ -304,7 +340,6 @@ class TreeContent {
    TBranch        *b_global_orbit;   //!
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
-   TBranch        *b_global_HLT;   //!
    TBranch        *b_lumi_section;   //!
    TBranch        *b_lumi_del;   //!
    TBranch        *b_lumi_rec;   //!
@@ -328,7 +363,8 @@ class TreeContent {
    TBranch        *b_noise_ecal_iphi;   //!
    TBranch        *b_trig_HLTName;   //!
    TBranch        *b_trig_n;   //!
-   TBranch        *b_trig_prescale;   //!
+   TBranch        *b_trig_L1prescale;   //!
+   TBranch        *b_trig_HLTprescale;   //!
    TBranch        *b_trig_name;   //!
    TBranch        *b_trig_filter;   //!
    TBranch        *b_trig_pt;   //!
@@ -387,29 +423,46 @@ class TreeContent {
    TBranch        *b_met_phi;   //!
    TBranch        *b_met_sumet;   //!
    TBranch        *b_met_sumetsig;   //!
-   TBranch        *b_jet_n;   //!
-   TBranch        *b_jet_E;   //!
-   TBranch        *b_jet_Et;   //!
-   TBranch        *b_jet_p;   //!
-   TBranch        *b_jet_pt;   //!
-   TBranch        *b_jet_px;   //!
-   TBranch        *b_jet_py;   //!
-   TBranch        *b_jet_pz;   //!
-   TBranch        *b_jet_eta;   //!
-   TBranch        *b_jet_phi;   //!
-   TBranch        *b_jet_fem;   //!
-   TBranch        *b_jet_fhad;   //!
-   TBranch        *b_jet_btag;   //!
-   TBranch        *b_jet_charge;   //!
-   TBranch        *b_jet_fHPD;   //!
-   TBranch        *b_jet_fRBX;   //!
-   TBranch        *b_jet_n90hits;   //!
-   TBranch        *b_jet_n90;   //!
-   TBranch        *b_jet_flav;   //!
-   TBranch        *b_jet_truth;   //!
-   TBranch        *b_jet_const;   //!
-   TBranch        *b_jet_PFN;   //!
-   TBranch        *b_jet_PFF;   //!
+   TBranch        *b_calojet_n;   //!
+   TBranch        *b_calojet_E;   //!
+   TBranch        *b_calojet_Et;   //!
+   TBranch        *b_calojet_p;   //!
+   TBranch        *b_calojet_pt;   //!
+   TBranch        *b_calojet_px;   //!
+   TBranch        *b_calojet_py;   //!
+   TBranch        *b_calojet_pz;   //!
+   TBranch        *b_calojet_eta;   //!
+   TBranch        *b_calojet_phi;   //!
+   TBranch        *b_calojet_fem;   //!
+   TBranch        *b_calojet_fhad;   //!
+   TBranch        *b_calojet_btag;   //!
+   TBranch        *b_calojet_charge;   //!
+   TBranch        *b_calojet_fHPD;   //!
+   TBranch        *b_calojet_fRBX;   //!
+   TBranch        *b_calojet_n90hits;   //!
+   TBranch        *b_calojet_n90;   //!
+   TBranch        *b_calojet_flav;   //!
+   TBranch        *b_calojet_truth;   //!
+   TBranch        *b_calojet_const;   //!
+   TBranch        *b_calojet_ID;   //!
+   TBranch        *b_pfjet_n;   //!
+   TBranch        *b_pfjet_E;   //!
+   TBranch        *b_pfjet_Et;   //!
+   TBranch        *b_pfjet_p;   //!
+   TBranch        *b_pfjet_pt;   //!
+   TBranch        *b_pfjet_px;   //!
+   TBranch        *b_pfjet_py;   //!
+   TBranch        *b_pfjet_pz;   //!
+   TBranch        *b_pfjet_eta;   //!
+   TBranch        *b_pfjet_phi;   //!
+   TBranch        *b_pfjet_btag;   //!
+   TBranch        *b_pfjet_charge;   //!
+   TBranch        *b_pfjet_n90;   //!
+   TBranch        *b_pfjet_flav;   //!
+   TBranch        *b_pfjet_truth;   //!
+   TBranch        *b_pfjet_const;   //!
+   TBranch        *b_pfjet_PFN;   //!
+   TBranch        *b_pfjet_PFF;   //!
    TBranch        *b_truthjet_n;   //!
    TBranch        *b_truthjet_E;   //!
    TBranch        *b_truthjet_Et;   //!
@@ -464,6 +517,8 @@ class TreeContent {
    TBranch        *b_ele_sd0;   //!
    TBranch        *b_ele_hits;   //!
    TBranch        *b_ele_truth;   //!
+   TBranch        *b_ele_isECal;   //!
+   TBranch        *b_ele_isTracker;   //!
    TBranch        *b_ele_ID;   //!
    TBranch        *b_ele_ValidHitFirstPxlB;   //!
    TBranch        *b_ele_TrkExpHitsInner;   //!
@@ -476,6 +531,10 @@ class TreeContent {
    TBranch        *b_ele_SigmaIetaIeta;   //!
    TBranch        *b_ele_dEtaSCTrackAtVtx;   //!
    TBranch        *b_ele_dPhiSCTrackAtVtx;   //!
+   TBranch        *b_ele_dr03HcalDepth1;   //!
+   TBranch        *b_ele_dr03HcalDepth2;   //!
+   TBranch        *b_ele_e2x5Max;   //!
+   TBranch        *b_ele_e5x5;   //!
    TBranch        *b_ele_convdist;   //!
    TBranch        *b_ele_convdcot;   //!
    TBranch        *b_ele_convr;   //!
@@ -517,6 +576,17 @@ class TreeContent {
    TBranch        *b_muo_trign;   //!
    TBranch        *b_muo_trig;   //!
    TBranch        *b_muo_ID;   //!
+   TBranch        *b_muo_ValidMuonHitsCm;   //!
+   TBranch        *b_muo_ValidTrackerHitsCm;   //!
+   TBranch        *b_muo_ValidPixelHitsCm;   //!
+   TBranch        *b_muo_ChambersMatched;   //!
+   TBranch        *b_muo_d0bsCm;   //!
+   TBranch        *b_muo_d0OriginCm;   //!
+   TBranch        *b_muo_TrackerLayersMeasCm;   //!
+   TBranch        *b_muo_TrackerLayersNotMeasCm;   //!
+   TBranch        *b_muo_Cocktail_pt;   //!
+   TBranch        *b_muo_Cocktail_phi;   //!
+   TBranch        *b_muo_Cocktail_eta;   //!
 
    TreeContent(TTree *tree=0);
    virtual ~TreeContent();
@@ -594,6 +664,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_weight", &global_weight, &b_global_weight);
    fChain->SetBranchAddress("global_procID", &global_procID, &b_global_procID);
    fChain->SetBranchAddress("global_pthat", &global_pthat, &b_global_pthat);
+   fChain->SetBranchAddress("global_bfield", &global_bfield, &b_global_bfield);
    fChain->SetBranchAddress("global_store", &global_store, &b_global_store);
    fChain->SetBranchAddress("global_run", &global_run, &b_global_run);
    fChain->SetBranchAddress("global_event", &global_event, &b_global_event);
@@ -601,7 +672,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_orbit", &global_orbit, &b_global_orbit);
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
-   fChain->SetBranchAddress("global_HLT", global_HLT, &b_global_HLT);
    fChain->SetBranchAddress("lumi_section", &lumi_section, &b_lumi_section);
    fChain->SetBranchAddress("lumi_del", &lumi_del, &b_lumi_del);
    fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
@@ -625,7 +695,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("noise_ecal_iphi", &noise_ecal_iphi, &b_noise_ecal_iphi);
    fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
-   fChain->SetBranchAddress("trig_prescale", trig_prescale, &b_trig_prescale);
+   fChain->SetBranchAddress("trig_L1prescale", trig_L1prescale, &b_trig_L1prescale);
+   fChain->SetBranchAddress("trig_HLTprescale", trig_HLTprescale, &b_trig_HLTprescale);
    fChain->SetBranchAddress("trig_name", trig_name, &b_trig_name);
    fChain->SetBranchAddress("trig_filter", trig_filter, &b_trig_filter);
    fChain->SetBranchAddress("trig_pt", trig_pt, &b_trig_pt);
@@ -684,29 +755,46 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_phi", met_phi, &b_met_phi);
    fChain->SetBranchAddress("met_sumet", met_sumet, &b_met_sumet);
    fChain->SetBranchAddress("met_sumetsig", met_sumetsig, &b_met_sumetsig);
-   fChain->SetBranchAddress("jet_n", &jet_n, &b_jet_n);
-   fChain->SetBranchAddress("jet_E", jet_E, &b_jet_E);
-   fChain->SetBranchAddress("jet_Et", jet_Et, &b_jet_Et);
-   fChain->SetBranchAddress("jet_p", jet_p, &b_jet_p);
-   fChain->SetBranchAddress("jet_pt", jet_pt, &b_jet_pt);
-   fChain->SetBranchAddress("jet_px", jet_px, &b_jet_px);
-   fChain->SetBranchAddress("jet_py", jet_py, &b_jet_py);
-   fChain->SetBranchAddress("jet_pz", jet_pz, &b_jet_pz);
-   fChain->SetBranchAddress("jet_eta", jet_eta, &b_jet_eta);
-   fChain->SetBranchAddress("jet_phi", jet_phi, &b_jet_phi);
-   fChain->SetBranchAddress("jet_fem", jet_fem, &b_jet_fem);
-   fChain->SetBranchAddress("jet_fhad", jet_fhad, &b_jet_fhad);
-   fChain->SetBranchAddress("jet_btag", jet_btag, &b_jet_btag);
-   fChain->SetBranchAddress("jet_charge", jet_charge, &b_jet_charge);
-   fChain->SetBranchAddress("jet_fHPD", jet_fHPD, &b_jet_fHPD);
-   fChain->SetBranchAddress("jet_fRBX", jet_fRBX, &b_jet_fRBX);
-   fChain->SetBranchAddress("jet_n90hits", jet_n90hits, &b_jet_n90hits);
-   fChain->SetBranchAddress("jet_n90", jet_n90, &b_jet_n90);
-   fChain->SetBranchAddress("jet_flav", jet_flav, &b_jet_flav);
-   fChain->SetBranchAddress("jet_truth", jet_truth, &b_jet_truth);
-   fChain->SetBranchAddress("jet_const", jet_const, &b_jet_const);
-   fChain->SetBranchAddress("jet_PFN", jet_PFN, &b_jet_PFN);
-   fChain->SetBranchAddress("jet_PFF", jet_PFF, &b_jet_PFF);
+   fChain->SetBranchAddress("calojet_n", &calojet_n, &b_calojet_n);
+   fChain->SetBranchAddress("calojet_E", calojet_E, &b_calojet_E);
+   fChain->SetBranchAddress("calojet_Et", calojet_Et, &b_calojet_Et);
+   fChain->SetBranchAddress("calojet_p", calojet_p, &b_calojet_p);
+   fChain->SetBranchAddress("calojet_pt", calojet_pt, &b_calojet_pt);
+   fChain->SetBranchAddress("calojet_px", calojet_px, &b_calojet_px);
+   fChain->SetBranchAddress("calojet_py", calojet_py, &b_calojet_py);
+   fChain->SetBranchAddress("calojet_pz", calojet_pz, &b_calojet_pz);
+   fChain->SetBranchAddress("calojet_eta", calojet_eta, &b_calojet_eta);
+   fChain->SetBranchAddress("calojet_phi", calojet_phi, &b_calojet_phi);
+   fChain->SetBranchAddress("calojet_fem", calojet_fem, &b_calojet_fem);
+   fChain->SetBranchAddress("calojet_fhad", calojet_fhad, &b_calojet_fhad);
+   fChain->SetBranchAddress("calojet_btag", calojet_btag, &b_calojet_btag);
+   fChain->SetBranchAddress("calojet_charge", calojet_charge, &b_calojet_charge);
+   fChain->SetBranchAddress("calojet_fHPD", calojet_fHPD, &b_calojet_fHPD);
+   fChain->SetBranchAddress("calojet_fRBX", calojet_fRBX, &b_calojet_fRBX);
+   fChain->SetBranchAddress("calojet_n90hits", calojet_n90hits, &b_calojet_n90hits);
+   fChain->SetBranchAddress("calojet_n90", calojet_n90, &b_calojet_n90);
+   fChain->SetBranchAddress("calojet_flav", calojet_flav, &b_calojet_flav);
+   fChain->SetBranchAddress("calojet_truth", calojet_truth, &b_calojet_truth);
+   fChain->SetBranchAddress("calojet_const", calojet_const, &b_calojet_const);
+   fChain->SetBranchAddress("calojet_ID", calojet_ID, &b_calojet_ID);
+   fChain->SetBranchAddress("pfjet_n", &pfjet_n, &b_pfjet_n);
+   fChain->SetBranchAddress("pfjet_E", pfjet_E, &b_pfjet_E);
+   fChain->SetBranchAddress("pfjet_Et", pfjet_Et, &b_pfjet_Et);
+   fChain->SetBranchAddress("pfjet_p", pfjet_p, &b_pfjet_p);
+   fChain->SetBranchAddress("pfjet_pt", pfjet_pt, &b_pfjet_pt);
+   fChain->SetBranchAddress("pfjet_px", pfjet_px, &b_pfjet_px);
+   fChain->SetBranchAddress("pfjet_py", pfjet_py, &b_pfjet_py);
+   fChain->SetBranchAddress("pfjet_pz", pfjet_pz, &b_pfjet_pz);
+   fChain->SetBranchAddress("pfjet_eta", pfjet_eta, &b_pfjet_eta);
+   fChain->SetBranchAddress("pfjet_phi", pfjet_phi, &b_pfjet_phi);
+   fChain->SetBranchAddress("pfjet_btag", pfjet_btag, &b_pfjet_btag);
+   fChain->SetBranchAddress("pfjet_charge", pfjet_charge, &b_pfjet_charge);
+   fChain->SetBranchAddress("pfjet_n90", pfjet_n90, &b_pfjet_n90);
+   fChain->SetBranchAddress("pfjet_flav", pfjet_flav, &b_pfjet_flav);
+   fChain->SetBranchAddress("pfjet_truth", pfjet_truth, &b_pfjet_truth);
+   fChain->SetBranchAddress("pfjet_const", pfjet_const, &b_pfjet_const);
+   fChain->SetBranchAddress("pfjet_PFN", pfjet_PFN, &b_pfjet_PFN);
+   fChain->SetBranchAddress("pfjet_PFF", pfjet_PFF, &b_pfjet_PFF);
    fChain->SetBranchAddress("truthjet_n", &truthjet_n, &b_truthjet_n);
    fChain->SetBranchAddress("truthjet_E", truthjet_E, &b_truthjet_E);
    fChain->SetBranchAddress("truthjet_Et", truthjet_Et, &b_truthjet_Et);
@@ -761,6 +849,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_sd0", ele_sd0, &b_ele_sd0);
    fChain->SetBranchAddress("ele_hits", ele_hits, &b_ele_hits);
    fChain->SetBranchAddress("ele_truth", ele_truth, &b_ele_truth);
+   fChain->SetBranchAddress("ele_isECal", ele_isECal, &b_ele_isECal);
+   fChain->SetBranchAddress("ele_isTracker", ele_isTracker, &b_ele_isTracker);
    fChain->SetBranchAddress("ele_ID", ele_ID, &b_ele_ID);
    fChain->SetBranchAddress("ele_ValidHitFirstPxlB", ele_ValidHitFirstPxlB, &b_ele_ValidHitFirstPxlB);
    fChain->SetBranchAddress("ele_TrkExpHitsInner", ele_TrkExpHitsInner, &b_ele_TrkExpHitsInner);
@@ -773,6 +863,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_SigmaIetaIeta", ele_SigmaIetaIeta, &b_ele_SigmaIetaIeta);
    fChain->SetBranchAddress("ele_dEtaSCTrackAtVtx", ele_dEtaSCTrackAtVtx, &b_ele_dEtaSCTrackAtVtx);
    fChain->SetBranchAddress("ele_dPhiSCTrackAtVtx", ele_dPhiSCTrackAtVtx, &b_ele_dPhiSCTrackAtVtx);
+   fChain->SetBranchAddress("ele_dr03HcalDepth1", ele_dr03HcalDepth1, &b_ele_dr03HcalDepth1);
+   fChain->SetBranchAddress("ele_dr03HcalDepth2", ele_dr03HcalDepth2, &b_ele_dr03HcalDepth2);
+   fChain->SetBranchAddress("ele_e2x5Max", ele_e2x5Max, &b_ele_e2x5Max);
+   fChain->SetBranchAddress("ele_e5x5", ele_e5x5, &b_ele_e5x5);
    fChain->SetBranchAddress("ele_convdist", ele_convdist, &b_ele_convdist);
    fChain->SetBranchAddress("ele_convdcot", ele_convdcot, &b_ele_convdcot);
    fChain->SetBranchAddress("ele_convr", ele_convr, &b_ele_convr);
@@ -814,6 +908,17 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_trign", muo_trign, &b_muo_trign);
    fChain->SetBranchAddress("muo_trig", muo_trig, &b_muo_trig);
    fChain->SetBranchAddress("muo_ID", muo_ID, &b_muo_ID);
+   fChain->SetBranchAddress("muo_ValidMuonHitsCm", muo_ValidMuonHitsCm, &b_muo_ValidMuonHitsCm);
+   fChain->SetBranchAddress("muo_ValidTrackerHitsCm", muo_ValidTrackerHitsCm, &b_muo_ValidTrackerHitsCm);
+   fChain->SetBranchAddress("muo_ValidPixelHitsCm", muo_ValidPixelHitsCm, &b_muo_ValidPixelHitsCm);
+   fChain->SetBranchAddress("muo_ChambersMatched", muo_ChambersMatched, &b_muo_ChambersMatched);
+   fChain->SetBranchAddress("muo_d0bsCm", muo_d0bsCm, &b_muo_d0bsCm);
+   fChain->SetBranchAddress("muo_d0OriginCm", muo_d0OriginCm, &b_muo_d0OriginCm);
+   fChain->SetBranchAddress("muo_TrackerLayersMeasCm", muo_TrackerLayersMeasCm, &b_muo_TrackerLayersMeasCm);
+   fChain->SetBranchAddress("muo_TrackerLayersNotMeasCm", muo_TrackerLayersNotMeasCm, &b_muo_TrackerLayersNotMeasCm);
+   fChain->SetBranchAddress("muo_Cocktail_pt", muo_Cocktail_pt, &b_muo_Cocktail_pt);
+   fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
+   fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
    Notify();
 }
 

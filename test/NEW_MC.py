@@ -14,20 +14,32 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('START3X_V26::All')
-#process.GlobalTag.globaltag = cms.string('START3X_V26B::All')
+#process.GlobalTag.globaltag = cms.string('START38_V12::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
+
+# Output (PAT file only created if
+# process.outpath = cms.EndPath(process.out)
+# is called at the end
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
+process.out = cms.OutputModule(
+    "PoolOutputModule",
+    fileName       = cms.untracked.string('dummy.root'),
+    SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
+    dropMetaData   = cms.untracked.string('DROPPED'),
+    outputCommands = cms.untracked.vstring('keep *')
+    )
+
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string('out.root')
+                                   )
 
 #-- Remove all Monte Carlo matching -------------------------------------------
 #removeMCMatching(process, ['All'])
-
-# get the jet corrections
-from PhysicsTools.PatAlgos.tools.jetTools import *
-switchJECSet( process, "Spring10")
 
 # add iso deposits
 from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
@@ -51,22 +63,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-# Output (PAT file only created if
-# process.outpath = cms.EndPath(process.out)
-# is called at the end
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-process.out = cms.OutputModule(
-    "PoolOutputModule",
-    fileName       = cms.untracked.string('dummy.root'),
-    SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
-    dropMetaData   = cms.untracked.string('DROPPED'),
-    outputCommands = cms.untracked.vstring('keep *')
-    )
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('out.root')
-                                   )
-
 # add ParticleFlow met
 from PhysicsTools.PatAlgos.tools.metTools import *
 addPfMET(process, 'PF')
@@ -75,9 +71,8 @@ addPfMET(process, 'PF')
 from PhysicsTools.PatAlgos.tools.metTools import *
 addTcMET(process, 'TC')
 
-# run b-tagging sequences
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-run36xOn35xInput( process, "ak5GenJets" )
+# get the jet corrections
+from PhysicsTools.PatAlgos.tools.jetTools import *
 
 # Boosted Higgs
 #addJetCollection(process,
@@ -90,28 +85,34 @@ run36xOn35xInput( process, "ak5GenJets" )
 #                 genJetCollection = cms.InputTag("antikt5GenJets"))
 
 # Add ParticleFlow jets
-addJetCollection(process,cms.InputTag('ak5PFJets'),
-                 'AK5', 'PF',
+addJetCollection(process,cms.InputTag('ak5PFJets'), 'AK5', 'PF',
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = ('AK5','PF'),
+                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),   # MC
+                 # jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
                  doType1MET   = False,
                  doL1Cleaning = False,
                  doL1Counters = False,
                  genJetCollection=cms.InputTag("ak5GenJets"),
-                 doJetID      = True
+                 doJetID      = True,
+                 jetIdLabel   = "ak5pf"
                  )
 
 # Add anti-kt 5 jets
-addJetCollection(process,cms.InputTag('ak5CaloJets'),
-                 'AK5', '',
+addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = ('AK5','Calo'),
+                 jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),  # MC
+                 # jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
                  doType1MET   = True,
+                 doL1Cleaning = False,
+                 doL1Counters = False,
                  genJetCollection=cms.InputTag("ak5GenJets"),
-                 doJetID      = True
+                 doJetID      = True,
+                 jetIdLabel   = "ak5"
                  )
+
+# process.patJets.addTagInfos = cms.bool(False)  # AOD only
 
 
 ################################
@@ -122,15 +123,18 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'),
 
 
 ### Definition of all tags here
-elecTag   = cms.InputTag("patElectrons")
-jetTag    = cms.InputTag("patJetsAK5")   # patJetsAK5PF or patJetsAK5
-muonTag   = cms.InputTag("patMuons")
-metTag    = cms.InputTag("patMETsAK5")
-metTagTC  = cms.InputTag("patMETsTC")
-metTagPF  = cms.InputTag("patMETsPF")
-genTag    = cms.InputTag("genParticles")
-genJetTag = cms.InputTag("ak5GenJets")
-vtxTag    = cms.InputTag("offlinePrimaryVertices")
+elecTag    = cms.InputTag("patElectrons")
+calojetTag = cms.InputTag("patJetsAK5Calo")
+pfjetTag   = cms.InputTag("patJetsAK5PF")
+muonTag    = cms.InputTag("patMuons")
+metTag     = cms.InputTag("patMETsAK5Calo")
+metTagTC   = cms.InputTag("patMETsTC")
+metTagPF   = cms.InputTag("patMETsPF")
+genTag     = cms.InputTag("genParticles")
+genJetTag  = cms.InputTag("ak5GenJets")
+vtxTag     = cms.InputTag("offlinePrimaryVertices")
+ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
+#ebhitsTag = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 
 ### Cuts and switches ###
 process.ACSkimAnalysis = cms.EDFilter(
@@ -145,37 +149,45 @@ process.ACSkimAnalysis = cms.EDFilter(
     pthat_low  = cms.double(-1.),
     pthat_high = cms.double(-1.),
 
-    jetTag    = jetTag,
-    elecTag   = elecTag,
-    muonTag   = muonTag,
-    metTag    = metTag,
-    metTagTC  = metTagTC,
-    metTagPF  = metTagPF,
-    genTag    = genTag,
-    genJetTag = genJetTag,
-    vtxTag    = vtxTag,
+    calojetTag = calojetTag,
+    pfjetTag   = pfjetTag,
+    elecTag    = elecTag,
+    muonTag    = muonTag,
+    metTag     = metTag,
+    metTagTC   = metTagTC,
+    metTagPF   = metTagPF,
+    genTag     = genTag,
+    genJetTag  = genJetTag,
+    vtxTag     = vtxTag,
+    ebhitsTag  = ebhitsTag,
 
-    muopt  = cms.double(0.),
-    muoeta = cms.double(25.),
-    elept  = cms.double(0.),
-    eleeta = cms.double(25.),
-    jetpt  = cms.double(0.),
-    jeteta = cms.double(25.),
-    met    = cms.double(0.),
-    nele   = cms.int32(0),
-    nmuo   = cms.int32(0),
-    njet   = cms.int32(0),
-
-    correction = cms.string('abs'),
-    flavour    = cms.string('glu'),
+    muopt      = cms.double(0.),
+    muoeta     = cms.double(25.),
+    elept      = cms.double(0.),
+    eleeta     = cms.double(25.),
+    calojetpt  = cms.double(0.),
+    calojeteta = cms.double(25.),
+    pfjetpt    = cms.double(0.),
+    pfjeteta   = cms.double(25.),
+    met        = cms.double(0.),
+    nele       = cms.int32(0),
+    nmuo       = cms.int32(0),
+    ncalojet   = cms.int32(0),
+    npfjet     = cms.int32(0),
 
     btag       = cms.string('trackCountingHighEffBJetTags'),
+
+    # Calo Jet ID
+    jetselvers = cms.string("PURE09"),
+    jetselqual = cms.string("LOOSE")
 
 )
 
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger( process )
+process.patTrigger.processName = "*"
+process.patTriggerEvent.processName = "*"
 
 # Boosted Higgs Configuration
 from RecoJets.JetProducers.CaloJetParameters_cfi import CaloJetParameters

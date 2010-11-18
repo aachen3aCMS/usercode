@@ -14,7 +14,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('GR10_P_V10::All')
+#process.GlobalTag.globaltag = cms.string('START38_V12::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -39,7 +39,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 #-- Remove all Monte Carlo matching -------------------------------------------
-removeMCMatching(process, ['All'])
+#removeMCMatching(process, ['All'])
 
 # add iso deposits
 from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
@@ -52,11 +52,12 @@ addElectronUserIsolation(process)
 
 # Input file
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring([
-    '/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/148/002/8A37418A-DFD9-DF11-91E3-0030487CD77E.root']
-#    'file:/net/data_cms/institut_3a/gueth/punch_through.root']
-#    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_1.root',
-#    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_2.root']
+                            fileNames = cms.untracked.vstring(
+#    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_8_4_patch2/src/aachen3a/ACSusyAnalysis/test/AODSIM/ttbar_AODSIM_1000ev.root'
+    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_8_6/src/aachen3a/ACSusyAnalysis/test/AODSIM2/wmunu_AODSIM.root'
+    #'/store/mc/Spring10/LM0/GEN-SIM-RECO/START3X_V26_S09-v1//0025/A6A36FEC-0348-DF11-BA10-E41F13181AB4.root'
+#    '/store/mc/Spring10/MinBias_7TeV-pythia8/GEN-SIM-RECO/START3X_V26B-v1/0002/2C0B016D-255E-DF11-B47D-0018FE284C82.root'
+#    '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0006/36FF3D94-083C-DF11-BF54-0026189437FA.root'
     ),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
@@ -89,8 +90,8 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 addJetCollection(process,cms.InputTag('ak5PFJets'), 'AK5', 'PF',
                  doJTA        = True,
                  doBTagging   = True,
-                 # jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),   # MC
-                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
+                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),   # MC
+                 # jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
                  doType1MET   = False,
                  doL1Cleaning = False,
                  doL1Counters = False,
@@ -103,8 +104,8 @@ addJetCollection(process,cms.InputTag('ak5PFJets'), 'AK5', 'PF',
 addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  doJTA        = True,
                  doBTagging   = True,
-                 # jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),  # MC
-                 jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
+                 jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),  # MC
+                 # jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),  # DATA
                  doType1MET   = True,
                  doL1Cleaning = False,
                  doL1Counters = False,
@@ -113,7 +114,7 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  jetIdLabel   = "ak5"
                  )
 
-# process.patJets.addTagInfos = cms.bool(False)  # AOD only
+process.patJets.addTagInfos = cms.bool(False)  # AOD only
 
 ################################
 ###                          ###
@@ -133,14 +134,14 @@ metTagPF   = cms.InputTag("patMETsPF")
 genTag     = cms.InputTag("genParticles")
 genJetTag  = cms.InputTag("ak5GenJets")
 vtxTag     = cms.InputTag("offlinePrimaryVertices")
-ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
-#ebhitsTag = cms.InputTag("reducedEcalRecHitsEB");   # AOD
+#ebhitsTag = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
+ebhitsTag  = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 
 ### Cuts and switches ###
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
-    is_MC      = cms.bool(False),  # set to 'False' for real Data !
+    is_MC      = cms.bool(True),   # set to 'False' for real Data !
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
                                    # if 'True', include process.BoostedHiggsSubjets (see example)
