@@ -38,9 +38,6 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('out.root')
                                    )
 
-#-- Remove all Monte Carlo matching -------------------------------------------
-removeMCMatching(process, ['All'])
-
 # add iso deposits
 from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
 addMuonUserIsolation(process)
@@ -53,7 +50,8 @@ addElectronUserIsolation(process)
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    '/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/148/002/8A37418A-DFD9-DF11-91E3-0030487CD77E.root']
+    'file:/home/home1/institut_3a/magass/data.root']
+    #'/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/148/002/8A37418A-DFD9-DF11-91E3-0030487CD77E.root']
 #    'file:/net/data_cms/institut_3a/gueth/punch_through.root']
 #    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_1.root',
 #    'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_2.root']
@@ -63,6 +61,14 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
+# PF2PAT
+from PhysicsTools.PatAlgos.tools.pfTools import *
+postfix = "PFlow"
+usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=False, postfix=postfix)
+
+# remove MC matching
+removeMCMatching(process, ['All'])
 
 # add ParticleFlow met
 from PhysicsTools.PatAlgos.tools.metTools import *
@@ -85,7 +91,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 #                 doJetID          = False,
 #                 genJetCollection = cms.InputTag("antikt5GenJets"))
 
-# Add ParticleFlow jets
+# Add ParticleFlow jets - uncleaned
 addJetCollection(process,cms.InputTag('ak5PFJets'), 'AK5', 'PF',
                  doJTA        = True,
                  doBTagging   = True,
@@ -125,11 +131,11 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
 ### Definition of all tags here
 elecTag    = cms.InputTag("patElectrons")
 calojetTag = cms.InputTag("patJetsAK5Calo")
-pfjetTag   = cms.InputTag("patJetsAK5PF")
+pfjetTag   = cms.InputTag("patJetsPFlow")
 muonTag    = cms.InputTag("patMuons")
 metTag     = cms.InputTag("patMETsAK5Calo")
 metTagTC   = cms.InputTag("patMETsTC")
-metTagPF   = cms.InputTag("patMETsPF")
+metTagPF   = cms.InputTag("patMETsPFlow")
 genTag     = cms.InputTag("genParticles")
 genJetTag  = cms.InputTag("ak5GenJets")
 vtxTag     = cms.InputTag("offlinePrimaryVertices")
@@ -217,6 +223,7 @@ process.BoostedHiggsSubjets.nSubjets      = cms.int32(3)       # b bbar + radiat
 process.p = cms.Path(
 #    process.BoostedHiggsSubjets*
     process.patDefaultSequence*
+    getattr(process,"patPF2PATSequence"+postfix)*
     process.ACSkimAnalysis
     )
 # process.outpath = cms.EndPath(process.out)

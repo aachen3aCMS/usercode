@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     usage();
   }
 
-  cout << "RunSUSY: Starting Event Loop" << endl;
+  cout << "RunSUSY: Starting event loop" << endl;
 
   gSystem->GetProcInfo(&info);
 

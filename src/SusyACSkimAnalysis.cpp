@@ -1297,15 +1297,17 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if (calojets[i].pt() > calojetpt_ && fabs(calojets[i].eta()) < calojeteta_) 
 	ccalojet_++;
     
-      mTreeCaloJetP[countjets]      = calojets[i].p();
-      mTreeCaloJetPt[countjets]     = calojets[i].pt();
-      mTreeCaloJetE[countjets]      = calojets[i].energy();
-      mTreeCaloJetEt[countjets]     = calojets[i].et();
-      mTreeCaloJetPx[countjets]     = calojets[i].momentum().X();
-      mTreeCaloJetPy[countjets]     = calojets[i].momentum().Y();
-      mTreeCaloJetPz[countjets]     = calojets[i].momentum().Z();
-      mTreeCaloJetEta[countjets]    = calojets[i].eta();
-      mTreeCaloJetPhi[countjets]    = calojets[i].phi();
+      mTreeCaloJetP[countjets]     = calojets[i].p();
+      mTreeCaloJetPt[countjets]    = calojets[i].pt();
+      mTreeCaloJetE[countjets]     = calojets[i].energy();
+      mTreeCaloJetEt[countjets]    = calojets[i].et();
+      mTreeCaloJetPx[countjets]    = calojets[i].momentum().X();
+      mTreeCaloJetPy[countjets]    = calojets[i].momentum().Y();
+      mTreeCaloJetPz[countjets]    = calojets[i].momentum().Z();
+      mTreeCaloJetEta[countjets]   = calojets[i].eta();
+      mTreeCaloJetPhi[countjets]   = calojets[i].phi();
+
+      mTreeCaloJetPtRaw[countjets] = calojets[i].correctedJet("Uncorrected").pt();
 
       mTreeCaloJetCharge[countjets]  = calojets[i].jetCharge();
       mTreeCaloJetn90[countjets]     = calojets[i].n90();
@@ -1371,18 +1373,20 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if (pfjets[i].pt() > pfjetpt_ && fabs(pfjets[i].eta()) < pfjeteta_) 
 	cpfjet_++;
     
-      mTreePFJetP[countjets]      = pfjets[i].p();
-      mTreePFJetPt[countjets]     = pfjets[i].pt();
-      mTreePFJetE[countjets]      = pfjets[i].energy();
-      mTreePFJetEt[countjets]     = pfjets[i].et();
-      mTreePFJetPx[countjets]     = pfjets[i].momentum().X();
-      mTreePFJetPy[countjets]     = pfjets[i].momentum().Y();
-      mTreePFJetPz[countjets]     = pfjets[i].momentum().Z();
-      mTreePFJetEta[countjets]    = pfjets[i].eta();
-      mTreePFJetPhi[countjets]    = pfjets[i].phi();
+      mTreePFJetP[countjets]     = pfjets[i].p();
+      mTreePFJetPt[countjets]    = pfjets[i].pt();
+      mTreePFJetE[countjets]     = pfjets[i].energy();
+      mTreePFJetEt[countjets]    = pfjets[i].et();
+      mTreePFJetPx[countjets]    = pfjets[i].momentum().X();
+      mTreePFJetPy[countjets]    = pfjets[i].momentum().Y();
+      mTreePFJetPz[countjets]    = pfjets[i].momentum().Z();
+      mTreePFJetEta[countjets]   = pfjets[i].eta();
+      mTreePFJetPhi[countjets]   = pfjets[i].phi();
 
-      mTreePFJetCharge[countjets]  = pfjets[i].jetCharge();
-      mTreePFJetn90[countjets]     = pfjets[i].n90();
+      mTreePFJetPtRaw[countjets] = pfjets[i].correctedJet("Uncorrected").pt();
+
+      mTreePFJetCharge[countjets] = pfjets[i].jetCharge();
+      mTreePFJetn90[countjets]    = pfjets[i].n90();
 
       //      if (pfjets[i].isPFJet()) {
       mTreePFJetF[countjets][0]  = pfjets[i].chargedHadronEnergyFraction();
@@ -1870,6 +1874,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("calojet_Et",     mTreeCaloJetEt,     "calojet_Et[calojet_n]/double");
   mAllData->Branch("calojet_p",      mTreeCaloJetP,      "calojet_p[calojet_n]/double");
   mAllData->Branch("calojet_pt",     mTreeCaloJetPt,     "calojet_pt[calojet_n]/double");
+  mAllData->Branch("calojet_pt_raw", mTreeCaloJetPtRaw,  "calojet_pt_raw[calojet_n]/double");
   mAllData->Branch("calojet_px",     mTreeCaloJetPx,     "calojet_px[calojet_n]/double");
   mAllData->Branch("calojet_py",     mTreeCaloJetPy,     "calojet_py[calojet_n]/double");
   mAllData->Branch("calojet_pz",     mTreeCaloJetPz,     "calojet_pz[calojet_n]/double");
@@ -1894,6 +1899,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("pfjet_Et",     mTreePFJetEt,     "pfjet_Et[pfjet_n]/double");
   mAllData->Branch("pfjet_p",      mTreePFJetP,      "pfjet_p[pfjet_n]/double");
   mAllData->Branch("pfjet_pt",     mTreePFJetPt,     "pfjet_pt[pfjet_n]/double");
+  mAllData->Branch("pfjet_pt_raw", mTreePFJetPtRaw,  "pfjet_pt_raw[pfjet_n]/double");
   mAllData->Branch("pfjet_px",     mTreePFJetPx,     "pfjet_px[pfjet_n]/double");
   mAllData->Branch("pfjet_py",     mTreePFJetPy,     "pfjet_py[pfjet_n]/double");
   mAllData->Branch("pfjet_pz",     mTreePFJetPz,     "pfjet_pz[pfjet_n]/double");

@@ -6,10 +6,9 @@ void SUSYAna::BasicDump(int i) {
   cout << setprecision(3);
 
   cout << endl;
-  cout << endl;
   cout << "  ======================================================================" << endl;
   cout << endl;
-  cout << "         Tree/Chain Entry " << setw(12) << i << endl;
+  cout << "         Tree/Chain Entry " << setw(13) << i << endl;
   cout << endl;
   cout << "   Run " << setw(11) << global_run << "     Event " << setw(10) << global_event 
        << "     Lumi Section " << setw(8) << lumi_section << endl;
@@ -32,17 +31,19 @@ void SUSYAna::BasicDump(int i) {
     cout << endl;
   }
   cout << "  ======================================================================" << endl;
-
+  cout << endl;
 }
 
 void SUSYAna::TriggerDump(TString sel) {
 
   cout << setprecision(3);
   
-  cout << endl;
   cout << "  ===  Trigger Dump - #Objects : " << trig_n << " - Selection : " << sel << "  === " << endl;
 
-  if (trig_n<1) return;
+  if (trig_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No  Trigger Name                   Filter Name                                  Prescale L1  HLT       pT      eta      phi " << endl;
 
@@ -58,6 +59,7 @@ void SUSYAna::TriggerDump(TString sel) {
     cout << " " << setw(5) << fixed << trig_L1prescale[i] << setw(5) << trig_HLTprescale[i] 
 	 << setw(9) << trig_pt[i] << setw(9) << trig_eta[i] << setw(9) << trig_phi[i] << endl;
   }
+  cout << endl;
 
 }
 
@@ -65,10 +67,12 @@ void SUSYAna::MuonDump(bool full) {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  Muon Dump - #Objects : " << muo_n << "  === " << endl;
 
-  if (muo_n<1) return;
+  if (muo_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi      Isolation                       CM                      TK                   ID      ";
   if (full)    
@@ -112,16 +116,20 @@ void SUSYAna::MuonDump(bool full) {
       }
     }
   }
+  cout << endl;
+
 }
 
 void SUSYAna::CaloJetDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  CaloJet Dump - #Objects : " << calojet_n << "  === " << endl;
 
-  if (calojet_n<1) return;
+  if (calojet_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi     fem  fHPD  fRBX n90 const     btag ID truth" << endl;
   for (int i=0; i<calojet_n; i++) {
@@ -132,18 +140,21 @@ void SUSYAna::CaloJetDump() {
 	 << setw(4) << calojet_n90[i] << setw(4) << calojet_const[i] << " ]";
     cout << setw(9) << fixed << calojet_btag[i] << setw(3) << calojet_ID[i] << setw(4) 
 	 << calojet_truth[i] << endl;
-
   }
+  cout << endl;
+
 }
 
 void SUSYAna::PFJetDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  PFJet Dump - #Objects : " << pfjet_n << "  === " << endl;
 
-  if (pfjet_n<1) return;
+  if (pfjet_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi   n90 const     Energy fractions                               Multiplicities           btag truth" << endl;
   cout << "                                             c_had n_had  n_em  c_em    mu    el gamma              ~" << endl;
@@ -162,6 +173,7 @@ void SUSYAna::PFJetDump() {
     cout << " ] " << setw(9) << fixed << pfjet_btag[i] << setw(4) << pfjet_truth[i] << endl;
 
   }
+  cout << endl;
 
 }
 
@@ -169,10 +181,12 @@ void SUSYAna::TruthJetDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  TruthJet Dump - #Objects : " << truthjet_n << "  === " << endl;
 
-  if (truthjet_n<1) return;
+  if (truthjet_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi  " << endl;
   for (int i=0; i<truthjet_n; i++) {
@@ -180,6 +194,7 @@ void SUSYAna::TruthJetDump() {
     cout << setw(5) << fixed << i << setw(9) << truthjet_pt[i] << setw(8) << truthjet_eta[i] 
 	 << setw(8) << truthjet_phi[i] << endl;
   }
+  cout << endl;
 
 }
 
@@ -187,11 +202,13 @@ void SUSYAna::TruthDump() {
   
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  Truth Dump - #Objects : " << truth_n << " with " << truthl_n 
        << " final truth leptons  === " << endl;
   
-  if (truth_n<1) return;
+  if (truth_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi  pdgid    beg -> end     truthl" << endl;
   for (int i=0; i<truth_n; i++) {
@@ -213,6 +230,7 @@ void SUSYAna::TruthDump() {
 	 << setw(8) << truthl_phi[i] << setw(7) << truthl_pdgid[i] << endl;;
     
   }
+  cout << endl;
 
 }
 
@@ -220,7 +238,6 @@ void SUSYAna::VertexDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  Vertex Dump - #Objects : " << vtx_n << "  === " << endl;
   if (vtx_n>0) {
     cout << "   No        x        y        z fake      chi      ndf   ntr" << endl;
@@ -233,8 +250,8 @@ void SUSYAna::VertexDump() {
   }
   cout << endl;
   cout << "   BS " << setw(8) << fixed << bs_x << setw(9) << bs_y << setw(9) << bs_z;  
-  cout << "   Tracks " << setw(4) << tracks_n << "    hqf " << setw(7) << tracks_hqf 
-       << endl;
+  cout << "   Tracks " << setw(4) << tracks_n << "    hqf " << setw(7) << tracks_hqf << endl;
+  cout << endl;
 
 }
 
@@ -242,7 +259,6 @@ void SUSYAna::METDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  MET Dump  === " << endl;
   cout << "  Type          MET     phi       MEx     MEy        SumEt   SumEtSig" << endl;
   cout << "  CaloMET " << setw(9) << fixed << met_et[0] << setw(8) << met_phi[0] 
@@ -260,6 +276,7 @@ void SUSYAna::METDump() {
   cout << "  GENMET2 " << setw(9) << fixed << met_et[2] << setw(8) << met_phi[2] 
        << "  [" << setw(8) << met_ex[2] << setw(8) << met_ey[2] 
        << " ] [" << setw(9) << met_sumet[2] << setw(9) << met_sumetsig[2] << " ]" << endl;
+  cout << endl;
 
 }
 
@@ -267,10 +284,12 @@ void SUSYAna::SCDump() {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  SuperCluster Dump - #Objects : " << SC_n << "  === " << endl;
 
-  if (SC_n<1) return;
+  if (SC_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       E      eta     phi  truth " << endl;
   for (int i=0; i<SC_n; i++) {
@@ -278,6 +297,7 @@ void SUSYAna::SCDump() {
     cout << setw(5) << fixed << i << setw(9) << SC_E[i] << setw(8) << SC_eta[i] 
 	 << setw(8) << SC_phi[i] << setw(5) << SC_truth[i] << endl;    
   }
+  cout << endl;
 
 }
 
@@ -285,10 +305,12 @@ void SUSYAna::EleDump(bool full) {
 
   cout << setprecision(3);
 
-  cout << endl;
   cout << "  ===  Electron Dump - #Objects : " << ele_n << "  === " << endl;
 
-  if (ele_n<1) return;
+  if (ele_n<1) {
+    cout << endl;
+    return;
+  }
 
   cout << "   No       pT     eta     phi     Isolation (0.3)      ECAL TK       chi hits      d0      fbrem  convr      HoE   SC truth";
   if (full) {
@@ -327,5 +349,6 @@ void SUSYAna::EleDump(bool full) {
     else
       cout << endl;
   }
+  cout << endl;
 
 }

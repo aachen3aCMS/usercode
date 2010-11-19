@@ -168,6 +168,7 @@ class TreeContent {
    Double_t        calojet_Et[100];   //[calojet_n]
    Double_t        calojet_p[100];   //[calojet_n]
    Double_t        calojet_pt[100];   //[calojet_n]
+   Double_t        calojet_pt_raw[100];   //[calojet_n]
    Double_t        calojet_px[100];   //[calojet_n]
    Double_t        calojet_py[100];   //[calojet_n]
    Double_t        calojet_pz[100];   //[calojet_n]
@@ -190,6 +191,7 @@ class TreeContent {
    Double_t        pfjet_Et[100];   //[pfjet_n]
    Double_t        pfjet_p[100];   //[pfjet_n]
    Double_t        pfjet_pt[100];   //[pfjet_n]
+   Double_t        pfjet_pt_raw[100];   //[pfjet_n]
    Double_t        pfjet_px[100];   //[pfjet_n]
    Double_t        pfjet_py[100];   //[pfjet_n]
    Double_t        pfjet_pz[100];   //[pfjet_n]
@@ -428,6 +430,7 @@ class TreeContent {
    TBranch        *b_calojet_Et;   //!
    TBranch        *b_calojet_p;   //!
    TBranch        *b_calojet_pt;   //!
+   TBranch        *b_calojet_pt_raw;   //!
    TBranch        *b_calojet_px;   //!
    TBranch        *b_calojet_py;   //!
    TBranch        *b_calojet_pz;   //!
@@ -450,6 +453,7 @@ class TreeContent {
    TBranch        *b_pfjet_Et;   //!
    TBranch        *b_pfjet_p;   //!
    TBranch        *b_pfjet_pt;   //!
+   TBranch        *b_pfjet_pt_raw;   //!
    TBranch        *b_pfjet_px;   //!
    TBranch        *b_pfjet_py;   //!
    TBranch        *b_pfjet_pz;   //!
@@ -760,6 +764,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("calojet_Et", calojet_Et, &b_calojet_Et);
    fChain->SetBranchAddress("calojet_p", calojet_p, &b_calojet_p);
    fChain->SetBranchAddress("calojet_pt", calojet_pt, &b_calojet_pt);
+   fChain->SetBranchAddress("calojet_pt_raw", calojet_pt_raw, &b_calojet_pt_raw);
    fChain->SetBranchAddress("calojet_px", calojet_px, &b_calojet_px);
    fChain->SetBranchAddress("calojet_py", calojet_py, &b_calojet_py);
    fChain->SetBranchAddress("calojet_pz", calojet_pz, &b_calojet_pz);
@@ -782,6 +787,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("pfjet_Et", pfjet_Et, &b_pfjet_Et);
    fChain->SetBranchAddress("pfjet_p", pfjet_p, &b_pfjet_p);
    fChain->SetBranchAddress("pfjet_pt", pfjet_pt, &b_pfjet_pt);
+   fChain->SetBranchAddress("pfjet_pt_raw", pfjet_pt_raw, &b_pfjet_pt_raw);
    fChain->SetBranchAddress("pfjet_px", pfjet_px, &b_pfjet_px);
    fChain->SetBranchAddress("pfjet_py", pfjet_py, &b_pfjet_py);
    fChain->SetBranchAddress("pfjet_pz", pfjet_pz, &b_pfjet_pz);

@@ -35,14 +35,18 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
   
   cout << "SUSYAna: Running over " << nentries << " events" << endl;
 
-  if (DEBUG) cout << "SUSYAna: DEBUG modus " << endl;
+  if (DEBUG) cout << "SUSYAna: Debug mode" << endl;
 
-  if (type == "data") 
-    cout << "SUSYAna: You are running with flag 'data'" << endl;
-  else if (type == "mc")
-    cout << "SUSYAna: You are running with flag 'mc'" << endl;
-  else 
-    cout << "SUSYAna: No flag specified !" << endl;
+  if (type == "none") 
+    cout << "SUSYAna: You are running with JES flag 'none'" << endl;
+  else if (type == "up")
+    cout << "SUSYAna: You are running with JES flag 'up'" << endl;
+  else if (type == "down")
+    cout << "SUSYAna: You are running with JES flag 'down'" << endl;
+  else {
+    cout << "SUSYAna: No JES flag specified ! Assuming JES flag 'none'" << endl;
+    type = "none";
+  }
 
   TString trigger;
 
@@ -80,9 +84,20 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       PFJetDump();
       METDump();
       SCDump();
-      EleDump(1);       // [less] detailed information 1 [0]
+      EleDump(0);       // [less] detailed information 1 [0]
+    }
+
+    doJESandRecalculateMET(type);
+
+    if (DEBUG) {
+      if (type == "up" || type == "down") {
+	CaloJetDump();
+	PFJetDump();
+	METDump();
+      }
       continue;
     }
+
     double v=0.;
     if (vtx_n>0) v = vtx_z[0]; 
 
@@ -95,11 +110,13 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     cout << "Analysis example output " << endl;
 
     // list Trigger Objects
-    for (int i=0; i<trig_n; i++) {
-      cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
-	   << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+    if (DEBUG) {
+      for (int i=0; i<trig_n; i++) {
+	cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
+	     << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+      }
     }
-    
+
     for (int j=0; j<muo_n; j++) {
 
       cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
@@ -294,5 +311,97 @@ Double_t SUSYAna::MT(const std::vector<TLorentzVector> & objects) {
   }
   Double_t MTsq = sEt*sEt - sPx*sPx - sPy*sPy;
   return MTsq >= 0. ? sqrt(MTsq) : -sqrt(-MTsq);
+
+}
+
+// JES variation: recalculate Jets and propagate into MET
+void SUSYAna::doJESandRecalculateMET(TString corr) {
+
+  // WARNING : Not propagated into TCMET since this need track corrected Jets
+  Double_t caloscale;
+  Double_t pfscale;
+
+  Double_t dMEx;
+  Double_t dMEy;
+  Double_t dSumEt;
+
+  // JME-10-010-pas-v8.pdf
+  if (corr == "none")
+    return;
+  else if (corr == "up") {
+    caloscale = 1.04;
+    pfscale   = 1.04;
+  }  
+  else if (corr == "down") {
+    caloscale = 0.96;
+    pfscale   = 0.96;
+  }
+  else {
+    cout << "SUSYAna::doJESandRecalculateMET: Option '" << corr << "' not known." << endl;
+    cout << "                                 No correction applied." << endl;
+    return;
+  }
+  if (DEBUG) cout << "SUSYAna::doJESandRecalculateMET called with option '" << corr << "'" << endl;
+  
+  dMEx   = 0.;
+  dMEy   = 0.;
+  dSumEt = 0.;
+  
+  // Calo Jets
+  for (int i=0; i<calojet_n; i++) {
+
+    // not final, best guess
+    if (calojet_pt_raw[i]>20. && calojet_fem[i]<0.9) {
+      dMEx   += (caloscale - 1.) * calojet_px[i];
+      dMEy   += (caloscale - 1.) * calojet_py[i];
+      dSumEt += (caloscale - 1.) * calojet_Et[i];
+    }
+    calojet_E[i]  *= caloscale;
+    calojet_Et[i] *= caloscale;  
+    calojet_p[i]  *= caloscale;   
+    calojet_pt[i] *= caloscale;  
+    calojet_px[i] *= caloscale;
+    calojet_py[i] *= caloscale;
+    calojet_pz[i] *= caloscale;
+  }
+
+  met_sumet[0] += dSumEt;
+  met_ex[0]    -= dMEx;
+  met_ey[0]    -= dMEy;
+
+  TVector3 mcalo(met_ex[0], met_ey[0], 0.);
+
+  met_phi[0] = mcalo.Phi();
+  met_et[0]  = mcalo.Perp();
+
+  // PF Jets
+  dMEx   = 0.;
+  dMEy   = 0.;
+  dSumEt = 0.;
+  
+  for (int i=0; i<pfjet_n; i++) {
+
+    // cleaned PF jets, have ptraw > 10 GeV
+    dMEx   += (pfscale - 1.) * pfjet_px[i];
+    dMEy   += (pfscale - 1.) * pfjet_py[i];
+    dSumEt += (pfscale - 1.) * pfjet_Et[i];
+    
+    pfjet_E[i]  *= pfscale;
+    pfjet_Et[i] *= pfscale;  
+    pfjet_p[i]  *= pfscale;   
+    pfjet_pt[i] *= pfscale;  
+    pfjet_px[i] *= pfscale;
+    pfjet_py[i] *= pfscale;
+    pfjet_pz[i] *= pfscale;
+  }
+  
+  met_sumet[3] += dSumEt;
+  met_ex[3]    -= dMEx;
+  met_ey[3]    -= dMEy;
+  
+  TVector3 mpf(met_ex[3], met_ey[3], 0.);
+
+  met_phi[3] = mpf.Phi();
+  met_et[3]  = mpf.Perp();
 
 }

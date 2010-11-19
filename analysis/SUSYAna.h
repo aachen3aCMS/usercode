@@ -45,6 +45,8 @@ public :
   void SCDump();
   void EleDump(bool full=1);
 
+  void doJESandRecalculateMET(TString corr);
+
   bool find_duplicate(int run, int evt, double x1, double x2);
   
   Double_t DeltaPhi(double a, double b);

@@ -1,14 +1,16 @@
 
-  Instructions
-  ============
+        Instructions
+        ============
 
    Carsten Magass, January 2009
                    February 2009 (update)
+                   November 2010 (update)
 
 (1) Edit analysis code in SUSYAna.cpp and header SUSYAna.h
 (2) make
-(3) ./RunSUSY -in     <inputfile> -out <outputfile> -type <data|mc|signal> [ -debug ] 
-    ./RunSUSY -inlist <inputlist> -out <outputfile> -type <data|mc|signal> [ -debug ]
+(3) ./RunSUSY -in     <inputfile> -out <outputfile> -type <none|up|down> [ -debug ] 
+    ./RunSUSY -inlist <inputlist> -out <outputfile> -type <none|up|down> [ -debug ]
+    Use -type option to specify the JES correction.
 
 If the content of the root tuple changes, one has to
 recreate TreeContent.h. This is rather easy:

@@ -297,6 +297,7 @@ private:
   int    mTreeCaloJetID[100];
   double mTreeCaloJetEt[100];
   double mTreeCaloJetPt[100];
+  double mTreeCaloJetPtRaw[100];
   double mTreeCaloJetP[100];
   double mTreeCaloJetPx[100];
   double mTreeCaloJetPy[100];
@@ -319,6 +320,7 @@ private:
   int    mTreePFJetn90[100];
   double mTreePFJetEt[100];
   double mTreePFJetPt[100];
+  double mTreePFJetPtRaw[100];
   double mTreePFJetP[100];
   double mTreePFJetPx[100];
   double mTreePFJetPy[100];
