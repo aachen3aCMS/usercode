@@ -14,13 +14,12 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('START38_V12::All')
+#process.GlobalTag.globaltag = cms.string('START38_V14::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
 
 # Output (PAT file only created if
 # process.outpath = cms.EndPath(process.out)
@@ -113,6 +112,12 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  doJetID      = True,
                  jetIdLabel   = "ak5"
                  )
+
+# dummy - IMPORTANT
+process.patJetCorrFactors.levels = cms.vstring(
+    'L2Relative', 'L3Absolute'  # MC
+    # 'L2Relative', 'L3Absolute', 'L2L3Residual'  #DATA
+    )
 
 # process.patJets.addTagInfos = cms.bool(False)  # AOD only
 
