@@ -316,7 +316,7 @@ class TreeContent {
    Int_t           muo_hitsTk[100];   //[muo_n]
    Int_t           muo_truth[100];   //[muo_n]
    Int_t           muo_trign[100];   //[muo_n]
-   Int_t           muo_trig[100][100];   //[muo_n]
+   Int_t           muo_trig[100][500];   //[muo_n]
    Int_t           muo_ID[100][24];   //[muo_n]
    Int_t           muo_ValidMuonHitsCm[100];   //[muo_n]
    Int_t           muo_ValidTrackerHitsCm[100];   //[muo_n]
