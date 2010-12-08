@@ -810,7 +810,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       mTreeNeletrign[countele] = 0;
       for (int k=0; k<mTreeNtrig; k++) {
-	if (DeltaPhi(eles[i].phi(), mTreetrigphi[k])<0.2 &&
+	if (mTreeNeletrign[countele]<500 &&
+	    DeltaPhi(eles[i].phi(), mTreetrigphi[k])<0.2 &&
 	    fabs(eles[i].eta()-mTreetrigeta[k])<0.2) {
 	  mTreeEletrig[countele][mTreeNeletrign[countele]] = k;
 // 	  	  cout << " ELE " << eles[i].eta() << " TRIG " << mTreetrigeta[k] << "  " << unpack(mTreetrigname[k]) << endl;
@@ -1999,7 +2000,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_convr",    mTreeEleConvr,    "ele_convr[ele_n]/double");
   mAllData->Branch("ele_fbrem",    mTreeElefbrem,    "ele_fbrem[ele_n]/double");
   mAllData->Branch("ele_trign",    mTreeNeletrign,   "ele_trign[ele_n]/I");
-  mAllData->Branch("ele_trig" ,    mTreeEletrig,     "ele_trig[ele_n][100]/I");  
+  mAllData->Branch("ele_trig" ,    mTreeEletrig,     "ele_trig[ele_n][500]/I");  
   mAllData->Branch("ele_SC"   ,    mTreeEleSC,       "ele_SC[ele_n]/I");
 
   // Muons

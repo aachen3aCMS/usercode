@@ -374,7 +374,7 @@ private:
 
   int    mTreeNele;
   int    mTreeNeletrign[100];
-  int    mTreeEletrig[100][100];
+  int    mTreeEletrig[100][500];
   int    mTreeEleID[100][5];
   int    mTreeEleTruth[100];
   int    mTreeEleSC[100];

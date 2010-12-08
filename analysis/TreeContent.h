@@ -282,7 +282,7 @@ class TreeContent {
    Double_t        ele_convr[100];   //[ele_n]
    Double_t        ele_fbrem[100];   //[ele_n]
    Int_t           ele_trign[100];   //[ele_n]
-   Int_t           ele_trig[100][100];   //[ele_n]
+   Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
    Int_t           muo_n;
    Double_t        muo_E[100];   //[muo_n]
