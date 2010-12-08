@@ -987,7 +987,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       mTreeNmuotrign[countmuo] = 0;
       for (int k=0; k<mTreeNtrig; k++) {
-	if (DeltaPhi(muons[i].phi(), mTreetrigphi[k])<0.1 &&
+	if (mTreeNmuotrign[countmuo]<500 && 
+	    DeltaPhi(muons[i].phi(), mTreetrigphi[k])<0.1 &&
 	    fabs(muons[i].eta()-mTreetrigeta[k])<0.1) {
 	  mTreeMuotrig[countmuo][mTreeNmuotrign[countmuo]] = k;
 	  //	  cout << " MUO " << muons[i].eta() << " TRIG " << mTreetrigeta[k] << "  " << unpack(mTreetrigname[k]) << endl;
@@ -2034,7 +2035,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_hitsTk",        mTreeMuoHitsTk,       "muo_hitsTk[muo_n]/I");
   mAllData->Branch("muo_truth",         mTreeMuoTruth,        "muo_truth[muo_n]/I");
   mAllData->Branch("muo_trign",         mTreeNmuotrign,       "muo_trign[muo_n]/I");
-  mAllData->Branch("muo_trig" ,         mTreeMuotrig,         "muo_trig[muo_n][100]/I");  
+  mAllData->Branch("muo_trig" ,         mTreeMuotrig,         "muo_trig[muo_n][500]/I");  
   mAllData->Branch("muo_ID",            mTreeMuoID,           "muo_ID[muo_n][24]/I");
   mAllData->Branch("muo_ValidMuonHitsCm",        mTreeMuoValidMuonHitsCm,       "muo_ValidMuonHitsCm[muo_n]/I");
   mAllData->Branch("muo_ValidTrackerHitsCm",     mTreeMuoValidTrackerHitsCm,    "muo_ValidTrackerHitsCm[muo_n]/I");

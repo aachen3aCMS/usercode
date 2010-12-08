@@ -178,17 +178,35 @@ f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/"$1"/output/"$2"/"$3`
 #n=`ls $f/*root | wc -l`
 #n=`srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/magass/output/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | grep root | wc -l`
 
+
+
+
 n=`./mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
 echo "  found "$n" files in $f"
 echo
 nu=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u | wc -l`
 if [ $nu -gt 0 ]
 then
-  echo "     -> the following files appear more than once:"
+  echo "     -> the following files appear more than once and have to be deleted using srmrm:"
+  echo
   list=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u`
   for s in $list
   do
-    echo "        " $s
+    file=`./mysrmls.sh $1 output/$2/$3 | grep $s'_'`
+    echo "        " $s : $file
+    good=`grep $s'_' $DIR/crab_*/res/*out | grep newL  | awk '{print $4}' | awk -F'out_' '{print "out_"$2}'`
+    for ff in $file
+    do
+      if [ "$ff" != "$good" ]
+      then
+        echo "            srmrm srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$ff "
+        echo
+      fi
+    done
+
+#    file=`./mysrmls.sh $1 output/$2/$3 | grep $s'_'`
+#    ffile=`grep $s CRAB-zz-v62/crab_*/res/*out | grep newL  | awk '{print $4}' | awk -F'out_' '{print "out_"$2}'`
+#    echo $file " => " $ffile
   done
 else
   echo "     -> no duplicate files found :-)"

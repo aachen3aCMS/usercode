@@ -17,9 +17,11 @@ s=`echo $2`
 if [ $s == '.' ]
 then
 #  echo "ls /pnfs/physik.rwth-aachen.de/cms/store/user/magass/$1"
-    srmls -offset=$offset srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2 | grep -v WARNING | grep pnfs | awk '{print $2}' | sed s/"\.\/"/""/g | cut -c51- | grep "/" 
+    path=`echo /pnfs/physik.rwth-aachen.de/cms/store/user/$1/`
+    srmls -offset=$offset srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2 | grep -v WARNING | grep pnfs | awk '{print $2}' | sed s/"\.\/"/""/g | sed s:$path:: #| cut -c51- | grep "/" 
   else
-    srmls -offset=$offset srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2 | grep -v WARNING | grep pnfs | awk '{print $2}' | sed s/"\.\/"/""/g | cut -c51- | grep "/" | sed s:$s:: | cut -c2-
+    path=`echo /pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2/`
+    srmls -offset=$offset srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2 | grep -v WARNING | grep pnfs | awk '{print $2}' | sed s/"\.\/"/""/g  | sed s:$path:: #| cut -c51- | grep "/" | sed s:$s:: | cut -c2- | sed s:"/"::
   fi
   count=`srmls -offset=$offset srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/$2 | grep -v WARNING | grep pnfs | grep -v SURL | sed s:/pnfs/physik.rwth-aachen.de/cms/store/user/$1/::g  | grep root | wc -l`
 #  echo "  #Files : " $count

@@ -417,7 +417,7 @@ private:
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];
-  int    mTreeMuotrig[100][100];
+  int    mTreeMuotrig[100][500];
   int    mTreeMuoTruth[100];
   int    mTreeMuoHitsCm[100];
   int    mTreeMuoHitsTk[100];

@@ -1,3 +1,7 @@
+2010-12-08 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* bugfix muon trigger match information
+	* updated scripts
+	* tagged as version v6-3
 2010-11-29 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* updated python configuration
 	* tagged as version v6-2
