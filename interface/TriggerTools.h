@@ -40,15 +40,18 @@ namespace ACSusyAnalysis {
   std::string unpack(const int* a) {
     int size = get_size(a);
     u64 tmp;
+    std::string ret;
     char* c = new char[size*INTSIZE];
     for(int i=0; i < size ; ++i) {
       tmp.i = a[i];
       for(int j=0; j < INTSIZE; ++j )
 	c[i*INTSIZE+j] = tmp.c[j];
     }
-    return c;
+    ret = c;
+    delete c;
+    return ret;
   }
-  
+
   int* pack(const char* c) {
     u64 tmp;
     int j=0,count=0;
