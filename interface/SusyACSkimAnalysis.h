@@ -62,7 +62,7 @@
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-#include "PhysicsTools/PatUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 

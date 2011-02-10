@@ -44,6 +44,9 @@ addMuonUserIsolation(process)
 from PhysicsTools.PatAlgos.tools.electronTools import addElectronUserIsolation
 addElectronUserIsolation(process)
 
+process.patMuons.embedCombinedMuon = False;
+process.patMuons.embedStandAloneMuon = False;
+
 ### Input / output ###
 
 # Input file
@@ -79,16 +82,6 @@ addTcMET(process, 'TC')
 
 # get the jet corrections
 from PhysicsTools.PatAlgos.tools.jetTools import *
-
-# Boosted Higgs
-#addJetCollection(process,
-#                 cms.InputTag('BoostedHiggsSubjets'), 'BHS', '',
-#                 doJTA            = False,
-#                 doBTagging       = True,
-#                 jetCorrLabel     = ('AK5','Calo'), # DANGEROUS !!!!!!!!!!!!!!!!
-#                 doType1MET       = False,
-#                 doJetID          = False,
-#                 genJetCollection = cms.InputTag("antikt5GenJets"))
 
 # Add ParticleFlow jets - uncleaned
 addJetCollection(process,cms.InputTag('ak5PFJets'), 'AK5', 'PF',
@@ -200,33 +193,8 @@ switchOnTrigger( process )
 process.patTrigger.processName = "*"
 process.patTriggerEvent.processName = "*"
 
-# Boosted Higgs Configuration
-from RecoJets.JetProducers.CaloJetParameters_cfi import CaloJetParameters
-from RecoJets.JetProducers.AnomalousCellParameters_cfi import AnomalousCellParameters
-from RecoJets.JetProducers.SubJetParameters_cfi import SubJetParameters
-from RecoJets.JetProducers.BoostedHiggsParameters_cfi import BoostedHiggsParameters
-
-# these are ignored, but required by VirtualJetProducer:
-virtualjet_parameters = cms.PSet(jetAlgorithm=cms.string("SISCone"), rParam=cms.double(0.00001))
-
-
-process.BoostedHiggsSubjets = cms.EDProducer("BoostedHiggsProducer",
-    BoostedHiggsParameters,
-    virtualjet_parameters,
-    #this is required also for GenJets of PFJets:
-    AnomalousCellParameters,
-    CaloJetParameters
-)
-
-process.BoostedHiggsSubjets.jetSize       = cms.double(1.2)
-process.BoostedHiggsSubjets.massThreshold = cms.double(0.667)
-process.BoostedHiggsSubjets.rtyCut        = cms.double(0.3)
-process.BoostedHiggsSubjets.ptMin         = cms.double(100.0)  # not JES corrected !!!
-process.BoostedHiggsSubjets.nSubjets      = cms.int32(3)       # b bbar + radiation
-
 ### Define the paths
 process.p = cms.Path(
-#    process.BoostedHiggsSubjets*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
     process.ACSkimAnalysis

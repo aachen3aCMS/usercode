@@ -1,3 +1,7 @@
+2011-02-10 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* bugfix Cocktail muons
+	* bugfix compile warning
+	* tagged as version v6-8
 2011-02-09 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* bugfix trigger unpacking 
 	* tagged as version v6-7
