@@ -26,6 +26,7 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   metTagPF_   = iConfig.getParameter<edm::InputTag>("metTagPF");
   metTagTC_   = iConfig.getParameter<edm::InputTag>("metTagTC");
   elecTag_    = iConfig.getParameter<edm::InputTag>("elecTag");
+  PFelecTag_  = iConfig.getParameter<edm::InputTag>("pfelecTag");
   muonTag_    = iConfig.getParameter<edm::InputTag>("muonTag");
   genTag_     = iConfig.getParameter<edm::InputTag>("genTag");
   genJetTag_  = iConfig.getParameter<edm::InputTag>("genJetTag");
@@ -67,13 +68,18 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   muoeta_     = iConfig.getParameter<double>("muoeta");
   elept_      = iConfig.getParameter<double>("elept");
   eleeta_     = iConfig.getParameter<double>("eleeta");
+  pfelept_    = iConfig.getParameter<double>("pfelept");
+  pfeleeta_   = iConfig.getParameter<double>("pfeleeta");
   calojetpt_  = iConfig.getParameter<double>("calojetpt");
   calojeteta_ = iConfig.getParameter<double>("calojeteta");
   pfjetpt_    = iConfig.getParameter<double>("pfjetpt");
   pfjeteta_   = iConfig.getParameter<double>("pfjeteta");
-  met_        = iConfig.getParameter<double>("met");
+  metcalo_    = iConfig.getParameter<double>("metcalo");
+  metpf_      = iConfig.getParameter<double>("metpf");
+  mettc_      = iConfig.getParameter<double>("mettc");
 
   nele_     = iConfig.getParameter<int>("nele");
+  npfele_   = iConfig.getParameter<int>("npfele");
   nmuo_     = iConfig.getParameter<int>("nmuo");
   ncalojet_ = iConfig.getParameter<int>("ncalojet");
   npfjet_   = iConfig.getParameter<int>("npfjet");
@@ -85,7 +91,7 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
 
   // Initialize 
   initPlots();
-  
+
 }
 
 ////////////////////////////////
@@ -170,26 +176,45 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       TString ttname = (*it)->name();
       std::string tname   = (*it)->name();
 
-      if ( hltConfigInit_ ) {
-	const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,tname));
-	pre1 = prescales.first;
-	pre2 = prescales.second;
-      }
-      else
-	edm::LogWarning("SusyACSkimAnalysis") << "HLT configuration not properly extracted";
-
       // save all accepted HLT_ trigger results
       if ( myTriggerEvent->path(tname)->wasAccept() &&
 	   ttname.Contains("HLT_") &&
 	   !ttname.Contains("AlCa") &&
+	   !ttname.Contains("L1Tech") &&
 	   !ttname.Contains("NZS") &&
 	   !ttname.Contains("_step") &&
 	   !ttname.Contains("DQM")) {
 
+	pre1 = -1;
+	pre2 = -1;
+	
+	if ( hltConfigInit_ ) {
+
+	  l1GtUtils_.retrieveL1EventSetup(iSetup);
+
+	  if (hltConfig_.hltL1GTSeeds(tname).size() == 1) {
+
+	    l1error = 0;
+	    l1GtUtils_.prescaleFactor(iEvent,
+				      hltConfig_.hltL1GTSeeds(tname).at(0).second,
+				      l1error);
+	    // 	    cout << hltConfig_.hltL1GTSeeds(tname).size() << " <-- " << l1error << endl;
+
+	    if (!l1error) {
+	      const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,tname));
+	      pre1 = prescales.first;
+	      pre2 = prescales.second;
+	    }
+	  }
+	}
+	else
+	  edm::LogWarning("SusyACSkimAnalysis") << "HLT configuration not properly extracted";
+	
+	
 	//	cout << "   --> " << ttname << endl;
 	
 	int *tempname = pack(tname.c_str());
-
+	
 	const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
 	for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll ) {
 	  TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
@@ -847,6 +872,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleEta[countele]        = eles[i].eta();
       mTreeElePhi[countele]        = eles[i].phi();
       mTreeEleCharge[countele]     = eles[i].charge();
+      mTreeEleCaloEt[countele]     = eles[i].caloEnergy()*sin(eles[i].p4().theta());
+      mTreeEleSCEta[countele]      = eles[i].caloPosition().eta();
 
       mTreeEleHCalOverEm[countele]          = eles[i].hadronicOverEm(); 
       mTreeEleDr03TkSumPt[countele]         = eles[i].dr03TkSumPt(); 
@@ -871,6 +898,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEledr03HcalDepth2[countele] = eles[i].dr03HcalDepth2TowerSumEt();
       mTreeElee2x5Max[countele]        = eles[i].e2x5Max();
       mTreeElee5x5[countele]           = eles[i].e5x5();
+      mTreeElee1x5[countele]           = eles[i].e1x5();
 
       if (eles[i].ecalDrivenSeed()==true) 
 	mTreeEleisECal[countele] = 1;
@@ -931,6 +959,89 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       countele++;
     }
     mTreeNele = countele;
+  }
+
+  // PF Electrons
+  mTreeNPFEle = 0;
+
+  edm::Handle< std::vector<pat::Electron> > PFelecHandle;
+  iEvent.getByLabel(PFelecTag_, PFelecHandle);
+
+  std::vector<pat::Electron> PFeles;
+
+  if ( !PFelecHandle.isValid() )
+    edm::LogWarning("SusyACSkimAnalysis") << "No PF Electron results found for InputTag " << PFelecTag_;
+  else {
+
+    mTreeNPFEle= PFelecHandle->size();
+
+    for (int i=0; i<mTreeNPFEle; i++) {
+      PFeles.push_back((*PFelecHandle)[i]);
+    }
+
+    sort(PFeles.begin(), PFeles.end(), ptcomp_ele);
+
+    if ( mTreeNPFEle > 100 ) mTreeNPFEle = 100;
+
+    int countPFele = 0;
+
+    for (int i=0; i<mTreeNPFEle; i++) {
+     
+      if (PFeles[i].pt() > pfelept_ && fabs(PFeles[i].eta()) < pfeleeta_) 
+	cpfele_++;
+
+      mTreePFEleP[countPFele]          = PFeles[i].p();
+      mTreePFElePt[countPFele]         = PFeles[i].pt();
+      mTreePFEleE[countPFele]          = PFeles[i].energy();
+      mTreePFEleEt[countPFele]         = PFeles[i].et();
+      mTreePFElePx[countPFele]         = PFeles[i].momentum().X();
+      mTreePFElePy[countPFele]         = PFeles[i].momentum().Y();
+      mTreePFElePz[countPFele]         = PFeles[i].momentum().Z();
+      mTreePFEleEta[countPFele]        = PFeles[i].eta();
+      mTreePFElePhi[countPFele]        = PFeles[i].phi();
+      mTreePFEleCharge[countPFele]     = PFeles[i].charge();
+
+      // truth matching
+      mTreePFEleTruth[countPFele] = -1;
+      const reco::GenParticle * PFgl = PFeles[i].genLepton();
+      
+      if (PFgl) {
+	for (int k=0; k<mTreeNtruthl; k++) {
+	  if (mTreetruthlpdgid[k] == PFgl->pdgId() &&
+	      fabs(mTreetruthlE[k]   - PFgl->energy()) < 1e-5 &&
+	      fabs(mTreetruthleta[k] - PFgl->eta()) < 1e-5 &&
+	      fabs(mTreetruthlphi[k] - PFgl->phi()) < 1e-5) {
+	    
+	    mTreePFEleTruth[countPFele] = k;
+	    break;
+	  }
+	}
+      }
+
+      mTreeNPFEletrign[countPFele] = 0;
+      for (int k=0; k<mTreeNtrig; k++) {
+	if (mTreeNPFEletrign[countPFele]<500 &&
+	    DeltaPhi(PFeles[i].phi(), mTreetrigphi[k])<0.2 &&
+	    fabs(PFeles[i].eta()-mTreetrigeta[k])<0.2) {
+	  mTreePFEletrig[countPFele][mTreeNPFEletrign[countPFele]] = k;
+	  //              cout << " ELE " << eles[i].eta() << " TRIG " << mTreetrigeta[k] << "  " << unpack(mTreetrigname[k]) << endl;
+	  mTreeNPFEletrign[countPFele]++;
+	}
+      }
+
+      mTreePFEleSC[countPFele] = -1;
+      for (int k=0; k<mTreeNSC; k++) {
+	if (fabs(mTreeSCEta[k] - PFeles[i].superCluster().get()->eta()) < 1e-2 &&
+	    DeltaPhi(mTreeSCPhi[k], PFeles[i].superCluster().get()->phi()) < 1e-2 ) {
+	  mTreePFEleSC[countPFele] = k;
+	  break;
+	}
+      }
+      
+      
+      countPFele++;
+    }
+    mTreeNPFEle = countPFele;
   }
 
   // Muons
@@ -1042,7 +1153,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	mTreeMuosd0Cm[countmuo]      = muons[i].combinedMuon().get()->d0Error();
 	mTreeMuod0bsCm[countmuo]     = (-1.)* muons[i].combinedMuon().get()->dxy(bsPoint); 
 	mTreeMuod0OriginCm[countmuo] = (-1.)* muons[i].combinedMuon().get()->dxy();
-
+	mTreeMuodzbsCm[countmuo]     = (-1.)* muons[i].combinedMuon().get()->dz(bsPoint);
 	/*
 	  /// dxy parameter. (This is the transverse impact parameter w.r.t. to (0,0,0) 
 	  ONLY if refPoint is close to (0,0,0): see parametrization definition above for details). 
@@ -1469,6 +1580,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeMETeta[0]      = metHandle->front().eta();
     mTreeMETphi[0]      = metHandle->front().phi();
     mTreeSumETSignif[0] = metHandle->front().mEtSig();
+    mTreeMETSignif[0]   = metHandle->front().significance();
   }
 
   if (is_MC) {
@@ -1490,7 +1602,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMETeta[1]      = genmetHandle->front().eta();
       mTreeMETphi[1]      = genmetHandle->front().phi();
       mTreeSumETSignif[1] = genmetHandle->front().mEtSig();
-      
+      mTreeMETSignif[1]   = genmetHandle->front().significance();      
     }
     
     edm::Handle< std::vector<reco::GenMET> > genmet2Handle;
@@ -1509,7 +1621,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMETeta[2]      = genmet2Handle->front().eta();
       mTreeMETphi[2]      = genmet2Handle->front().phi();
       mTreeSumETSignif[2] = genmet2Handle->front().mEtSig();
-      
+      mTreeMETSignif[2]   = genmet2Handle->front().significance();      
     }
   }
   else {
@@ -1521,6 +1633,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeMETeta[k]      = 0.;
       mTreeMETphi[k]      = 0.;
       mTreeSumETSignif[k] = 0.;
+      mTreeMETSignif[k]   = 0.;
     }
   }
 
@@ -1540,6 +1653,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeMETeta[3]      = metHandle->front().eta();
     mTreeMETphi[3]      = metHandle->front().phi();
     mTreeSumETSignif[3] = metHandle->front().mEtSig();
+    mTreeMETSignif[3]   = metHandle->front().significance();
   }
 
   // TrackCorrected MET
@@ -1558,15 +1672,19 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeMETeta[4]      = metHandle->front().eta();
     mTreeMETphi[4]      = metHandle->front().phi();
     mTreeSumETSignif[4] = metHandle->front().mEtSig();
+    mTreeMETSignif[4]   = metHandle->front().significance();
   }
   
   // This filter
   if (nele_     > 0 && cele_     < nele_)     return 0;
+  if (npfele_   > 0 && cpfele_   < npfele_)   return 0;
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   if (ncalojet_ > 0 && ccalojet_ < ncalojet_) return 0;
   if (npfjet_   > 0 && cpfjet_   < npfjet_)   return 0;
 
-  if (mTreeMET[0] < met_) return 0;
+  if (metcalo_ > 0 && mTreeMET[0] < metcalo_) return 0;
+  if (metpf_ > 0   && mTreeMET[3] < metpf_)   return 0;
+  if (mettc_ > 0   && mTreeMET[4] < mettc_)   return 0;
 
   nrEventPassedRaw_++;
 
@@ -1869,6 +1987,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[5]/double");
   mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[5]/double");
   mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[5]/double");
+  mAllData->Branch("met_etsignif", &mTreeMETSignif,   "met_etsignif[5]/double");
 
   // Calo Jets
   mAllData->Branch("calojet_n",     &mTreeNCalojet,   "calojet_n/I");  
@@ -1995,13 +2114,33 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_dr03HcalDepth2",   mTreeEledr03HcalDepth2,                 "ele_dr03HcalDepth2[ele_n]/double");
   mAllData->Branch("ele_e2x5Max",          mTreeElee2x5Max,                        "ele_e2x5Max[ele_n]/double");
   mAllData->Branch("ele_e5x5",             mTreeElee5x5,                           "ele_e5x5[ele_n]/double");
+  mAllData->Branch("ele_e1x5",             mTreeElee1x5,                           "ele_e1x5[ele_n]/double");
+  mAllData->Branch("ele_caloEt",           mTreeEleCaloEt,                         "ele_caloEt[ele_n]/double");
+  mAllData->Branch("ele_SCeta",            mTreeEleSCEta,                          "ele_SCeta[ele_n]/double");
   mAllData->Branch("ele_convdist", mTreeEleConvdist, "ele_convdist[ele_n]/double");
   mAllData->Branch("ele_convdcot", mTreeEleConvdcot, "ele_convdcot[ele_n]/double");
   mAllData->Branch("ele_convr",    mTreeEleConvr,    "ele_convr[ele_n]/double");
   mAllData->Branch("ele_fbrem",    mTreeElefbrem,    "ele_fbrem[ele_n]/double");
   mAllData->Branch("ele_trign",    mTreeNeletrign,   "ele_trign[ele_n]/I");
-  mAllData->Branch("ele_trig" ,    mTreeEletrig,     "ele_trig[ele_n][500]/I");  
-  mAllData->Branch("ele_SC"   ,    mTreeEleSC,       "ele_SC[ele_n]/I");
+  mAllData->Branch("ele_trig",     mTreeEletrig,     "ele_trig[ele_n][500]/I");  
+  mAllData->Branch("ele_SC" ,      mTreeEleSC,       "ele_SC[ele_n]/I");
+
+  // PF Electrons
+  mAllData->Branch("pfele_n",      &mTreeNPFEle,      "pfele_n/I");
+  mAllData->Branch("pfele_p",       mTreePFEleP,      "pfele_p[pfele_n]/double");
+  mAllData->Branch("pfele_E",       mTreePFEleE,      "pfele_E[pfele_n]/double");
+  mAllData->Branch("pfele_Et",      mTreePFEleEt,     "pfele_Et[pfele_n]/double");
+  mAllData->Branch("pfele_pt",      mTreePFElePt,     "pfele_pt[pfele_n]/double");
+  mAllData->Branch("pfele_px",      mTreePFElePx,     "pfele_px[pfele_n]/double");
+  mAllData->Branch("pfele_py",      mTreePFElePy,     "pfele_py[pfele_n]/double");
+  mAllData->Branch("pfele_pz",      mTreePFElePz,     "pfele_pz[pfele_n]/double");
+  mAllData->Branch("pfele_eta",     mTreePFEleEta,    "pfele_eta[pfele_n]/double");
+  mAllData->Branch("pfele_phi",     mTreePFElePhi,    "pfele_phi[pfele_n]/double");
+  mAllData->Branch("pfele_charge",  mTreePFEleCharge, "pfele_charge[pfele_n]/double");
+  mAllData->Branch("pfele_truth",   mTreePFEleTruth,  "pfele_truth[pfele_n]/I");
+  mAllData->Branch("pfele_trign",   mTreeNPFEletrign, "pfele_trign[pfele_n]/I");
+  mAllData->Branch("pfele_trig",    mTreePFEletrig,   "pfele_trig[pfele_n][500]/I");
+  mAllData->Branch("pfele_SC",      mTreePFEleSC,     "pfele_SC[pfele_n]/I");
 
   // Muons
   mAllData->Branch("muo_n" ,           &mTreeNmuo,            "muo_n/I");  
@@ -2044,6 +2183,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_ChambersMatched",        mTreeMuoChambersMatched,       "muo_ChambersMatched[muo_n]/I");
   mAllData->Branch("muo_d0bsCm",                 mTreeMuod0bsCm,                "muo_d0bsCm[muo_n]/double");
   mAllData->Branch("muo_d0OriginCm",             mTreeMuod0OriginCm,            "muo_d0OriginCm[muo_n]/double");
+  mAllData->Branch("muo_dzbsCm",                 mTreeMuodzbsCm,                "muo_dzbsCm[muo_n]/double");
   mAllData->Branch("muo_TrackerLayersMeasCm",    mTreeMuoTrackerLayersMeasCm,   "muo_TrackerLayersMeasCm[muo_n]/I");
   mAllData->Branch("muo_TrackerLayersNotMeasCm", mTreeMuoTrackerLayersNotMeasCm,"muo_TrackerLayersNotMeasCm[muo_n]/I");  
   mAllData->Branch("muo_Cocktail_pt",  mTreeMuoCocktailPt,  "muo_Cocktail_pt[muo_n]/double");   

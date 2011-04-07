@@ -1,0 +1,22 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/Common"/>
+<use   name="root"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/Luminosity"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<flags   EDM_PLUGIN="1"/>
+<export>
+</export>

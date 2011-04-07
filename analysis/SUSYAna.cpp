@@ -85,6 +85,7 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       METDump();
       SCDump();
       EleDump(0);       // [less] detailed information 1 [0]
+      PFEleDump(0);       // [less] detailed information 1 [0]
     }
 
     doJESandRecalculateMET(type);

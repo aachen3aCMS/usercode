@@ -44,6 +44,7 @@ public :
   void METDump();
   void SCDump();
   void EleDump(bool full=1);
+  void PFEleDump(bool full=1);
 
   void doJESandRecalculateMET(TString corr);
 

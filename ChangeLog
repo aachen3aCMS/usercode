@@ -1,3 +1,9 @@
+2011-04-07 Carsten Magass <magass -at- physik.rwth-aachen.de>
+	* new PF electrons
+	* new MET significance
+	* new skim selection on different METs
+	* fix BuildFile.xml
+	* tagged as version v6-9 
 2011-02-10 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* bugfix Cocktail muons
 	* bugfix compile warning

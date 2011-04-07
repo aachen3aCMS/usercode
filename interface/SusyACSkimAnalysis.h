@@ -66,6 +66,8 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -124,6 +126,8 @@ private:
 
   HLTConfigProvider hltConfig_;
   bool hltConfigInit_;
+  L1GtUtils l1GtUtils_;
+  int l1error;
 
   // Data tags
   edm::InputTag calojetTag_;
@@ -132,6 +136,7 @@ private:
   edm::InputTag metTagPF_;
   edm::InputTag metTagTC_;
   edm::InputTag elecTag_;
+  edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
   edm::InputTag genTag_;
   edm::InputTag genJetTag_;
@@ -166,6 +171,7 @@ private:
   double bfield;
 
   int nele_;
+  int npfele_;
   int nmuo_;
   int ncalojet_;
   int npfjet_;
@@ -173,11 +179,15 @@ private:
   double muoeta_;
   double elept_;
   double eleeta_;
+  double pfelept_;
+  double pfeleeta_;
   double calojetpt_;
   double calojeteta_;
   double pfjetpt_;
   double pfjeteta_;
-  double met_;
+  double metcalo_;
+  double metpf_;
+  double mettc_;
 
   double pthat_low_;
   double pthat_high_;
@@ -188,6 +198,7 @@ private:
   unsigned int nrEventPassedRaw_;
 
   int cele_;
+  int cpfele_;
   int cmuo_;
   int ccalojet_;
   int cpfjet_;
@@ -248,6 +259,7 @@ private:
   double mTreeMETeta[5];
   double mTreeSumET[5];
   double mTreeSumETSignif[5];
+  double mTreeMETSignif[5];
 
   int    mTreeNtracks;
   double mTreetrackshqf;
@@ -414,6 +426,25 @@ private:
   double mTreeEledr03HcalDepth2[100];
   double mTreeElee2x5Max[100];
   double mTreeElee5x5[100];
+  double mTreeElee1x5[100];
+  double mTreeEleCaloEt[100];
+  double mTreeEleSCEta[100];
+
+  int    mTreeNPFEle;
+  int    mTreePFEleTruth[100];
+  int    mTreeNPFEletrign[100];
+  int    mTreePFEletrig[100][500];
+  int    mTreePFEleSC[100];
+  double mTreePFEleCharge[100];
+  double mTreePFEleEt[100];
+  double mTreePFEleP[100];
+  double mTreePFElePt[100];
+  double mTreePFElePx[100];
+  double mTreePFElePy[100];
+  double mTreePFElePz[100];
+  double mTreePFEleE[100];
+  double mTreePFEleEta[100];
+  double mTreePFElePhi[100];
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];
@@ -457,6 +488,7 @@ private:
   double mTreeMuocaltowe[100];
   double mTreeMuod0bsCm[100];
   double mTreeMuod0OriginCm[100];
+  double mTreeMuodzbsCm[100];
 
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];

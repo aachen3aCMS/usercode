@@ -19,9 +19,9 @@ void SUSYAna::BasicDump(int i) {
        << unpack(trig_HLTName) << endl;
   cout << endl;
   cout << "   Hottest ECAL Cell R9 [ pT eta phi ] [ time chi flag ] : " << setw(7) 
-       << noise_ecal_r9 << " [" << setw(7) << fixed << noise_ecal_pt << setw(7) << noise_ecal_eta 
-       << setw(7) << noise_ecal_phi << " ] [" << setw(7) << noise_ecal_time << setw(7) 
-       << noise_ecal_chi << setw(3) << noise_ecal_flag << " ] " << endl;
+       << noise_ecal_r9 << " [" << setw(7) << fixed << noise_ecal_pt << setw(9) << noise_ecal_eta 
+       << setw(9) << noise_ecal_phi << " ] [" << setw(9) << noise_ecal_time << setw(9) 
+       << noise_ecal_chi << setw(5) << noise_ecal_flag << " ] " << endl;
   cout << endl;
   if (!global_isdata) {
     cout << "   PDF Information" << endl;
@@ -260,22 +260,22 @@ void SUSYAna::METDump() {
   cout << setprecision(3);
 
   cout << "  ===  MET Dump  === " << endl;
-  cout << "  Type          MET     phi       MEx     MEy        SumEt   SumEtSig" << endl;
+  cout << "  Type          MET     phi        MEx     MEy     METSig     SumEt   SumEtSig" << endl;
   cout << "  CaloMET " << setw(9) << fixed << met_et[0] << setw(8) << met_phi[0] 
        << "  [" << setw(8) << met_ex[0] << setw(8) << met_ey[0] 
-       << " ] [" << setw(9) << met_sumet[0] << setw(9) << met_sumetsig[0] << " ]" << endl;
+       << " ] " << setw(8) << met_etsignif[0] << " [" << setw(9) << met_sumet[0] << setw(9) << met_sumetsig[0] << " ]" << endl;
   cout << "  PFMET   " << setw(9) << fixed << met_et[3] << setw(8) << met_phi[3] 
        << "  [" << setw(8) << met_ex[3] << setw(8) << met_ey[3] 
-       << " ] [" << setw(9) << met_sumet[3] << setw(9) << met_sumetsig[3] << " ]" << endl;
+       << " ] " << setw(8) << met_etsignif[3] << " [" << setw(9) << met_sumet[3] << setw(9) << met_sumetsig[3] << " ]" << endl;
   cout << "  TCMET   " << setw(9) << fixed << met_et[4] << setw(8) << met_phi[4] 
        << "  [" << setw(8) << met_ex[4] << setw(8) << met_ey[4] 
-       << " ] [" << setw(9) << met_sumet[4] << setw(9) << met_sumetsig[4] << " ]" << endl;
+       << " ] " << setw(8) << met_etsignif[4] << " [" << setw(9) << met_sumet[4] << setw(9) << met_sumetsig[4] << " ]" << endl;
   cout << "  GENMET1 " << setw(9) << fixed << met_et[1] << setw(8) << met_phi[1] 
        << "  [" << setw(8) << met_ex[1] << setw(8) << met_ey[1] 
-       << " ] [" << setw(9) << met_sumet[1] << setw(9) << met_sumetsig[1] << " ]" << endl;
+       << " ] " << setw(8) << met_etsignif[1] << " [" << setw(9) << met_sumet[1] << setw(9) << met_sumetsig[1] << " ]" << endl;
   cout << "  GENMET2 " << setw(9) << fixed << met_et[2] << setw(8) << met_phi[2] 
        << "  [" << setw(8) << met_ex[2] << setw(8) << met_ey[2] 
-       << " ] [" << setw(9) << met_sumet[2] << setw(9) << met_sumetsig[2] << " ]" << endl;
+       << " ] " << setw(8) << met_etsignif[2] << " [" << setw(9) << met_sumet[2] << setw(9) << met_sumetsig[2] << " ]" << endl;
   cout << endl;
 
 }
@@ -312,7 +312,7 @@ void SUSYAna::EleDump(bool full) {
     return;
   }
 
-  cout << "   No       pT     eta     phi     Isolation (0.3)      ECAL TK       chi hits      d0      fbrem  convr      HoE   SC truth";
+  cout << "   No       pT     eta     phi     Isolation (0.3)      ECAL TK       chi hits      d0      fbrem     convr      HoE   SC truth";
   if (full) {
     cout << "   PXL EXP            Electron ID                     Trigger Matches" << endl;
   }
@@ -320,7 +320,7 @@ void SUSYAna::EleDump(bool full) {
     cout << endl;
   cout << "                                    Trk   ECal   HCal";
   if (full)
-    cout << setw(119) << "deta   dphi  HCalDepth1/2   E5x5" << endl;
+    cout << setw(122) << "deta   dphi  HCalDepth1/2   E5x5" << endl;
   else
     cout << endl;
   for (int i=0; i<ele_n; i++) {
@@ -333,7 +333,7 @@ void SUSYAna::EleDump(bool full) {
     cout << setw(3) << ele_isECal[i] << setw(3) << ele_isTracker[i] << " ] [";
     cout << setw(7) << ele_TrkChiNorm[i] << setw(4) << ele_hits[i] << setw(8) 
 	 << ele_d0vtx[i] << " ] [";
-    cout << setw(7) << ele_fbrem[i] << setw(7) << ele_convr[i] << " ]";
+    cout << setw(7) << ele_fbrem[i] << setw(10) << ele_convr[i] << " ]";
     cout << setw(7) << ele_HCalOverEm[i] << setw(5) << ele_SC[i] << setw(5) << ele_truth[i];
     if (full) {
       cout << "   [" << setw(3) << ele_ValidHitFirstPxlB[i] << setw(3) 
@@ -344,6 +344,40 @@ void SUSYAna::EleDump(bool full) {
       cout << " [";
       for (int k=0; k<ele_trign[i]; k++) 
 	cout << " " << ele_trig[i][k];
+      cout << " ]" <<endl;
+    }
+    else
+      cout << endl;
+  }
+  cout << endl;
+
+}
+void SUSYAna::PFEleDump(bool full) {
+
+  cout << setprecision(3);
+
+  cout << "  ===  PF Electron Dump - #Objects : " << pfele_n << "  === " << endl;
+
+  if (pfele_n<1) {
+    cout << endl;
+    return;
+  }
+
+  cout << "   No       pT     eta     phi   SC truth";
+  if (full) {
+    cout << "    Trigger Matches" << endl;
+  }
+  else
+    cout << endl;
+  for (int i=0; i<pfele_n; i++) {
+    cout.flags(ios::right);
+    cout << setw(5) << i << setw(9) << fixed << pfele_charge[i]*pfele_pt[i] << setw(8) 
+	 << pfele_eta[i] << setw(8) << pfele_phi[i];
+    cout << setw(5) << pfele_SC[i] << setw(5) << pfele_truth[i];
+    if (full) {
+      cout << "   [";
+      for (int k=0; k<pfele_trign[i]; k++) 
+	cout << " " << pfele_trig[i][k];
       cout << " ]" <<endl;
     }
     else
