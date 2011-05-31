@@ -72,6 +72,7 @@
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -138,6 +139,13 @@ private:
   edm::InputTag elecTag_;
   edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
+  edm::InputTag PFmuonTag_;
+  edm::InputTag tauSrc_;
+  edm::InputTag metTagPFnoPU_;
+  edm::InputTag metTagJESCorAK5CaloJetMuons_ ;
+  edm::InputTag metTagcorMetGlobalMuons_;
+  edm::InputTag metTagHO_;
+  edm::InputTag metTagNoHF_;
   edm::InputTag genTag_;
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
@@ -146,11 +154,15 @@ private:
   bool is_MC;
   bool is_SHERPA;
   bool do_fatjets;
+  bool matchAll_;
+  bool susyPar_;
+  //bool beamScaping_;
 
   std::string btag_;
   std::string processName_; 
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
+  GreaterByPt<pat::Tau>       ptcomp_tau;
   GreaterByPt<pat::Electron>  ptcomp_ele;
   GreaterByPt<pat::Jet>       ptcomp_jet;
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
@@ -164,6 +176,7 @@ private:
   JetIDSelectionFunctor::Quality_t qual;
 
   TString ACmuonID[24];
+  TString ACtauID[16];
 
   double _jeta[100];
   double _jphi[100];
@@ -188,6 +201,8 @@ private:
   double metcalo_;
   double metpf_;
   double mettc_;
+  double htc_;
+  double PFhtc_;
 
   double pthat_low_;
   double pthat_high_;
@@ -207,6 +222,12 @@ private:
   
   int pre1;
   int pre2;
+  
+  
+
+  //for ht cut
+  double htcutsum_;
+  double PFhtcutsum_;
 
   // Tree variables
   int mTreerun;
@@ -240,6 +261,74 @@ private:
   int    mTreeecalieta;
   int    mTreeecaliphi;
   int    mTreeecalflag;
+  
+  
+
+  int mTreenoiseHCALHasBadRBXTS4TS5;
+  int mTreenoiseHCALnumProblematicRBXs ;
+  int mTreenoiseHCALnumSpikeNoiseChannels;
+  int mTreenoiseHCALnumTriangleNoiseChannels;
+  int mTreenoiseHCALnumTS4TS5NoiseChannels;
+  
+  int mTreenoiseHCALmaxHPDHits;
+  int mTreenoiseHCALmaxHPDNoOtherHits;
+  int mTreenoiseHCALmaxRBXHits;
+  int mTreenoiseHCALnum10GeVHits;
+  int mTreenoiseHCALnum25GeVHits;
+  int mTreenoiseHCALnoiseFilterStatus;
+  int mTreenoiseHCALnoiseType;
+  int mTreenoiseHCALmaxZeros;
+  int mTreenoiseHCALnumFlatNoiseChannels;
+  int mTreenoiseHCALnumIsolatedNoiseChannels;
+  int mTreenoiseHCALpassHighLevelNoiseFilter;
+  int mTreenoiseHCALpassLooseNoiseFilter;
+  int mTreenoiseHCALpassTightNoiseFilter;
+  
+  double mTreenoiseHCALeventChargeFraction;
+  double mTreenoiseHCALeventEMEnergy;
+  double mTreenoiseHCALeventEMFraction;
+  double mTreenoiseHCALeventHadEnergy;
+  double mTreenoiseHCALeventTrackEnergy;
+  double mTreenoiseHCALflatNoiseSumE;
+  double mTreenoiseHCALflatNoiseSumEt;
+  //double mTreenoiseHCALhighLevelNoiseTowers;
+  double mTreenoiseHCALisolatedNoiseSumE;
+  double mTreenoiseHCALisolatedNoiseSumEt;
+  //double mTreenoiseHCALlooseNoiseTowers;
+  double mTreenoiseHCALmax10GeVHitTime;
+  double mTreenoiseHCALmax25GeVHitTime;
+  double mTreenoiseHCALmaxE10TS;
+  double mTreenoiseHCALmaxE2Over10TS;
+  double mTreenoiseHCALmaxE2TS;
+  double mTreenoiseHCALmin10GeVHitTime;
+  double mTreenoiseHCALmin25GeVHitTime;
+  double mTreenoiseHCALminE10TS;
+  double mTreenoiseHCALminE2Over10TS;
+  double mTreenoiseHCALminE2TS;
+  double mTreenoiseHCALminHPDEMF;
+  double mTreenoiseHCALminRBXEMF;
+  //double mTreenoiseHCALproblematicJets;
+  double mTreenoiseHCALrms10GeVHitTime;
+  double mTreenoiseHCALrms25GeVHitTime;
+  double mTreenoiseHCALspikeNoiseSumE;
+  double mTreenoiseHCALspikeNoiseSumEt;
+  //double mTreenoiseHCALtightNoiseTowers;
+  double mTreenoiseHCALtriangleNoiseSumE;
+  double mTreenoiseHCALtriangleNoiseSumEt;
+  double mTreenoiseHCALTS4TS5NoiseSumE;
+  double mTreenoiseHCALTS4TS5NoiseSumEt;
+  
+  //bool mTreenoiseHCALhcalnoiseFlag;
+  
+  int nTreePileUp;
+  int mTreePUbx;
+  int mTreePUNumInteractions[20];
+  int mTreePUN[20];
+  
+  double mTreePUInstLumi[20][100];
+  double mTreePUzPosi[20][100];
+  double mTreePUsumPthi[20][100];
+  double mTreePUsumPtlo[20][100];
 
   int mTreetrighltname[20];
   
@@ -252,14 +341,39 @@ private:
   double mTreetrigeta[1000];
   double mTreetrigphi[1000];
   
-  double mTreeMET[5];
-  double mTreeMEX[5];
-  double mTreeMEY[5];
-  double mTreeMETphi[5];
-  double mTreeMETeta[5];
-  double mTreeSumET[5];
-  double mTreeSumETSignif[5];
-  double mTreeMETSignif[5];
+  double mTreeMET[10];
+  double mTreeMEX[10];
+  double mTreeMEY[10];
+  double mTreeMETphi[10];
+  double mTreeMETeta[10];
+  double mTreeSumET[10];
+  double mTreeSumETSignif[10];
+  double mTreeMETSignif[10];
+  double mTreeMETCaloMETInmHF[10];
+  double mTreeMETCaloMETInpHF[10];
+  double mTreeMETCaloMETPhiInmHF[10];
+  double mTreeMETCaloMETPhiInpHF[10];
+  double mTreeMETCaloSETInmHF[10];
+  double mTreeMETCaloSETInpHF[10];
+  double mTreeMETemEtFraction[10];
+  double mTreeMETetFractionHadronic[10];
+  double mTreeMETmaxEtInEmTowers[10];
+  double mTreeMETmaxEtInHadTowers[10];
+  double mTreeMETemEtInHF[10];
+  double mTreeMETemEtInEE[10];
+  double mTreeMETemEtInEB[10];
+  double mTreeMEThadEtInHF[10];
+  double mTreeMEThadEtInHE[10];
+  double mTreeMEThadEtInHO[10];
+  double mTreeMEThadEtInHB[10];
+  
+  double mTreeMETChargedEMEtFraction[10];
+  double mTreeMETChargedHadEtFraction[10];
+  double mTreeMETMuonEtFraction[10];
+  double mTreeMETNeutralEMFraction[10];
+  double mTreeMETNeutralHadEtFraction[10];
+  double mTreeMETType6EtFraction[10];
+  double mTreeMETType7EtFraction[10];
 
   int    mTreeNtracks;
   double mTreetrackshqf;
@@ -395,6 +509,7 @@ private:
   int    mTreeEleTrkExpHitsInner[100];
   int    mTreeEleisECal[100];
   int    mTreeEleisTracker[100];
+  int mTreeElenumberOfHits[100];
   double mTreeEleEt[100];
   double mTreeEleP[100];
   double mTreeElePt[100];
@@ -429,6 +544,7 @@ private:
   double mTreeElee1x5[100];
   double mTreeEleCaloEt[100];
   double mTreeEleSCEta[100];
+  
 
   int    mTreeNPFEle;
   int    mTreePFEleTruth[100];
@@ -489,11 +605,97 @@ private:
   double mTreeMuod0bsCm[100];
   double mTreeMuod0OriginCm[100];
   double mTreeMuodzbsCm[100];
-
+  double mTreeMuoValidFraction[100];
+  
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];
   double mTreeMuoCocktailEta[100];
-
+  
+  
+  int    mTreeNPFmuons;
+  int    mTreePFMuoHitsCm[100];
+  int    mTreePFMuoHitsTk[100];
+  int    mTreePFMuoValidMuonHitsCm[100];
+  int    mTreePFMuoValidTrackerHitsCm[100];
+  int    mTreePFMuoValidPixelHitsCm[100];
+  int    mTreePFMuoChambersMatched[100];
+  int    mTreePFMuoTrackerLayersMeasCm[100];
+  int    mTreePFMuoTrackerLayersNotMeasCm[100];
+  //int    mTreePFMuoID[100][24];
+  
+  double mTreePFMuonP[100];
+  double mTreePFMuonPt[100];
+  double mTreePFMuonE[100];
+  double mTreePFMuonEt[100];
+  double mTreePFMuonPx[100];
+  double mTreePFMuonPy[100];
+  double mTreePFMuonPz[100];
+  double mTreePFMuonEta[100];
+  double mTreePFMuonPhi[100];
+  double mTreePFMuonCharge[100];
+  double mTreePFMuonParticleIso[100];
+  double mTreePFMuonChadIso[100];
+  double mTreePFMuonNhadIso[100];
+  double mTreePFMuonGamIso[100];
+  double mTreePFMuonTrkIso[100];
+  double mTreePFMuonRelTrkIso[100];
+  double mTreePFMuonECalIso[100];
+  double mTreePFMuonHCalIso[100];
+  double mTreePFMuonAllIso[100];
+  double mTreePFMuoECalIsoDep[100];
+  double mTreePFMuoHCalIsoDep[100];
+  double mTreePFMuoTrkIsoDep[100];
+  double mTreePFMuoTrkChiNormCm[100];
+  double mTreePFMuoTrkChiNormTk[100];
+  double mTreePFMuoCharge[100];
+  double mTreePFMuod0Cm[100];
+  double mTreePFMuod0Tk[100];
+  double mTreePFMuosd0Cm[100];
+  double mTreePFMuosd0Tk[100];
+  double mTreePFMuocalocomp[100];
+  double mTreePFMuocaltowe[100];
+  double mTreePFMuod0bsCm[100];
+  double mTreePFMuod0OriginCm[100];
+  double mTreePFMuodzbsCm[100];
+  double mTreePFMuoValidFraction[100];
+  
+  
+  int mTreeNtaus;  
+  int mTreeTauDecayMode[100];
+  
+  double mTreeTauID[100][16];
+  double mTreeTauP[100];
+  double mTreeTauPt[100];
+  double mTreeTauE[100];
+  double mTreeTauEt[100];
+  double mTreeTauPx[100];
+  double mTreeTauPy[100];
+  double mTreeTauPz[100];
+  double mTreeTauEta[100];
+  double mTreeTauPhi[100];
+  double mTreeTauvx[100];
+  double mTreeTauvy[100];
+  double mTreeTauvz[100];
+  double mTreeTauvx2[100];
+  double mTreeTauvy2[100];
+  double mTreeTauvz2[100];
+  double mTreeTauECalIso[100];
+  double mTreeTauHCalIso[100];
+  double mTreeTauAllIso[100];
+  double mTreeTauTrackIso[100];
+  double mTreeTauParticleIso[100];
+  double mTreeTauChadIso[100];
+  double mTreeTauNhadIso[100];
+  double mTreeTauGamIso[100];
+  
+  double mTreesusyScanM0;
+  double mTreesusyScanM12;
+  double mTreesusyScanA0;
+  double mTreesusyScanCrossSection;
+  double mTreesusyScanMu;
+  double mTreesusyScanRun;
+  double mTreesusyScantanbeta;
+    
   int    mTreeNvtx;
   int    mTreeVtxntr[100];
   int    mTreeVtxfake[100];

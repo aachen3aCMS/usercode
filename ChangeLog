@@ -1,3 +1,26 @@
+2011-05-31 Klaas Padeken <padeken -at- physik.rwth-aachen.de>
+	* new PF muons
+	* new HCAL noise infos
+	* new PU infos in MC
+	* new PFJet with PFAK5chs
+	* new PFTaus
+	* new JES
+	* new PFMETnoPU
+	* new metTagJESCorAK5CaloJetMuons
+	* new metTagcorMetGlobalMuons
+	* new metTagHO
+	* new metTagNoHF
+	* new info for PFmet+ CaloMet
+	* new cut on HT
+	* cleanup Python file (no PFJets extra and several things for JEC)
+	* fix truth particles
+	* optional susy parameters
+	* optional all leptons
+	* new filter out scraping
+	* fix electron isolation
+	* fix memory usage (still th string in TreeContent.h)
+	* too much changes in one version
+	* tagged as version v7-0
 2011-04-07 Carsten Magass <magass -at- physik.rwth-aachen.de>
 	* new PF electrons
 	* new MET significance

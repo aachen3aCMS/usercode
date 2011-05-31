@@ -38,17 +38,17 @@ class TreeContent {
   std::string unpack(const int* a) {
     int size = get_size(a);
     u64 tmp;
-    std::string ret;
     char* c = new char[size*INTSIZE];
     for(int i=0; i < size ; ++i) {
       tmp.i = a[i];
       for(int j=0; j < INTSIZE; ++j )
-	c[i*INTSIZE+j] = tmp.c[j];
+        c[i*INTSIZE+j] = tmp.c[j];
     }
-    ret = c;
-    delete c;
+    std::string ret( c );
+    delete[] c;
     return ret;
   }
+
   
   int* pack(const char* c) {
     u64 tmp;
@@ -71,7 +71,6 @@ class TreeContent {
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
-   // Declaration of leaf types
    Double_t        global_weight;
    Int_t           global_procID;
    Double_t        global_pthat;
@@ -88,6 +87,13 @@ class TreeContent {
    Double_t        lumi_rec;
    Double_t        lumi_delerr;
    Double_t        lumi_recerr;
+   Int_t           pu_bunchx;
+   Int_t           pu_n;
+   Int_t           pu_num_int[10];   //[pu_n]
+   Double_t        pu_inst_Lumi[10][100];   //[pu_n]
+   Double_t        pu_zPos[10][100];   //[pu_n]
+   Double_t        pu_sumPthi[10][100];   //[pu_n]
+   Double_t        pu_sumPtlo[10][100];   //[pu_n]
    Int_t           noise_pLoose;
    Int_t           noise_pTight;
    Int_t           noise_pHigh;
@@ -104,6 +110,53 @@ class TreeContent {
    Int_t           noise_ecal_flag;
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
+   Double_t        noise_hcal_eventChargeFraction;
+   Double_t        noise_hcal_eventEMEnergy;
+   Double_t        noise_hcal_eventEMFraction;
+   Double_t        noise_hcal_eventHadEnergy;
+   Double_t        noise_hcal_eventTrackEnergy;
+   Double_t        noise_hcal_flatNoiseSumE;
+   Double_t        noise_hcal_flatNoiseSumEt;
+   Int_t           noise_hcal_HasBadRBXTS4TS5;
+   Double_t        noise_hcal_isolatedNoiseSumE;
+   Double_t        noise_hcal_isolatedNoiseSumEt;
+   Double_t        noise_hcal_max10GeVHitTime;
+   Double_t        noise_hcal_max25GeVHitTime;
+   Double_t        noise_hcal_maxE10TS;
+   Double_t        noise_hcal_maxE2Over10TS;
+   Double_t        noise_hcal_maxE2TS;
+   Int_t           noise_hcal_maxHPDHits;
+   Int_t           noise_hcal_maxHPDNoOtherHits;
+   Int_t           noise_hcal_maxRBXHits;
+   Int_t           noise_hcal_maxZeros;
+   Double_t        noise_hcal_min10GeVHitTime;
+   Double_t        noise_hcal_min25GeVHitTime;
+   Double_t        noise_hcal_minE10TS;
+   Double_t        noise_hcal_minE2Over10TS;
+   Double_t        noise_hcal_minE2TS;
+   Double_t        noise_hcal_minHPDEMF;
+   Double_t        noise_hcal_minRBXEMF;
+   Int_t           noise_hcal_noiseFilterStatus;
+   Int_t           noise_hcal_noiseType;
+   Int_t           noise_hcal_num10GeVHits;
+   Int_t           noise_hcal_num25GeVHits;
+   Int_t           noise_hcal_numFlatNoiseChannels;
+   Int_t           noise_hcal_numIsolatedNoiseChannels;
+   Int_t           noise_hcal_numProblematicRBXs;
+   Int_t           noise_hcal_numSpikeNoiseChannels;
+   Int_t           noise_hcal_numTriangleNoiseChannels;
+   Int_t           noise_hcal_numTS4TS5NoiseChannels;
+   Int_t           noise_hcal_passHighLevelNoiseFilter;
+   Int_t           noise_hcal_passLooseNoiseFilter;
+   Int_t           noise_hcal_passTightNoiseFilter;
+   Double_t        noise_hcal_rms10GeVHitTime;
+   Double_t        noise_hcal_rms25GeVHitTime;
+   Double_t        noise_hcal_spikeNoiseSumE;
+   Double_t        noise_hcal_spikeNoiseSumEt;
+   Double_t        noise_hcal_triangleNoiseSumE;
+   Double_t        noise_hcal_triangleNoiseSumEt;
+   Double_t        noise_hcal_TS4TS5NoiseSumE;
+   Double_t        noise_hcal_TS4TS5NoiseSumEt;
    Int_t           trig_HLTName[20];
    Int_t           trig_n;
    Int_t           trig_L1prescale[1000];   //[trig_n]
@@ -159,14 +212,38 @@ class TreeContent {
    Double_t        bs_z;
    Int_t           tracks_n;
    Double_t        tracks_hqf;
-   Double_t        met_et[5];
-   Double_t        met_ex[5];
-   Double_t        met_ey[5];
-   Double_t        met_eta[5];
-   Double_t        met_phi[5];
-   Double_t        met_sumet[5];
-   Double_t        met_sumetsig[5];
-   Double_t        met_etsignif[5];
+   Double_t        met_et[10];
+   Double_t        met_ex[10];
+   Double_t        met_ey[10];
+   Double_t        met_eta[10];
+   Double_t        met_phi[10];
+   Double_t        met_sumet[10];
+   Double_t        met_sumetsig[10];
+   Double_t        met_etsignif[10];
+   Double_t        met_CaloMETInmHF[10];
+   Double_t        met_CaloMETInpHF[10];
+   Double_t        met_CaloMETPhiInmHF[10];
+   Double_t        met_CaloMETPhiInpHF[10];
+   Double_t        met_CaloSETInmHF[10];
+   Double_t        met_CaloSETInpHF[10];
+   Double_t        met_emEtFraction[10];
+   Double_t        met_etFractionHadronic[10];
+   Double_t        met_maxEtInEmTowers[10];
+   Double_t        met_maxEtInHadTowers[10];
+   Double_t        met_emEtInHF[10];
+   Double_t        met_emEtInEE[10];
+   Double_t        met_emEtInEB[10];
+   Double_t        met_hadEtInHF[10];
+   Double_t        met_hadEtInHE[10];
+   Double_t        met_hadEtInHO[10];
+   Double_t        met_hadEtInHB[10];
+   Double_t        met_ChargedEMEtFraction[10];
+   Double_t        met_ChargedHadEtFraction[10];
+   Double_t        met_MuonEtFraction[10];
+   Double_t        met_NeutralEMFraction[10];
+   Double_t        met_NeutralHadEtFraction[10];
+   Double_t        met_Type6EtFraction[10];
+   Double_t        met_Type7EtFraction[10];
    Int_t           calojet_n;
    Double_t        calojet_E[100];   //[calojet_n]
    Double_t        calojet_Et[100];   //[calojet_n]
@@ -265,7 +342,7 @@ class TreeContent {
    Int_t           ele_truth[100];   //[ele_n]
    Int_t           ele_isECal[100];   //[ele_n]
    Int_t           ele_isTracker[100];   //[ele_n]
-   Int_t           ele_ID[100][5];   //[ele_n]
+   Int_t           ele_ID[100][100];   //[ele_n]
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
    Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
    Double_t        ele_HCalOverEm[100];   //[ele_n]
@@ -291,6 +368,7 @@ class TreeContent {
    Int_t           ele_trign[100];   //[ele_n]
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
+   Int_t           ele_numberOfHits[100];   //[ele_n]
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
@@ -352,6 +430,82 @@ class TreeContent {
    Double_t        muo_Cocktail_pt[100];   //[muo_n]
    Double_t        muo_Cocktail_phi[100];   //[muo_n]
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
+   Double_t        muo_Valid_fraction[100];   //[muo_n]
+   Int_t           PFmuo_n;
+   Double_t        PFmuo_p[100];   //[PFmuo_n]
+   Double_t        PFmuo_pt[100];   //[PFmuo_n]
+   Double_t        PFmuo_E[100];   //[PFmuo_n]
+   Double_t        PFmuo_Et[100];   //[PFmuo_n]
+   Double_t        PFmuo_px[100];   //[PFmuo_n]
+   Double_t        PFmuo_py[100];   //[PFmuo_n]
+   Double_t        PFmuo_pz[100];   //[PFmuo_n]
+   Double_t        PFmuo_eta[100];   //[PFmuo_n]
+   Double_t        PFmuo_phi[100];   //[PFmuo_n]
+   Double_t        PFmuo_Charge[100];   //[PFmuo_n]
+   Double_t        PFmuo_particleIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_chadIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_nhadIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_gamIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_RelTrkIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_TrkIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_ECalIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_HCalIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_TrkIsoDep[100];   //[PFmuo_n]
+   Double_t        PFmuo_ECalIsoDep[100];   //[PFmuo_n]
+   Double_t        PFmuo_HCalIsoDep[100];   //[PFmuo_n]
+   Double_t        PFmuo_AllIso[100];   //[PFmuo_n]
+   Double_t        PFmuo_TrkChiNormCm[100];   //[PFmuo_n]
+   Double_t        PFmuo_TrkChiNormTk[100];   //[PFmuo_n]
+   Double_t        PFmuo_d0Cm[100];   //[PFmuo_n]
+   Double_t        PFmuo_d0Tk[100];   //[PFmuo_n]
+   Double_t        PFmuo_sd0Cm[100];   //[PFmuo_n]
+   Double_t        PFmuo_sd0Tk[100];   //[PFmuo_n]
+   Double_t        PFmuo_calocomp[100];   //[PFmuo_n]
+   Double_t        PFmuo_calotower_e[100];   //[PFmuo_n]
+   Int_t           PFmuo_hitsCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_hitsTk[100];   //[PFmuo_n]
+   Int_t           PFmuo_ValidMuonHitsCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_ValidTrackerHitsCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_ValidPixelHitsCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_ChambersMatched[100];   //[PFmuo_n]
+   Double_t        PFmuo_d0bsCm[100];   //[PFmuo_n]
+   Double_t        PFmuo_d0OriginCm[100];   //[PFmuo_n]
+   Double_t        PFmuo_dzbsCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_TrackerLayersMeasCm[100];   //[PFmuo_n]
+   Int_t           PFmuo_TrackerLayersNotMeasCm[100];   //[PFmuo_n]
+   Double_t        PFmuo_Valid_fraction[100];   //[PFmuo_n]
+   Int_t           tau_n;
+   Double_t        tau_p[100];   //[tau_n]
+   Double_t        tau_pt[100];   //[tau_n]
+   Double_t        tau_E[100];   //[tau_n]
+   Double_t        tau_Et[100];   //[tau_n]
+   Double_t        tau_Px[100];   //[tau_n]
+   Double_t        tau_Py[100];   //[tau_n]
+   Double_t        tau_Pz[100];   //[tau_n]
+   Double_t        tau_Eta[100];   //[tau_n]
+   Double_t        tau_Phi[100];   //[tau_n]
+   Int_t           tau_DecayMode[100];   //[tau_n]
+   Double_t        tau_vx[100];   //[tau_n]
+   Double_t        tau_vy[100];   //[tau_n]
+   Double_t        tau_vz[100];   //[tau_n]
+   Double_t        tau_vx2[100];   //[tau_n]
+   Double_t        tau_vy2[100];   //[tau_n]
+   Double_t        tau_vz2[100];   //[tau_n]
+   Double_t        tau_ECalIso[100];   //[tau_n]
+   Double_t        tau_HCalIso[100];   //[tau_n]
+   Double_t        tau_AllIso[100];   //[tau_n]
+   Double_t        tau_TrackIso[100];   //[tau_n]
+   Double_t        tau_ParticleIso[100];   //[tau_n]
+   Double_t        tau_ChadIso[100];   //[tau_n]
+   Double_t        tau_NhadIso[100];   //[tau_n]
+   Double_t        tau_GamIso[100];   //[tau_n]
+   Double_t        susyScanM0;
+   Double_t        susyScanM12;
+   Double_t        susyScanA0;
+   Double_t        susyScanCrossSection;
+   Double_t        susyScanMu;
+   Double_t        susyScanRun;
+   Double_t        susyScantanbeta;
 
    // List of branches
    TBranch        *b_global_weight;   //!
@@ -370,6 +524,13 @@ class TreeContent {
    TBranch        *b_lumi_rec;   //!
    TBranch        *b_lumi_delerr;   //!
    TBranch        *b_lumi_recerr;   //!
+   TBranch        *b_pu_bunchx;   //!
+   TBranch        *b_pu_n;   //!
+   TBranch        *b_pu_num_int;   //!
+   TBranch        *b_pu_inst_Lumi;   //!
+   TBranch        *b_pu_zPos;   //!
+   TBranch        *b_pu_sumPthi;   //!
+   TBranch        *b_pu_sumPtlo;   //!
    TBranch        *b_noise_pLoose;   //!
    TBranch        *b_noise_pTight;   //!
    TBranch        *b_noise_pHigh;   //!
@@ -386,6 +547,53 @@ class TreeContent {
    TBranch        *b_noise_ecal_flag;   //!
    TBranch        *b_noise_ecal_ieta;   //!
    TBranch        *b_noise_ecal_iphi;   //!
+   TBranch        *b_noise_hcal_eventChargeFraction;   //!
+   TBranch        *b_noise_hcal_eventEMEnergy;   //!
+   TBranch        *b_noise_hcal_eventEMFraction;   //!
+   TBranch        *b_noise_hcal_eventHadEnergy;   //!
+   TBranch        *b_noise_hcal_eventTrackEnergy;   //!
+   TBranch        *b_noise_hcal_flatNoiseSumE;   //!
+   TBranch        *b_noise_hcal_flatNoiseSumEt;   //!
+   TBranch        *b_noise_hcal_HasBadRBXTS4TS5;   //!
+   TBranch        *b_noise_hcal_isolatedNoiseSumE;   //!
+   TBranch        *b_noise_hcal_isolatedNoiseSumEt;   //!
+   TBranch        *b_noise_hcal_max10GeVHitTime;   //!
+   TBranch        *b_noise_hcal_max25GeVHitTime;   //!
+   TBranch        *b_noise_hcal_maxE10TS;   //!
+   TBranch        *b_noise_hcal_maxE2Over10TS;   //!
+   TBranch        *b_noise_hcal_maxE2TS;   //!
+   TBranch        *b_noise_hcal_maxHPDHits;   //!
+   TBranch        *b_noise_hcal_maxHPDNoOtherHits;   //!
+   TBranch        *b_noise_hcal_maxRBXHits;   //!
+   TBranch        *b_noise_hcal_maxZeros;   //!
+   TBranch        *b_noise_hcal_min10GeVHitTime;   //!
+   TBranch        *b_noise_hcal_min25GeVHitTime;   //!
+   TBranch        *b_noise_hcal_minE10TS;   //!
+   TBranch        *b_noise_hcal_minE2Over10TS;   //!
+   TBranch        *b_noise_hcal_minE2TS;   //!
+   TBranch        *b_noise_hcal_minHPDEMF;   //!
+   TBranch        *b_noise_hcal_minRBXEMF;   //!
+   TBranch        *b_noise_hcal_noiseFilterStatus;   //!
+   TBranch        *b_noise_hcal_noiseType;   //!
+   TBranch        *b_noise_hcal_num10GeVHits;   //!
+   TBranch        *b_noise_hcal_num25GeVHits;   //!
+   TBranch        *b_noise_hcal_numFlatNoiseChannels;   //!
+   TBranch        *b_noise_hcal_numIsolatedNoiseChannels;   //!
+   TBranch        *b_noise_hcal_numProblematicRBXs;   //!
+   TBranch        *b_noise_hcal_numSpikeNoiseChannels;   //!
+   TBranch        *b_noise_hcal_numTriangleNoiseChannels;   //!
+   TBranch        *b_noise_hcal_numTS4TS5NoiseChannels;   //!
+   TBranch        *b_noise_hcal_passHighLevelNoiseFilter;   //!
+   TBranch        *b_noise_hcal_passLooseNoiseFilter;   //!
+   TBranch        *b_noise_hcal_passTightNoiseFilter;   //!
+   TBranch        *b_noise_hcal_rms10GeVHitTime;   //!
+   TBranch        *b_noise_hcal_rms25GeVHitTime;   //!
+   TBranch        *b_noise_hcal_spikeNoiseSumE;   //!
+   TBranch        *b_noise_hcal_spikeNoiseSumEt;   //!
+   TBranch        *b_noise_hcal_triangleNoiseSumE;   //!
+   TBranch        *b_noise_hcal_triangleNoiseSumEt;   //!
+   TBranch        *b_noise_hcal_TS4TS5NoiseSumE;   //!
+   TBranch        *b_noise_hcal_TS4TS5NoiseSumEt;   //!
    TBranch        *b_trig_HLTName;   //!
    TBranch        *b_trig_n;   //!
    TBranch        *b_trig_L1prescale;   //!
@@ -449,6 +657,30 @@ class TreeContent {
    TBranch        *b_met_sumet;   //!
    TBranch        *b_met_sumetsig;   //!
    TBranch        *b_met_etsignif;   //!
+   TBranch        *b_met_CaloMETInmHF;   //!
+   TBranch        *b_met_CaloMETInpHF;   //!
+   TBranch        *b_met_CaloMETPhiInmHF;   //!
+   TBranch        *b_met_CaloMETPhiInpHF;   //!
+   TBranch        *b_met_CaloSETInmHF;   //!
+   TBranch        *b_met_CaloSETInpHF;   //!
+   TBranch        *b_met_emEtFraction;   //!
+   TBranch        *b_met_etFractionHadronic;   //!
+   TBranch        *b_met_maxEtInEmTowers;   //!
+   TBranch        *b_met_maxEtInHadTowers;   //!
+   TBranch        *b_met_emEtInHF;   //!
+   TBranch        *b_met_emEtInEE;   //!
+   TBranch        *b_met_emEtInEB;   //!
+   TBranch        *b_met_hadEtInHF;   //!
+   TBranch        *b_met_hadEtInHE;   //!
+   TBranch        *b_met_hadEtInHO;   //!
+   TBranch        *b_met_hadEtInHB;   //!
+   TBranch        *b_met_ChargedEMEtFraction;   //!
+   TBranch        *b_met_ChargedHadEtFraction;   //!
+   TBranch        *b_met_MuonEtFraction;   //!
+   TBranch        *b_met_NeutralEMFraction;   //!
+   TBranch        *b_met_NeutralHadEtFraction;   //!
+   TBranch        *b_met_Type6EtFraction;   //!
+   TBranch        *b_met_Type7EtFraction;   //!
    TBranch        *b_calojet_n;   //!
    TBranch        *b_calojet_E;   //!
    TBranch        *b_calojet_Et;   //!
@@ -573,6 +805,7 @@ class TreeContent {
    TBranch        *b_ele_trign;   //!
    TBranch        *b_ele_trig;   //!
    TBranch        *b_ele_SC;   //!
+   TBranch        *b_ele_numberOfHits;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -634,9 +867,85 @@ class TreeContent {
    TBranch        *b_muo_Cocktail_pt;   //!
    TBranch        *b_muo_Cocktail_phi;   //!
    TBranch        *b_muo_Cocktail_eta;   //!
+   TBranch        *b_muo_Valid_fraction;   //!
+   TBranch        *b_PFmuo_n;   //!
+   TBranch        *b_PFmuo_p;   //!
+   TBranch        *b_PFmuo_pt;   //!
+   TBranch        *b_PFmuo_E;   //!
+   TBranch        *b_PFmuo_Et;   //!
+   TBranch        *b_PFmuo_px;   //!
+   TBranch        *b_PFmuo_py;   //!
+   TBranch        *b_PFmuo_pz;   //!
+   TBranch        *b_PFmuo_eta;   //!
+   TBranch        *b_PFmuo_phi;   //!
+   TBranch        *b_PFmuo_Charge;   //!
+   TBranch        *b_PFmuo_particleIso;   //!
+   TBranch        *b_PFmuo_chadIso;   //!
+   TBranch        *b_PFmuo_nhadIso;   //!
+   TBranch        *b_PFmuo_gamIso;   //!
+   TBranch        *b_PFmuo_RelTrkIso;   //!
+   TBranch        *b_PFmuo_TrkIso;   //!
+   TBranch        *b_PFmuo_ECalIso;   //!
+   TBranch        *b_PFmuo_HCalIso;   //!
+   TBranch        *b_PFmuo_TrkIsoDep;   //!
+   TBranch        *b_PFmuo_ECalIsoDep;   //!
+   TBranch        *b_PFmuo_HCalIsoDep;   //!
+   TBranch        *b_PFmuo_AllIso;   //!
+   TBranch        *b_PFmuo_TrkChiNormCm;   //!
+   TBranch        *b_PFmuo_TrkChiNormTk;   //!
+   TBranch        *b_PFmuo_d0Cm;   //!
+   TBranch        *b_PFmuo_d0Tk;   //!
+   TBranch        *b_PFmuo_sd0Cm;   //!
+   TBranch        *b_PFmuo_sd0Tk;   //!
+   TBranch        *b_PFmuo_calocomp;   //!
+   TBranch        *b_PFmuo_calotower_e;   //!
+   TBranch        *b_PFmuo_hitsCm;   //!
+   TBranch        *b_PFmuo_hitsTk;   //!
+   TBranch        *b_PFmuo_ValidMuonHitsCm;   //!
+   TBranch        *b_PFmuo_ValidTrackerHitsCm;   //!
+   TBranch        *b_PFmuo_ValidPixelHitsCm;   //!
+   TBranch        *b_PFmuo_ChambersMatched;   //!
+   TBranch        *b_PFmuo_d0bsCm;   //!
+   TBranch        *b_PFmuo_d0OriginCm;   //!
+   TBranch        *b_PFmuo_dzbsCm;   //!
+   TBranch        *b_PFmuo_TrackerLayersMeasCm;   //!
+   TBranch        *b_PFmuo_TrackerLayersNotMeasCm;   //!
+   TBranch        *b_PFmuo_Valid_fraction;   //!
+   TBranch        *b_tau_n;   //!
+   TBranch        *b_tau_p;   //!
+   TBranch        *b_tau_pt;   //!
+   TBranch        *b_tau_E;   //!
+   TBranch        *b_tau_Et;   //!
+   TBranch        *b_tau_Px;   //!
+   TBranch        *b_tau_Py;   //!
+   TBranch        *b_tau_Pz;   //!
+   TBranch        *b_tau_Eta;   //!
+   TBranch        *b_tau_Phi;   //!
+   TBranch        *b_tau_DecayMode;   //!
+   TBranch        *b_tau_vx;   //!
+   TBranch        *b_tau_vy;   //!
+   TBranch        *b_tau_vz;   //!
+   TBranch        *b_tau_vx2;   //!
+   TBranch        *b_tau_vy2;   //!
+   TBranch        *b_tau_vz2;   //!
+   TBranch        *b_tau_ECalIso;   //!
+   TBranch        *b_tau_HCalIso;   //!
+   TBranch        *b_tau_AllIso;   //!
+   TBranch        *b_tau_TrackIso;   //!
+   TBranch        *b_tau_ParticleIso;   //!
+   TBranch        *b_tau_ChadIso;   //!
+   TBranch        *b_tau_NhadIso;   //!
+   TBranch        *b_tau_GamIso;   //!
+   TBranch        *b_susyScanM0;   //!
+   TBranch        *b_susyScanM12;   //!
+   TBranch        *b_susyScanA0;   //!
+   TBranch        *b_susyScanCrossSection;   //!
+   TBranch        *b_susyScanMu;   //!
+   TBranch        *b_susyScanRun;   //!
+   TBranch        *b_susyScantanbeta;   //!
 
-   TreeContent(TTree *tree=0);
-   virtual ~TreeContent();
+   allData(TTree *tree=0);
+   virtual ~allData();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
