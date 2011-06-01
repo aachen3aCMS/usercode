@@ -348,9 +348,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     }
     nrEventPassedPthatRaw_++;
-    
-    
-    nTreePileUp=0;
+
+  }
+  
+  
+  nTreePileUp=0;
+  if(is_MC){
     //PileUp Information
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
     iEvent.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
@@ -381,7 +384,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
 
     }
-
   }
 
 
@@ -1526,7 +1528,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(tauSrc_, tauHandle);
   
 
-  int mTreeNtaus = 0;
+  mTreeNtaus = 0;
   std::vector<pat::Tau> taus;
   
   if ( !tauHandle.isValid() ) 
