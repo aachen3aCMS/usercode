@@ -1,3 +1,6 @@
+2011-06-06 Sebastian Thüer <thuer -at- physik.rwth-aachen.de>
+	* fix trigger info
+	* bugfix with PFTau
 2011-05-31 Klaas Padeken <padeken -at- physik.rwth-aachen.de>
 	* new PF muons
 	* new HCAL noise infos

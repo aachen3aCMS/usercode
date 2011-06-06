@@ -89,11 +89,12 @@ class TreeContent {
    Double_t        lumi_recerr;
    Int_t           pu_bunchx;
    Int_t           pu_n;
-   Int_t           pu_num_int[10];   //[pu_n]
-   Double_t        pu_inst_Lumi[10][100];   //[pu_n]
-   Double_t        pu_zPos[10][100];   //[pu_n]
-   Double_t        pu_sumPthi[10][100];   //[pu_n]
-   Double_t        pu_sumPtlo[10][100];   //[pu_n]
+   Int_t           pu_vtxn;
+   Int_t           pu_num_int[20];   //[pu_n]
+   Double_t        pu_inst_Lumi[20][100];   //[pu_n]
+   Double_t        pu_zPos[20][100];   //[pu_n]
+   Double_t        pu_sumPthi[20][100];   //[pu_n]
+   Double_t        pu_sumPtlo[20][100];   //[pu_n]
    Int_t           noise_pLoose;
    Int_t           noise_pTight;
    Int_t           noise_pHigh;
@@ -342,7 +343,7 @@ class TreeContent {
    Int_t           ele_truth[100];   //[ele_n]
    Int_t           ele_isECal[100];   //[ele_n]
    Int_t           ele_isTracker[100];   //[ele_n]
-   Int_t           ele_ID[100][100];   //[ele_n]
+   Int_t           ele_ID[100][5];   //[ele_n]
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
    Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
    Double_t        ele_HCalOverEm[100];   //[ele_n]
@@ -499,6 +500,7 @@ class TreeContent {
    Double_t        tau_ChadIso[100];   //[tau_n]
    Double_t        tau_NhadIso[100];   //[tau_n]
    Double_t        tau_GamIso[100];   //[tau_n]
+   Double_t        tau_id[100][16];   //[tau_n]
    Double_t        susyScanM0;
    Double_t        susyScanM12;
    Double_t        susyScanA0;
@@ -526,6 +528,7 @@ class TreeContent {
    TBranch        *b_lumi_recerr;   //!
    TBranch        *b_pu_bunchx;   //!
    TBranch        *b_pu_n;   //!
+   TBranch        *b_pu_vtxn;   //!
    TBranch        *b_pu_num_int;   //!
    TBranch        *b_pu_inst_Lumi;   //!
    TBranch        *b_pu_zPos;   //!
@@ -936,6 +939,7 @@ class TreeContent {
    TBranch        *b_tau_ChadIso;   //!
    TBranch        *b_tau_NhadIso;   //!
    TBranch        *b_tau_GamIso;   //!
+   TBranch        *b_tau_id;   //!
    TBranch        *b_susyScanM0;   //!
    TBranch        *b_susyScanM12;   //!
    TBranch        *b_susyScanA0;   //!
@@ -944,8 +948,8 @@ class TreeContent {
    TBranch        *b_susyScanRun;   //!
    TBranch        *b_susyScantanbeta;   //!
 
-   allData(TTree *tree=0);
-   virtual ~allData();
+   TreeContent(TTree *tree=0);
+   virtual ~TreeContent();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -1033,6 +1037,14 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
    fChain->SetBranchAddress("lumi_delerr", &lumi_delerr, &b_lumi_delerr);
    fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
+   fChain->SetBranchAddress("pu_bunchx", &pu_bunchx, &b_pu_bunchx);
+   fChain->SetBranchAddress("pu_n", &pu_n, &b_pu_n);
+   fChain->SetBranchAddress("pu_vtxn", &pu_vtxn, &b_pu_vtxn);
+   fChain->SetBranchAddress("pu_num_int", pu_num_int, &b_pu_num_int);
+   fChain->SetBranchAddress("pu_inst_Lumi", pu_inst_Lumi, &b_pu_inst_Lumi);
+   fChain->SetBranchAddress("pu_zPos", pu_zPos, &b_pu_zPos);
+   fChain->SetBranchAddress("pu_sumPthi", pu_sumPthi, &b_pu_sumPthi);
+   fChain->SetBranchAddress("pu_sumPtlo", pu_sumPtlo, &b_pu_sumPtlo);
    fChain->SetBranchAddress("noise_pLoose", &noise_pLoose, &b_noise_pLoose);
    fChain->SetBranchAddress("noise_pTight", &noise_pTight, &b_noise_pTight);
    fChain->SetBranchAddress("noise_pHigh", &noise_pHigh, &b_noise_pHigh);
@@ -1049,15 +1061,62 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("noise_ecal_flag", &noise_ecal_flag, &b_noise_ecal_flag);
    fChain->SetBranchAddress("noise_ecal_ieta", &noise_ecal_ieta, &b_noise_ecal_ieta);
    fChain->SetBranchAddress("noise_ecal_iphi", &noise_ecal_iphi, &b_noise_ecal_iphi);
+   fChain->SetBranchAddress("noise_hcal_eventChargeFraction", &noise_hcal_eventChargeFraction, &b_noise_hcal_eventChargeFraction);
+   fChain->SetBranchAddress("noise_hcal_eventEMEnergy", &noise_hcal_eventEMEnergy, &b_noise_hcal_eventEMEnergy);
+   fChain->SetBranchAddress("noise_hcal_eventEMFraction", &noise_hcal_eventEMFraction, &b_noise_hcal_eventEMFraction);
+   fChain->SetBranchAddress("noise_hcal_eventHadEnergy", &noise_hcal_eventHadEnergy, &b_noise_hcal_eventHadEnergy);
+   fChain->SetBranchAddress("noise_hcal_eventTrackEnergy", &noise_hcal_eventTrackEnergy, &b_noise_hcal_eventTrackEnergy);
+   fChain->SetBranchAddress("noise_hcal_flatNoiseSumE", &noise_hcal_flatNoiseSumE, &b_noise_hcal_flatNoiseSumE);
+   fChain->SetBranchAddress("noise_hcal_flatNoiseSumEt", &noise_hcal_flatNoiseSumEt, &b_noise_hcal_flatNoiseSumEt);
+   fChain->SetBranchAddress("noise_hcal_HasBadRBXTS4TS5", &noise_hcal_HasBadRBXTS4TS5, &b_noise_hcal_HasBadRBXTS4TS5);
+   fChain->SetBranchAddress("noise_hcal_isolatedNoiseSumE", &noise_hcal_isolatedNoiseSumE, &b_noise_hcal_isolatedNoiseSumE);
+   fChain->SetBranchAddress("noise_hcal_isolatedNoiseSumEt", &noise_hcal_isolatedNoiseSumEt, &b_noise_hcal_isolatedNoiseSumEt);
+   fChain->SetBranchAddress("noise_hcal_max10GeVHitTime", &noise_hcal_max10GeVHitTime, &b_noise_hcal_max10GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_max25GeVHitTime", &noise_hcal_max25GeVHitTime, &b_noise_hcal_max25GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_maxE10TS", &noise_hcal_maxE10TS, &b_noise_hcal_maxE10TS);
+   fChain->SetBranchAddress("noise_hcal_maxE2Over10TS", &noise_hcal_maxE2Over10TS, &b_noise_hcal_maxE2Over10TS);
+   fChain->SetBranchAddress("noise_hcal_maxE2TS", &noise_hcal_maxE2TS, &b_noise_hcal_maxE2TS);
+   fChain->SetBranchAddress("noise_hcal_maxHPDHits", &noise_hcal_maxHPDHits, &b_noise_hcal_maxHPDHits);
+   fChain->SetBranchAddress("noise_hcal_maxHPDNoOtherHits", &noise_hcal_maxHPDNoOtherHits, &b_noise_hcal_maxHPDNoOtherHits);
+   fChain->SetBranchAddress("noise_hcal_maxRBXHits", &noise_hcal_maxRBXHits, &b_noise_hcal_maxRBXHits);
+   fChain->SetBranchAddress("noise_hcal_maxZeros", &noise_hcal_maxZeros, &b_noise_hcal_maxZeros);
+   fChain->SetBranchAddress("noise_hcal_min10GeVHitTime", &noise_hcal_min10GeVHitTime, &b_noise_hcal_min10GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_min25GeVHitTime", &noise_hcal_min25GeVHitTime, &b_noise_hcal_min25GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_minE10TS", &noise_hcal_minE10TS, &b_noise_hcal_minE10TS);
+   fChain->SetBranchAddress("noise_hcal_minE2Over10TS", &noise_hcal_minE2Over10TS, &b_noise_hcal_minE2Over10TS);
+   fChain->SetBranchAddress("noise_hcal_minE2TS", &noise_hcal_minE2TS, &b_noise_hcal_minE2TS);
+   fChain->SetBranchAddress("noise_hcal_minHPDEMF", &noise_hcal_minHPDEMF, &b_noise_hcal_minHPDEMF);
+   fChain->SetBranchAddress("noise_hcal_minRBXEMF", &noise_hcal_minRBXEMF, &b_noise_hcal_minRBXEMF);
+   fChain->SetBranchAddress("noise_hcal_noiseFilterStatus", &noise_hcal_noiseFilterStatus, &b_noise_hcal_noiseFilterStatus);
+   fChain->SetBranchAddress("noise_hcal_noiseType", &noise_hcal_noiseType, &b_noise_hcal_noiseType);
+   fChain->SetBranchAddress("noise_hcal_num10GeVHits", &noise_hcal_num10GeVHits, &b_noise_hcal_num10GeVHits);
+   fChain->SetBranchAddress("noise_hcal_num25GeVHits", &noise_hcal_num25GeVHits, &b_noise_hcal_num25GeVHits);
+   fChain->SetBranchAddress("noise_hcal_numFlatNoiseChannels", &noise_hcal_numFlatNoiseChannels, &b_noise_hcal_numFlatNoiseChannels);
+   fChain->SetBranchAddress("noise_hcal_numIsolatedNoiseChannels", &noise_hcal_numIsolatedNoiseChannels, &b_noise_hcal_numIsolatedNoiseChannels);
+   fChain->SetBranchAddress("noise_hcal_numProblematicRBXs", &noise_hcal_numProblematicRBXs, &b_noise_hcal_numProblematicRBXs);
+   fChain->SetBranchAddress("noise_hcal_numSpikeNoiseChannels", &noise_hcal_numSpikeNoiseChannels, &b_noise_hcal_numSpikeNoiseChannels);
+   fChain->SetBranchAddress("noise_hcal_numTriangleNoiseChannels", &noise_hcal_numTriangleNoiseChannels, &b_noise_hcal_numTriangleNoiseChannels);
+   fChain->SetBranchAddress("noise_hcal_numTS4TS5NoiseChannels", &noise_hcal_numTS4TS5NoiseChannels, &b_noise_hcal_numTS4TS5NoiseChannels);
+   fChain->SetBranchAddress("noise_hcal_passHighLevelNoiseFilter", &noise_hcal_passHighLevelNoiseFilter, &b_noise_hcal_passHighLevelNoiseFilter);
+   fChain->SetBranchAddress("noise_hcal_passLooseNoiseFilter", &noise_hcal_passLooseNoiseFilter, &b_noise_hcal_passLooseNoiseFilter);
+   fChain->SetBranchAddress("noise_hcal_passTightNoiseFilter", &noise_hcal_passTightNoiseFilter, &b_noise_hcal_passTightNoiseFilter);
+   fChain->SetBranchAddress("noise_hcal_rms10GeVHitTime", &noise_hcal_rms10GeVHitTime, &b_noise_hcal_rms10GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_rms25GeVHitTime", &noise_hcal_rms25GeVHitTime, &b_noise_hcal_rms25GeVHitTime);
+   fChain->SetBranchAddress("noise_hcal_spikeNoiseSumE", &noise_hcal_spikeNoiseSumE, &b_noise_hcal_spikeNoiseSumE);
+   fChain->SetBranchAddress("noise_hcal_spikeNoiseSumEt", &noise_hcal_spikeNoiseSumEt, &b_noise_hcal_spikeNoiseSumEt);
+   fChain->SetBranchAddress("noise_hcal_triangleNoiseSumE", &noise_hcal_triangleNoiseSumE, &b_noise_hcal_triangleNoiseSumE);
+   fChain->SetBranchAddress("noise_hcal_triangleNoiseSumEt", &noise_hcal_triangleNoiseSumEt, &b_noise_hcal_triangleNoiseSumEt);
+   fChain->SetBranchAddress("noise_hcal_TS4TS5NoiseSumE", &noise_hcal_TS4TS5NoiseSumE, &b_noise_hcal_TS4TS5NoiseSumE);
+   fChain->SetBranchAddress("noise_hcal_TS4TS5NoiseSumEt", &noise_hcal_TS4TS5NoiseSumEt, &b_noise_hcal_TS4TS5NoiseSumEt);
    fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
-   fChain->SetBranchAddress("trig_L1prescale", trig_L1prescale, &b_trig_L1prescale);
-   fChain->SetBranchAddress("trig_HLTprescale", trig_HLTprescale, &b_trig_HLTprescale);
-   fChain->SetBranchAddress("trig_name", trig_name, &b_trig_name);
-   fChain->SetBranchAddress("trig_filter", trig_filter, &b_trig_filter);
-   fChain->SetBranchAddress("trig_pt", trig_pt, &b_trig_pt);
-   fChain->SetBranchAddress("trig_eta", trig_eta, &b_trig_eta);
-   fChain->SetBranchAddress("trig_phi", trig_phi, &b_trig_phi);
+   fChain->SetBranchAddress("trig_L1prescale", &trig_L1prescale, &b_trig_L1prescale);
+   fChain->SetBranchAddress("trig_HLTprescale", &trig_HLTprescale, &b_trig_HLTprescale);
+   fChain->SetBranchAddress("trig_name", &trig_name, &b_trig_name);
+   fChain->SetBranchAddress("trig_filter", &trig_filter, &b_trig_filter);
+   fChain->SetBranchAddress("trig_pt", &trig_pt, &b_trig_pt);
+   fChain->SetBranchAddress("trig_eta", &trig_eta, &b_trig_eta);
+   fChain->SetBranchAddress("trig_phi", &trig_phi, &b_trig_phi);
    fChain->SetBranchAddress("truth_n", &truth_n, &b_truth_n);
    fChain->SetBranchAddress("truth_pdgid", truth_pdgid, &b_truth_pdgid);
    fChain->SetBranchAddress("truth_bvtxid", truth_bvtxid, &b_truth_bvtxid);
@@ -1112,6 +1171,30 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_sumet", met_sumet, &b_met_sumet);
    fChain->SetBranchAddress("met_sumetsig", met_sumetsig, &b_met_sumetsig);
    fChain->SetBranchAddress("met_etsignif", met_etsignif, &b_met_etsignif);
+   fChain->SetBranchAddress("met_CaloMETInmHF", met_CaloMETInmHF, &b_met_CaloMETInmHF);
+   fChain->SetBranchAddress("met_CaloMETInpHF", met_CaloMETInpHF, &b_met_CaloMETInpHF);
+   fChain->SetBranchAddress("met_CaloMETPhiInmHF", met_CaloMETPhiInmHF, &b_met_CaloMETPhiInmHF);
+   fChain->SetBranchAddress("met_CaloMETPhiInpHF", met_CaloMETPhiInpHF, &b_met_CaloMETPhiInpHF);
+   fChain->SetBranchAddress("met_CaloSETInmHF", met_CaloSETInmHF, &b_met_CaloSETInmHF);
+   fChain->SetBranchAddress("met_CaloSETInpHF", met_CaloSETInpHF, &b_met_CaloSETInpHF);
+   fChain->SetBranchAddress("met_emEtFraction", met_emEtFraction, &b_met_emEtFraction);
+   fChain->SetBranchAddress("met_etFractionHadronic", met_etFractionHadronic, &b_met_etFractionHadronic);
+   fChain->SetBranchAddress("met_maxEtInEmTowers", met_maxEtInEmTowers, &b_met_maxEtInEmTowers);
+   fChain->SetBranchAddress("met_maxEtInHadTowers", met_maxEtInHadTowers, &b_met_maxEtInHadTowers);
+   fChain->SetBranchAddress("met_emEtInHF", met_emEtInHF, &b_met_emEtInHF);
+   fChain->SetBranchAddress("met_emEtInEE", met_emEtInEE, &b_met_emEtInEE);
+   fChain->SetBranchAddress("met_emEtInEB", met_emEtInEB, &b_met_emEtInEB);
+   fChain->SetBranchAddress("met_hadEtInHF", met_hadEtInHF, &b_met_hadEtInHF);
+   fChain->SetBranchAddress("met_hadEtInHE", met_hadEtInHE, &b_met_hadEtInHE);
+   fChain->SetBranchAddress("met_hadEtInHO", met_hadEtInHO, &b_met_hadEtInHO);
+   fChain->SetBranchAddress("met_hadEtInHB", met_hadEtInHB, &b_met_hadEtInHB);
+   fChain->SetBranchAddress("met_ChargedEMEtFraction", met_ChargedEMEtFraction, &b_met_ChargedEMEtFraction);
+   fChain->SetBranchAddress("met_ChargedHadEtFraction", met_ChargedHadEtFraction, &b_met_ChargedHadEtFraction);
+   fChain->SetBranchAddress("met_MuonEtFraction", met_MuonEtFraction, &b_met_MuonEtFraction);
+   fChain->SetBranchAddress("met_NeutralEMFraction", met_NeutralEMFraction, &b_met_NeutralEMFraction);
+   fChain->SetBranchAddress("met_NeutralHadEtFraction", met_NeutralHadEtFraction, &b_met_NeutralHadEtFraction);
+   fChain->SetBranchAddress("met_Type6EtFraction", met_Type6EtFraction, &b_met_Type6EtFraction);
+   fChain->SetBranchAddress("met_Type7EtFraction", met_Type7EtFraction, &b_met_Type7EtFraction);
    fChain->SetBranchAddress("calojet_n", &calojet_n, &b_calojet_n);
    fChain->SetBranchAddress("calojet_E", calojet_E, &b_calojet_E);
    fChain->SetBranchAddress("calojet_Et", calojet_Et, &b_calojet_Et);
@@ -1165,27 +1248,27 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("truthjet_eta", truthjet_eta, &b_truthjet_eta);
    fChain->SetBranchAddress("truthjet_phi", truthjet_phi, &b_truthjet_phi);
    fChain->SetBranchAddress("fatjet_n", &fatjet_n, &b_fatjet_n);
-   fChain->SetBranchAddress("fatjet_nsub", fatjet_nsub, &b_fatjet_nsub);
-   fChain->SetBranchAddress("fatjet_pt", fatjet_pt, &b_fatjet_pt);
-   fChain->SetBranchAddress("fatjet_px", fatjet_px, &b_fatjet_px);
-   fChain->SetBranchAddress("fatjet_py", fatjet_py, &b_fatjet_py);
-   fChain->SetBranchAddress("fatjet_pz", fatjet_pz, &b_fatjet_pz);
-   fChain->SetBranchAddress("fatjet_E", fatjet_E, &b_fatjet_E);
-   fChain->SetBranchAddress("fatjet_eta", fatjet_eta, &b_fatjet_eta);
-   fChain->SetBranchAddress("fatjet_phi", fatjet_phi, &b_fatjet_phi);
-   fChain->SetBranchAddress("fatjet_sub_pt", fatjet_sub_pt, &b_fatjet_sub_pt);
-   fChain->SetBranchAddress("fatjet_sub_px", fatjet_sub_px, &b_fatjet_sub_px);
-   fChain->SetBranchAddress("fatjet_sub_py", fatjet_sub_py, &b_fatjet_sub_py);
-   fChain->SetBranchAddress("fatjet_sub_pz", fatjet_sub_pz, &b_fatjet_sub_pz);
-   fChain->SetBranchAddress("fatjet_sub_E", fatjet_sub_E, &b_fatjet_sub_E);
-   fChain->SetBranchAddress("fatjet_sub_eta", fatjet_sub_eta, &b_fatjet_sub_eta);
-   fChain->SetBranchAddress("fatjet_sub_phi", fatjet_sub_phi, &b_fatjet_sub_phi);
-   fChain->SetBranchAddress("fatjet_sub_fem", fatjet_sub_fem, &b_fatjet_sub_fem);
-   fChain->SetBranchAddress("fatjet_sub_fhad", fatjet_sub_fhad, &b_fatjet_sub_fhad);
-   fChain->SetBranchAddress("fatjet_sub_btag", fatjet_sub_btag, &b_fatjet_sub_btag);
-   fChain->SetBranchAddress("fatjet_sub_n90", fatjet_sub_n90, &b_fatjet_sub_n90);
-   fChain->SetBranchAddress("fatjet_sub_fHPD", fatjet_sub_fHPD, &b_fatjet_sub_fHPD);
-   fChain->SetBranchAddress("fatjet_sub_fRBX", fatjet_sub_fRBX, &b_fatjet_sub_fRBX);
+   fChain->SetBranchAddress("fatjet_nsub", &fatjet_nsub, &b_fatjet_nsub);
+   fChain->SetBranchAddress("fatjet_pt", &fatjet_pt, &b_fatjet_pt);
+   fChain->SetBranchAddress("fatjet_px", &fatjet_px, &b_fatjet_px);
+   fChain->SetBranchAddress("fatjet_py", &fatjet_py, &b_fatjet_py);
+   fChain->SetBranchAddress("fatjet_pz", &fatjet_pz, &b_fatjet_pz);
+   fChain->SetBranchAddress("fatjet_E", &fatjet_E, &b_fatjet_E);
+   fChain->SetBranchAddress("fatjet_eta", &fatjet_eta, &b_fatjet_eta);
+   fChain->SetBranchAddress("fatjet_phi", &fatjet_phi, &b_fatjet_phi);
+   fChain->SetBranchAddress("fatjet_sub_pt", &fatjet_sub_pt, &b_fatjet_sub_pt);
+   fChain->SetBranchAddress("fatjet_sub_px", &fatjet_sub_px, &b_fatjet_sub_px);
+   fChain->SetBranchAddress("fatjet_sub_py", &fatjet_sub_py, &b_fatjet_sub_py);
+   fChain->SetBranchAddress("fatjet_sub_pz", &fatjet_sub_pz, &b_fatjet_sub_pz);
+   fChain->SetBranchAddress("fatjet_sub_E", &fatjet_sub_E, &b_fatjet_sub_E);
+   fChain->SetBranchAddress("fatjet_sub_eta", &fatjet_sub_eta, &b_fatjet_sub_eta);
+   fChain->SetBranchAddress("fatjet_sub_phi", &fatjet_sub_phi, &b_fatjet_sub_phi);
+   fChain->SetBranchAddress("fatjet_sub_fem", &fatjet_sub_fem, &b_fatjet_sub_fem);
+   fChain->SetBranchAddress("fatjet_sub_fhad", &fatjet_sub_fhad, &b_fatjet_sub_fhad);
+   fChain->SetBranchAddress("fatjet_sub_btag", &fatjet_sub_btag, &b_fatjet_sub_btag);
+   fChain->SetBranchAddress("fatjet_sub_n90", &fatjet_sub_n90, &b_fatjet_sub_n90);
+   fChain->SetBranchAddress("fatjet_sub_fHPD", &fatjet_sub_fHPD, &b_fatjet_sub_fHPD);
+   fChain->SetBranchAddress("fatjet_sub_fRBX", &fatjet_sub_fRBX, &b_fatjet_sub_fRBX);
    fChain->SetBranchAddress("SC_n", &SC_n, &b_SC_n);
    fChain->SetBranchAddress("SC_truth", SC_truth, &b_SC_truth);
    fChain->SetBranchAddress("SC_E", SC_E, &b_SC_E);
@@ -1236,6 +1319,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_trign", ele_trign, &b_ele_trign);
    fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
    fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
+   fChain->SetBranchAddress("ele_numberOfHits", ele_numberOfHits, &b_ele_numberOfHits);
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", pfele_E, &b_pfele_E);
@@ -1297,6 +1381,83 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_Cocktail_pt", muo_Cocktail_pt, &b_muo_Cocktail_pt);
    fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
+   fChain->SetBranchAddress("muo_Valid_fraction", muo_Valid_fraction, &b_muo_Valid_fraction);
+   fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
+   fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
+   fChain->SetBranchAddress("PFmuo_pt", PFmuo_pt, &b_PFmuo_pt);
+   fChain->SetBranchAddress("PFmuo_E", PFmuo_E, &b_PFmuo_E);
+   fChain->SetBranchAddress("PFmuo_Et", PFmuo_Et, &b_PFmuo_Et);
+   fChain->SetBranchAddress("PFmuo_px", PFmuo_px, &b_PFmuo_px);
+   fChain->SetBranchAddress("PFmuo_py", PFmuo_py, &b_PFmuo_py);
+   fChain->SetBranchAddress("PFmuo_pz", PFmuo_pz, &b_PFmuo_pz);
+   fChain->SetBranchAddress("PFmuo_eta", PFmuo_eta, &b_PFmuo_eta);
+   fChain->SetBranchAddress("PFmuo_phi", PFmuo_phi, &b_PFmuo_phi);
+   fChain->SetBranchAddress("PFmuo_Charge", PFmuo_Charge, &b_PFmuo_Charge);
+   fChain->SetBranchAddress("PFmuo_particleIso", PFmuo_particleIso, &b_PFmuo_particleIso);
+   fChain->SetBranchAddress("PFmuo_chadIso", PFmuo_chadIso, &b_PFmuo_chadIso);
+   fChain->SetBranchAddress("PFmuo_nhadIso", PFmuo_nhadIso, &b_PFmuo_nhadIso);
+   fChain->SetBranchAddress("PFmuo_gamIso", PFmuo_gamIso, &b_PFmuo_gamIso);
+   fChain->SetBranchAddress("PFmuo_RelTrkIso", PFmuo_RelTrkIso, &b_PFmuo_RelTrkIso);
+   fChain->SetBranchAddress("PFmuo_TrkIso", PFmuo_TrkIso, &b_PFmuo_TrkIso);
+   fChain->SetBranchAddress("PFmuo_ECalIso", PFmuo_ECalIso, &b_PFmuo_ECalIso);
+   fChain->SetBranchAddress("PFmuo_HCalIso", PFmuo_HCalIso, &b_PFmuo_HCalIso);
+   fChain->SetBranchAddress("PFmuo_TrkIsoDep", PFmuo_TrkIsoDep, &b_PFmuo_TrkIsoDep);
+   fChain->SetBranchAddress("PFmuo_ECalIsoDep", PFmuo_ECalIsoDep, &b_PFmuo_ECalIsoDep);
+   fChain->SetBranchAddress("PFmuo_HCalIsoDep", PFmuo_HCalIsoDep, &b_PFmuo_HCalIsoDep);
+   fChain->SetBranchAddress("PFmuo_AllIso", PFmuo_AllIso, &b_PFmuo_AllIso);
+   fChain->SetBranchAddress("PFmuo_TrkChiNormCm", PFmuo_TrkChiNormCm, &b_PFmuo_TrkChiNormCm);
+   fChain->SetBranchAddress("PFmuo_TrkChiNormTk", PFmuo_TrkChiNormTk, &b_PFmuo_TrkChiNormTk);
+   fChain->SetBranchAddress("PFmuo_d0Cm", PFmuo_d0Cm, &b_PFmuo_d0Cm);
+   fChain->SetBranchAddress("PFmuo_d0Tk", PFmuo_d0Tk, &b_PFmuo_d0Tk);
+   fChain->SetBranchAddress("PFmuo_sd0Cm", PFmuo_sd0Cm, &b_PFmuo_sd0Cm);
+   fChain->SetBranchAddress("PFmuo_sd0Tk", PFmuo_sd0Tk, &b_PFmuo_sd0Tk);
+   fChain->SetBranchAddress("PFmuo_calocomp", PFmuo_calocomp, &b_PFmuo_calocomp);
+   fChain->SetBranchAddress("PFmuo_calotower_e", PFmuo_calotower_e, &b_PFmuo_calotower_e);
+   fChain->SetBranchAddress("PFmuo_hitsCm", PFmuo_hitsCm, &b_PFmuo_hitsCm);
+   fChain->SetBranchAddress("PFmuo_hitsTk", PFmuo_hitsTk, &b_PFmuo_hitsTk);
+   fChain->SetBranchAddress("PFmuo_ValidMuonHitsCm", PFmuo_ValidMuonHitsCm, &b_PFmuo_ValidMuonHitsCm);
+   fChain->SetBranchAddress("PFmuo_ValidTrackerHitsCm", PFmuo_ValidTrackerHitsCm, &b_PFmuo_ValidTrackerHitsCm);
+   fChain->SetBranchAddress("PFmuo_ValidPixelHitsCm", PFmuo_ValidPixelHitsCm, &b_PFmuo_ValidPixelHitsCm);
+   fChain->SetBranchAddress("PFmuo_ChambersMatched", PFmuo_ChambersMatched, &b_PFmuo_ChambersMatched);
+   fChain->SetBranchAddress("PFmuo_d0bsCm", PFmuo_d0bsCm, &b_PFmuo_d0bsCm);
+   fChain->SetBranchAddress("PFmuo_d0OriginCm", PFmuo_d0OriginCm, &b_PFmuo_d0OriginCm);
+   fChain->SetBranchAddress("PFmuo_dzbsCm", PFmuo_dzbsCm, &b_PFmuo_dzbsCm);
+   fChain->SetBranchAddress("PFmuo_TrackerLayersMeasCm", PFmuo_TrackerLayersMeasCm, &b_PFmuo_TrackerLayersMeasCm);
+   fChain->SetBranchAddress("PFmuo_TrackerLayersNotMeasCm", PFmuo_TrackerLayersNotMeasCm, &b_PFmuo_TrackerLayersNotMeasCm);
+   fChain->SetBranchAddress("PFmuo_Valid_fraction", PFmuo_Valid_fraction, &b_PFmuo_Valid_fraction);
+   fChain->SetBranchAddress("tau_n", &tau_n, &b_tau_n);
+   fChain->SetBranchAddress("tau_p", &tau_p, &b_tau_p);
+   fChain->SetBranchAddress("tau_pt", &tau_pt, &b_tau_pt);
+   fChain->SetBranchAddress("tau_E", &tau_E, &b_tau_E);
+   fChain->SetBranchAddress("tau_Et", &tau_Et, &b_tau_Et);
+   fChain->SetBranchAddress("tau_Px", &tau_Px, &b_tau_Px);
+   fChain->SetBranchAddress("tau_Py", &tau_Py, &b_tau_Py);
+   fChain->SetBranchAddress("tau_Pz", &tau_Pz, &b_tau_Pz);
+   fChain->SetBranchAddress("tau_Eta", &tau_Eta, &b_tau_Eta);
+   fChain->SetBranchAddress("tau_Phi", &tau_Phi, &b_tau_Phi);
+   fChain->SetBranchAddress("tau_DecayMode", &tau_DecayMode, &b_tau_DecayMode);
+   fChain->SetBranchAddress("tau_vx", &tau_vx, &b_tau_vx);
+   fChain->SetBranchAddress("tau_vy", &tau_vy, &b_tau_vy);
+   fChain->SetBranchAddress("tau_vz", &tau_vz, &b_tau_vz);
+   fChain->SetBranchAddress("tau_vx2", &tau_vx2, &b_tau_vx2);
+   fChain->SetBranchAddress("tau_vy2", &tau_vy2, &b_tau_vy2);
+   fChain->SetBranchAddress("tau_vz2", &tau_vz2, &b_tau_vz2);
+   fChain->SetBranchAddress("tau_ECalIso", &tau_ECalIso, &b_tau_ECalIso);
+   fChain->SetBranchAddress("tau_HCalIso", &tau_HCalIso, &b_tau_HCalIso);
+   fChain->SetBranchAddress("tau_AllIso", &tau_AllIso, &b_tau_AllIso);
+   fChain->SetBranchAddress("tau_TrackIso", &tau_TrackIso, &b_tau_TrackIso);
+   fChain->SetBranchAddress("tau_ParticleIso", &tau_ParticleIso, &b_tau_ParticleIso);
+   fChain->SetBranchAddress("tau_ChadIso", &tau_ChadIso, &b_tau_ChadIso);
+   fChain->SetBranchAddress("tau_NhadIso", &tau_NhadIso, &b_tau_NhadIso);
+   fChain->SetBranchAddress("tau_GamIso", &tau_GamIso, &b_tau_GamIso);
+   fChain->SetBranchAddress("tau_id", &tau_id, &b_tau_id);
+   fChain->SetBranchAddress("susyScanM0", &susyScanM0, &b_susyScanM0);
+   fChain->SetBranchAddress("susyScanM12", &susyScanM12, &b_susyScanM12);
+   fChain->SetBranchAddress("susyScanA0", &susyScanA0, &b_susyScanA0);
+   fChain->SetBranchAddress("susyScanCrossSection", &susyScanCrossSection, &b_susyScanCrossSection);
+   fChain->SetBranchAddress("susyScanMu", &susyScanMu, &b_susyScanMu);
+   fChain->SetBranchAddress("susyScanRun", &susyScanRun, &b_susyScanRun);
+   fChain->SetBranchAddress("susyScantanbeta", &susyScantanbeta, &b_susyScantanbeta);
    Notify();
 }
 

@@ -223,7 +223,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 	int *tempname = pack(tname.c_str());
 	
-	const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
+	const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname,false);
 	for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll ) {
 	  TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
 	  for ( TriggerObjectRefVector::const_iterator itt = torv.begin(); 
