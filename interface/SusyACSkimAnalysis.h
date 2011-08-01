@@ -19,6 +19,7 @@
 // ROOT includes
 #include <TNtuple.h>
 #include <TH1F.h>
+#include <TVector3.h>
 
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -49,6 +50,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -61,6 +63,8 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 
@@ -77,7 +81,11 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+
 #include "aachen3a/ACSusyAnalysis/interface/TriggerTools.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
 
 using namespace std;
 using namespace pat;
@@ -156,6 +164,7 @@ private:
   bool do_fatjets;
   bool matchAll_;
   bool susyPar_;
+  bool doCaloJet_;
   //bool beamScaping_;
 
   std::string btag_;
@@ -174,6 +183,13 @@ private:
   std::string qual_;
   JetIDSelectionFunctor::Version_t vers;
   JetIDSelectionFunctor::Quality_t qual;
+  
+  //needed for Combined Isolation
+  EgammaTowerIsolation *hadDepth1Isolation03_, *hadDepth2Isolation03_;
+  typedef std::vector< edm::Handle<edm::ValueMap<double> > > isoContainer;
+  isoContainer *eIsoFromDepsValueMap_;
+  isoContainer *muIsoFromDepsValueMap_;
+
 
   TString ACmuonID[24];
   TString ACtauID[16];
@@ -183,11 +199,12 @@ private:
 
   double bfield;
 
-  int nele_;
+   int nele_;
   int npfele_;
   int nmuo_;
   int ncalojet_;
   int npfjet_;
+  int ntau_;
   double muopt_;
   double muoeta_;
   double elept_;
@@ -203,9 +220,13 @@ private:
   double mettc_;
   double htc_;
   double PFhtc_;
-
+  double taupt_;
+  double taueta_;
   double pthat_low_;
   double pthat_high_;
+  double muominv_;
+  double muoDminv_;
+  std::string trigger_;
 
   // Counters
   unsigned int nrEventTotalRaw_;
@@ -217,12 +238,20 @@ private:
   int cmuo_;
   int ccalojet_;
   int cpfjet_;
+  int ctau_;
 
   double localPi;
   
   int pre1;
   int pre2;
   
+  double mumet_x;
+  double mumet_y;
+  double mumet_sumpt;
+  
+  double elemet_x;
+  double elemet_y;
+  double elemet_sumpt;
   
 
   //for ht cut
@@ -291,10 +320,8 @@ private:
   double mTreenoiseHCALeventTrackEnergy;
   double mTreenoiseHCALflatNoiseSumE;
   double mTreenoiseHCALflatNoiseSumEt;
-  //double mTreenoiseHCALhighLevelNoiseTowers;
   double mTreenoiseHCALisolatedNoiseSumE;
   double mTreenoiseHCALisolatedNoiseSumEt;
-  //double mTreenoiseHCALlooseNoiseTowers;
   double mTreenoiseHCALmax10GeVHitTime;
   double mTreenoiseHCALmax25GeVHitTime;
   double mTreenoiseHCALmaxE10TS;
@@ -307,28 +334,24 @@ private:
   double mTreenoiseHCALminE2TS;
   double mTreenoiseHCALminHPDEMF;
   double mTreenoiseHCALminRBXEMF;
-  //double mTreenoiseHCALproblematicJets;
   double mTreenoiseHCALrms10GeVHitTime;
   double mTreenoiseHCALrms25GeVHitTime;
   double mTreenoiseHCALspikeNoiseSumE;
   double mTreenoiseHCALspikeNoiseSumEt;
-  //double mTreenoiseHCALtightNoiseTowers;
   double mTreenoiseHCALtriangleNoiseSumE;
   double mTreenoiseHCALtriangleNoiseSumEt;
   double mTreenoiseHCALTS4TS5NoiseSumE;
   double mTreenoiseHCALTS4TS5NoiseSumEt;
   
-  //bool mTreenoiseHCALhcalnoiseFlag;
-  
   int nTreePileUp;
-  int mTreePUbx;
-  int mTreePUNumInteractions[20];
-  int mTreePUN[20];
+  int mTreePUbx[3];
+  int mTreePUNumInteractions[3];
+  int mTreePUN[3];
   
-  double mTreePUInstLumi[20][100];
-  double mTreePUzPosi[20][100];
-  double mTreePUsumPthi[20][100];
-  double mTreePUsumPtlo[20][100];
+  double mTreePUInstLumi[3][100];
+  double mTreePUzPosi[3][100];
+  double mTreePUsumPthi[3][100];
+  double mTreePUsumPtlo[3][100];
 
   int mTreetrighltname[20];
   
@@ -345,27 +368,26 @@ private:
   double mTreeMEX[10];
   double mTreeMEY[10];
   double mTreeMETphi[10];
-  double mTreeMETeta[10];
   double mTreeSumET[10];
-  double mTreeSumETSignif[10];
-  double mTreeMETSignif[10];
-  double mTreeMETCaloMETInmHF[10];
-  double mTreeMETCaloMETInpHF[10];
-  double mTreeMETCaloMETPhiInmHF[10];
-  double mTreeMETCaloMETPhiInpHF[10];
-  double mTreeMETCaloSETInmHF[10];
-  double mTreeMETCaloSETInpHF[10];
-  double mTreeMETemEtFraction[10];
-  double mTreeMETetFractionHadronic[10];
-  double mTreeMETmaxEtInEmTowers[10];
-  double mTreeMETmaxEtInHadTowers[10];
-  double mTreeMETemEtInHF[10];
-  double mTreeMETemEtInEE[10];
-  double mTreeMETemEtInEB[10];
-  double mTreeMEThadEtInHF[10];
-  double mTreeMEThadEtInHE[10];
-  double mTreeMEThadEtInHO[10];
-  double mTreeMEThadEtInHB[10];
+  double mTreeSumETSignif[8];
+  double mTreeMETSignif[8];
+  double mTreeMETCaloMETInmHF[8];
+  double mTreeMETCaloMETInpHF[8];
+  double mTreeMETCaloMETPhiInmHF[8];
+  double mTreeMETCaloMETPhiInpHF[8];
+  double mTreeMETCaloSETInmHF[8];
+  double mTreeMETCaloSETInpHF[8];
+  double mTreeMETemEtFraction[8];
+  double mTreeMETetFractionHadronic[8];
+  double mTreeMETmaxEtInEmTowers[8];
+  double mTreeMETmaxEtInHadTowers[8];
+  double mTreeMETemEtInHF[8];
+  double mTreeMETemEtInEE[8];
+  double mTreeMETemEtInEB[8];
+  double mTreeMEThadEtInHF[8];
+  double mTreeMEThadEtInHE[8];
+  double mTreeMEThadEtInHO[8];
+  double mTreeMEThadEtInHB[8];
   
   double mTreeMETChargedEMEtFraction[10];
   double mTreeMETChargedHadEtFraction[10];
@@ -493,10 +515,12 @@ private:
   double mTreefatjetsubfrbx[100][10];
 
   int    mTreeNSC;
+  int    mTreeNSCtrign[100];
   int    mTreeSCTruth[200];
   double mTreeSCE[200];
   double mTreeSCPhi[200];
   double mTreeSCEta[200];
+  double mTreeSCtrig[100][500];
 
   int    mTreeNele;
   int    mTreeNeletrign[100];
@@ -537,6 +561,7 @@ private:
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
   double mTreeElefbrem[100];
+  double mTreeElePFiso[100][9];
   double mTreeEledr03HcalDepth1[100];
   double mTreeEledr03HcalDepth2[100];
   double mTreeElee2x5Max[100];
@@ -575,6 +600,7 @@ private:
   int    mTreeMuoChambersMatched[100];
   int    mTreeMuoTrackerLayersMeasCm[100];
   int    mTreeMuoTrackerLayersNotMeasCm[100];
+  int    mTreeMuoLostHits[100];
   int    mTreeMuoID[100][24];
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
@@ -606,10 +632,15 @@ private:
   double mTreeMuod0OriginCm[100];
   double mTreeMuodzbsCm[100];
   double mTreeMuoValidFraction[100];
+  double mTreeMuoPFiso[100][9];
   
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];
   double mTreeMuoCocktailEta[100];
+  
+  double mTreeMuoTevRecoPt[100][7];
+  double mTreeMuoTevRecoEta[100][7];
+  double mTreeMuoTevRecoPhi[100][7];
   
   
   int    mTreeNPFmuons;
@@ -661,8 +692,11 @@ private:
   
   
   int mTreeNtaus;  
+  int    mTreeNtautrign[100];
+  int    mTreeTautrig[100][500];
   int mTreeTauDecayMode[100];
-  
+  int mTreeTauPFChargedHadrCands[100];
+  int mTreeTauPFGammaCands[100];
   double mTreeTauID[100][16];
   double mTreeTauP[100];
   double mTreeTauPt[100];
@@ -679,14 +713,25 @@ private:
   double mTreeTauvx2[100];
   double mTreeTauvy2[100];
   double mTreeTauvz2[100];
-  double mTreeTauECalIso[100];
-  double mTreeTauHCalIso[100];
-  double mTreeTauAllIso[100];
-  double mTreeTauTrackIso[100];
   double mTreeTauParticleIso[100];
   double mTreeTauChadIso[100];
   double mTreeTauNhadIso[100];
   double mTreeTauGamIso[100];
+  
+  double mTreeTauIsolationPFChargedHadrCandsPtSum[100]; 
+  double mTreeTauIsolationPFGammaCandsEtSum[100]; 
+  double mTreeTauEcalStripSumEOverPLead[100]; 
+  double mTreeTauEMFraction[100]; 
+  double mTreeTauHcal3x3OverPLead[100]; 
+  double mTreeTauHcalMaxOverPLead[100]; 
+  double mTreeTauHcalTotOverPLead[100]; 
+  double mTreeTauLeadPFChargedHadrCandsignedSipt[100]; 
+  double mTreeTauPhiphiMoment[100]; 
+  double mTreeTauEtaphiMoment[100]; 
+  double mTreeTauEtaetaMoment[100]; 
+  double mTreeTauElectronPreIDOutput[100]; 
+  double mTreeTauPFLeadChargedPT[100];
+  double mTreeTauBremsRecoveryEOverPLead[100];
   
   double mTreesusyScanM0;
   double mTreesusyScanM12;

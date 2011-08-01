@@ -6,6 +6,7 @@
 #
 #   Carsten Magass, April 2009
 #                   April 2010 (update)
+#   Klaas Padeken Aug 2011 (upadte)
 #
 
 if [ $# -lt 3 ] || [ $# -gt 4 ] 
@@ -48,17 +49,20 @@ do
   final=1
   s=`echo "$s dcap://grid-se110.physik.rwth-aachen.de/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$file "`
   s1=`echo $s1 $file`
-  echo "srmcp srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$file  file:///$PP/$file"
-  srmcp srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$file  file:///$PP/$file > /dev/null
+  
+  #echo "srmcp srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$file  file:///$PP/$file"
+  #srmcp srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/$file  file:///$PP/$file > /dev/null
+  echo "uberftp grid-ftp.physik.rwth-aachen.de active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/; get $file"
+  uberftp grid-ftp.physik.rwth-aachen.de  "active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/; get $file"> /dev/null
   let COUNTER=COUNTER+1
   rest=$[$COUNTER%$num]
   if [ $rest -eq 0 ]
   then
     out=`echo $3'_'$id'.root'`
     echo 
-    echo "hadd -f9 "$out 
+    echo "hadd -f7 "$out 
     echo $s1
-    hadd -f9 $out $s1
+    hadd -f7 $out $s1 
     s1=''
     out=`echo $3'_'$id'.root'`
     let id=id+1
@@ -71,10 +75,10 @@ if [ $final -eq '1' ]
 then
   out=`echo $3'_'$id'.root'`
   echo 
-  echo "hadd -f9 "$out 
+  echo "hadd -f7 "$out 
   echo $s1   
   echo
-  hadd -f9 $out $s1
+  hadd -f7 $out $s1
   rm -f out_*.root
 fi
 

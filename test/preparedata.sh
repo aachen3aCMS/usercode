@@ -38,7 +38,7 @@ then
   echo " Output directory (/pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$3/$4) does not exist !"
   echo ""
   echo " You might want to create it via"
-  echo "   srmmkdir srm://grid-srm.physik.rwth-aachen.de:8443//pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$3[/$4]"
+  echo "   srmmkdir srm://grid-srm.physik.rwth-aachen.de:8443//pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$3/$4"
   echo
   exit
 fi
@@ -101,8 +101,8 @@ echo "user_remote_dir = output/$3/$4/" >> $CRABFILE
 echo "check_user_remote_dir = 0" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[GRID]" >> $CRABFILE
-echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska" >> $CRABFILE
-echo "#ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Purdue,T2_US_Florida" >> $CRABFILE
+echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska,T2_US_Purdue" >> $CRABFILE
+echo "#ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Florida" >> $CRABFILE
 echo "" >> $CRABFILE
 
 sed s/"globaltag = cms.string('')"/"globaltag = cms.string('$6')"/g < $5 > $DIR/temp.txt

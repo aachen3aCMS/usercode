@@ -87,14 +87,14 @@ class TreeContent {
    Double_t        lumi_rec;
    Double_t        lumi_delerr;
    Double_t        lumi_recerr;
-   Int_t           pu_bunchx;
+   Int_t           pu_bunchx[3];
    Int_t           pu_n;
    Int_t           pu_vtxn;
-   Int_t           pu_num_int[20];   //[pu_n]
-   Double_t        pu_inst_Lumi[20][100];   //[pu_n]
-   Double_t        pu_zPos[20][100];   //[pu_n]
-   Double_t        pu_sumPthi[20][100];   //[pu_n]
-   Double_t        pu_sumPtlo[20][100];   //[pu_n]
+   Int_t           pu_num_int[3];   //[pu_n]
+   Double_t        pu_inst_Lumi[3][100];   //[pu_n]
+   Double_t        pu_zPos[3][100];   //[pu_n]
+   Double_t        pu_sumPthi[3][100];   //[pu_n]
+   Double_t        pu_sumPtlo[3][100];   //[pu_n]
    Int_t           noise_pLoose;
    Int_t           noise_pTight;
    Int_t           noise_pHigh;
@@ -216,35 +216,34 @@ class TreeContent {
    Double_t        met_et[10];
    Double_t        met_ex[10];
    Double_t        met_ey[10];
-   Double_t        met_eta[10];
    Double_t        met_phi[10];
    Double_t        met_sumet[10];
-   Double_t        met_sumetsig[10];
-   Double_t        met_etsignif[10];
-   Double_t        met_CaloMETInmHF[10];
-   Double_t        met_CaloMETInpHF[10];
-   Double_t        met_CaloMETPhiInmHF[10];
-   Double_t        met_CaloMETPhiInpHF[10];
-   Double_t        met_CaloSETInmHF[10];
-   Double_t        met_CaloSETInpHF[10];
-   Double_t        met_emEtFraction[10];
-   Double_t        met_etFractionHadronic[10];
-   Double_t        met_maxEtInEmTowers[10];
-   Double_t        met_maxEtInHadTowers[10];
-   Double_t        met_emEtInHF[10];
-   Double_t        met_emEtInEE[10];
-   Double_t        met_emEtInEB[10];
-   Double_t        met_hadEtInHF[10];
-   Double_t        met_hadEtInHE[10];
-   Double_t        met_hadEtInHO[10];
-   Double_t        met_hadEtInHB[10];
-   Double_t        met_ChargedEMEtFraction[10];
-   Double_t        met_ChargedHadEtFraction[10];
-   Double_t        met_MuonEtFraction[10];
-   Double_t        met_NeutralEMFraction[10];
-   Double_t        met_NeutralHadEtFraction[10];
-   Double_t        met_Type6EtFraction[10];
-   Double_t        met_Type7EtFraction[10];
+   Double_t        met_sumetsig[8];
+   Double_t        met_etsignif[8];
+   Double_t        met_CaloMETInmHF[8];
+   Double_t        met_CaloMETInpHF[8];
+   Double_t        met_CaloMETPhiInmHF[8];
+   Double_t        met_CaloMETPhiInpHF[8];
+   Double_t        met_CaloSETInmHF[8];
+   Double_t        met_CaloSETInpHF[8];
+   Double_t        met_emEtFraction[8];
+   Double_t        met_etFractionHadronic[8];
+   Double_t        met_maxEtInEmTowers[8];
+   Double_t        met_maxEtInHadTowers[8];
+   Double_t        met_emEtInHF[8];
+   Double_t        met_emEtInEE[8];
+   Double_t        met_emEtInEB[8];
+   Double_t        met_hadEtInHF[8];
+   Double_t        met_hadEtInHE[8];
+   Double_t        met_hadEtInHO[8];
+   Double_t        met_hadEtInHB[8];
+   Double_t        met_ChargedEMEtFraction[8];
+   Double_t        met_ChargedHadEtFraction[8];
+   Double_t        met_MuonEtFraction[8];
+   Double_t        met_NeutralEMFraction[8];
+   Double_t        met_NeutralHadEtFraction[8];
+   Double_t        met_Type6EtFraction[8];
+   Double_t        met_Type7EtFraction[8];
    Int_t           calojet_n;
    Double_t        calojet_E[100];   //[calojet_n]
    Double_t        calojet_Et[100];   //[calojet_n]
@@ -324,6 +323,8 @@ class TreeContent {
    Double_t        SC_E[200];   //[SC_n]
    Double_t        SC_phi[200];   //[SC_n]
    Double_t        SC_eta[200];   //[SC_n]
+   Int_t           SC_trign[200];  //[SC_n]
+   Int_t           SC_trig[200][500]; //[SC_n][500]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -370,6 +371,7 @@ class TreeContent {
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
    Int_t           ele_numberOfHits[100];   //[ele_n]
+   Double_t        ele_PFiso[100][9];      //[ele_n]
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
@@ -432,6 +434,10 @@ class TreeContent {
    Double_t        muo_Cocktail_phi[100];   //[muo_n]
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
    Double_t        muo_Valid_fraction[100];   //[muo_n]
+   Double_t        muo_TevReco_pt[100][7];   //[muo_n]
+   Double_t        muo_TevReco_eta[100][7];   //[muo_n]
+   Double_t        muo_TevReco_phi[100][7];   //[muo_n]
+   Double_t        muo_PFiso[100][9];      //[muo_n]
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
    Double_t        PFmuo_pt[100];   //[PFmuo_n]
@@ -492,15 +498,29 @@ class TreeContent {
    Double_t        tau_vx2[100];   //[tau_n]
    Double_t        tau_vy2[100];   //[tau_n]
    Double_t        tau_vz2[100];   //[tau_n]
-   Double_t        tau_ECalIso[100];   //[tau_n]
-   Double_t        tau_HCalIso[100];   //[tau_n]
-   Double_t        tau_AllIso[100];   //[tau_n]
-   Double_t        tau_TrackIso[100];   //[tau_n]
+   Int_t           tau_trign[100];   //[tau_n]
+   Int_t           tau_trig[100][500];   //[tau_n]
    Double_t        tau_ParticleIso[100];   //[tau_n]
    Double_t        tau_ChadIso[100];   //[tau_n]
    Double_t        tau_NhadIso[100];   //[tau_n]
    Double_t        tau_GamIso[100];   //[tau_n]
-   Double_t        tau_id[100][16];   //[tau_n]
+   Int_t           tau_PFChargedHadrCands[100];   //[tau_n]
+   Int_t           tau_PFGammaCands[100];   //[tau_n]
+   Double_t        tau_IsolationPFChargedHadrCandsPtSum[100];   //[tau_n]
+   Double_t        tau_IsolationPFGammaCandsEtSum[100];   //[tau_n]
+   Double_t        tau_EcalStripSumEOverPLead[100];   //[tau_n]
+   Double_t        tau_EMfraction[100];   //[tau_n]
+   Double_t        tau_Hcal3x3OverPLead[100];   //[tau_n]
+   Double_t        tau_HcalMaxOverPLead[100];   //[tau_n]
+   Double_t        tau_HcalTotOverPLead[100];   //[tau_n]
+   Double_t        tau_LeadPFChargedHadrCandsignedSipt[100];   //[tau_n]
+   Double_t        tau_PhiPhiMoment[100];   //[tau_n]
+   Double_t        tau_EtaPhiMoment[100];   //[tau_n]
+   Double_t        tau_EtaEtaMoment[100];   //[tau_n]
+   Double_t        tau_ElectronPreIDOutput[100];   //[tau_n]
+   Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
+   Double_t        tau_BremsRecoveryEOverPLead[100];   //[tau_n]
+   Double_t        tau_id[100][10];   //[tau_n]
    Double_t        susyScanM0;
    Double_t        susyScanM12;
    Double_t        susyScanA0;
@@ -655,7 +675,6 @@ class TreeContent {
    TBranch        *b_met_et;   //!
    TBranch        *b_met_ex;   //!
    TBranch        *b_met_ey;   //!
-   TBranch        *b_met_eta;   //!
    TBranch        *b_met_phi;   //!
    TBranch        *b_met_sumet;   //!
    TBranch        *b_met_sumetsig;   //!
@@ -763,6 +782,8 @@ class TreeContent {
    TBranch        *b_SC_E;   //!
    TBranch        *b_SC_phi;   //!
    TBranch        *b_SC_eta;   //!
+   TBranch        *b_SC_trign;   //!
+   TBranch        *b_SC_trig;   //!
    TBranch        *b_ele_n;   //!
    TBranch        *b_ele_E;   //!
    TBranch        *b_ele_Et;   //!
@@ -809,6 +830,7 @@ class TreeContent {
    TBranch        *b_ele_trig;   //!
    TBranch        *b_ele_SC;   //!
    TBranch        *b_ele_numberOfHits;   //!
+   TBranch        *b_ele_PFiso;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -871,6 +893,10 @@ class TreeContent {
    TBranch        *b_muo_Cocktail_phi;   //!
    TBranch        *b_muo_Cocktail_eta;   //!
    TBranch        *b_muo_Valid_fraction;   //!
+   TBranch        *b_muo_TevReco_pt;   //!
+   TBranch        *b_muo_TevReco_eta;   //!
+   TBranch        *b_muo_TevReco_phi;   //!
+   TBranch        *b_muo_PFiso;   //!
    TBranch        *b_PFmuo_n;   //!
    TBranch        *b_PFmuo_p;   //!
    TBranch        *b_PFmuo_pt;   //!
@@ -931,14 +957,28 @@ class TreeContent {
    TBranch        *b_tau_vx2;   //!
    TBranch        *b_tau_vy2;   //!
    TBranch        *b_tau_vz2;   //!
-   TBranch        *b_tau_ECalIso;   //!
-   TBranch        *b_tau_HCalIso;   //!
-   TBranch        *b_tau_AllIso;   //!
-   TBranch        *b_tau_TrackIso;   //!
+   TBranch        *b_tau_trign;   //!
+   TBranch        *b_tau_trig;   //!
    TBranch        *b_tau_ParticleIso;   //!
    TBranch        *b_tau_ChadIso;   //!
    TBranch        *b_tau_NhadIso;   //!
    TBranch        *b_tau_GamIso;   //!
+   TBranch        *b_tau_PFChargedHadrCands;   //!
+   TBranch        *b_tau_PFGammaCands;   //!
+   TBranch        *b_tau_IsolationPFChargedHadrCandsPtSum;   //!
+   TBranch        *b_tau_IsolationPFGammaCandsEtSum;   //!
+   TBranch        *b_tau_EcalStripSumEOverPLead;   //!
+   TBranch        *b_tau_EMfraction;   //!
+   TBranch        *b_tau_Hcal3x3OverPLead;   //!
+   TBranch        *b_tau_HcalMaxOverPLead;   //!
+   TBranch        *b_tau_HcalTotOverPLead;   //!
+   TBranch        *b_tau_LeadPFChargedHadrCandsignedSipt;   //!
+   TBranch        *b_tau_PhiPhiMoment;   //!
+   TBranch        *b_tau_EtaPhiMoment;   //!
+   TBranch        *b_tau_EtaEtaMoment;   //!
+   TBranch        *b_tau_ElectronPreIDOutput;   //!
+   TBranch        *b_tau_PFLeadChargedPT;   //!
+   TBranch        *b_tau_BremsRecoveryEOverPLead;   //!
    TBranch        *b_tau_id;   //!
    TBranch        *b_susyScanM0;   //!
    TBranch        *b_susyScanM12;   //!
@@ -1037,7 +1077,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
    fChain->SetBranchAddress("lumi_delerr", &lumi_delerr, &b_lumi_delerr);
    fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
-   fChain->SetBranchAddress("pu_bunchx", &pu_bunchx, &b_pu_bunchx);
+   fChain->SetBranchAddress("pu_bunchx", pu_bunchx, &b_pu_bunchx);
    fChain->SetBranchAddress("pu_n", &pu_n, &b_pu_n);
    fChain->SetBranchAddress("pu_vtxn", &pu_vtxn, &b_pu_vtxn);
    fChain->SetBranchAddress("pu_num_int", pu_num_int, &b_pu_num_int);
@@ -1166,7 +1206,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_et", met_et, &b_met_et);
    fChain->SetBranchAddress("met_ex", met_ex, &b_met_ex);
    fChain->SetBranchAddress("met_ey", met_ey, &b_met_ey);
-   fChain->SetBranchAddress("met_eta", met_eta, &b_met_eta);
    fChain->SetBranchAddress("met_phi", met_phi, &b_met_phi);
    fChain->SetBranchAddress("met_sumet", met_sumet, &b_met_sumet);
    fChain->SetBranchAddress("met_sumetsig", met_sumetsig, &b_met_sumetsig);
@@ -1274,6 +1313,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("SC_E", SC_E, &b_SC_E);
    fChain->SetBranchAddress("SC_phi", SC_phi, &b_SC_phi);
    fChain->SetBranchAddress("SC_eta", SC_eta, &b_SC_eta);
+   fChain->SetBranchAddress("SC_trign",SC_trign   ,   &b_SC_trign);
+   fChain->SetBranchAddress("SC_trig",SC_trig     ,   &b_SC_trig);  
+   
    fChain->SetBranchAddress("ele_n", &ele_n, &b_ele_n);
    fChain->SetBranchAddress("ele_E", ele_E, &b_ele_E);
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
@@ -1320,6 +1362,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
    fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
    fChain->SetBranchAddress("ele_numberOfHits", ele_numberOfHits, &b_ele_numberOfHits);
+   fChain->SetBranchAddress("ele_PFiso",ele_PFiso,    &b_ele_PFiso); 
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", pfele_E, &b_pfele_E);
@@ -1382,6 +1425,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
    fChain->SetBranchAddress("muo_Valid_fraction", muo_Valid_fraction, &b_muo_Valid_fraction);
+   fChain->SetBranchAddress("muo_TevReco_pt",muo_TevReco_pt,&b_muo_TevReco_pt);
+   fChain->SetBranchAddress("muo_TevReco_eta",muo_TevReco_eta,&b_muo_TevReco_eta);
+   fChain->SetBranchAddress("muo_TevReco_phi",muo_TevReco_phi,&b_muo_TevReco_phi);
+   fChain->SetBranchAddress("muo_PFiso",muo_PFiso,&b_muo_PFiso);
    fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
    fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
    fChain->SetBranchAddress("PFmuo_pt", PFmuo_pt, &b_PFmuo_pt);
@@ -1426,31 +1473,45 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("PFmuo_TrackerLayersNotMeasCm", PFmuo_TrackerLayersNotMeasCm, &b_PFmuo_TrackerLayersNotMeasCm);
    fChain->SetBranchAddress("PFmuo_Valid_fraction", PFmuo_Valid_fraction, &b_PFmuo_Valid_fraction);
    fChain->SetBranchAddress("tau_n", &tau_n, &b_tau_n);
-   fChain->SetBranchAddress("tau_p", &tau_p, &b_tau_p);
-   fChain->SetBranchAddress("tau_pt", &tau_pt, &b_tau_pt);
-   fChain->SetBranchAddress("tau_E", &tau_E, &b_tau_E);
-   fChain->SetBranchAddress("tau_Et", &tau_Et, &b_tau_Et);
-   fChain->SetBranchAddress("tau_Px", &tau_Px, &b_tau_Px);
-   fChain->SetBranchAddress("tau_Py", &tau_Py, &b_tau_Py);
-   fChain->SetBranchAddress("tau_Pz", &tau_Pz, &b_tau_Pz);
-   fChain->SetBranchAddress("tau_Eta", &tau_Eta, &b_tau_Eta);
-   fChain->SetBranchAddress("tau_Phi", &tau_Phi, &b_tau_Phi);
-   fChain->SetBranchAddress("tau_DecayMode", &tau_DecayMode, &b_tau_DecayMode);
-   fChain->SetBranchAddress("tau_vx", &tau_vx, &b_tau_vx);
-   fChain->SetBranchAddress("tau_vy", &tau_vy, &b_tau_vy);
-   fChain->SetBranchAddress("tau_vz", &tau_vz, &b_tau_vz);
-   fChain->SetBranchAddress("tau_vx2", &tau_vx2, &b_tau_vx2);
-   fChain->SetBranchAddress("tau_vy2", &tau_vy2, &b_tau_vy2);
-   fChain->SetBranchAddress("tau_vz2", &tau_vz2, &b_tau_vz2);
-   fChain->SetBranchAddress("tau_ECalIso", &tau_ECalIso, &b_tau_ECalIso);
-   fChain->SetBranchAddress("tau_HCalIso", &tau_HCalIso, &b_tau_HCalIso);
-   fChain->SetBranchAddress("tau_AllIso", &tau_AllIso, &b_tau_AllIso);
-   fChain->SetBranchAddress("tau_TrackIso", &tau_TrackIso, &b_tau_TrackIso);
-   fChain->SetBranchAddress("tau_ParticleIso", &tau_ParticleIso, &b_tau_ParticleIso);
-   fChain->SetBranchAddress("tau_ChadIso", &tau_ChadIso, &b_tau_ChadIso);
-   fChain->SetBranchAddress("tau_NhadIso", &tau_NhadIso, &b_tau_NhadIso);
-   fChain->SetBranchAddress("tau_GamIso", &tau_GamIso, &b_tau_GamIso);
-   fChain->SetBranchAddress("tau_id", &tau_id, &b_tau_id);
+   fChain->SetBranchAddress("tau_p", tau_p, &b_tau_p);
+   fChain->SetBranchAddress("tau_pt", tau_pt, &b_tau_pt);
+   fChain->SetBranchAddress("tau_E", tau_E, &b_tau_E);
+   fChain->SetBranchAddress("tau_Et", tau_Et, &b_tau_Et);
+   fChain->SetBranchAddress("tau_Px", tau_Px, &b_tau_Px);
+   fChain->SetBranchAddress("tau_Py", tau_Py, &b_tau_Py);
+   fChain->SetBranchAddress("tau_Pz", tau_Pz, &b_tau_Pz);
+   fChain->SetBranchAddress("tau_Eta", tau_Eta, &b_tau_Eta);
+   fChain->SetBranchAddress("tau_Phi", tau_Phi, &b_tau_Phi);
+   fChain->SetBranchAddress("tau_DecayMode", tau_DecayMode, &b_tau_DecayMode);
+   fChain->SetBranchAddress("tau_vx", tau_vx, &b_tau_vx);
+   fChain->SetBranchAddress("tau_vy", tau_vy, &b_tau_vy);
+   fChain->SetBranchAddress("tau_vz", tau_vz, &b_tau_vz);
+   fChain->SetBranchAddress("tau_vx2", tau_vx2, &b_tau_vx2);
+   fChain->SetBranchAddress("tau_vy2", tau_vy2, &b_tau_vy2);
+   fChain->SetBranchAddress("tau_vz2", tau_vz2, &b_tau_vz2);
+   fChain->SetBranchAddress("tau_trign", tau_trign, &b_tau_trign);
+   fChain->SetBranchAddress("tau_trig", tau_trig, &b_tau_trig);
+   fChain->SetBranchAddress("tau_ParticleIso", tau_ParticleIso, &b_tau_ParticleIso);
+   fChain->SetBranchAddress("tau_ChadIso", tau_ChadIso, &b_tau_ChadIso);
+   fChain->SetBranchAddress("tau_NhadIso", tau_NhadIso, &b_tau_NhadIso);
+   fChain->SetBranchAddress("tau_GamIso", tau_GamIso, &b_tau_GamIso);
+   fChain->SetBranchAddress("tau_PFChargedHadrCands", tau_PFChargedHadrCands, &b_tau_PFChargedHadrCands);
+   fChain->SetBranchAddress("tau_PFGammaCands", tau_PFGammaCands, &b_tau_PFGammaCands);
+   fChain->SetBranchAddress("tau_IsolationPFChargedHadrCandsPtSum", tau_IsolationPFChargedHadrCandsPtSum, &b_tau_IsolationPFChargedHadrCandsPtSum);
+   fChain->SetBranchAddress("tau_IsolationPFGammaCandsEtSum", tau_IsolationPFGammaCandsEtSum, &b_tau_IsolationPFGammaCandsEtSum);
+   fChain->SetBranchAddress("tau_EcalStripSumEOverPLead", tau_EcalStripSumEOverPLead, &b_tau_EcalStripSumEOverPLead);
+   fChain->SetBranchAddress("tau_EMfraction", tau_EMfraction, &b_tau_EMfraction);
+   fChain->SetBranchAddress("tau_Hcal3x3OverPLead", tau_Hcal3x3OverPLead, &b_tau_Hcal3x3OverPLead);
+   fChain->SetBranchAddress("tau_HcalMaxOverPLead", tau_HcalMaxOverPLead, &b_tau_HcalMaxOverPLead);
+   fChain->SetBranchAddress("tau_HcalTotOverPLead", tau_HcalTotOverPLead, &b_tau_HcalTotOverPLead);
+   fChain->SetBranchAddress("tau_LeadPFChargedHadrCandsignedSipt", tau_LeadPFChargedHadrCandsignedSipt, &b_tau_LeadPFChargedHadrCandsignedSipt);
+   fChain->SetBranchAddress("tau_PhiPhiMoment", tau_PhiPhiMoment, &b_tau_PhiPhiMoment);
+   fChain->SetBranchAddress("tau_EtaPhiMoment", tau_EtaPhiMoment, &b_tau_EtaPhiMoment);
+   fChain->SetBranchAddress("tau_EtaEtaMoment", tau_EtaEtaMoment, &b_tau_EtaEtaMoment);
+   fChain->SetBranchAddress("tau_ElectronPreIDOutput", tau_ElectronPreIDOutput, &b_tau_ElectronPreIDOutput);
+   fChain->SetBranchAddress("tau_PFLeadChargedPT", tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
+   fChain->SetBranchAddress("tau_BremsRecoveryEOverPLead", tau_BremsRecoveryEOverPLead, &b_tau_BremsRecoveryEOverPLead);
+   fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
    fChain->SetBranchAddress("susyScanM0", &susyScanM0, &b_susyScanM0);
    fChain->SetBranchAddress("susyScanM12", &susyScanM12, &b_susyScanM12);
    fChain->SetBranchAddress("susyScanA0", &susyScanA0, &b_susyScanA0);

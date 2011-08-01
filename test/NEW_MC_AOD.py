@@ -14,8 +14,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('GR_R_42_V13::All')
-#process.GlobalTag.globaltag = cms.string('START42_V12::All')
+#process.GlobalTag.globaltag = cms.string('GR_R_42_V19::All')
+#process.GlobalTag.globaltag = cms.string('START42_V13::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -47,7 +47,6 @@ process.out2 = cms.OutputModule(
     outputCommands = cms.untracked.vstring('keep *')
     )
 
-
 ##dummy out to be modifyed by pf2pat
 process.out = cms.OutputModule(
     "PoolOutputModule",
@@ -64,7 +63,7 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 process.goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(7.0), maxZ = cms.double(24.0) ),
+    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
     src=cms.InputTag('offlinePrimaryVertices')
 )
 
@@ -76,12 +75,11 @@ process.scrapingVeto = cms.EDFilter("FilterOutScraping",
                                      )
 
 
-
 # add iso deposits
 from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
 addMuonUserIsolation(process)
 
-
+process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
 process.patMuons.embedCombinedMuon = False;
 process.patMuons.embedStandAloneMuon = False;
 
@@ -90,7 +88,8 @@ process.patMuons.embedStandAloneMuon = False;
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    'file:/home/home1/institut_3a/padeken/public/QCD_Pt-20_MuEnrichedPt-10_TuneZ2_7TeV-pythia6.root']
+    #'file:/home/home1/institut_3a/padeken/public/QCD_Pt-20_MuEnrichedPt-10_TuneZ2_7TeV-pythia6.root']
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/3298E7AE-B19C-E011-86B7-90E6BA442F24.root']
     #'file:/home/home1/institut_3a/padeken/public/datenRecoMay10ReReco.root']
     #'file:/home/home1/institut_3a/jschulte/public/MetSigTest.root']
     #'/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/148/002/8A37418A-DFD9-DF11-91E3-0030487CD77E.root']
@@ -105,11 +104,15 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
+process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+
 # PF2PAT
 from PhysicsTools.PatAlgos.tools.pfTools import *
+
 postfix = "PFlow"
 usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix)
 
+adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 # remove MC matching
 #removeMCMatching(process, ['All'])
 
@@ -120,27 +123,30 @@ process.pfPileUpPFlow.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
 process.pfJetsPFlow.doAreaFastjet = True
 process.pfJetsPFlow.doRhoFastjet = False
 
+
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 process.kt6PFJetsPFlow = kt4PFJets.clone(
     rParam = cms.double(0.6),
     src = cms.InputTag('pfNoElectron'+postfix),
     doAreaFastjet = cms.bool(True),
-    doRhoFastjet = cms.bool(True),
-    voronoiRfact = cms.double(0.9)
+    doRhoFastjet = cms.bool(True)
     )
 process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
-process.patJetCorrFactorsPFlow.levels = cms.vstring(
-     'L2Relative', 'L3Absolute'  # MC
-    #'L1FastJet','L2Relative','L3Absolute' #DATA
-    )
+process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
+#process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
+
+
+process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
+#process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
+process.patJetCorrFactors.useRho = True
 
 # Add anti-kt 5 jets
 # this is only for calo met is there an other way?
 addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  doJTA                  = True,
                  doBTagging        = True,
-                 jetCorrLabel     = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),  # MC
-                 #jetCorrLabel       = ('AK5Calo', cms.vstring(['L1FastJet','L2Relative','L3Absolute'])),  # DATA
+                 jetCorrLabel     = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),  # MC
+                 #jetCorrLabel       = ('AK5Calo', cms.vstring(['L1FastJet','L2Relative','L3Absolute','L2L3Residual'])),  # DATA
                  doType1MET      = True,
                  doL1Cleaning    = False,
                  doL1Counters    = False,
@@ -149,21 +155,13 @@ addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  jetIdLabel          = "ak5"
                  )
 
-# dummy - IMPORTANT
-process.patJetCorrFactors.levels = cms.vstring(
-     'L2Relative', 'L3Absolute'  # MC
-    #'L1FastJet','L2Relative','L3Absolute' #DATA
-    )
-    
+
+
 # Add the PV selector and KT6 producer to the sequence
 getattr(process,"patPF2PATSequence"+postfix).replace(
     getattr(process,"pfNoElectron"+postfix),
     getattr(process,"pfNoElectron"+postfix)*process.kt6PFJetsPFlow )
 
-process.patseq = cms.Sequence(
-    process.goodOfflinePrimaryVertices*
-    getattr(process,"patPF2PATSequence"+postfix)
-    )
 
 # add TrackCorrected  met
 from PhysicsTools.PatAlgos.tools.metTools import *
@@ -176,8 +174,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 from aachen3a.ACSusyAnalysis.pfMET_cfi import *
 process.pfMetPFnoPU         = pfMET.clone()
 process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
-process.pfMetPFnoPU.src     = 'pfNoPileUp'
-
+process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
 
 
 
@@ -221,6 +218,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
     matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
     susyPar    = cms.bool(False),
+    doCaloJet  = cms.bool(False),
 
     # IMPORTANT for QCD -> configured via ./prepare.sh
     pthat_low  = cms.double(-1.),
@@ -256,6 +254,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     calojeteta = cms.double(25.),
     pfjetpt    = cms.double(0.),
     pfjeteta   = cms.double(25.),
+    taupt      = cms.double(0.),
+    taueta     = cms.double(25.),
     metcalo    = cms.double(0.),
     metpf      = cms.double(0.),
     mettc      = cms.double(0.),
@@ -264,8 +264,12 @@ process.ACSkimAnalysis = cms.EDFilter(
     nmuo       = cms.int32(0),
     ncalojet   = cms.int32(0),
     npfjet     = cms.int32(0),
+    ntau       = cms.int32(0),
     htc        = cms.double(0), 
-    PFhtc        = cms.double(0), 
+    PFhtc      = cms.double(0),
+    triggerContains=cms.string('None'),
+    muoMinv    = cms.double(0), 
+    muoDMinv   = cms.double(0), 
 
     btag       = cms.string('trackCountingHighEffBJetTags'),
 
