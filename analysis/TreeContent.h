@@ -438,7 +438,7 @@ class TreeContent {
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
    Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
-   Double_t        muo_TevReco_ndof2[100][7];   //[muo_n]   
+   Double_t        muo_TevReco_ndof[100][7];   //[muo_n]   
    Double_t        muo_PFiso[100][9];      //[muo_n]
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
