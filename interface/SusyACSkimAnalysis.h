@@ -641,7 +641,8 @@ private:
   double mTreeMuoTevRecoPt[100][7];
   double mTreeMuoTevRecoEta[100][7];
   double mTreeMuoTevRecoPhi[100][7];
-  
+  double mTreeMuoTevRecoChi2[100][7];
+  double mTreeMuoTevRecoNdof[100][7];
   
   int    mTreeNPFmuons;
   int    mTreePFMuoHitsCm[100];
@@ -731,6 +732,7 @@ private:
   double mTreeTauEtaetaMoment[100]; 
   double mTreeTauElectronPreIDOutput[100]; 
   double mTreeTauPFLeadChargedPT[100];
+  int mTreeTauNSignalTracks[100];
   double mTreeTauBremsRecoveryEOverPLead[100];
   
   double mTreesusyScanM0;

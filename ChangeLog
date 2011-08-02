@@ -1,3 +1,7 @@
+2011-08-02 Sebastian Thüer <thuer -at- physik.rwth-aachen.de>
+	* some additional muon TeV Reco variables
+	* number of signal tracks for pftaus
+	* tagged as version v7-3
 2011-08-01 Klaas Padeken <padeken -at- physik.rwth-aachen.de>
 	* new PFTau algo
 	* new selection options

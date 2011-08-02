@@ -437,6 +437,8 @@ class TreeContent {
    Double_t        muo_TevReco_pt[100][7];   //[muo_n]
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
+   Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
+   Double_t        muo_TevReco_ndof2[100][7];   //[muo_n]   
    Double_t        muo_PFiso[100][9];      //[muo_n]
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
@@ -519,6 +521,7 @@ class TreeContent {
    Double_t        tau_EtaEtaMoment[100];   //[tau_n]
    Double_t        tau_ElectronPreIDOutput[100];   //[tau_n]
    Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
+   Int_t		   tau_NSignalTracks[100];
    Double_t        tau_BremsRecoveryEOverPLead[100];   //[tau_n]
    Double_t        tau_id[100][10];   //[tau_n]
    Double_t        susyScanM0;
@@ -896,6 +899,8 @@ class TreeContent {
    TBranch        *b_muo_TevReco_pt;   //!
    TBranch        *b_muo_TevReco_eta;   //!
    TBranch        *b_muo_TevReco_phi;   //!
+   TBranch        *b_muo_TevReco_chi2;   //!
+   TBranch        *b_muo_TevReco_ndof;   //!
    TBranch        *b_muo_PFiso;   //!
    TBranch        *b_PFmuo_n;   //!
    TBranch        *b_PFmuo_p;   //!
@@ -978,6 +983,7 @@ class TreeContent {
    TBranch        *b_tau_EtaEtaMoment;   //!
    TBranch        *b_tau_ElectronPreIDOutput;   //!
    TBranch        *b_tau_PFLeadChargedPT;   //!
+   TBranch        *b_tau_NSignalTracks;   //!
    TBranch        *b_tau_BremsRecoveryEOverPLead;   //!
    TBranch        *b_tau_id;   //!
    TBranch        *b_susyScanM0;   //!
@@ -1428,6 +1434,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_TevReco_pt",muo_TevReco_pt,&b_muo_TevReco_pt);
    fChain->SetBranchAddress("muo_TevReco_eta",muo_TevReco_eta,&b_muo_TevReco_eta);
    fChain->SetBranchAddress("muo_TevReco_phi",muo_TevReco_phi,&b_muo_TevReco_phi);
+   fChain->SetBranchAddress("muo_TevReco_chi2",muo_TevReco_chi2,&b_muo_TevReco_chi2);
+   fChain->SetBranchAddress("muo_TevReco_ndof",muo_TevReco_ndof,&b_muo_TevReco_ndof);
    fChain->SetBranchAddress("muo_PFiso",muo_PFiso,&b_muo_PFiso);
    fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
    fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
@@ -1510,6 +1518,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("tau_EtaEtaMoment", tau_EtaEtaMoment, &b_tau_EtaEtaMoment);
    fChain->SetBranchAddress("tau_ElectronPreIDOutput", tau_ElectronPreIDOutput, &b_tau_ElectronPreIDOutput);
    fChain->SetBranchAddress("tau_PFLeadChargedPT", tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
+   fChain->SetBranchAddress("tau_NSignalTracks", tau_NSignalTracks, &b_tau_NSignalTracks);
    fChain->SetBranchAddress("tau_BremsRecoveryEOverPLead", tau_BremsRecoveryEOverPLead, &b_tau_BremsRecoveryEOverPLead);
    fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
    fChain->SetBranchAddress("susyScanM0", &susyScanM0, &b_susyScanM0);

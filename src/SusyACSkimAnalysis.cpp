@@ -1484,6 +1484,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
 
       // tracker muon
+      for (int k=0; k<7; k++){
+            mTreeMuoTevRecoPt[countmuo][k]=-1.;
+            mTreeMuoTevRecoEta[countmuo][k]=999.;
+            mTreeMuoTevRecoPhi[countmuo][k]=999.;
+            mTreeMuoTevRecoChi2[countmuo][k]=-999.;
+            mTreeMuoTevRecoNdof[countmuo][k]=-1.;
+
+        }	
+
       if ( muons[i].innerTrack().isNonnull() ) {
 
         mTreeMuoHitsTk[countmuo] = muons[i].innerTrack().get()->numberOfValidHits();
@@ -1518,7 +1527,9 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     if ( cocktailTrack.isAvailable() ) {
         mTreeMuoCocktailPt[countmuo] = cocktailTrack.get()->pt(); 
         mTreeMuoCocktailEta[countmuo] = cocktailTrack.get()->eta();
-        mTreeMuoCocktailPhi[countmuo] = cocktailTrack.get()->phi(); 
+        mTreeMuoCocktailPhi[countmuo] = cocktailTrack.get()->phi();
+        mTreeMuoTevRecoChi2[countmuo][1] = cocktailTrack.get()->chi2();
+        mTreeMuoTevRecoNdof[countmuo][1] = cocktailTrack.get()->ndof();
     }
     else {
       mTreeMuoCocktailPt[countmuo] = -1.; 
@@ -1533,40 +1544,46 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       
       //Different reconstructors
-        for (int k=0; k<7; k++){
-            mTreeMuoTevRecoPt[countmuo][k]=-1.;
-            mTreeMuoTevRecoEta[countmuo][k]=999.;
-            mTreeMuoTevRecoPhi[countmuo][k]=999.;
-
-        }	
-
+        
         if(muons[i].isGlobalMuon()){	
             
             
             if(muons[i].globalTrack().isNonnull() && muons[i].globalTrack().isAvailable()){
                 mTreeMuoTevRecoPt[countmuo][0]=muons[i].globalTrack()->pt();
                 mTreeMuoTevRecoEta[countmuo][0]=muons[i].globalTrack()->eta();
-                mTreeMuoTevRecoPhi[countmuo][0]=muons[i].globalTrack()->phi();
+                mTreeMuoTevRecoPhi[countmuo][0]=muons[i].globalTrack()->phi();                      
+                mTreeMuoTevRecoChi2[countmuo][0]=muons[i].globalTrack()->chi2();
+                mTreeMuoTevRecoNdof[countmuo][0]=muons[i].globalTrack()->ndof();
+                
+
             }
 
                 mTreeMuoTevRecoPt[countmuo][1]=mTreeMuoCocktailPt[countmuo];
                 mTreeMuoTevRecoEta[countmuo][1]=mTreeMuoCocktailEta[countmuo];
                 mTreeMuoTevRecoPhi[countmuo][1]=mTreeMuoCocktailPhi[countmuo];
+                //~ mTreeMuoTevRecoChi2[countmuo][1]=-1.;
+                //~ mTreeMuoTevRecoNdof[countmuo][1]=-1.;
             
             if(muons[i].innerTrack().isNonnull() && muons[i].innerTrack().isAvailable()){
                 mTreeMuoTevRecoPt[countmuo][2]=muons[i].innerTrack()->pt();
                 mTreeMuoTevRecoEta[countmuo][2]=muons[i].innerTrack()->eta();
                 mTreeMuoTevRecoPhi[countmuo][2]=muons[i].innerTrack()->phi();
+                mTreeMuoTevRecoChi2[countmuo][2]=muons[i].innerTrack()->chi2();
+                mTreeMuoTevRecoNdof[countmuo][2]=muons[i].innerTrack()->ndof();
             }
             if(muons[i].tpfmsMuon().isNonnull() && muons[i].tpfmsMuon().isAvailable()){
                 mTreeMuoTevRecoPt[countmuo][3]=muons[i].tpfmsMuon()->pt();
                 mTreeMuoTevRecoEta[countmuo][3]=muons[i].tpfmsMuon()->eta();
                 mTreeMuoTevRecoPhi[countmuo][3]=muons[i].tpfmsMuon()->phi();
+                mTreeMuoTevRecoChi2[countmuo][3]=muons[i].tpfmsMuon()->chi2();
+                mTreeMuoTevRecoNdof[countmuo][3]=muons[i].tpfmsMuon()->ndof();
             }	
             if(muons[i].pickyMuon().isNonnull() && muons[i].pickyMuon().isAvailable()){
                 mTreeMuoTevRecoPt[countmuo][4]=muons[i].pickyMuon()->pt();
                 mTreeMuoTevRecoEta[countmuo][4]=muons[i].pickyMuon()->eta();
                 mTreeMuoTevRecoPhi[countmuo][4]=muons[i].pickyMuon()->phi();
+                mTreeMuoTevRecoChi2[countmuo][4]=muons[i].pickyMuon()->chi2();
+                mTreeMuoTevRecoNdof[countmuo][4]=muons[i].pickyMuon()->ndof();                
             }
             if(muons[i].globalTrack().isAvailable() && muons[i].globalTrack().isNonnull()){
                 //~ 
@@ -1577,6 +1594,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
                             mTreeMuoTevRecoPt[countmuo][5]=dytRef->pt();
                             mTreeMuoTevRecoEta[countmuo][5]=dytRef->eta();
                             mTreeMuoTevRecoPhi[countmuo][5]=dytRef->phi();
+							mTreeMuoTevRecoChi2[countmuo][5]=dytRef->chi2();
+							mTreeMuoTevRecoNdof[countmuo][5]=dytRef->ndof();                             
                         }	
                     }
                 }
@@ -1588,6 +1607,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
                             mTreeMuoTevRecoPt[countmuo][6]=defaultRef->pt();
                             mTreeMuoTevRecoEta[countmuo][6]=defaultRef->eta();
                             mTreeMuoTevRecoPhi[countmuo][6]=defaultRef->phi();
+							mTreeMuoTevRecoChi2[countmuo][6]=defaultRef->chi2();
+							mTreeMuoTevRecoNdof[countmuo][6]=defaultRef->ndof();                              
                         }
                     }
                 }
@@ -1940,6 +1961,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  mTreeTauEtaetaMoment[counttau] = taus[i].etaetaMoment();
 	  mTreeTauElectronPreIDOutput[counttau] = taus[i].electronPreIDOutput();
 	  mTreeTauBremsRecoveryEOverPLead[counttau] = taus[i].bremsRecoveryEOverPLead();
+	  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
 	  //~ cout << taus[i].userIsolation("pat::EcalIso") << endl;
       counttau++;
     }
@@ -3344,6 +3366,8 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_TevReco_pt",mTreeMuoTevRecoPt,"muo_TevReco_pt[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_eta",mTreeMuoTevRecoEta,"muo_TevReco_eta[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_phi",mTreeMuoTevRecoPhi,"muo_TevReco_phi[muo_n][7]/double");
+  mAllData->Branch("muo_TevReco_chi2",mTreeMuoTevRecoChi2,"muo_TevReco_chi2[muo_n][7]/double");
+  mAllData->Branch("muo_TevReco_ndof",mTreeMuoTevRecoNdof,"muo_TevReco_ndof[muo_n][7]/double");  
   mAllData->Branch("muo_PFiso",mTreeMuoPFiso,    "muo_PFiso[muo_n][9]/double");
 
 
@@ -3433,6 +3457,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_PhiPhiMoment", mTreeTauPhiphiMoment, "tau_PhiPhiMoment[tau_n]/double"); 
   mAllData->Branch("tau_EtaPhiMoment", mTreeTauEtaphiMoment, "tau_EtaPhiMoment[tau_n]/double"); 
   mAllData->Branch("tau_EtaEtaMoment", mTreeTauEtaetaMoment, "tau_EtaEtaMoment[tau_n]/double"); 
+  mAllData->Branch("tau_NSignalTracks", mTreeTauNSignalTracks, "tau_NSignalTracks[tau_n]/I"); 
   mAllData->Branch("tau_ElectronPreIDOutput", mTreeTauElectronPreIDOutput, "tau_ElectronPreIDOutput[tau_n]/double"); 
 
   mAllData->Branch("tau_PFLeadChargedPT", mTreeTauPFLeadChargedPT, "tau_PFLeadChargedPT[tau_n]/double"); 
