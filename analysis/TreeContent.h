@@ -213,11 +213,11 @@ class TreeContent {
    Double_t        bs_z;
    Int_t           tracks_n;
    Double_t        tracks_hqf;
-   Double_t        met_et[10];
-   Double_t        met_ex[10];
-   Double_t        met_ey[10];
-   Double_t        met_phi[10];
-   Double_t        met_sumet[10];
+   Double_t        met_et[8];
+   Double_t        met_ex[8];
+   Double_t        met_ey[8];
+   Double_t        met_phi[8];
+   Double_t        met_sumet[8];
    Double_t        met_sumetsig[8];
    Double_t        met_etsignif[8];
    Double_t        met_CaloMETInmHF[8];
@@ -344,7 +344,6 @@ class TreeContent {
    Int_t           ele_truth[100];   //[ele_n]
    Int_t           ele_isECal[100];   //[ele_n]
    Int_t           ele_isTracker[100];   //[ele_n]
-   Int_t           ele_ID[100][5];   //[ele_n]
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
    Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
    Double_t        ele_HCalOverEm[100];   //[ele_n]
@@ -370,8 +369,15 @@ class TreeContent {
    Int_t           ele_trign[100];   //[ele_n]
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
-   Int_t           ele_numberOfHits[100];   //[ele_n]
    Double_t        ele_PFiso[100][9];      //[ele_n]
+   Double_t        ele_PFCand_px[100];   //[ele_n]
+   Double_t        ele_PFCand_py[100];   //[ele_n]
+   Double_t        ele_PFCand_pz[100];   //[ele_n]
+   Double_t        ele_PFCand_E[100];   //[ele_n]
+   Double_t        ele_PFCand_eta[100];   //[ele_n]
+   Double_t        ele_PFCand_phi[100];   //[ele_n]
+   Double_t        ele_PFCand_pfid[100];   //[ele_n]
+   Double_t        ele_PFCand_DeltaR[100];   //[ele_n]
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
@@ -437,9 +443,15 @@ class TreeContent {
    Double_t        muo_TevReco_pt[100][7];   //[muo_n]
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
-   Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
-   Double_t        muo_TevReco_ndof[100][7];   //[muo_n]   
    Double_t        muo_PFiso[100][9];      //[muo_n]
+   Double_t        muo_PFCand_px[100];   //[muo_n]
+   Double_t        muo_PFCand_py[100];   //[muo_n]
+   Double_t        muo_PFCand_pz[100];   //[muo_n]
+   Double_t        muo_PFCand_E[100];   //[muo_n]
+   Double_t        muo_PFCand_eta[100];   //[muo_n]
+   Double_t        muo_PFCand_phi[100];   //[muo_n]
+   Double_t        muo_PFCand_pfid[100];   //[muo_n]
+   Double_t        muo_PFCand_DeltaR[100];   //[muo_n]
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
    Double_t        PFmuo_pt[100];   //[PFmuo_n]
@@ -521,7 +533,6 @@ class TreeContent {
    Double_t        tau_EtaEtaMoment[100];   //[tau_n]
    Double_t        tau_ElectronPreIDOutput[100];   //[tau_n]
    Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
-   Int_t		   tau_NSignalTracks[100];
    Double_t        tau_BremsRecoveryEOverPLead[100];   //[tau_n]
    Double_t        tau_id[100][10];   //[tau_n]
    Double_t        susyScanM0;
@@ -806,7 +817,6 @@ class TreeContent {
    TBranch        *b_ele_truth;   //!
    TBranch        *b_ele_isECal;   //!
    TBranch        *b_ele_isTracker;   //!
-   TBranch        *b_ele_ID;   //!
    TBranch        *b_ele_ValidHitFirstPxlB;   //!
    TBranch        *b_ele_TrkExpHitsInner;   //!
    TBranch        *b_ele_HCalOverEm;   //!
@@ -832,8 +842,15 @@ class TreeContent {
    TBranch        *b_ele_trign;   //!
    TBranch        *b_ele_trig;   //!
    TBranch        *b_ele_SC;   //!
-   TBranch        *b_ele_numberOfHits;   //!
    TBranch        *b_ele_PFiso;   //!
+   TBranch        *b_ele_PFCand_px;   //!
+   TBranch        *b_ele_PFCand_py;   //!
+   TBranch        *b_ele_PFCand_pz;   //!
+   TBranch        *b_ele_PFCand_E;   //!
+   TBranch        *b_ele_PFCand_eta;   //!
+   TBranch        *b_ele_PFCand_phi;   //!
+   TBranch        *b_ele_PFCand_pfid;   //!
+   TBranch        *b_ele_PFCand_DeltaR;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -899,9 +916,15 @@ class TreeContent {
    TBranch        *b_muo_TevReco_pt;   //!
    TBranch        *b_muo_TevReco_eta;   //!
    TBranch        *b_muo_TevReco_phi;   //!
-   TBranch        *b_muo_TevReco_chi2;   //!
-   TBranch        *b_muo_TevReco_ndof;   //!
    TBranch        *b_muo_PFiso;   //!
+   TBranch        *b_muo_PFCand_px;   //!
+   TBranch        *b_muo_PFCand_py;   //!
+   TBranch        *b_muo_PFCand_pz;   //!
+   TBranch        *b_muo_PFCand_E;   //!
+   TBranch        *b_muo_PFCand_eta;   //!
+   TBranch        *b_muo_PFCand_phi;   //!
+   TBranch        *b_muo_PFCand_pfid;   //!
+   TBranch        *b_muo_PFCand_DeltaR;   //!
    TBranch        *b_PFmuo_n;   //!
    TBranch        *b_PFmuo_p;   //!
    TBranch        *b_PFmuo_pt;   //!
@@ -983,7 +1006,6 @@ class TreeContent {
    TBranch        *b_tau_EtaEtaMoment;   //!
    TBranch        *b_tau_ElectronPreIDOutput;   //!
    TBranch        *b_tau_PFLeadChargedPT;   //!
-   TBranch        *b_tau_NSignalTracks;   //!
    TBranch        *b_tau_BremsRecoveryEOverPLead;   //!
    TBranch        *b_tau_id;   //!
    TBranch        *b_susyScanM0;   //!
@@ -1341,7 +1363,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_truth", ele_truth, &b_ele_truth);
    fChain->SetBranchAddress("ele_isECal", ele_isECal, &b_ele_isECal);
    fChain->SetBranchAddress("ele_isTracker", ele_isTracker, &b_ele_isTracker);
-   fChain->SetBranchAddress("ele_ID", ele_ID, &b_ele_ID);
    fChain->SetBranchAddress("ele_ValidHitFirstPxlB", ele_ValidHitFirstPxlB, &b_ele_ValidHitFirstPxlB);
    fChain->SetBranchAddress("ele_TrkExpHitsInner", ele_TrkExpHitsInner, &b_ele_TrkExpHitsInner);
    fChain->SetBranchAddress("ele_HCalOverEm", ele_HCalOverEm, &b_ele_HCalOverEm);
@@ -1367,8 +1388,15 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_trign", ele_trign, &b_ele_trign);
    fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
    fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
-   fChain->SetBranchAddress("ele_numberOfHits", ele_numberOfHits, &b_ele_numberOfHits);
-   fChain->SetBranchAddress("ele_PFiso",ele_PFiso,    &b_ele_PFiso); 
+   fChain->SetBranchAddress("ele_PFiso",ele_PFiso,    &b_ele_PFiso);
+   fChain->SetBranchAddress("ele_PFCand_px", ele_PFCand_px ,&b_ele_PFCand_px);
+   fChain->SetBranchAddress("ele_PFCand_py",  ele_PFCand_py ,&b_ele_PFCand_py);
+   fChain->SetBranchAddress("ele_PFCand_pz",  ele_PFCand_pz ,&b_ele_PFCand_pz);
+   fChain->SetBranchAddress("ele_PFCand_E",  ele_PFCand_E ,&b_ele_PFCand_E);
+   fChain->SetBranchAddress("ele_PFCand_eta",  ele_PFCand_eta ,&b_ele_PFCand_eta);
+   fChain->SetBranchAddress("ele_PFCand_phi",  ele_PFCand_phi ,&b_ele_PFCand_phi);
+   fChain->SetBranchAddress("ele_PFCand_pfid",  ele_PFCand_pfid ,&b_ele_PFCand_pfid);
+   fChain->SetBranchAddress("ele_PFCand_DeltaR",  ele_PFCand_DeltaR ,&b_ele_PFCand_DeltaR);
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", pfele_E, &b_pfele_E);
@@ -1434,9 +1462,15 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_TevReco_pt",muo_TevReco_pt,&b_muo_TevReco_pt);
    fChain->SetBranchAddress("muo_TevReco_eta",muo_TevReco_eta,&b_muo_TevReco_eta);
    fChain->SetBranchAddress("muo_TevReco_phi",muo_TevReco_phi,&b_muo_TevReco_phi);
-   fChain->SetBranchAddress("muo_TevReco_chi2",muo_TevReco_chi2,&b_muo_TevReco_chi2);
-   fChain->SetBranchAddress("muo_TevReco_ndof",muo_TevReco_ndof,&b_muo_TevReco_ndof);
    fChain->SetBranchAddress("muo_PFiso",muo_PFiso,&b_muo_PFiso);
+   fChain->SetBranchAddress("muo_PFCand_px", muo_PFCand_px ,&b_muo_PFCand_px);
+   fChain->SetBranchAddress("muo_PFCand_py",  muo_PFCand_py ,&b_muo_PFCand_py);
+   fChain->SetBranchAddress("muo_PFCand_pz",  muo_PFCand_pz ,&b_muo_PFCand_pz);
+   fChain->SetBranchAddress("muo_PFCand_E",  muo_PFCand_E ,&b_muo_PFCand_E);
+   fChain->SetBranchAddress("muo_PFCand_eta",  muo_PFCand_eta ,&b_muo_PFCand_eta);
+   fChain->SetBranchAddress("muo_PFCand_phi",  muo_PFCand_phi ,&b_muo_PFCand_phi);
+   fChain->SetBranchAddress("muo_PFCand_pfid",  muo_PFCand_pfid ,&b_muo_PFCand_pfid);
+   fChain->SetBranchAddress("muo_PFCand_DeltaR",  muo_PFCand_DeltaR ,&b_muo_PFCand_DeltaR);
    fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
    fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
    fChain->SetBranchAddress("PFmuo_pt", PFmuo_pt, &b_PFmuo_pt);
@@ -1518,7 +1552,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("tau_EtaEtaMoment", tau_EtaEtaMoment, &b_tau_EtaEtaMoment);
    fChain->SetBranchAddress("tau_ElectronPreIDOutput", tau_ElectronPreIDOutput, &b_tau_ElectronPreIDOutput);
    fChain->SetBranchAddress("tau_PFLeadChargedPT", tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
-   fChain->SetBranchAddress("tau_NSignalTracks", tau_NSignalTracks, &b_tau_NSignalTracks);
    fChain->SetBranchAddress("tau_BremsRecoveryEOverPLead", tau_BremsRecoveryEOverPLead, &b_tau_BremsRecoveryEOverPLead);
    fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
    fChain->SetBranchAddress("susyScanM0", &susyScanM0, &b_susyScanM0);

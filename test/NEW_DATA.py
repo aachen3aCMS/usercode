@@ -289,11 +289,11 @@ process.p = cms.Path(
     process.kt6PFJets * 
     process.ak5PFJets *
     process.goodOfflinePrimaryVertices*
-    process.pfIsolationAllSequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
     process.offlinePrimaryVertices *
     process.pfMetPFnoPU*
+    process.pfIsolationAllSequence*
     process.ACSkimAnalysis
     )
 

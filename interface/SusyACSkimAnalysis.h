@@ -525,7 +525,6 @@ private:
   int    mTreeNele;
   int    mTreeNeletrign[100];
   int    mTreeEletrig[100][500];
-  int    mTreeEleID[100][5];
   int    mTreeEleTruth[100];
   int    mTreeEleSC[100];
   int    mTreeEleHits[100];
@@ -533,7 +532,7 @@ private:
   int    mTreeEleTrkExpHitsInner[100];
   int    mTreeEleisECal[100];
   int    mTreeEleisTracker[100];
-  int mTreeElenumberOfHits[100];
+ 
   double mTreeEleEt[100];
   double mTreeEleP[100];
   double mTreeElePt[100];
@@ -569,6 +568,15 @@ private:
   double mTreeElee1x5[100];
   double mTreeEleCaloEt[100];
   double mTreeEleSCEta[100];
+  
+  double mTreeElePFCandPx[100];
+  double mTreeElePFCandPy[100];
+  double mTreeElePFCandPz[100];
+  double mTreeElePFCandE[100];
+  double mTreeElePFCandeta[100];
+  double mTreeElePFCandphi[100];
+  int mTreeElePFCandpfid[100];
+  double mTreeElePFCandpfDeltaR[100];
   
 
   int    mTreeNPFEle;
@@ -643,6 +651,15 @@ private:
   double mTreeMuoTevRecoPhi[100][7];
   double mTreeMuoTevRecoChi2[100][7];
   double mTreeMuoTevRecoNdof[100][7];
+  
+  double mTreeMuoPFCandPx[100];
+  double mTreeMuoPFCandPy[100];
+  double mTreeMuoPFCandPz[100];
+  double mTreeMuoPFCandE[100];
+  double mTreeMuoPFCandeta[100];
+  double mTreeMuoPFCandphi[100];
+  int mTreeMuoPFCandpfid[100];
+  double mTreeMuoPFCandpfDeltaR[100];
   
   int    mTreeNPFmuons;
   int    mTreePFMuoHitsCm[100];

@@ -941,6 +941,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   elemet_x=0;
   elemet_y=0;
   elemet_sumpt=0;
+
+  mTreeSumET[9]  = mTreeSumET[3];
+  mTreeMEX[9]    = mTreeMEX[3];
+  mTreeMEY[9]    = mTreeMEY[3];    
   if ( !elecHandle.isValid()) 
     edm::LogWarning("SusyACSkimAnalysis") << "No Electron results found for InputTag " << elecTag_;
   else {
@@ -968,18 +972,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       if (eles[i].pt() > elept_ && fabs(eles[i].eta()) < eleeta_) 
         cele_++;
-
-      const std::vector<IdPair> &  electronIDs_ = eles[i].electronIDs();
-
-      for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
-        if      (it->first == "eidLoose")             mTreeEleID[countele][0] = (int)it->second;
-        else if (it->first == "eidTight")             mTreeEleID[countele][1] = (int)it->second;
-        else if (it->first == "eidRobustLoose")       mTreeEleID[countele][2] = (int)it->second;
-        else if (it->first == "eidRobustTight")       mTreeEleID[countele][3] = (int)it->second;
-        else if (it->first == "eidRobustHighEnergy")  mTreeEleID[countele][4] = (int)it->second;
-        else
-          edm::LogWarning("SusyACSkimAnalysis") << "Unknown ElectronID : " << it->first;
-      }
 
       mTreeEleTruth[countele] = -1;
       const reco::GenParticle * gl = eles[i].genLepton();
@@ -1104,7 +1096,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	mTreeEleHits[countele]  = eles[i].gsfTrack().get()->numberOfValidHits();
   //missing Hits for WPXX
-  mTreeElenumberOfHits[countele] = eles[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  
 	mTreeEled0vtx[countele] = (-1.)* eles[i].gsfTrack().get()->dxy(vtxPoint);
 	mTreeElesd0[countele]   = eles[i].gsfTrack().get()->d0Error();
 
@@ -1140,56 +1132,60 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       //this is faster than all pfCandidates
         edm::Handle<reco::PFCandidateCollection> PFCandidates;
-        iEvent.getByLabel("pfAllElectronsPFlow",PFCandidates);
-        int nelectron = 0;
+        iEvent.getByLabel("particleFlow",PFCandidates);
         if ( !PFCandidates.isValid() ) 
             edm::LogWarning("SusyACSkimAnalysis") << "No PFCandidates found for  " << "pfAllElectronsPFlow";
         else {
             reco::PFCandidateCollection::const_iterator iParticle;
             reco::PFCandidateCollection::const_iterator icorrespondingPFEle;
+            reco::PFCandidateCollection::const_iterator icorrespondingPFEle2;
+            double minDR=0.4;
+            double minDR2=0.01;
+            bool hasEleCand=false;
             for( iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; ++iParticle ){
-                if (!(abs(iParticle->particleId()) == 2)) continue;
-                //cout <<"Muon pt"<< muons[i].pt() << endl;
-                //cout <<"PFMuon phi, eta, pt"<< iParticle->phi() << " " << iParticle->eta() << " " << iParticle->p4().pt() << endl;
                 double deta = eles[i].eta() - iParticle->eta();
                 double dphi = reco::deltaPhi(eles[i].phi(), iParticle->phi());
                 double dR = TMath::Sqrt(deta*deta + dphi*dphi);
-                if(dR < 0.001)
+                if(dR < minDR)
                   {
                     icorrespondingPFEle = iParticle;
-                    ++nelectron;
-                    break;
+                    minDR=dR;
+                  }
+                  if(dR < minDR2 && iParticle->particleId()==2)
+                  {
+                    icorrespondingPFEle2 = iParticle;
+                    minDR2=dR;
+                    hasEleCand=true;
                   }
             }
-            //if(eles[i].pfCandidateRef().isNonnull()){
-                //cout<<"ele pfCandidate "<<eles[i].pfCandidateRef()->pt()<<endl;
-            //}
-            if (nelectron > 0){
-                //this is strage the energy scale seems to be of by a Factor of 1.e6
-                elemet_x += icorrespondingPFEle->px()*1.e6;
-                elemet_y += icorrespondingPFEle->py()*1.e6;
-                elemet_sumpt += icorrespondingPFEle->pt()*1.e6;
-                //cout<<"ele pfCandidate matched "<<icorrespondingPFEle->pt()<<endl;
-                
-            }else { // if no match found, use mu4D value
-                elemet_x        += eles[i].px();
-                elemet_y        += eles[i].py();
-                elemet_sumpt    += eles[i].pt();
+            if(hasEleCand){
+                icorrespondingPFEle= icorrespondingPFEle2;
+                minDR=minDR2;
             }
-            
+            if(minDR<0.4){
+                mTreeElePFCandPx[countele]=icorrespondingPFEle->px();
+                mTreeElePFCandPy[countele]=icorrespondingPFEle->py();
+                mTreeElePFCandPz[countele]=icorrespondingPFEle->pz();
+                mTreeElePFCandE[countele]=icorrespondingPFEle->energy();
+                mTreeElePFCandeta[countele]=icorrespondingPFEle->eta();
+                mTreeElePFCandphi[countele]=icorrespondingPFEle->phi();
+                mTreeElePFCandpfid[countele]=icorrespondingPFEle->particleId();
+                mTreeElePFCandpfDeltaR[countele]=minDR;
+            }else{
+                mTreeElePFCandPx[countele]=99999999.;
+                mTreeElePFCandPy[countele]=99999999.;
+                mTreeElePFCandPz[countele]=99999999.;
+                mTreeElePFCandE[countele]=99999999.;
+                mTreeElePFCandeta[countele]=99999999.;
+                mTreeElePFCandphi[countele]=99999999.;
+                mTreeElePFCandpfid[countele]=-1.;
+                mTreeElePFCandpfDeltaR[countele]=99999999.;
+            }
         }
       
     
       countele++;
     }
-    
-    mTreeSumET[9]  += elemet_sumpt;
-    mTreeMEX[9]    -= elemet_x;
-    mTreeMEY[9]    -= elemet_y;
-    TVector3 metTemp(mTreeMEX[9], mTreeMEY[9], 0.);
-
-    mTreeMETphi[9] = metTemp.Phi();
-    mTreeMET[9]  = metTemp.Perp();
     mTreeNele = countele;
   }
   if (nele_     > 0 && cele_     < nele_)     return 0;
@@ -1286,7 +1282,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(muonTag_, muonHandle);
 
   std::vector<pat::Muon> muons;
-  
+
+  mTreeSumET[8]  = mTreeSumET[3];
+  mTreeMEX[8]    = mTreeMEX[3];
+  mTreeMEY[8]    = mTreeMEY[3];  
   mumet_x=0;
   mumet_y=0;
   mumet_sumpt=0;
@@ -1340,7 +1339,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         cmuo_++;
       //for cut on inv Mass
       if(muons.size()>=2){
-        if (fabs((pow(muons[0].energy()+muons[1].energy(),2)-pow(muons[0].px()+muons[1].px(),2)-pow(muons[0].py()+muons[1].py(),2)-pow(muons[0].pz()+muons[1].pz(),2))-muominv_)>muoDminv_ && muominv_!=0 && muoDminv_!=0)
+        if (fabs(sqrt(pow(muons[0].energy()+muons[1].energy(),2)-pow(muons[0].px()+muons[1].px(),2)-pow(muons[0].py()+muons[1].py(),2)-pow(muons[0].pz()+muons[1].pz(),2))-muominv_)>muoDminv_ && muominv_!=0 && muoDminv_!=0)
             return 0;
       }
 
@@ -1676,54 +1675,60 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         
         //this is faster than all pfCandidates
         edm::Handle<reco::PFCandidateCollection> PFCandidates;
-        iEvent.getByLabel("pfAllMuonsPFlow",PFCandidates);
-        int nmuon = 0;
+        iEvent.getByLabel("particleFlow",PFCandidates);
         if ( !PFCandidates.isValid() ) 
             edm::LogWarning("SusyACSkimAnalysis") << "No PFCandidates found for  " << "patPFParticlesPFlow";
         else {
             reco::PFCandidateCollection::const_iterator iParticle;
             reco::PFCandidateCollection::const_iterator icorrespondingPFMu;
+            reco::PFCandidateCollection::const_iterator icorrespondingPFMu2;
+            double minDR=0.4;
+            double minDR2=0.01;
+            bool hasMuoCand=false;
             for( iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; ++iParticle ){
-                if (!(abs(iParticle->particleId()) == 3)) continue;
-                //cout <<"Muon pt"<< muons[i].pt() << endl;
-                //cout <<"PFMuon phi, eta, pt"<< iParticle->phi() << " " << iParticle->eta() << " " << iParticle->p4().pt() << endl;
                 double deta = muons[i].eta() - iParticle->eta();
                 double dphi = reco::deltaPhi(muons[i].phi(), iParticle->phi());
                 double dR = TMath::Sqrt(deta*deta + dphi*dphi);
-                if(dR < 0.001)
+                if(dR < minDR)
                   {
                     icorrespondingPFMu = iParticle;
-                    ++nmuon;
-                    break;
+                    minDR=dR;
+                  }
+                if(dR < minDR2 && iParticle->particleId()==3)
+                  {
+                    icorrespondingPFMu2 = iParticle;
+                    minDR2=dR;
+                    hasMuoCand=true;
                   }
             }
-            //if(muons[i].pfCandidateRef().isNonnull()){
-                //cout<<"pfCandidate "<<muons[i].pfCandidateRef()->pt()<<endl;
-            //}
-            if (nmuon > 0){
-                //this is strage the energy scale seems to be of by a Factor of 1.e6
-                mumet_x += icorrespondingPFMu->px()*1.e6;
-                mumet_y += icorrespondingPFMu->py()*1.e6;
-                mumet_sumpt += icorrespondingPFMu->pt()*1.e6;
-                //cout<<"pfCandidate matched "<<icorrespondingPFMu->pt()<<endl;
-                
-            }//if nmuon >0
-                else { // if no match found, use mu4D value
-                mumet_x += muons[i].px();
-                mumet_y += muons[i].py();
-                mumet_sumpt += muons[i].pt();
+            if(hasMuoCand){
+                icorrespondingPFMu= icorrespondingPFMu2;
+                minDR=minDR2;
+            }
+            if(minDR<0.4){
+                mTreeMuoPFCandPx[countmuo]=icorrespondingPFMu->px();
+                mTreeMuoPFCandPy[countmuo]=icorrespondingPFMu->py();
+                mTreeMuoPFCandPz[countmuo]=icorrespondingPFMu->pz();
+                mTreeMuoPFCandE[countmuo]=icorrespondingPFMu->energy();
+                mTreeMuoPFCandeta[countmuo]=icorrespondingPFMu->eta();
+                mTreeMuoPFCandphi[countmuo]=icorrespondingPFMu->phi();
+                mTreeMuoPFCandpfid[countmuo]=icorrespondingPFMu->particleId();
+                mTreeMuoPFCandpfDeltaR[countmuo]=minDR;
+            }else{
+                mTreeMuoPFCandPx[countmuo]=99999999.;
+                mTreeMuoPFCandPy[countmuo]=99999999.;
+                mTreeMuoPFCandPz[countmuo]=99999999.;
+                mTreeMuoPFCandE[countmuo]=-1;
+                mTreeMuoPFCandeta[countmuo]=99999.;
+                mTreeMuoPFCandphi[countmuo]=99999.;
+                mTreeMuoPFCandpfid[countmuo]=-1;
+                mTreeMuoPFCandpfDeltaR[countmuo]=99999.;
             }
             
         }
       countmuo++;
     }
-    mTreeSumET[8]  += mumet_sumpt;
-    mTreeMEX[8]    -= mumet_x;
-    mTreeMEY[8]    -= mumet_y;
-    TVector3 metTemp(mTreeMEX[8], mTreeMEY[8], 0.);
-
-    mTreeMETphi[8] = metTemp.Phi();
-    mTreeMET[8]  = metTemp.Perp();
+    
     
     mTreeNmuo = countmuo;
   }
@@ -3124,11 +3129,11 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tracks_hqf", &mTreetrackshqf, "tracks_hqf/double");
 
   // MET
-  mAllData->Branch("met_et",       &mTreeMET,         "met_et[10]/double");
-  mAllData->Branch("met_ex",       &mTreeMEX,         "met_ex[10]/double");
-  mAllData->Branch("met_ey",       &mTreeMEY,         "met_ey[10]/double");
-  mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[10]/double");
-  mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[10]/double");
+  mAllData->Branch("met_et",       &mTreeMET,         "met_et[8]/double");
+  mAllData->Branch("met_ex",       &mTreeMEX,         "met_ex[8]/double");
+  mAllData->Branch("met_ey",       &mTreeMEY,         "met_ey[8]/double");
+  mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[8]/double");
+  mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[8]/double");
   mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[8]/double");
   mAllData->Branch("met_etsignif", &mTreeMETSignif,   "met_etsignif[8]/double");
   mAllData->Branch("met_CaloMETInmHF",      &mTreeMETCaloMETInmHF,   "met_CaloMETInmHF[8]/double");
@@ -3268,7 +3273,6 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_truth",      mTreeEleTruth,      "ele_truth[ele_n]/I");
   mAllData->Branch("ele_isECal",     mTreeEleisECal,     "ele_isECal[ele_n]/I");
   mAllData->Branch("ele_isTracker",  mTreeEleisTracker,  "ele_isTracker[ele_n]/I");
-  mAllData->Branch("ele_ID",         mTreeEleID,         "ele_ID[ele_n][5]/I");
   mAllData->Branch("ele_ValidHitFirstPxlB",mTreeEleValidHitFirstPxlB,              "ele_ValidHitFirstPxlB[ele_n]/I");
   mAllData->Branch("ele_TrkExpHitsInner",  mTreeEleTrkExpHitsInner,                "ele_EleTrkExpHitsInner[ele_n]/I");
   mAllData->Branch("ele_HCalOverEm",       mTreeEleHCalOverEm,                     "ele_HCalOverEm[ele_n]/double");
@@ -3294,8 +3298,15 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_trign",    mTreeNeletrign,   "ele_trign[ele_n]/I");
   mAllData->Branch("ele_trig",     mTreeEletrig,     "ele_trig[ele_n][500]/I");  
   mAllData->Branch("ele_SC" ,      mTreeEleSC,       "ele_SC[ele_n]/I");
-  mAllData->Branch("ele_numberOfHits",mTreeElenumberOfHits, "ele_numberOfHits[ele_n]/I");
   mAllData->Branch("ele_PFiso",mTreeElePFiso,    "ele_PFiso[ele_n][9]/double");
+  mAllData->Branch("ele_PFCand_px", mTreeElePFCandPx,    "ele_PFCand_px[ele_n]/double");
+  mAllData->Branch("ele_PFCand_py", mTreeElePFCandPy,    "ele_PFCand_py[ele_n]/double");
+  mAllData->Branch("ele_PFCand_pz", mTreeElePFCandPz,    "ele_PFCand_pz[ele_n]/double");
+  mAllData->Branch("ele_PFCand_E", mTreeElePFCandE,    "ele_PFCand_pE[ele_n]/double");
+  mAllData->Branch("ele_PFCand_eta", mTreeElePFCandeta,    "ele_PFCand_peta[ele_n]/double");
+  mAllData->Branch("ele_PFCand_phi", mTreeElePFCandphi,    "ele_PFCand_phi[ele_n]/double");
+  mAllData->Branch("ele_PFCand_pfid", mTreeElePFCandpfid,    "ele_PFCand_pfid[ele_n]/I");
+  mAllData->Branch("ele_PFCand_DeltaR", mTreeElePFCandpfDeltaR,    "ele_PFCand_DeltaR[ele_n]/double");
 
   // PF Electrons
   mAllData->Branch("pfele_n",      &mTreeNPFEle,      "pfele_n/I");
@@ -3369,6 +3380,14 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_TevReco_chi2",mTreeMuoTevRecoChi2,"muo_TevReco_chi2[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_ndof",mTreeMuoTevRecoNdof,"muo_TevReco_ndof[muo_n][7]/double");  
   mAllData->Branch("muo_PFiso",mTreeMuoPFiso,    "muo_PFiso[muo_n][9]/double");
+  mAllData->Branch("muo_PFCand_px", mTreeMuoPFCandPx,    "muo_PFCand_px[muo_n]/double");
+  mAllData->Branch("muo_PFCand_py", mTreeMuoPFCandPy,    "muo_PFCand_py[muo_n]/double");
+  mAllData->Branch("muo_PFCand_pz", mTreeMuoPFCandPz,    "muo_PFCand_pz[muo_n]/double");
+  mAllData->Branch("muo_PFCand_E", mTreeMuoPFCandE,    "muo_PFCand_pE[muo_n]/double");
+  mAllData->Branch("muo_PFCand_eta", mTreeMuoPFCandeta,    "muo_PFCand_peta[muo_n]/double");
+  mAllData->Branch("muo_PFCand_phi", mTreeMuoPFCandphi,    "muo_PFCand_phi[muo_n]/double");
+  mAllData->Branch("muo_PFCand_pfid", mTreeMuoPFCandpfid,    "muo_PFCand_pfid[muo_n]/I");
+  mAllData->Branch("muo_PFCand_DeltaR", mTreeMuoPFCandpfDeltaR,    "muo_PFCand_DeltaR[muo_n]/double");
 
 
   mAllData->Branch("PFmuo_n",   &mTreeNPFmuons,    "PFmuo_n/I");  

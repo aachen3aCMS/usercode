@@ -277,4 +277,4 @@ pfIsolationGenericNoOverlapDefault = cms.Sequence( muonPfGenericNoOverChargedDep
 
 #pfIsolationCombined = cms.Sequence( electronCombinedPFIsoMapProducer * muonCombinedPFIsoMapProducer )
 
-pfIsolationAllSequence = cms.Sequence( pfPUSequence * pfIsoStdSequence * pfIsolationsDefault * pfIsolationGenericDefault * pfIsolationGenericNoOverlapDefault )
+pfIsolationAllSequence = cms.Sequence( pfIsoStdSequence * pfIsolationsDefault * pfIsolationGenericDefault * pfIsolationGenericNoOverlapDefault )
