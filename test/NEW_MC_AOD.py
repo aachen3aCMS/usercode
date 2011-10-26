@@ -2,6 +2,8 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process = cms.Process("ANA")
 
+isData=False
+
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -14,8 +16,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('GR_R_42_V19::All')
-#process.GlobalTag.globaltag = cms.string('START42_V13::All')
+#process.GlobalTag.globaltag = cms.string('GR_R_42_V21A::All')
+#process.GlobalTag.globaltag = cms.string('START42_V15B::All')
 process.GlobalTag.globaltag = cms.string('')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -110,11 +112,14 @@ process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
-usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix)
+if isData:
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=False, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet','L2Relative','L3Absolute','L2L3Residual']))
+    removeMCMatching(process, ['All'])
+else:
+     usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
 
 adaptPFTaus(process,"hpsPFTau",postfix=postfix)
-# remove MC matching
-#removeMCMatching(process, ['All'])
+
 
 # for PFnoPU
 process.pfPileUpPFlow.Enable = True
@@ -127,22 +132,42 @@ process.pfJetsPFlow.doRhoFastjet = False
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 process.kt6PFJetsPFlow = kt4PFJets.clone(
     rParam = cms.double(0.6),
-    src = cms.InputTag('pfNoElectron'+postfix),
+    #src = cms.InputTag('pfNoElectron'+postfix),
     doAreaFastjet = cms.bool(True),
     doRhoFastjet = cms.bool(True)
     )
+
 process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
-process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
-#process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
+if isData:
+    process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual')
+else:
+    process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
 
 
-process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
-#process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
+if isData:
+    process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
+else:
+    process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
+
 process.patJetCorrFactors.useRho = True
 
 # Add anti-kt 5 jets
 # this is only for calo met is there an other way?
-addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
+if isData:
+    addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
+                 doJTA                  = True,
+                 doBTagging        = True,
+                 #jetCorrLabel     = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),  # MC
+                 jetCorrLabel       = ('AK5Calo', cms.vstring(['L1FastJet','L2Relative','L3Absolute','L2L3Residual'])),  # DATA
+                 doType1MET      = True,
+                 doL1Cleaning    = False,
+                 doL1Counters    = False,
+                 genJetCollection =cms.InputTag("ak5GenJets"),
+                 doJetID              = True,
+                 jetIdLabel          = "ak5"
+                 )
+else:
+    addJetCollection(process,cms.InputTag('ak5CaloJets'), 'AK5', 'Calo',
                  doJTA                  = True,
                  doBTagging        = True,
                  jetCorrLabel     = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),  # MC
@@ -175,7 +200,19 @@ from aachen3a.ACSusyAnalysis.pfMET_cfi import *
 process.pfMetPFnoPU         = pfMET.clone()
 process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
 process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
+process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
+
+
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+
+if isData:
+    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3Residual')
+else:
+    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3')
+    
+process.pfType1CorrectedMet.src = cms.InputTag("pfMetPFnoPU")
 
 
 process.patJets.addTagInfos = cms.bool(False)  # AOD only
@@ -199,13 +236,15 @@ metTag        = cms.InputTag("patMETsAK5Calo")
 metTagTC    = cms.InputTag("patMETsTC")
 metTagPF    = cms.InputTag("patMETsPFlow")
 metTagPFnoPU=cms.InputTag("pfMetPFnoPU")
-metTagJESCorAK5CaloJetMuons =cms.InputTag("metJESCorAK5CaloJetMuons")
+metTagJPFnoPUType1 =cms.InputTag("pfType1CorrectedMet")
 metTagcorMetGlobalMuons     = cms.InputTag("corMetGlobalMuons")
 metTagHO    = cms.InputTag("metHO")
 metTagNoHF= cms.InputTag("metNoHF")
 genTag        = cms.InputTag("genParticles")
 genJetTag    = cms.InputTag("ak5GenJets")
 vtxTag         = cms.InputTag("offlinePrimaryVertices")
+reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB")
+reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE")
 #ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
 ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 
@@ -213,7 +252,7 @@ ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
-    is_MC      = cms.bool(True),  # set to 'False' for real Data !
+    is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
     matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
@@ -235,7 +274,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     metTagTC   = metTagTC,
     metTagPF   = metTagPF,
     metTagPFnoPU   =metTagPFnoPU,
-    metTagJESCorAK5CaloJetMuons= metTagJESCorAK5CaloJetMuons,
+    metTagJPFnoPUType1= metTagJPFnoPUType1,
     metTagcorMetGlobalMuons =metTagcorMetGlobalMuons,
     metTagHO = metTagHO,
     metTagNoHF = metTagNoHF,
@@ -243,6 +282,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     genJetTag  = genJetTag,
     vtxTag     = vtxTag,
     ebhitsTag  = ebhitsTag,
+    reducedBarrelRecHitCollection = reducedBarrelRecHitCollection,
+    reducedEndcapRecHitCollection = reducedEndcapRecHitCollection,
 
     muopt      = cms.double(0.),
     muoeta     = cms.double(25.),
@@ -290,11 +331,17 @@ process.p = cms.Path(
     process.kt6PFJets * 
     process.ak5PFJets *
     process.goodOfflinePrimaryVertices*
+    process.PFTau*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
     process.offlinePrimaryVertices *
     process.pfMetPFnoPU*
     process.pfIsolationAllSequence*
+    process.pfCandsNotInJet*
+    process.pfType2Cands*
+    process.pfJetMETcorr*
+    process.pfCandMETcorr*
+    process.pfType1CorrectedMet*
     process.ACSkimAnalysis
     )
 

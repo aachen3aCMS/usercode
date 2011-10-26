@@ -34,7 +34,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -150,7 +154,7 @@ private:
   edm::InputTag PFmuonTag_;
   edm::InputTag tauSrc_;
   edm::InputTag metTagPFnoPU_;
-  edm::InputTag metTagJESCorAK5CaloJetMuons_ ;
+  edm::InputTag metTagJPFnoPUType1_ ;
   edm::InputTag metTagcorMetGlobalMuons_;
   edm::InputTag metTagHO_;
   edm::InputTag metTagNoHF_;
@@ -158,6 +162,8 @@ private:
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
   edm::InputTag ebhitsTag_;
+  edm::InputTag freducedBarrelRecHitCollection_;
+  edm::InputTag freducedEndcapRecHitCollection_;
 
   bool is_MC;
   bool is_SHERPA;
@@ -259,8 +265,8 @@ private:
   double PFhtcutsum_;
 
   // Tree variables
-  int mTreerun;
-  int mTreeevent;
+  unsigned int mTreerun;
+  unsigned int mTreeevent;
   int mTreestore;
   int mTreebx;
   int mTreeorbit;
@@ -535,6 +541,8 @@ private:
  
   double mTreeEleEt[100];
   double mTreeEleP[100];
+  double mTreeEleTrackpt[100];
+  double mTreeEleTrackptError[100];
   double mTreeElePt[100];
   double mTreeElePx[100];
   double mTreeElePy[100];
@@ -568,6 +576,11 @@ private:
   double mTreeElee1x5[100];
   double mTreeEleCaloEt[100];
   double mTreeEleSCEta[100];
+  double mTreeElehcalDepth1TowerSumEt03[100];
+  double mTreeElehcalDepth2TowerSumEt03[100];
+  double mTreeEleSwissCross[100];
+  double mTreeEleEoverP[100];
+
   
   double mTreeElePFCandPx[100];
   double mTreeElePFCandPy[100];
@@ -577,6 +590,7 @@ private:
   double mTreeElePFCandphi[100];
   int mTreeElePFCandpfid[100];
   double mTreeElePFCandpfDeltaR[100];
+  double mTreeElerho;
   
 
   int    mTreeNPFEle;
@@ -586,6 +600,7 @@ private:
   int    mTreePFEleSC[100];
   double mTreePFEleCharge[100];
   double mTreePFEleEt[100];
+  double mTreePFEleCaloEt[100];
   double mTreePFEleP[100];
   double mTreePFElePt[100];
   double mTreePFElePx[100];
@@ -594,6 +609,20 @@ private:
   double mTreePFEleE[100];
   double mTreePFEleEta[100];
   double mTreePFElePhi[100];
+  double mTreePFEleSwissCross[100];
+  double mTreePFEleTrackptError[100];
+  double mTreePFEleTrackpt[100];
+  double mTreePFEleSCEta[100];
+  double mTreePFEleHCalOverEm[100];
+  double mTreePFEleDr03TkSumPt[100];
+  double mTreePFEleDr04HCalTowerSumEt[100];
+  double mTreePFEleDr03HCalTowerSumEt[100];
+  double mTreePFEleDr04ECalRecHitSumEt[100];
+  double mTreePFEleDr03ECalRecHitSumEt[100];
+  double mTreePFEleParticleIso[100];
+  double mTreePFEleChadIso[100];
+  double mTreePFEleNhadIso[100];
+  double mTreePFEleGamIso[100];
 
   int    mTreeNmuo;
   int    mTreeNmuotrign[100];
@@ -610,6 +639,8 @@ private:
   int    mTreeMuoTrackerLayersNotMeasCm[100];
   int    mTreeMuoLostHits[100];
   int    mTreeMuoID[100][24];
+
+  
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
   double mTreeMuoPt[100];
@@ -620,6 +651,7 @@ private:
   double mTreeMuoEta[100];
   double mTreeMuoPhi[100];
   double mTreeMuoTrkIso[100];
+  
   double mTreeMuoRelTrkIso[100];
   double mTreeMuoECalIso[100];
   double mTreeMuoHCalIso[100];
@@ -639,6 +671,9 @@ private:
   double mTreeMuod0bsCm[100];
   double mTreeMuod0OriginCm[100];
   double mTreeMuodzbsCm[100];
+  double mTreeMuovx[100];
+  double mTreeMuovy[100];
+  double mTreeMuovz[100];
   double mTreeMuoValidFraction[100];
   double mTreeMuoPFiso[100][9];
   
@@ -646,6 +681,7 @@ private:
   double mTreeMuoCocktailPhi[100];
   double mTreeMuoCocktailEta[100];
   
+  double mTreeMuoTevRecoPtError[100][7];
   double mTreeMuoTevRecoPt[100][7];
   double mTreeMuoTevRecoEta[100][7];
   double mTreeMuoTevRecoPhi[100][7];
@@ -706,6 +742,9 @@ private:
   double mTreePFMuod0bsCm[100];
   double mTreePFMuod0OriginCm[100];
   double mTreePFMuodzbsCm[100];
+  double mTreePFMuoCmvx[100];
+  double mTreePFMuoCmvy[100];
+  double mTreePFMuoCmvz[100];
   double mTreePFMuoValidFraction[100];
   
   

@@ -76,12 +76,13 @@ class TreeContent {
    Double_t        global_pthat;
    Double_t        global_bfield;
    Int_t           global_store;
-   Int_t           global_run;
-   Int_t           global_event;
+   UInt_t           global_run;
+   UInt_t           global_event;
    Int_t           global_bx;
    Int_t           global_orbit;
    Int_t           global_exp;
    Int_t           global_isdata;
+   Int_t           global_rho;
    Int_t           lumi_section;
    Double_t        lumi_del;
    Double_t        lumi_rec;
@@ -330,9 +331,11 @@ class TreeContent {
    Double_t        ele_Et[100];   //[ele_n]
    Double_t        ele_p[100];   //[ele_n]
    Double_t        ele_pt[100];   //[ele_n]
+   Double_t        ele_ptError[100];   //[ele_n]
    Double_t        ele_px[100];   //[ele_n]
    Double_t        ele_py[100];   //[ele_n]
    Double_t        ele_pz[100];   //[ele_n]
+   Double_t        ele_EoverP[100];   //[ele_n]
    Double_t        ele_eta[100];   //[ele_n]
    Double_t        ele_phi[100];   //[ele_n]
    Double_t        ele_charge[100];   //[ele_n]
@@ -369,6 +372,7 @@ class TreeContent {
    Int_t           ele_trign[100];   //[ele_n]
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
+   Double_t        ele_SwissCross[100];   //[ele_n]
    Double_t        ele_PFiso[100][9];      //[ele_n]
    Double_t        ele_PFCand_px[100];   //[ele_n]
    Double_t        ele_PFCand_py[100];   //[ele_n]
@@ -376,13 +380,18 @@ class TreeContent {
    Double_t        ele_PFCand_E[100];   //[ele_n]
    Double_t        ele_PFCand_eta[100];   //[ele_n]
    Double_t        ele_PFCand_phi[100];   //[ele_n]
-   Double_t        ele_PFCand_pfid[100];   //[ele_n]
+   Int_t           ele_PFCand_pfid[100];   //[ele_n]
    Double_t        ele_PFCand_DeltaR[100];   //[ele_n]
+   Double_t        ele_hcalDepth1TowerSumEt03[100];   //[ele_n]
+   Double_t        ele_hcalDepth2TowerSumEt03[100];   //[ele_n]
+   
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
    Double_t        pfele_Et[100];   //[pfele_n]
+   Double_t        pfele_CaloEt[100];   //[pfele_n]
    Double_t        pfele_pt[100];   //[pfele_n]
+   Double_t        pfele_ptError[100];   //[pfele_n]
    Double_t        pfele_px[100];   //[pfele_n]
    Double_t        pfele_py[100];   //[pfele_n]
    Double_t        pfele_pz[100];   //[pfele_n]
@@ -393,6 +402,20 @@ class TreeContent {
    Int_t           pfele_trign[100];   //[pfele_n]
    Int_t           pfele_trig[100][500];   //[pfele_n]
    Int_t           pfele_SC[100];   //[pfele_n]
+   Double_t        pfele_SwissCross[100];   //[pfele_n]
+   Double_t        pfele_caloEt[100];   //[pfele_n]
+   Double_t        pfele_SCeta[100];   //[pfele_n]
+   Double_t        pfele_HCalOverEm[100];   //[pfele_n]
+   Double_t        pfele_Dr03TkSumPt[100];   //[pfele_n]
+   Double_t        pfele_Dr04HCalSumEt[100];   //[pfele_n]
+   Double_t        pfele_Dr03HCalSumEt[100];   //[pfele_n]
+   Double_t        pfele_Dr04ECalSumEt[100];   //[pfele_n]
+   Double_t        pfele_Dr03ECalSumEt[100];   //[pfele_n]
+   Double_t        pfele_particleIso[100];   //[pfele_n]
+   Double_t        pfele_chadIso[100];   //[pfele_n]
+   Double_t        pfele_nhadIso[100];   //[pfele_n]
+   Double_t        pfele_gamIso[100];   //[pfele_n]
+   
    Int_t           muo_n;
    Double_t        muo_E[100];   //[muo_n]
    Double_t        muo_Et[100];   //[muo_n]
@@ -441,8 +464,11 @@ class TreeContent {
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
    Double_t        muo_Valid_fraction[100];   //[muo_n]
    Double_t        muo_TevReco_pt[100][7];   //[muo_n]
+   Double_t        muo_TevReco_ptError[100][7];   //[muo_n]
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
+   Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
+   Double_t        muo_TevReco_ndof[100][7];   //[muo_n]
    Double_t        muo_PFiso[100][9];      //[muo_n]
    Double_t        muo_PFCand_px[100];   //[muo_n]
    Double_t        muo_PFCand_py[100];   //[muo_n]
@@ -450,7 +476,7 @@ class TreeContent {
    Double_t        muo_PFCand_E[100];   //[muo_n]
    Double_t        muo_PFCand_eta[100];   //[muo_n]
    Double_t        muo_PFCand_phi[100];   //[muo_n]
-   Double_t        muo_PFCand_pfid[100];   //[muo_n]
+   Int_t           muo_PFCand_pfid[100];   //[muo_n]
    Double_t        muo_PFCand_DeltaR[100];   //[muo_n]
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
@@ -555,6 +581,7 @@ class TreeContent {
    TBranch        *b_global_orbit;   //!
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
+   TBranch        *b_global_rho;   //!
    TBranch        *b_lumi_section;   //!
    TBranch        *b_lumi_del;   //!
    TBranch        *b_lumi_rec;   //!
@@ -803,6 +830,8 @@ class TreeContent {
    TBranch        *b_ele_Et;   //!
    TBranch        *b_ele_p;   //!
    TBranch        *b_ele_pt;   //!
+   TBranch        *b_ele_EoverP;   //!
+   TBranch        *b_ele_ptError;   //!
    TBranch        *b_ele_px;   //!
    TBranch        *b_ele_py;   //!
    TBranch        *b_ele_pz;   //!
@@ -842,6 +871,7 @@ class TreeContent {
    TBranch        *b_ele_trign;   //!
    TBranch        *b_ele_trig;   //!
    TBranch        *b_ele_SC;   //!
+   TBranch        *b_ele_SwissCross;   //!
    TBranch        *b_ele_PFiso;   //!
    TBranch        *b_ele_PFCand_px;   //!
    TBranch        *b_ele_PFCand_py;   //!
@@ -851,11 +881,15 @@ class TreeContent {
    TBranch        *b_ele_PFCand_phi;   //!
    TBranch        *b_ele_PFCand_pfid;   //!
    TBranch        *b_ele_PFCand_DeltaR;   //!
+   TBranch        *b_ele_hcalDepth1TowerSumEt03;   //!
+   TBranch        *b_ele_hcalDepth2TowerSumEt03;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
    TBranch        *b_pfele_Et;   //!
+   TBranch        *b_pfele_CaloEt;   //!
    TBranch        *b_pfele_pt;   //!
+   TBranch        *b_pfele_ptError;   //!
    TBranch        *b_pfele_px;   //!
    TBranch        *b_pfele_py;   //!
    TBranch        *b_pfele_pz;   //!
@@ -866,6 +900,19 @@ class TreeContent {
    TBranch        *b_pfele_trign;   //!
    TBranch        *b_pfele_trig;   //!
    TBranch        *b_pfele_SC;   //!
+   TBranch        *b_pfele_SwissCross;   //!
+   TBranch        *b_pfele_caloEt;   //!
+   TBranch        *b_pfele_SCeta;   //!
+   TBranch        *b_pfele_HCalOverEm;   //!
+   TBranch        *b_pfele_Dr03TkSumPt;   //!
+   TBranch        *b_pfele_Dr04HCalSumEt;   //!
+   TBranch        *b_pfele_Dr03HCalSumEt;   //!
+   TBranch        *b_pfele_Dr04ECalSumEt;   //!
+   TBranch        *b_pfele_Dr03ECalSumEt;   //!
+   TBranch        *b_pfele_particleIso;   //!
+   TBranch        *b_pfele_chadIso;   //!
+   TBranch        *b_pfele_nhadIso;   //!
+   TBranch        *b_pfele_gamIso;   //!
    TBranch        *b_muo_n;   //!
    TBranch        *b_muo_E;   //!
    TBranch        *b_muo_Et;   //!
@@ -914,8 +961,11 @@ class TreeContent {
    TBranch        *b_muo_Cocktail_eta;   //!
    TBranch        *b_muo_Valid_fraction;   //!
    TBranch        *b_muo_TevReco_pt;   //!
+   TBranch        *b_muo_TevReco_ptError;   //!
    TBranch        *b_muo_TevReco_eta;   //!
    TBranch        *b_muo_TevReco_phi;   //!
+   TBranch        *b_muo_TevReco_chi2;   //!
+   TBranch        *b_muo_TevReco_ndof;   //!
    TBranch        *b_muo_PFiso;   //!
    TBranch        *b_muo_PFCand_px;   //!
    TBranch        *b_muo_PFCand_py;   //!
@@ -1100,6 +1150,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_orbit", &global_orbit, &b_global_orbit);
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
+   fChain->SetBranchAddress("global_rho", &global_rho, &b_global_rho);
    fChain->SetBranchAddress("lumi_section", &lumi_section, &b_lumi_section);
    fChain->SetBranchAddress("lumi_del", &lumi_del, &b_lumi_del);
    fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
@@ -1349,6 +1400,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
    fChain->SetBranchAddress("ele_p", ele_p, &b_ele_p);
    fChain->SetBranchAddress("ele_pt", ele_pt, &b_ele_pt);
+   fChain->SetBranchAddress("ele_ptError", ele_ptError, &b_ele_ptError);
    fChain->SetBranchAddress("ele_px", ele_px, &b_ele_px);
    fChain->SetBranchAddress("ele_py", ele_py, &b_ele_py);
    fChain->SetBranchAddress("ele_pz", ele_pz, &b_ele_pz);
@@ -1388,6 +1440,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_trign", ele_trign, &b_ele_trign);
    fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
    fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
+   fChain->SetBranchAddress("ele_SwissCross", ele_SwissCross, &b_ele_SwissCross);
    fChain->SetBranchAddress("ele_PFiso",ele_PFiso,    &b_ele_PFiso);
    fChain->SetBranchAddress("ele_PFCand_px", ele_PFCand_px ,&b_ele_PFCand_px);
    fChain->SetBranchAddress("ele_PFCand_py",  ele_PFCand_py ,&b_ele_PFCand_py);
@@ -1397,11 +1450,16 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_PFCand_phi",  ele_PFCand_phi ,&b_ele_PFCand_phi);
    fChain->SetBranchAddress("ele_PFCand_pfid",  ele_PFCand_pfid ,&b_ele_PFCand_pfid);
    fChain->SetBranchAddress("ele_PFCand_DeltaR",  ele_PFCand_DeltaR ,&b_ele_PFCand_DeltaR);
+   fChain->SetBranchAddress("ele_hcalDepth1TowerSumEt03", ele_hcalDepth1TowerSumEt03, &b_ele_hcalDepth1TowerSumEt03);
+   fChain->SetBranchAddress("ele_hcalDepth2TowerSumEt03", ele_hcalDepth2TowerSumEt03, &b_ele_hcalDepth2TowerSumEt03);
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", pfele_E, &b_pfele_E);
+   fChain->SetBranchAddress("ele_EoverP", ele_EoverP, &b_ele_EoverP);
    fChain->SetBranchAddress("pfele_Et", pfele_Et, &b_pfele_Et);
+   fChain->SetBranchAddress("pfele_CaloEt", pfele_CaloEt, &b_pfele_CaloEt);
    fChain->SetBranchAddress("pfele_pt", pfele_pt, &b_pfele_pt);
+   fChain->SetBranchAddress("pfele_ptError", pfele_ptError, &b_pfele_ptError);
    fChain->SetBranchAddress("pfele_px", pfele_px, &b_pfele_px);
    fChain->SetBranchAddress("pfele_py", pfele_py, &b_pfele_py);
    fChain->SetBranchAddress("pfele_pz", pfele_pz, &b_pfele_pz);
@@ -1412,6 +1470,19 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("pfele_trign", pfele_trign, &b_pfele_trign);
    fChain->SetBranchAddress("pfele_trig", pfele_trig, &b_pfele_trig);
    fChain->SetBranchAddress("pfele_SC", pfele_SC, &b_pfele_SC);
+   fChain->SetBranchAddress("pfele_SwissCross", pfele_SwissCross, &b_pfele_SwissCross);
+   fChain->SetBranchAddress("pfele_caloEt", pfele_caloEt , &b_pfele_caloEt);
+   fChain->SetBranchAddress("pfele_SCeta", pfele_SCeta , &b_pfele_SCeta);
+   fChain->SetBranchAddress("pfele_HCalOverEm",pfele_HCalOverEm , &b_pfele_HCalOverEm);
+   fChain->SetBranchAddress("pfele_Dr03TkSumPt",pfele_Dr03TkSumPt , &b_pfele_Dr03TkSumPt);
+   fChain->SetBranchAddress("pfele_Dr04HCalSumEt",pfele_Dr04HCalSumEt , &b_pfele_Dr04HCalSumEt);
+   fChain->SetBranchAddress("pfele_Dr03HCalSumEt",pfele_Dr03HCalSumEt , &b_pfele_Dr03HCalSumEt);
+   fChain->SetBranchAddress("pfele_Dr04ECalSumEt",pfele_Dr04ECalSumEt , &b_pfele_Dr04ECalSumEt);
+   fChain->SetBranchAddress("pfele_Dr03ECalSumEt",pfele_Dr03ECalSumEt , &b_pfele_Dr03ECalSumEt);
+   fChain->SetBranchAddress("pfele_particleIso",pfele_particleIso , &b_pfele_particleIso);
+   fChain->SetBranchAddress("pfele_chadIso",pfele_chadIso , &b_pfele_chadIso);
+   fChain->SetBranchAddress("pfele_nhadIso",pfele_nhadIso , &b_pfele_nhadIso);
+   fChain->SetBranchAddress("pfele_gamIso",pfele_gamIso , &b_pfele_gamIso);
    fChain->SetBranchAddress("muo_n", &muo_n, &b_muo_n);
    fChain->SetBranchAddress("muo_E", muo_E, &b_muo_E);
    fChain->SetBranchAddress("muo_Et", muo_Et, &b_muo_Et);
@@ -1460,8 +1531,11 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
    fChain->SetBranchAddress("muo_Valid_fraction", muo_Valid_fraction, &b_muo_Valid_fraction);
    fChain->SetBranchAddress("muo_TevReco_pt",muo_TevReco_pt,&b_muo_TevReco_pt);
+   fChain->SetBranchAddress("muo_TevReco_ptError",muo_TevReco_ptError,&b_muo_TevReco_ptError);
    fChain->SetBranchAddress("muo_TevReco_eta",muo_TevReco_eta,&b_muo_TevReco_eta);
    fChain->SetBranchAddress("muo_TevReco_phi",muo_TevReco_phi,&b_muo_TevReco_phi);
+   fChain->SetBranchAddress("muo_TevReco_chi2",muo_TevReco_chi2,&b_muo_TevReco_chi2);
+   fChain->SetBranchAddress("muo_TevReco_ndof",muo_TevReco_ndof,&b_muo_TevReco_ndof);
    fChain->SetBranchAddress("muo_PFiso",muo_PFiso,&b_muo_PFiso);
    fChain->SetBranchAddress("muo_PFCand_px", muo_PFCand_px ,&b_muo_PFCand_px);
    fChain->SetBranchAddress("muo_PFCand_py",  muo_PFCand_py ,&b_muo_PFCand_py);

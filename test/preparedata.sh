@@ -78,7 +78,7 @@ echo "[CRAB]" >> $CRABFILE
 echo "jobtype = cmssw" >> $CRABFILE
 echo "scheduler = glite" >> $CRABFILE
 echo "use_server = 1" >> $CRABFILE
-echo "server_name = cern" >> $CRABFILE
+echo "#server_name = cern" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[CMSSW]" >> $CRABFILE
 echo "# dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_02/servlet/DBSServlet" >> $CRABFILE
@@ -101,8 +101,13 @@ echo "user_remote_dir = output/$3/$4/" >> $CRABFILE
 echo "check_user_remote_dir = 0" >> $CRABFILE
 echo "" >> $CRABFILE
 echo "[GRID]" >> $CRABFILE
-echo "#ce_black_list = T2_ES_IFCA,T2_TW_Taiwan,T2_US_Nebraska,T2_US_Purdue" >> $CRABFILE
 echo "#ce_white_list = T2_DE_RWTH,T2_DE_DESY,T2_US_UCSD,T2_US_Wisconsin,T2_US_MIT,T2_US_Florida" >> $CRABFILE
+echo "#to run without server: (use_server = 0)">>$CRABFILE
+echo "#group = dcms" >> $CRABFILE
+echo "#max_wall_clock_time = 1400" >> $CRABFILE
+echo "#max_cpu_time = 1400" >> $CRABFILE
+echo "#rb = CERN" >> $CRABFILE
+echo "#se_black_list = T0,T1" >> $CRABFILE
 echo "" >> $CRABFILE
 
 sed s/"globaltag = cms.string('')"/"globaltag = cms.string('$6')"/g < $5 > $DIR/temp.txt
