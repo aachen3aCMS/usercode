@@ -211,7 +211,8 @@ private:
   int ncalojet_;
   int npfjet_;
   int ntau_;
-  double muopt_;
+  double muoptfirst_;
+  double muoptother_;
   double muoeta_;
   double elept_;
   double eleeta_;

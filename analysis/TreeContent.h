@@ -331,7 +331,8 @@ class TreeContent {
    Double_t        ele_Et[100];   //[ele_n]
    Double_t        ele_p[100];   //[ele_n]
    Double_t        ele_pt[100];   //[ele_n]
-   Double_t        ele_ptError[100];   //[ele_n]
+   Double_t        ele_TrackptError[100];   //[ele_n]
+   Double_t        ele_Trackpt[100];   //[ele_n]
    Double_t        ele_px[100];   //[ele_n]
    Double_t        ele_py[100];   //[ele_n]
    Double_t        ele_pz[100];   //[ele_n]
@@ -391,7 +392,8 @@ class TreeContent {
    Double_t        pfele_Et[100];   //[pfele_n]
    Double_t        pfele_CaloEt[100];   //[pfele_n]
    Double_t        pfele_pt[100];   //[pfele_n]
-   Double_t        pfele_ptError[100];   //[pfele_n]
+   Double_t        pfele_TrackptError[100];   //[pfele_n]
+   Double_t        pfele_Trackpt[100];   //[pfele_n]
    Double_t        pfele_px[100];   //[pfele_n]
    Double_t        pfele_py[100];   //[pfele_n]
    Double_t        pfele_pz[100];   //[pfele_n]
@@ -831,7 +833,8 @@ class TreeContent {
    TBranch        *b_ele_p;   //!
    TBranch        *b_ele_pt;   //!
    TBranch        *b_ele_EoverP;   //!
-   TBranch        *b_ele_ptError;   //!
+   TBranch        *b_ele_TrackptError;   //!
+   TBranch        *b_ele_Trackpt;   //!
    TBranch        *b_ele_px;   //!
    TBranch        *b_ele_py;   //!
    TBranch        *b_ele_pz;   //!
@@ -889,7 +892,8 @@ class TreeContent {
    TBranch        *b_pfele_Et;   //!
    TBranch        *b_pfele_CaloEt;   //!
    TBranch        *b_pfele_pt;   //!
-   TBranch        *b_pfele_ptError;   //!
+   TBranch        *b_pfele_TrackptError;   //!
+   TBranch        *b_pfele_Trackpt;   //!
    TBranch        *b_pfele_px;   //!
    TBranch        *b_pfele_py;   //!
    TBranch        *b_pfele_pz;   //!
@@ -1400,7 +1404,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
    fChain->SetBranchAddress("ele_p", ele_p, &b_ele_p);
    fChain->SetBranchAddress("ele_pt", ele_pt, &b_ele_pt);
-   fChain->SetBranchAddress("ele_ptError", ele_ptError, &b_ele_ptError);
+   fChain->SetBranchAddress("ele_TrackptError", ele_TrackptError, &b_ele_TrackptError);
+   fChain->SetBranchAddress("ele_Trackpt", ele_Trackpt, &b_ele_Trackpt);
    fChain->SetBranchAddress("ele_px", ele_px, &b_ele_px);
    fChain->SetBranchAddress("ele_py", ele_py, &b_ele_py);
    fChain->SetBranchAddress("ele_pz", ele_pz, &b_ele_pz);
@@ -1459,7 +1464,8 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("pfele_Et", pfele_Et, &b_pfele_Et);
    fChain->SetBranchAddress("pfele_CaloEt", pfele_CaloEt, &b_pfele_CaloEt);
    fChain->SetBranchAddress("pfele_pt", pfele_pt, &b_pfele_pt);
-   fChain->SetBranchAddress("pfele_ptError", pfele_ptError, &b_pfele_ptError);
+   fChain->SetBranchAddress("pfele_TrackptError", pfele_TrackptError, &b_pfele_TrackptError);
+   fChain->SetBranchAddress("pfele_Trackpt", pfele_Trackpt, &b_pfele_Trackpt);
    fChain->SetBranchAddress("pfele_px", pfele_px, &b_pfele_px);
    fChain->SetBranchAddress("pfele_py", pfele_py, &b_pfele_py);
    fChain->SetBranchAddress("pfele_pz", pfele_pz, &b_pfele_pz);

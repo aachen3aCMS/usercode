@@ -2,7 +2,8 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 process = cms.Process("ANA")
 
-isData=True
+isData=@ISDATA@
+#isData=False
 
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -16,9 +17,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('GR_R_42_V21A::All')
-#process.GlobalTag.globaltag = cms.string('START42_V21B::All')
-process.GlobalTag.globaltag = cms.string('')
+process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
+#process.GlobalTag.globaltag = cms.string('START42_V15B::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -90,14 +90,7 @@ process.patMuons.embedStandAloneMuon = False;
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    #'file:/home/home1/institut_3a/padeken/public/QCD_Pt-20_MuEnrichedPt-10_TuneZ2_7TeV-pythia6.root']
-    #'/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/3298E7AE-B19C-E011-86B7-90E6BA442F24.root']
-    'file:/home/home1/institut_3a/padeken/public/datenRecoMay10ReReco.root']
-    #'file:/home/home1/institut_3a/jschulte/public/MetSigTest.root']
-    #'/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/148/002/8A37418A-DFD9-DF11-91E3-0030487CD77E.root']
-    #'file:/net/data_cms/institut_3a/gueth/punch_through.root']
-    #'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_1.root',
-    #'file:/home/home1/institut_3a/magass/SUSY/CMSSW_3_5_6/src/aachen3a/ACSusyAnalysis/test/CRAB/DATA_2.root']
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/3298E7AE-B19C-E011-86B7-90E6BA442F24.root']
     ),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
@@ -205,7 +198,12 @@ process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
+
+process.pfType1CorrectedMet =   pfType1CorrectedMet.clone()
+process.pfCandsNotInJet =       pfCandsNotInJet.clone()
+process.pfJetMETcorr =          pfJetMETcorr.clone()
+process.pfCandMETcorr =         pfCandMETcorr.clone()
 
 if isData:
     process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3Residual')
@@ -213,6 +211,9 @@ else:
     process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3')
     
 process.pfType1CorrectedMet.src = cms.InputTag("pfMetPFnoPU")
+
+process.pfType1CorrectedPFMet = pfType1CorrectedMet.clone()
+process.pfType1CorrectedPFMet.src     = cms.InputTag("pfMet")
 
 
 process.patJets.addTagInfos = cms.bool(False)  # AOD only
@@ -237,7 +238,8 @@ metTagTC    = cms.InputTag("patMETsTC")
 metTagPF    = cms.InputTag("patMETsPFlow")
 metTagPFnoPU=cms.InputTag("pfMetPFnoPU")
 metTagJPFnoPUType1 =cms.InputTag("pfType1CorrectedMet")
-metTagcorMetGlobalMuons     = cms.InputTag("corMetGlobalMuons")
+metTagcorMetGlobalMuons     = cms.InputTag("pfType1CorrectedPFMet")
+#these two are ignored for now:
 metTagHO    = cms.InputTag("metHO")
 metTagNoHF= cms.InputTag("metNoHF")
 genTag        = cms.InputTag("genParticles")
@@ -285,7 +287,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     reducedBarrelRecHitCollection = reducedBarrelRecHitCollection,
     reducedEndcapRecHitCollection = reducedEndcapRecHitCollection,
 
-    muopt      = cms.double(0.),
+    muoptfirst = cms.double(0.),
+    muoptother = cms.double(0.),
     muoeta     = cms.double(25.),
     elept      = cms.double(0.),
     eleeta     = cms.double(25.),
@@ -338,10 +341,10 @@ process.p = cms.Path(
     process.pfMetPFnoPU*
     process.pfIsolationAllSequence*
     process.pfCandsNotInJet*
-    process.pfType2Cands*
     process.pfJetMETcorr*
     process.pfCandMETcorr*
     process.pfType1CorrectedMet*
+    process.pfType1CorrectedPFMet*
     process.ACSkimAnalysis
     )
 

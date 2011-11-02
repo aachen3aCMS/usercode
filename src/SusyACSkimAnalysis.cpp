@@ -78,7 +78,8 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
     throw cms::Exception("InvalidInput") << "Expect version to be one of CRAFT08, PURE09, DQM09" << std::endl;
 
   // get the cuts
-  muopt_      = iConfig.getParameter<double>("muopt");
+  muoptfirst_      = iConfig.getParameter<double>("muoptfirst");
+  muoptother_      = iConfig.getParameter<double>("muoptother");
   muoeta_     = iConfig.getParameter<double>("muoeta");
   elept_      = iConfig.getParameter<double>("elept");
   eleeta_     = iConfig.getParameter<double>("eleeta");
@@ -1424,8 +1425,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     for (int i=0; i<mTreeNmuo; i++) {
 
-      if (muons[i].pt() > muopt_ && fabs(muons[i].eta()) < muoeta_ ) 
-        cmuo_++;
+      if (muons[i].pt() > muoptother_ && fabs(muons[i].eta()) < muoeta_ ){
+          if(i==0 && muons[i].pt() > muoptfirst_)
+            cmuo_++;
+          else if(i!=0)
+            cmuo_++;
+      }
       //for cut on inv Mass
       if(muons.size()>=2){
         if (fabs(sqrt(pow(muons[0].energy()+muons[1].energy(),2)-pow(muons[0].px()+muons[1].px(),2)-pow(muons[0].py()+muons[1].py(),2)-pow(muons[0].pz()+muons[1].pz(),2))-muominv_)>muoDminv_ && muominv_!=0 && muoDminv_!=0)
@@ -2829,51 +2834,52 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   
   // metTagcorMetGlobalMuons
-  edm::Handle< std::vector<reco::CaloMET> > CalometHandle;
-  iEvent.getByLabel(metTagcorMetGlobalMuons_, CalometHandle);
-  if ( !CalometHandle.isValid() ) 
+  // this is type1 corrected pfMet
+  //edm::Handle< std::vector<reco::CaloMET> > CalometHandle;
+  iEvent.getByLabel(metTagcorMetGlobalMuons_, PFmetHandle);
+  if ( !PFmetHandle.isValid() ) 
     edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagcorMetGlobalMuons_;
-  if ( CalometHandle->size()!=1 ) 
+  if ( PFmetHandle->size()!=1 ) 
     edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << CalometHandle->size() << " instead of 1";
-  if ( CalometHandle.isValid() && CalometHandle->size()==1 ) {
+					  << PFmetHandle->size() << " instead of 1";
+  if ( PFmetHandle.isValid() && PFmetHandle->size()==1 ) {
     
     int metn=7;
-    mTreeMET[metn]         = CalometHandle->front().et();
-    mTreeMEX[metn]         = CalometHandle->front().momentum().X();
-    mTreeMEY[metn]         = CalometHandle->front().momentum().Y();
-    mTreeSumET[metn]       = CalometHandle->front().sumEt();
-    mTreeMETphi[metn]      = CalometHandle->front().phi();
-    mTreeSumETSignif[metn] = CalometHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = -1;
+    mTreeMET[metn]         = PFmetHandle->front().et();
+    mTreeMEX[metn]         = PFmetHandle->front().momentum().X();
+    mTreeMEY[metn]         = PFmetHandle->front().momentum().Y();
+    mTreeSumET[metn]       = PFmetHandle->front().sumEt();
+    mTreeMETphi[metn]      = PFmetHandle->front().phi();
+    mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
+    mTreeMETSignif[metn]   = PFmetHandle->front().significance();
     
     //calo spesific 
-    mTreeMETCaloMETInmHF[metn]     = CalometHandle->front().CaloMETInmHF();
-    mTreeMETCaloMETInpHF[metn]     = CalometHandle->front().CaloMETInpHF();
-    mTreeMETCaloMETPhiInmHF[metn]  = CalometHandle->front().CaloMETPhiInmHF();
-    mTreeMETCaloMETPhiInpHF[metn]  = CalometHandle->front().CaloMETPhiInpHF();
-    mTreeMETCaloSETInmHF[metn]     = CalometHandle->front().CaloSETInmHF();
-    mTreeMETCaloSETInpHF[metn]     = CalometHandle->front().CaloSETInpHF();
-    mTreeMETemEtFraction[metn]      = CalometHandle->front().emEtFraction();
-    mTreeMETetFractionHadronic[metn]= CalometHandle->front().etFractionHadronic();
-    mTreeMETmaxEtInEmTowers[metn]   = CalometHandle->front().maxEtInEmTowers();
-    mTreeMETmaxEtInHadTowers[metn]  = CalometHandle->front().maxEtInHadTowers();
-    mTreeMETemEtInHF[metn]          = CalometHandle->front().emEtInHF();
-    mTreeMETemEtInEE[metn]          = CalometHandle->front().emEtInEE();
-    mTreeMETemEtInEB[metn]          = CalometHandle->front().emEtInEB();
-    mTreeMEThadEtInHF[metn]         = CalometHandle->front().hadEtInHF();
-    mTreeMEThadEtInHE[metn]         = CalometHandle->front().hadEtInHE();
-    mTreeMEThadEtInHO[metn]         = CalometHandle->front().hadEtInHO();
-    mTreeMEThadEtInHB[metn]         = CalometHandle->front().hadEtInHB();
+    mTreeMETCaloMETInmHF[metn]     = -1; //PFmetHandle->front().CaloMETInmHF();
+    mTreeMETCaloMETInpHF[metn]     = -1; //PFmetHandle->front().CaloMETInpHF();
+    mTreeMETCaloMETPhiInmHF[metn]  = -1; //PFmetHandle->front().CaloMETPhiInmHF();
+    mTreeMETCaloMETPhiInpHF[metn]  = -1; //PFmetHandle->front().CaloMETPhiInpHF();
+    mTreeMETCaloSETInmHF[metn]     = -1; //PFmetHandle->front().CaloSETInmHF();
+    mTreeMETCaloSETInpHF[metn]     = -1; //PFmetHandle->front().CaloSETInpHF();
+    mTreeMETemEtFraction[metn]      = -1; //PFmetHandle->front().emEtFraction();
+    mTreeMETetFractionHadronic[metn]= -1; //PFmetHandle->front().etFractionHadronic();
+    mTreeMETmaxEtInEmTowers[metn]   = -1; //PFmetHandle->front().maxEtInEmTowers();
+    mTreeMETmaxEtInHadTowers[metn]  = -1; //PFmetHandle->front().maxEtInHadTowers();
+    mTreeMETemEtInHF[metn]          = -1; //PFmetHandle->front().emEtInHF();
+    mTreeMETemEtInEE[metn]          = -1; //PFmetHandle->front().emEtInEE();
+    mTreeMETemEtInEB[metn]          = -1; //PFmetHandle->front().emEtInEB();
+    mTreeMEThadEtInHF[metn]         = -1; //PFmetHandle->front().hadEtInHF();
+    mTreeMEThadEtInHE[metn]         = -1; //PFmetHandle->front().hadEtInHE();
+    mTreeMEThadEtInHO[metn]         = -1; //PFmetHandle->front().hadEtInHO();
+    mTreeMEThadEtInHB[metn]         = -1; //PFmetHandle->front().hadEtInHB();
     
     //pf spesific
-    mTreeMETChargedEMEtFraction[metn]  = -1; //CalometHandle->front().ChargedEMEtFraction();
-    mTreeMETChargedHadEtFraction[metn] = -1; //CalometHandle->front().ChargedHadEtFraction();
-    mTreeMETMuonEtFraction[metn]       = -1; //CalometHandle->front().MuonEtFraction();
-    mTreeMETNeutralEMFraction[metn]  = -1; //CalometHandle->front().NeutralEMFraction();
-    mTreeMETNeutralHadEtFraction[metn] = -1; //CalometHandle->front().NeutralHadEtFraction();
-    mTreeMETType6EtFraction[metn]      = -1; //CalometHandle->front().Type6EtFraction();
-    mTreeMETType7EtFraction[metn]      = -1; //CalometHandle->front().Type7EtFraction();
+    mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
+    mTreeMETChargedHadEtFraction[metn] = PFmetHandle->front().ChargedHadEtFraction();
+    mTreeMETMuonEtFraction[metn]       = PFmetHandle->front().MuonEtFraction();
+    mTreeMETNeutralEMFraction[metn]    = PFmetHandle->front().NeutralEMFraction();
+    mTreeMETNeutralHadEtFraction[metn] = PFmetHandle->front().NeutralHadEtFraction();
+    mTreeMETType6EtFraction[metn]      = PFmetHandle->front().Type6EtFraction();
+    mTreeMETType7EtFraction[metn]      = PFmetHandle->front().Type7EtFraction();
   }
   
   
