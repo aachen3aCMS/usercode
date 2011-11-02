@@ -5,6 +5,8 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
+#include <sstream>
+#include <cmath>
 #include "TSystem.h"
 
 #include "SUSYDump.h"
@@ -88,66 +90,137 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       PFEleDump(0);       // [less] detailed information 1 [0]
     }
 
-    doJESandRecalculateMET(type);
+ //   doJESandRecalculateMET(type);
+//
+//    if (DEBUG) {
+//      if (type == "up" || type == "down") {
+//	CaloJetDump();
+//	PFJetDump();
+//	METDump();
+//      }
+//      continue;
+//    }
 
-    if (DEBUG) {
-      if (type == "up" || type == "down") {
-	CaloJetDump();
-	PFJetDump();
-	METDump();
-      }
-      continue;
-    }
+//    double v=0.;
+//    if (vtx_n>0) v = vtx_z[0]; 
 
-    double v=0.;
-    if (vtx_n>0) v = vtx_z[0]; 
-
-    if (find_duplicate(global_run, global_event, pdf_scale, v)) {
-      cout << "SUSYAna: found duplicate " << endl;
-    }
+//    if (find_duplicate(global_run, global_event, pdf_scale, v)) {
+ //     cout << "SUSYAna: found duplicate " << endl;
+//    }
 
     // do your analysis
-    cout << endl;
-    cout << "Analysis example output " << endl;
+    //cout << endl;
+    //cout << "Analysis example output " << endl;
 
     // list Trigger Objects
-    if (DEBUG) {
-      for (int i=0; i<trig_n; i++) {
-	cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
-	     << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+//    if (DEBUG) {
+//      for (int i=0; i<trig_n; i++) {
+//	cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
+//	     << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+//      }
+//    }
+
+   //run selection
+   if(! (global_run > 160404 && global_run < 177515 )){
+      continue;
+   }
+
+   //vertex quality cut
+   int goodvtx=0;     
+   for (int bb=0; bb<vtx_n;++bb){      
+      if(vtx_fake[bb]==0){
+         if(vtx_ndof[bb]>4.){
+            if(fabs(vtx_z[bb])<24.){
+               goodvtx++;
+            }
+         }
       }
-    }
+   }
+   if (goodvtx < 1) {continue;}
 
-    for (int j=0; j<muo_n; j++) {
+   //Trigger selection
+   TString triggerName1="HLT_Mu15_v1";
+   TString triggerName2="HLT_Mu15_v2";
+   TString triggerName3="HLT_Mu20_v1";
+   TString triggerName4="HLT_Mu24_v1";
+   TString triggerName5="HLT_Mu24_v2";
+   TString triggerName6="HLT_Mu30_v3";
+   TString triggerName7="HLT_Mu40_v1";
+   TString triggerName8="HLT_Mu40_v2";
+   TString triggerName9="HLT_Mu40_v3";
+   TString triggerName10="HLT_Mu40_v5";
 
-      cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
-      for (int k=0; k<24; k++)
-	cout << muo_ID[j][k] << " ";
-      cout << "] " << endl;
-      if (muo_ID[j][6] == 1)
-	cout << "  -> global prompt tight"<< endl;
+   TString trigger;
+   bool trigger_select = false;
+
+   for(Int_t i=0; i<trig_n;++i){
+      trigger = unpack((int*)trig_name[i]);
+      if ( trigger.Contains(triggerName1.Data()) || trigger.Contains(triggerName2.Data()) || trigger.Contains(triggerName3.Data()) || trigger.Contains(triggerName4.Data()) || trigger.Contains(triggerName5.Data()) || trigger.Contains(triggerName6.Data()) || trigger.Contains(triggerName7.Data()) || trigger.Contains(triggerName8.Data()) || trigger.Contains(triggerName9.Data()) || trigger.Contains(triggerName10.Data()) ){
+         trigger_select = true;
+         break;
+      }
+   }
+
+   if(trigger_select == false){
+      continue;
+   }
+
+
+   //muon selection
+
+   int selectedmuon = 0;
+   int sel_1 = -1;
+   int sel_2 = -1;
+
+   for (int j=0; j<muo_n; j++) {
+
+ 
+
+      //cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
+      //for (int k=0; k<24; k++)
+      //   cout << muo_ID[j][k] << " ";
+      //   cout << "] " << endl;
+      //if (muo_ID[j][6] == 1)
+      //   cout << "  -> global prompt tight"<< endl;
+         // list matched trigger objects
+      //for (int i=0; i<muo_trign[j]; i++) {
+      //   int id = muo_trig[j][i];
+      //   String name = unpack((int*)trig_name[id]);
+      //   TString filt = unpack(trig_filter[id]);
+      //   cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
+      //}
+
+      h1_mu_pt[0]->Fill(muo_pt[j]);
+     
+      bool ptcut = (muo_Cocktail_pt[j] > 40) ? true : false;
+      bool etacut = (muo_Cocktail_eta[j] < 2.1) ? true : false;
+      //bool goodmuon = (muo_prompttight[j] == 1) ? true : false;
+      bool hasIso = (muo_RelTrkIso[j] < 0.1) ? true : false;
+      bool isTrackerMuon = (muo_ID[j][3] == 1) ? true : false;
+      bool isGlobalMuon = (muo_ID[j][1] == 1) ? true : false;
+      bool PixelHitsCut = (muo_ValidPixelHitsCm > 0) ? true : false;
+      bool trackerHitsCut = (muo_ValidTrackerHitsCm[j] > 10) ? true : false;
+      bool muonHitsCut = (muo_ValidMuonHitsCm[j] > 0) ? true : false;
+      bool numMatchesCut = (muo_ChambersMatched[j] > 1) ? true : false;
+      bool dxyCut = (muo_d0Cm[j] < 0.2) ? true : false;
       
-      // list matched trigger objects
-      for (int i=0; i<muo_trign[j]; i++) {
-	int id = muo_trig[j][i];
-	TString name = unpack((int*)trig_name[id]);
-	TString filt = unpack(trig_filter[id]);
-	cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] 
-	     << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
+      cout << etacut << " " << hasIso << endl;
+      if (ptcut && etacut && hasIso && isTrackerMuon && isGlobalMuon && PixelHitsCut && trackerHitsCut && muonHitsCut && numMatchesCut && dxyCut ) {
+         h1_mu_pt[1]     -> Fill(muo_pt[j]);
+         selectedmuon += 1;
+         
       }
+   }
 
-
-      h1_mu_pt[0]     -> Fill(muo_pt[j]);
-      h1_mu_TrkIso[0] -> Fill(muo_TrkIso[j]);
-
-      if (muo_TrkIso[j] < 6. && muo_TrkChiNormCm[j]<10) {
-	h1_mu_pt[1]     -> Fill(muo_pt[j]);
-	h1_mu_TrkIso[1] -> Fill(muo_TrkIso[j]);
-
+   if(selectedmuon == 2){
+      double angle = AngleMuons(muo_Cocktail_pt[sel_1], muo_Cocktail_eta[sel_1], muo_Cocktail_phi[sel_1], 0.105658, muo_Cocktail_pt[sel_2], muo_Cocktail_eta[sel_2], muo_Cocktail_phi[sel_2], 0.105658 );
+      if (angle > 0.02){
+         double mass = M2v2(muo_Cocktail_pt[sel_1], muo_Cocktail_eta[sel_1], muo_Cocktail_phi[sel_1], 0.105658, muo_Cocktail_pt[sel_2], muo_Cocktail_eta[sel_2], muo_Cocktail_phi[sel_2], 0.105658 ) ;
+         h1_mu_Minv[1]->Fill(mass);
       }
-    }
-    
-  }
+   }
+
+   }
 
   write(fout, 2);
 }
@@ -187,17 +260,17 @@ void SUSYAna::init(int nstages) {
     
     strcpy(h_name,"\0");
     sprintf(h_name,"h1_%i_mu_pt", jj);
-    h_temp = new TH1F(h_name, h_title, 200, 0., 200.);
+    h_temp = new TH1F(h_name, h_title, 350, 0., 7000.);
     h_temp->Sumw2();
     h_temp->SetXTitle("p_{T}^{#mu}  [GeV]");
     h1_mu_pt.push_back(h_temp);
     
     strcpy(h_name,"\0");
-    sprintf(h_name,"h1_%i_mu_TrkIso", jj);
-    h_temp = new TH1F(h_name, h_title, 200, 0., 200.);
+    sprintf(h_name,"h1_%i_mu_mu_Minv", jj);
+    h_temp = new TH1F(h_name, h_title, 350, 0., 7000.);
     h_temp->Sumw2();
-    h_temp->SetXTitle("TrkIso");
-    h1_mu_TrkIso.push_back(h_temp);
+    h_temp->SetXTitle("M_{#mu #mu} [GeV]");
+    h1_mu_Minv.push_back(h_temp);
    }
 }
 
@@ -209,7 +282,7 @@ void SUSYAna::write(TString fout, int nstages) {
   for (Int_t jj=0; jj<nstages; jj++) {
     
     h1_mu_pt[jj]     -> Write();
-    h1_mu_TrkIso[jj] -> Write();
+    h1_mu_Minv[jj]   -> Write();
     
   }
   
@@ -217,6 +290,43 @@ void SUSYAna::write(TString fout, int nstages) {
    
 }
 // helper
+double SUSYAna::M2(double E1, double px1, double py1, double pz1, double E2, double px2, double py2, double pz2) {
+   double InvMass2 =   (E1 + E2)*(E1 + E2)
+                     - (px1 + px2)*(px1 + px2)
+                     - (py1 + py2)*(py1 + py2)
+                     - (pz1 + pz2)*(pz1 + pz2);
+   if (InvMass2 < 0) cout << "Mass Square negative: InvariantMass" << InvMass2 << endl; 
+   return std::sqrt(InvMass2);
+}
+double SUSYAna::M2v2(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
+   TLorentzVector * lorentz1 = new TLorentzVector();
+   TLorentzVector * lorentz2 = new TLorentzVector();
+   lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
+   lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
+   TLorentzVector lorentz1plus2 = *lorentz1 + *lorentz2;
+   return lorentz1plus2.M();
+}
+double SUSYAna::AngleMuons(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
+   TLorentzVector * lorentz1 = new TLorentzVector();
+   TLorentzVector * lorentz2 = new TLorentzVector();
+   lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
+   lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
+   
+   double part1_px = lorentz1->Px();
+   double part1_py = lorentz1->Py();
+   double part1_pz = lorentz1->Pz();
+   double part1_p = lorentz1->P();
+
+   double part2_px = lorentz2->Px();
+   double part2_py = lorentz2->Py();
+   double part2_pz = lorentz2->Pz();
+   double part2_p = lorentz2->P();
+
+   //see exotica muon twiki for documentation
+   double angle = acos(((-1.*part1_px * part2_px)+(-1.*part1_py * part2_py)+(-1.*part1_pz * part2_pz))/(part1_p * part2_p));
+   return angle;
+
+}
 Double_t SUSYAna::DeltaPhi(double a, double b) {
 
   double temp = fabs(a-b);

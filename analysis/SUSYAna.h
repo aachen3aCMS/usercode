@@ -59,6 +59,9 @@ public :
 		  std::vector<UInt_t> * listb = NULL);
   Double_t SumET(const std::vector<TLorentzVector> & objects);
   Double_t MT(const std::vector<TLorentzVector> & objects);
+  double M2(double E1, double px1, double py1, double pz1, double E2, double px2, double py2, double pz2);
+  double M2v2(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2);
+  double AngleMuons(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2);
 
   typedef std::pair< pair<int,int> , pair<double,double> > Key;
   typedef std::set<Key> KeySet;
@@ -67,7 +70,7 @@ public :
   KeySet _keys;
 
   std::vector<TH1F*> h1_mu_pt;
-  std::vector<TH1F*> h1_mu_TrkIso;
+  std::vector<TH1F*> h1_mu_Minv;
   
 };
 #endif // #ifdef SUSYAna_cxx
