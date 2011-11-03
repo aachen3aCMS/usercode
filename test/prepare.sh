@@ -5,7 +5,6 @@
 # (C) 2011 Martin Weber                                              #
 #                                                                    #
 ######################################################################
-SKIM_VERSION="v7-6"
 
 function usage()
 {
@@ -102,7 +101,7 @@ function main()
     # initialize variables
     CMSSWCFG="cmssw_template.py"
     CRABCFG="crab_template.cfg"
-    VERSION=${SKIM_VERSION}
+    VERSION=
     DATA=
     MC=
     USER=
@@ -183,7 +182,7 @@ function main()
 	EXIT=1
     fi
     if [[ -z $USER || -z $DATASET || -z $VERSION || -z $TAG || -z $GLOBALTAG ]] ; then
-	echo "You must specify the -u, -s, -t, and -g switches"
+	echo "You must specify the -u, -s, -v, -t, and -g switches"
 	EXIT=1
     fi
     if [[ -n $DATA && -z $JSON ]] ; then
