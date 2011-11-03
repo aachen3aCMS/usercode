@@ -73,6 +73,30 @@ function createconfigfiles()
 	$CRABCFG >> $JOBDIR/crab.cfg
 }
 
+COUNTER=0
+function srm_mkdir()
+{
+    let COUNTER++
+    if [[ $COUNTER > 5 ]]; then
+	echo "Maximum recursion level reached - stopping"
+	echo "This probably means something is wrong with the storage path."
+	exit 3
+    fi
+    srmmkdir $1 >& /dev/null
+    RC=$?
+    if [[ $RC != 0 ]] ; then
+	# start recursion
+	srm_mkdir `dirname $1`
+	srmmkdir $1 >& /dev/null
+	RC=$?
+	if [[ $RC != 0 ]] ; then
+	    echo "Making directories recursively failed - this should not happen."
+	    exit 4
+	fi
+    fi
+    echo "Creating $1"
+}
+
 function main()
 {
     # initialize variables
@@ -150,8 +174,8 @@ function main()
 	echo "You must specify either -d or -m switch"
 	EXIT=1
     fi
-    if [[ -z $DATA && -n $NJOBS ]] || [[ -z $DATA && -n $JSON ]] ; then
-	echo "-j and -n can only be used on data"
+    if [[ -z $DATA && -n $JSON ]] ; then
+	echo "-j can only be used on data"
 	EXIT=1
     fi
     if [[ -z $MC && -n $PTHATHIGH ]] || [[ -z $DATA && -n $PTHATLOW ]] ; then
@@ -171,7 +195,7 @@ function main()
 	exit 1
     fi
     if [[ -n $PTHATLOW || -n $PTHATHIGH ]] ; then
-	echo "pthatlow and pthathight not yet implemented!"
+	echo "pthatlow and pthathigh not yet implemented!"
 	exit 2
     fi
 
@@ -179,7 +203,9 @@ function main()
     check_file $CMSSWCFG "ERROR: Python configuration template $CMSSWCFG does not exist"
     check_file $CRABCFG "ERROR: Crab configuration template $CRABCFG does not exist"
 
-    check_file $JSON "ERROR: JSON file $JSON does not exist"
+    if [[ -n $JSON ]] ; then
+	check_file $JSON "ERROR: JSON file $JSON does not exist"
+    fi
 
     # Create working directory
     JOBDIR="CRAB-$TAG-$VERSION"
@@ -210,8 +236,8 @@ function main()
 	    srmrmdir -recursive $OUTPUT_DIR
 	fi
     fi
-    echo "Creating output directory $STORAGE_DIR"
-    srmmkdir $OUTPUT_DIR >& /dev/null
+    echo "Creating (recursively) output directory $STORAGE_DIR"
+    srm_mkdir $OUTPUT_DIR
 
     # create configuration files
     createconfigfiles
