@@ -68,6 +68,7 @@ public :
   typedef KeySet::const_iterator KeyIter;
   
   KeySet _keys;
+  TH1F * h1_Z_mass;
 
   std::vector<TH1F*> h1_mu_pt;
   std::vector<TH1F*> h1_mu_Minv;

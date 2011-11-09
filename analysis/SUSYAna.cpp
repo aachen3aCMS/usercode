@@ -1,4 +1,3 @@
-#define SUSYAna_cxx
 #include "SUSYAna.h"
 #include <TH2.h>
 #include <TLorentzVector.h>
@@ -15,13 +14,12 @@ using std::cout;
 using std::endl;
 using namespace std;
 
-SUSYAna::SUSYAna(TTree *tree) : TreeContent(tree) {
-
+SUSYAna::SUSYAna(TTree *tree) : TreeContent(tree) 
+{
   if (tree ==  0) {
     cerr << "SUSYAna: ERROR - Tree empty !!!" << endl;
     exit(0);
   }
-
 }
 
 // main event loop
@@ -37,7 +35,8 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
   
   cout << "SUSYAna: Running over " << nentries << " events" << endl;
 
-  if (DEBUG) cout << "SUSYAna: Debug mode" << endl;
+  if (DEBUG) 
+    cout << "SUSYAna: Debug mode" << endl;
 
   if (type == "none") 
     cout << "SUSYAna: You are running with JES flag 'none'" << endl;
@@ -52,7 +51,7 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
 
   TString trigger;
 
-  init(2);
+  init(1);
 
   Long64_t nbytes = 0, nb = 0;
 
@@ -63,8 +62,6 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-    //    if (DEBUG && jentry == 10000) break;
-    
     if (fmod((double)jentry,(double)1000)==0) 
       cout << "Event " << jentry << endl;
 
@@ -90,137 +87,132 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       PFEleDump(0);       // [less] detailed information 1 [0]
     }
 
- //   doJESandRecalculateMET(type);
-//
-//    if (DEBUG) {
-//      if (type == "up" || type == "down") {
-//	CaloJetDump();
-//	PFJetDump();
-//	METDump();
-//      }
-//      continue;
-//    }
-
-//    double v=0.;
-//    if (vtx_n>0) v = vtx_z[0]; 
-
 //    if (find_duplicate(global_run, global_event, pdf_scale, v)) {
- //     cout << "SUSYAna: found duplicate " << endl;
+//      cout << "SUSYAna: found duplicate " << endl;
 //    }
 
-    // do your analysis
-    //cout << endl;
-    //cout << "Analysis example output " << endl;
+    // // vertex quality cut
+    // int goodvtx=0;     
+    // for (int bb=0; bb < vtx_n; bb++) {
+    //   if (vtx_fake[bb] == 0) {
+    // 	if (vtx_ndof[bb] > 4.) {
+    // 	  if (fabs(vtx_z[bb]) < 24.) {
+    // 	    goodvtx++;
+    // 	  }
+    // 	}
+    //   }
+    // }
+    // if (goodvtx < 1)
+    //   continue;
 
-    // list Trigger Objects
-//    if (DEBUG) {
-//      for (int i=0; i<trig_n; i++) {
-//	cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
-//	     << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
-//      }
-//    }
+    // //Trigger selection
+    // TString triggerName1="HLT_Mu15_v1";
+    // TString triggerName2="HLT_Mu15_v2";
+    // TString triggerName3="HLT_Mu20_v1";
+    // TString triggerName4="HLT_Mu24_v1";
+    // TString triggerName5="HLT_Mu24_v2";
+    // TString triggerName6="HLT_Mu30_v3";
+    // TString triggerName7="HLT_Mu40_v1";
+    // TString triggerName8="HLT_Mu40_v2";
+    // TString triggerName9="HLT_Mu40_v3";
+    // TString triggerName10="HLT_Mu40_v5";
 
-   //run selection
-   if(! (global_run > 160404 && global_run < 177515 )){
-      continue;
-   }
+    // TString trigger;
+    // bool trigger_select = false;
 
-   //vertex quality cut
-   int goodvtx=0;     
-   for (int bb=0; bb<vtx_n;++bb){      
-      if(vtx_fake[bb]==0){
-         if(vtx_ndof[bb]>4.){
-            if(fabs(vtx_z[bb])<24.){
-               goodvtx++;
-            }
-         }
+    // for(Int_t i=0; i<trig_n;++i){
+    //    trigger = unpack((int*)trig_name[i]);
+    //    if ( trigger.Contains(triggerName1.Data()) || trigger.Contains(triggerName2.Data()) || trigger.Contains(triggerName3.Data()) || trigger.Contains(triggerName4.Data()) || trigger.Contains(triggerName5.Data()) || trigger.Contains(triggerName6.Data()) || trigger.Contains(triggerName7.Data()) || trigger.Contains(triggerName8.Data()) || trigger.Contains(triggerName9.Data()) || trigger.Contains(triggerName10.Data()) ){
+    //       trigger_select = true;
+    //       break;
+    //    }
+    // }
+
+    // if(trigger_select == false){
+    //    continue;
+    // }
+
+
+    // // list Trigger Objects
+    // if (DEBUG) {
+    //   for (int i=0; i<trig_n; i++) {
+    //     cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
+    // 	    << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
+    //   }
+    // }
+
+    // mu from Z
+    int theMu[2] = { -1, -1 };
+    int nMu = 0;
+    if (muo_n != 0)
+      cout << "muo_n: " << muo_n << endl;
+    for (int j = 0; j < muo_n && nMu < 2; j++) {
+      cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
+      for (int k=0; k<24; k++)
+        cout << muo_ID[j][k] << " ";
+      cout << "] " << endl;
+      if (muo_ID[j][6] == 1)
+        cout << "  -> global prompt tight"<< endl;
+
+      // list matched trigger objects
+      for (int i=0; i<muo_trign[j]; i++) {
+	int id = muo_trig[j][i];
+	TString name = unpack((int*)trig_name[id]);
+	TString filt = unpack(trig_filter[id]);
+	cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
       }
-   }
-   if (goodvtx < 1) {continue;}
 
-   //Trigger selection
-   TString triggerName1="HLT_Mu15_v1";
-   TString triggerName2="HLT_Mu15_v2";
-   TString triggerName3="HLT_Mu20_v1";
-   TString triggerName4="HLT_Mu24_v1";
-   TString triggerName5="HLT_Mu24_v2";
-   TString triggerName6="HLT_Mu30_v3";
-   TString triggerName7="HLT_Mu40_v1";
-   TString triggerName8="HLT_Mu40_v2";
-   TString triggerName9="HLT_Mu40_v3";
-   TString triggerName10="HLT_Mu40_v5";
+      // bool ptcut = (muo_Cocktail_pt[j] > 40) ? true : false;
+      // bool etacut = (muo_Cocktail_eta[j] < 2.1) ? true : false;
+      // //bool goodmuon = (muo_prompttight[j] == 1) ? true : false;
+      // bool hasIso = (muo_RelTrkIso[j] < 0.1) ? true : false;
+      // bool isTrackerMuon = (muo_ID[j][3] == 1) ? true : false;
+      // bool isGlobalMuon = (muo_ID[j][1] == 1) ? true : false;
+      // bool PixelHitsCut = (muo_ValidPixelHitsCm > 0) ? true : false;
+      // bool trackerHitsCut = (muo_ValidTrackerHitsCm[j] > 10) ? true : false;
+      // bool muonHitsCut = (muo_ValidMuonHitsCm[j] > 0) ? true : false;
+      // bool numMatchesCut = (muo_ChambersMatched[j] > 1) ? true : false;
+      // bool dxyCut = (muo_d0Cm[j] < 0.2) ? true : false;
 
-   TString trigger;
-   bool trigger_select = false;
+      //
+      // mu isolation 
+      if (muo_TrkIso[j] > 2 || muo_ECalIso[j] > 2 || muo_HCalIso[j] > 2)
+	continue;
 
-   for(Int_t i=0; i<trig_n;++i){
-      trigger = unpack((int*)trig_name[i]);
-      if ( trigger.Contains(triggerName1.Data()) || trigger.Contains(triggerName2.Data()) || trigger.Contains(triggerName3.Data()) || trigger.Contains(triggerName4.Data()) || trigger.Contains(triggerName5.Data()) || trigger.Contains(triggerName6.Data()) || trigger.Contains(triggerName7.Data()) || trigger.Contains(triggerName8.Data()) || trigger.Contains(triggerName9.Data()) || trigger.Contains(triggerName10.Data()) ){
-         trigger_select = true;
-         break;
+      // no electrons, photons, jets
+      bool rejection = false;
+      for (int k = 0; k < ele_n; k++) {
+	if (ele_Et[k] > 20)  {
+	  rejection = true;
+	  break;
+	}
       }
-   }
-
-   if(trigger_select == false){
-      continue;
-   }
-
-
-   //muon selection
-
-   int selectedmuon = 0;
-   int sel_1 = -1;
-   int sel_2 = -1;
-
-   for (int j=0; j<muo_n; j++) {
-
- 
-
-      //cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
-      //for (int k=0; k<24; k++)
-      //   cout << muo_ID[j][k] << " ";
-      //   cout << "] " << endl;
-      //if (muo_ID[j][6] == 1)
-      //   cout << "  -> global prompt tight"<< endl;
-         // list matched trigger objects
-      //for (int i=0; i<muo_trign[j]; i++) {
-      //   int id = muo_trig[j][i];
-      //   String name = unpack((int*)trig_name[id]);
-      //   TString filt = unpack(trig_filter[id]);
-      //   cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
-      //}
-
-      h1_mu_pt[0]->Fill(muo_pt[j]);
-     
-      bool ptcut = (muo_Cocktail_pt[j] > 40) ? true : false;
-      bool etacut = (muo_Cocktail_eta[j] < 2.1) ? true : false;
-      //bool goodmuon = (muo_prompttight[j] == 1) ? true : false;
-      bool hasIso = (muo_RelTrkIso[j] < 0.1) ? true : false;
-      bool isTrackerMuon = (muo_ID[j][3] == 1) ? true : false;
-      bool isGlobalMuon = (muo_ID[j][1] == 1) ? true : false;
-      bool PixelHitsCut = (muo_ValidPixelHitsCm > 0) ? true : false;
-      bool trackerHitsCut = (muo_ValidTrackerHitsCm[j] > 10) ? true : false;
-      bool muonHitsCut = (muo_ValidMuonHitsCm[j] > 0) ? true : false;
-      bool numMatchesCut = (muo_ChambersMatched[j] > 1) ? true : false;
-      bool dxyCut = (muo_d0Cm[j] < 0.2) ? true : false;
+      for (int k = 0; k < pfjet_n; k++) {
+	if (pfjet_Et[k] > 20)  {
+	  rejection = true;
+	  break;
+	}
+      }
       
-      cout << etacut << " " << hasIso << endl;
-      if (ptcut && etacut && hasIso && isTrackerMuon && isGlobalMuon && PixelHitsCut && trackerHitsCut && muonHitsCut && numMatchesCut && dxyCut ) {
-         h1_mu_pt[1]     -> Fill(muo_pt[j]);
-         selectedmuon += 1;
-         
-      }
-   }
+      if (rejection) 
+	continue;
+      // OK, accept mu
+      theMu[nMu] = j;
+      nMu++;
+    }
 
-   if(selectedmuon == 2){
-      double angle = AngleMuons(muo_Cocktail_pt[sel_1], muo_Cocktail_eta[sel_1], muo_Cocktail_phi[sel_1], 0.105658, muo_Cocktail_pt[sel_2], muo_Cocktail_eta[sel_2], muo_Cocktail_phi[sel_2], 0.105658 );
-      if (angle > 0.02){
-         double mass = M2v2(muo_Cocktail_pt[sel_1], muo_Cocktail_eta[sel_1], muo_Cocktail_phi[sel_1], 0.105658, muo_Cocktail_pt[sel_2], muo_Cocktail_eta[sel_2], muo_Cocktail_phi[sel_2], 0.105658 ) ;
-         h1_mu_Minv[1]->Fill(mass);
+    // require two muons
+    if (nMu == 2) {
+      // check back-to-back in phi
+      double dphi = this->DeltaPhi(muo_phi[theMu[0]], muo_phi[theMu[1]]);
+      if (dphi < 3.14159/4.) {
+	// plot mass in histogram
+	TLorentzVector mu0(muo_px[0], muo_py[0], muo_pz[0], muo_E[0]);
+	TLorentzVector mu1(muo_px[1], muo_py[1], muo_pz[1], muo_E[1]);
+	h1_Z_mass->Fill((mu0+mu1).M());
       }
-   }
-
-   }
+    }
+  }
 
   write(fout, 2);
 }
@@ -242,7 +234,6 @@ bool SUSYAna::find_duplicate(int run, int evt, double x1, double x2) {
     if (DEBUG) cout << "SUSYAna: duplicate run " << run << " , evt " << evt << " , scale " << x1 << " , vtx_z " << x2 << endl;
     return true;
   }
-    
 }
 
 // initialize histograms
@@ -271,7 +262,9 @@ void SUSYAna::init(int nstages) {
     h_temp->Sumw2();
     h_temp->SetXTitle("M_{#mu #mu} [GeV]");
     h1_mu_Minv.push_back(h_temp);
-   }
+  }
+
+  h1_Z_mass = new TH1F("h1_Z_mass", "Z mass (hopefully!)", 200, 0, 200);
 }
 
 // write histograms to file
@@ -279,54 +272,58 @@ void SUSYAna::write(TString fout, int nstages) {
   
   TFile *f = new TFile(fout,"recreate");
  
-  for (Int_t jj=0; jj<nstages; jj++) {
+  // for (Int_t jj=0; jj<nstages; jj++) {
     
-    h1_mu_pt[jj]     -> Write();
-    h1_mu_Minv[jj]   -> Write();
-    
-  }
+  //   h1_mu_pt[jj]     -> Write();
+  //   h1_mu_TrkIso[jj] -> Write();
+
+  // }
+  h1_Z_mass->Write();
   
   f->Close();
    
 }
 // helper
 double SUSYAna::M2(double E1, double px1, double py1, double pz1, double E2, double px2, double py2, double pz2) {
-   double InvMass2 =   (E1 + E2)*(E1 + E2)
-                     - (px1 + px2)*(px1 + px2)
-                     - (py1 + py2)*(py1 + py2)
-                     - (pz1 + pz2)*(pz1 + pz2);
-   if (InvMass2 < 0) cout << "Mass Square negative: InvariantMass" << InvMass2 << endl; 
-   return std::sqrt(InvMass2);
+  double InvMass2 =   (E1 + E2)*(E1 + E2)
+    - (px1 + px2)*(px1 + px2)
+    - (py1 + py2)*(py1 + py2)
+    - (pz1 + pz2)*(pz1 + pz2);
+  if (InvMass2 < 0) cout << "Mass Square negative: InvariantMass" << InvMass2 << endl; 
+  return std::sqrt(InvMass2);
 }
+
 double SUSYAna::M2v2(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
-   TLorentzVector * lorentz1 = new TLorentzVector();
-   TLorentzVector * lorentz2 = new TLorentzVector();
-   lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
-   lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
-   TLorentzVector lorentz1plus2 = *lorentz1 + *lorentz2;
-   return lorentz1plus2.M();
+  TLorentzVector * lorentz1 = new TLorentzVector();
+  TLorentzVector * lorentz2 = new TLorentzVector();
+  lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
+  lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
+  TLorentzVector lorentz1plus2 = *lorentz1 + *lorentz2;
+  return lorentz1plus2.M();
 }
+
 double SUSYAna::AngleMuons(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
-   TLorentzVector * lorentz1 = new TLorentzVector();
-   TLorentzVector * lorentz2 = new TLorentzVector();
-   lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
-   lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
+  TLorentzVector * lorentz1 = new TLorentzVector();
+  TLorentzVector * lorentz2 = new TLorentzVector();
+  lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
+  lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
    
-   double part1_px = lorentz1->Px();
-   double part1_py = lorentz1->Py();
-   double part1_pz = lorentz1->Pz();
-   double part1_p = lorentz1->P();
+  double part1_px = lorentz1->Px();
+  double part1_py = lorentz1->Py();
+  double part1_pz = lorentz1->Pz();
+  double part1_p = lorentz1->P();
 
-   double part2_px = lorentz2->Px();
-   double part2_py = lorentz2->Py();
-   double part2_pz = lorentz2->Pz();
-   double part2_p = lorentz2->P();
+  double part2_px = lorentz2->Px();
+  double part2_py = lorentz2->Py();
+  double part2_pz = lorentz2->Pz();
+  double part2_p = lorentz2->P();
 
-   //see exotica muon twiki for documentation
-   double angle = acos(((-1.*part1_px * part2_px)+(-1.*part1_py * part2_py)+(-1.*part1_pz * part2_pz))/(part1_p * part2_p));
-   return angle;
+  //see exotica muon twiki for documentation
+  double angle = acos(((-1.*part1_px * part2_px)+(-1.*part1_py * part2_py)+(-1.*part1_pz * part2_pz))/(part1_p * part2_p));
+  return angle;
 
 }
+
 Double_t SUSYAna::DeltaPhi(double a, double b) {
 
   double temp = fabs(a-b);
@@ -335,12 +332,14 @@ Double_t SUSYAna::DeltaPhi(double a, double b) {
   else
     return  2.*TMath::Pi() - temp;
 }
+
 Double_t SUSYAna::mT(double et1, double phi1, double et2, double phi2) {
 
   double mm = 2 * et1 * et2 * ( 1. - cos(phi1 - phi2) );
   return sqrt(mm);
 
 }
+
 Double_t SUSYAna::MinDEt(const std::vector<TLorentzVector> & objects, 
 			 std::vector<UInt_t> * lista, 
 			 std::vector<UInt_t> * listb) {
@@ -395,9 +394,9 @@ Double_t SUSYAna::MinDEt(const std::vector<TLorentzVector> & objects,
   //  cout << "Minimum difference is " << mindiff << endl << endl << endl;
   //  cout << "===========================================" << endl;
   
-  return mindiff;
-  
+  return mindiff;  
 }
+
 Double_t SUSYAna::AlphaT(const std::vector<TLorentzVector> & objects) {
 
   return 0.5*((SumET(objects) - MinDEt(objects))/(MT(objects)));

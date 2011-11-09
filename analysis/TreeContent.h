@@ -1095,7 +1095,6 @@ TreeContent::TreeContent(TTree *tree)
          f->cd("out.root:/ACSkimAnalysis");
       }
       tree = (TTree*)gDirectory->Get("allData");
-
    }
    Init(tree);
 }

@@ -1,39 +1,110 @@
-#LIBS =  -L$(ROOTSYS)/lib -lNew  -lCint  \#
- LIBS = -L$(ROOTSYS)/lib -lNew  -lCint  \
-         -lGraf -lGraf3d -lHist -lHtml -lMatrix  -lMinuit  \
-         -lPostscript -lTree -lCore -lm -ldl  \
-         -lGpad -lGui -lPhysics 
-# -lDCache
-#-lGX11 \
-#         -L/usr/X11R6/lib -lm -ldl
+######################################################################
+# quite generic Makefile for ROOT-based programs with automatic
+# dependency scanning
+#
+# (C) Martin Weber 2011
 
-CXXFLAGS = -g  --exceptions  -I$(ROOTSYS)/include 
+# Name of the executable
+PROGRAM       = RunSUSY
 
-CPP    = g++
+# external includes / libraries
+#CLHEP_VERSION = 2.0.2.1
+#EXTINCDIR     = -I/usr/local/include/ # external header files should be here, leading slash is mandatory!
+#EXTLIBS       = -L/usr/local/lib -lCLHEP-Matrix-$(CLHEP_VERSION) -lCLHEP-Vector-$(CLHEP_VERSION)
 
-SRC= Run.cpp SUSYAna.cpp TreeContent.cpp
+######################################################################
+# You should not modify the lines below here
+#
 
-#=====================================================================
+# Setup for ROOT libraries
+ROOTCFLAGS   := $(shell root-config --cflags)
+ROOTLIBS     := $(shell root-config --libs)
+ROOTGLIBS    := $(shell root-config --glibs)
+ROOTGLIBS   += -lX3d
 
-%.o: %.cpp
-		$(CPP) $(CXXFLAGS) -c -Wno-deprecated $<
+# Linux with gcc / g++ / g77
+FC            = g77
+FCFLAGS       = -I/cern/pro/include -fPIC -fno-automatic -fdollar-ok -fno-backslash \
+		-finit-local-zero -fno-second-underscore -fugly-logint -ftypeless-boz
+# -pg for gprof
 
-all: test
-test: Run
-#==================
+CXX           = g++
+CXXFLAGS      = -O2 -Wall -fPIC -fsignaling-nans -g # -DNDEBUG # -pg for gprof
+CXXFLAGS     += $(EXTINCDIR)   # external header files should be here
+CXXFLAGS     += $(ROOTCFLAGS)
 
-Run.o: Run.cpp 
-		$(CPP) $(CXXFLAGS) -c Run.cpp -Wno-deprecated
-Run: $(SRC:.cpp=.o)
-		$(CPP) $(CXXFLAGS) $(SRC:.cpp=.o) $(LIBS) -o RunSUSY -Wno-deprecated
-		@echo
-		@echo ' --> RunSUSY created'
-		@echo
+LD            = g++
+LDFLAGS       = -O2 -fsignaling-nans -g # -pg for gprof
+LDFLAGS      += $(ROOTGLIBS)
+LDFLAGS      += $(EXTLIBS)
 
-#====================================================================
+SOURCES       = $(wildcard *.cpp)
+HEADERS       = $(SOURCES:.cpp=.h)
+OBJECTS       = $(SOURCES:.cpp=.o)
+DEPENDS       = $(SOURCES:.cpp=.d)
+
+DICT	      = Dict
+SO	      = lib$(PROGRAM).so
+
+DATE	     := $(shell date "+%F")
+
+######################################################################
+# default targets
+
+all:            $(PROGRAM)
 
 clean:
-		@echo "rm -f RunSUSY  *~  *.o"
-		@rm -f *~ *.o
-		@rm -f RunSUSY
-		@echo ' --> clean'
+		@rm -f $(OBJECTS) $(PROGRAM) $(DICT).* $(DEPENDS)
+
+distclean:      clean
+		@rm -f *~ core *.def *.exp *.root *.ps .def gmon.out
+
+tarball:
+		tar cvjf $(PROGRAM)-$(DATE).tar.bz2 Makefile *.h *.cpp
+
+install:	$(PROGRAM)
+		cp -a $(SO) $(LIBDIR)
+
+uninstall:
+		test -x $(LIBDIR)/$(SO) && rm $(LIBDIR)/$(SO)
+
+######################################################################
+# rules
+
+.SUFFIXES: .cpp .$(ExeSrcSuf) .C .f .o .so .d
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+.cxx.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+.C.o:
+	$(CXX) $(CXXFLAGS) -c $<
+
+.f.o:
+	$(FC) $(FCFLAGS) -c $< -o $@
+
+.cpp.d:
+	$(SHELL) -ec '$(CXX) -M $(CXXFLAGS) $< > $@'
+
+.cxx.d:
+	$(SHELL) -ec '$(CXX) -M $(CXXFLAGS) $< > $@'
+
+include $(DEPENDS)
+
+######################################################################
+# ROOT dictionary
+
+$(DICT).C: $(HEADERS) LinkDef.h
+	@echo "Generating dictionary $(DICT)..."
+	@echo rootcint -f $@ -c $(EXTINCDIR) $+
+	@rootcint -f $@ -c $(EXTINCDIR) $+
+
+######################################################################
+# targets
+
+$(PROGRAM):  $(OBJECTS) $(DICT).o
+	$(LD) $(LDFLAGS) $+ -o $@
+		@echo "$@ done"
+

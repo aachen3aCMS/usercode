@@ -5,6 +5,8 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 
+#include "Run.h"
+
 using std::cout;
 using std::endl;
 
