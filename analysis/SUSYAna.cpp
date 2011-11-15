@@ -281,7 +281,7 @@ void SUSYAna::write(TString fout, int nstages) {
   h1_Z_mass->Write();
   
   f->Close();
-   
+  delete f;
 }
 // helper
 double SUSYAna::M2(double E1, double px1, double py1, double pz1, double E2, double px2, double py2, double pz2) {
@@ -294,29 +294,29 @@ double SUSYAna::M2(double E1, double px1, double py1, double pz1, double E2, dou
 }
 
 double SUSYAna::M2v2(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
-  TLorentzVector * lorentz1 = new TLorentzVector();
-  TLorentzVector * lorentz2 = new TLorentzVector();
-  lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
-  lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
-  TLorentzVector lorentz1plus2 = *lorentz1 + *lorentz2;
+  TLorentzVector lorentz1;
+  TLorentzVector lorentz2;
+  lorentz1.SetPtEtaPhiM(pt1, eta1, phi1, m1);
+  lorentz2.SetPtEtaPhiM(pt2, eta2, phi2, m2);
+  TLorentzVector lorentz1plus2 = lorentz1 + lorentz2;
   return lorentz1plus2.M();
 }
 
 double SUSYAna::AngleMuons(double pt1, double eta1, double phi1, double m1, double pt2, double eta2, double phi2, double m2){
-  TLorentzVector * lorentz1 = new TLorentzVector();
-  TLorentzVector * lorentz2 = new TLorentzVector();
-  lorentz1->SetPtEtaPhiM(pt1, eta1, phi1, m1);
-  lorentz2->SetPtEtaPhiM(pt2, eta2, phi2, m2);
+  TLorentzVector lorentz1;
+  TLorentzVector lorentz2;
+  lorentz1.SetPtEtaPhiM(pt1, eta1, phi1, m1);
+  lorentz2.SetPtEtaPhiM(pt2, eta2, phi2, m2);
    
-  double part1_px = lorentz1->Px();
-  double part1_py = lorentz1->Py();
-  double part1_pz = lorentz1->Pz();
-  double part1_p = lorentz1->P();
+  double part1_px = lorentz1.Px();
+  double part1_py = lorentz1.Py();
+  double part1_pz = lorentz1.Pz();
+  double part1_p = lorentz1.P();
 
-  double part2_px = lorentz2->Px();
-  double part2_py = lorentz2->Py();
-  double part2_pz = lorentz2->Pz();
-  double part2_p = lorentz2->P();
+  double part2_px = lorentz2.Px();
+  double part2_py = lorentz2.Py();
+  double part2_pz = lorentz2.Pz();
+  double part2_p = lorentz2.P();
 
   //see exotica muon twiki for documentation
   double angle = acos(((-1.*part1_px * part2_px)+(-1.*part1_py * part2_py)+(-1.*part1_pz * part2_pz))/(part1_p * part2_p));
