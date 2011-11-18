@@ -20,6 +20,7 @@ OPTIONS:
   -h               This help message
   -d               Run on data
   -m               Run on Monte-Carlo
+  -c cmsswconfig   CMSSW configuratin file template (default: cmssw_template.cfg)
   -u username      Your grid user name, e.g. mweber
   -s dataset       Dataset path, e.g. /DoubleMu/Run2011A-May10ReReco-v1/AOD
   -v version       Any version tag you like, defaults to skimmer version ($VERSION)
@@ -114,7 +115,7 @@ function main()
     NJOBS=500
     FORCE=
     # process command line options
-    while getopts "hdmu:s:v:t:g:l:i:j:n:f" OPTION
+    while getopts "hdmc:u:s:v:t:g:l:i:j:n:f" OPTION
     do
          case $OPTION in
              h)
@@ -126,6 +127,9 @@ function main()
 		 ;;
 	     m)
 		 MC=1
+		 ;;
+	     c)
+		 CMSSWCFG=$OPTARG
 		 ;;
 	     u)
 		 USER=$OPTARG
