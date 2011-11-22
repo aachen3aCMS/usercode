@@ -227,6 +227,7 @@ process.patJets.addTagInfos = cms.bool(False)  # AOD only
 
 ### Definition of all tags here
 elecTag         = cms.InputTag("patElectrons")
+photonTag         = cms.InputTag("patPhotons")
 pfelecTag      = cms.InputTag("patElectronsPFlow")
 calojetTag     = cms.InputTag("patJetsAK5Calo")
 pfjetTag        = cms.InputTag("patJetsPFlow")
@@ -255,9 +256,10 @@ process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
     is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
+    is_PYTHIA8 = cms.bool(False),  # set to 'True' if running on PYTHIA8
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
-    matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
+    matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu (and photon with pt>1)
     susyPar    = cms.bool(False),
     doCaloJet  = cms.bool(False),
 
@@ -267,6 +269,7 @@ process.ACSkimAnalysis = cms.EDFilter(
 
     calojetTag = calojetTag,
     pfjetTag   = pfjetTag,
+    photonTag  = photonTag,
     elecTag    = elecTag,
     pfelecTag  = pfelecTag,
     muonTag    = muonTag,
@@ -290,6 +293,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     muoptfirst = cms.double(0.),
     muoptother = cms.double(0.),
     muoeta     = cms.double(25.),
+    phopt      = cms.double(0.),
+    phoeta     = cms.double(25.),
     elept      = cms.double(0.),
     eleeta     = cms.double(25.),
     pfelept    = cms.double(0.),
@@ -305,6 +310,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     mettc      = cms.double(0.),
     nele       = cms.int32(0),
     npfele     = cms.int32(0),
+    npho       = cms.int32(0),
     nmuo       = cms.int32(0),
     ncalojet   = cms.int32(0),
     npfjet     = cms.int32(0),

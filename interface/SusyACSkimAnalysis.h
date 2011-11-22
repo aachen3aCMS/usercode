@@ -148,6 +148,7 @@ private:
   edm::InputTag metTag_;
   edm::InputTag metTagPF_;
   edm::InputTag metTagTC_;
+  edm::InputTag photonTag_;
   edm::InputTag elecTag_;
   edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
@@ -165,6 +166,7 @@ private:
   edm::InputTag freducedBarrelRecHitCollection_;
   edm::InputTag freducedEndcapRecHitCollection_;
 
+  bool is_PYTHIA8;
   bool is_MC;
   bool is_SHERPA;
   bool do_fatjets;
@@ -178,6 +180,7 @@ private:
 
   GreaterByPt<pat::Muon>      ptcomp_muo;
   GreaterByPt<pat::Tau>       ptcomp_tau;
+  GreaterByPt<pat::Photon>    ptcomp_photon;
   GreaterByPt<pat::Electron>  ptcomp_ele;
   GreaterByPt<pat::Jet>       ptcomp_jet;
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
@@ -196,7 +199,6 @@ private:
   isoContainer *eIsoFromDepsValueMap_;
   isoContainer *muIsoFromDepsValueMap_;
 
-
   TString ACmuonID[24];
   TString ACtauID[16];
 
@@ -205,7 +207,8 @@ private:
 
   double bfield;
 
-   int nele_;
+  int npho_;
+  int nele_;
   int npfele_;
   int nmuo_;
   int ncalojet_;
@@ -214,6 +217,8 @@ private:
   double muoptfirst_;
   double muoptother_;
   double muoeta_;
+  double phopt_;
+  double phoeta_;
   double elept_;
   double eleeta_;
   double pfelept_;
@@ -240,6 +245,7 @@ private:
   unsigned int nrEventPassedPthatRaw_;
   unsigned int nrEventPassedRaw_;
 
+  int cpho_;
   int cele_;
   int cpfele_;
   int cmuo_;
@@ -528,6 +534,53 @@ private:
   double mTreeSCPhi[200];
   double mTreeSCEta[200];
   double mTreeSCtrig[100][500];
+
+  int    mTreeNpho;
+  int    mTreePhoTruth[100];
+  int    mTreeNphotrign[100];
+  int    mTreePhotrig[100][500];
+
+  double mTreePhoPFCandPx[100];
+  double mTreePhoPFCandPy[100];
+  double mTreePhoPFCandPz[100];
+  double mTreePhoPFCandE[100];
+  double mTreePhoPFCandeta[100];
+  double mTreePhoPFCandphi[100];
+  int mTreePhoPFCandpfid[100];
+  double mTreePhoPFCandpfDeltaR[100];
+
+  double mTreePhoEt[100];
+  double mTreePhoP[100];
+  double mTreePhoPt[100];
+  double mTreePhoE[100];
+  double mTreePhoRawE[100];
+  double mTreePhoEta[100];
+  double mTreePhoPhi[100];
+  double mTreePhoPx[100];
+  double mTreePhoPy[100];
+  double mTreePhoPz[100];
+  double mTreePhoSCEta[100];
+  double mTreePhoDr03TkSumPt[100];
+  double mTreePhoDr04TkSumPt[100];
+  double mTreePhoSigmaIetaIeta[100];
+  double mTreePhoEcaloIso[100];
+  double mTreePhoHcaloIso[100];
+  double mTreePhoTrackIso[100];
+  double mTreePhoHCalOverEm[100];
+  double mTreePhoe5x5[100];
+  double mTreePhoe1x5[100];
+  double mTreePhoe3x3[100];
+  double mTreePhoSwissCross[100];
+
+  double mTreePhoRoundness[100];
+  double mTreePhoAngle[100];
+  double mTreePhoR9[100];
+  double mTreePhoSCEtaWidth[100];
+
+  int    mTreePhoHasPixelSeed[100];
+  int    mTreePhoHasConvTracks[100];
+  int    mTreePhoisPF[100];
+
 
   int    mTreeNele;
   int    mTreeNeletrign[100];
@@ -819,4 +872,3 @@ private:
   double mTreebfield;
 
 };
-
