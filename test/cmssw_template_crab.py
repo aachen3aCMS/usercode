@@ -1,7 +1,5 @@
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
-
-
 def addScrapingFilter( process ):
     process.scrapingFilter = cms.EDFilter( 'FilterOutScraping',
                                            applyfilter = cms.untracked.bool( True ),
@@ -20,18 +18,22 @@ def addKinematicsFilter( process ):
 
     process.p_kinematicsfilter = cms.Path( process.totalKinematicsFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_kinematicsfilter' )
-    
-
 
 process = cms.Process("ANA")
-    
-#~ isData=@ISDATA@
-#~ qscalehigh=@QSCALE_LOW@
-#~ qscalelow=@QSCALE_HIGH@
-qscalehigh=-1.
-qscalelow=-1.
-isData=False
-tauSwitch=False;
+
+isData=@ISDATA@
+qscalehigh=@QSCALE_LOW@
+qscalelow=@QSCALE_HIGH@
+tauSwitch=@DOTAU@
+calojetSwitch=@DOCALOJETS@
+Pythia8Switch=@PYTHIA8@
+SherpaSwitch=@SHERPA@
+FastJetsSwitch=@FASTJET@
+SusyParSwith=@SUSYPAR@
+#~ qscalehigh=200.
+#~ qscalelow=50.
+#~ isData=False
+#~ tauSwitch=False;
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -44,8 +46,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # Should match input file's tag
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
-process.GlobalTag.globaltag = cms.string('START44_V5::All')
+process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
+#~ process.GlobalTag.globaltag = cms.string('START44_V5::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -54,11 +56,6 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-
-# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
-
-
 
 #-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -100,8 +97,23 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
     src=cms.InputTag('offlinePrimaryVertices')
 )
++######################################################################
++# event cleaning
+ process.scrapingVeto = cms.EDFilter("FilterOutScraping",
+                                      applyfilter = cms.untracked.bool(True),
+                                      debugOn = cms.untracked.bool(False),
+                                      numtrack = cms.untracked.uint32(10),
+                                      thresh = cms.untracked.double(0.2)
+                                      )
++# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
++process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+ 
++# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
++# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
++process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
-process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+
+
 
 
 ### Input / output ###
@@ -135,7 +147,6 @@ process.patMuons.embedStandAloneMuon = False;
 #addMuonUserIsolation(process)
 
 #process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
-
 
 
 
@@ -272,23 +283,15 @@ process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
     is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
-	is_PYTHIA8 = cms.bool(False),  # set to 'True' if running on PYTHIA8    
-    is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
-    do_fatjets = cms.bool(False),  # set to 'True' for fat jets
-    matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
-    susyPar    = cms.bool(False),
-    doCaloJet  = cms.bool(False),
+	is_PYTHIA8 = cms.bool(Pythia8Switch),  # set to 'True' if running on PYTHIA8    
+    is_SHERPA  = cms.bool(SherpaSwitch),  # set to 'True' if running on SHERPA
+    do_fatjets = cms.bool(FastJetsSwitch),  # set to 'True' for fat jets
+    matchAll   = cms.bool(MatchAllSwitch),  # if True all truth leptons are matched else only ele and mu
+    susyPar    = cms.bool(SusyParSwith),
+    doCaloJet  = cms.bool(calojetSwitch),
     doTaus     = cms.bool(tauSwitch),
 
-    # This is used to access the results of all filters that ran.
-    #
-    filters = cms.PSet(
-        AllFilters = cms.PSet(
-            process = cms.string( 'PAT' ),
-            results = cms.string( 'TriggerResults' ),
-            paths = cms.vstring()
-        )
-    ),
+
 
 
     calojetTag = calojetTag,
@@ -317,36 +320,36 @@ process.ACSkimAnalysis = cms.EDFilter(
 
     qscale_low  = cms.double(qscalelow),
     qscale_high = cms.double(qscalehigh),
-    muoptfirst = cms.double(0.),
-    muoptother = cms.double(0.),
-    muoeta     = cms.double(25.),
-    elept      = cms.double(0.),
-    eleeta     = cms.double(25.),
-    phopt      = cms.double(0.),
-    phoeta     = cms.double(25.),    
-    pfelept    = cms.double(0.),
-    pfeleeta   = cms.double(25.),
-    calojetpt  = cms.double(0.),
-    calojeteta = cms.double(25.),
-    pfjetpt    = cms.double(0.),
-    pfjeteta   = cms.double(25.),
-    taupt      = cms.double(0.),
-    taueta     = cms.double(25.),
-    metcalo    = cms.double(0.),
-    metpf      = cms.double(0.),
-    mettc      = cms.double(0.),
-    nele       = cms.int32(0),
-    npho       = cms.int32(0),
-    npfele     = cms.int32(0),
-    nmuo       = cms.int32(0),
-    ncalojet   = cms.int32(0),
-    npfjet     = cms.int32(0),
-    ntau       = cms.int32(0),
-    htc        = cms.double(0), 
-    PFhtc      = cms.double(0),
-    triggerContains=cms.string('None'),
-    muoMinv    = cms.double(0), 
-    muoDMinv   = cms.double(0), 
+    muoptfirst = cms.double(@MUOPTFIRST@),
+    muoptother = cms.double(@MUOPTOTHER@),
+    muoeta     = cms.double(@MUOETA@),
+    elept      = cms.double(@ELEPT@),
+    eleeta     = cms.double(@ELEETA@),
+    phopt      = cms.double(@PHOPT@),
+    phoeta     = cms.double(@PHOETA@),    
+    pfelept    = cms.double(@PFELEPT@),
+    pfeleeta   = cms.double(@PFELEETA@),
+    calojetpt  = cms.double(@CALOJETPT@),
+    calojeteta = cms.double(@CALOJETETA@),
+    pfjetpt    = cms.double(@PFJETPT@),
+    pfjeteta   = cms.double(@PFJETETA@),
+    taupt      = cms.double(@TAUPT@),
+    taueta     = cms.double(@TAUETA@),
+    metcalo    = cms.double(@METCALO@),
+    metpf      = cms.double(@METPF@),
+    mettc      = cms.double(@METTC@),
+    nele       = cms.int32(@NELE@),
+    npho       = cms.int32(@NPHO@),
+    npfele     = cms.int32(@NPFELE@),
+    nmuo       = cms.int32(@NMUO@),
+    ncalojet   = cms.int32(@NCALOJET@),
+    npfjet     = cms.int32(@NPFJET@),
+    ntau       = cms.int32(@NTAU@),
+    htc        = cms.double(@HTC@), 
+    PFhtc      = cms.double(@PFHTC@),
+    triggerContains=cms.string(@TRIGGERCONTAINS@),
+    muoMinv    = cms.double(@MUOMINV@), 
+    muoDMinv   = cms.double(@MUODMINV@), 
 
     btag       = cms.string('trackCountingHighEffBJetTags'),
 
@@ -357,8 +360,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 		
 )
-
-
 
 
 
@@ -405,6 +406,3 @@ process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterl
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()    
     
 process.e = cms.EndPath( process.ACSkimAnalysis )
-
-
-

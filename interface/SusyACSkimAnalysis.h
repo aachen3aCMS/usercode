@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
@@ -142,6 +143,26 @@ private:
   L1GtUtils l1GtUtils_;
   int l1error;
 
+	//structs for getting filter informations inside the Skimmer. Shamelessly stolen from MUSiC
+
+   struct FilterDef {
+      std::string name;
+      unsigned int ID;
+      bool active;
+   };
+
+
+   struct FilterResult {
+      std::string   name;
+      std::string   process;
+      edm::InputTag results;
+      edm::InputTag event;
+      HLTConfigProvider config;
+      std::vector< std::string > filter_names;
+      std::vector< FilterDef > filter_infos;
+   };
+   std::vector< FilterResult > filters;
+
   // Data tags
   edm::InputTag calojetTag_;
   edm::InputTag pfjetTag_;
@@ -173,6 +194,7 @@ private:
   bool matchAll_;
   bool susyPar_;
   bool doCaloJet_;
+  bool doTaus_;
   //bool beamScaping_;
 
   std::string btag_;
@@ -234,15 +256,15 @@ private:
   double PFhtc_;
   double taupt_;
   double taueta_;
-  double pthat_low_;
-  double pthat_high_;
+  double qscale_low_;
+  double qscale_high_;
   double muominv_;
   double muoDminv_;
   std::string trigger_;
 
   // Counters
   unsigned int nrEventTotalRaw_;
-  unsigned int nrEventPassedPthatRaw_;
+  unsigned int nrEventPassedQscaleRaw_;
   unsigned int nrEventPassedRaw_;
 
   int cpho_;
@@ -305,57 +327,17 @@ private:
   int    mTreeecalflag;
   
   
+  
 
-  int mTreenoiseHCALHasBadRBXTS4TS5;
-  int mTreenoiseHCALnumProblematicRBXs ;
-  int mTreenoiseHCALnumSpikeNoiseChannels;
-  int mTreenoiseHCALnumTriangleNoiseChannels;
-  int mTreenoiseHCALnumTS4TS5NoiseChannels;
   
-  int mTreenoiseHCALmaxHPDHits;
-  int mTreenoiseHCALmaxHPDNoOtherHits;
-  int mTreenoiseHCALmaxRBXHits;
-  int mTreenoiseHCALnum10GeVHits;
-  int mTreenoiseHCALnum25GeVHits;
-  int mTreenoiseHCALnoiseFilterStatus;
-  int mTreenoiseHCALnoiseType;
-  int mTreenoiseHCALmaxZeros;
-  int mTreenoiseHCALnumFlatNoiseChannels;
-  int mTreenoiseHCALnumIsolatedNoiseChannels;
-  int mTreenoiseHCALpassHighLevelNoiseFilter;
-  int mTreenoiseHCALpassLooseNoiseFilter;
-  int mTreenoiseHCALpassTightNoiseFilter;
+
+  Bool_t mTreenoiseHBHEFilterResult;
   
-  double mTreenoiseHCALeventChargeFraction;
-  double mTreenoiseHCALeventEMEnergy;
-  double mTreenoiseHCALeventEMFraction;
-  double mTreenoiseHCALeventHadEnergy;
-  double mTreenoiseHCALeventTrackEnergy;
-  double mTreenoiseHCALflatNoiseSumE;
-  double mTreenoiseHCALflatNoiseSumEt;
-  double mTreenoiseHCALisolatedNoiseSumE;
-  double mTreenoiseHCALisolatedNoiseSumEt;
-  double mTreenoiseHCALmax10GeVHitTime;
-  double mTreenoiseHCALmax25GeVHitTime;
-  double mTreenoiseHCALmaxE10TS;
-  double mTreenoiseHCALmaxE2Over10TS;
-  double mTreenoiseHCALmaxE2TS;
-  double mTreenoiseHCALmin10GeVHitTime;
-  double mTreenoiseHCALmin25GeVHitTime;
-  double mTreenoiseHCALminE10TS;
-  double mTreenoiseHCALminE2Over10TS;
-  double mTreenoiseHCALminE2TS;
-  double mTreenoiseHCALminHPDEMF;
-  double mTreenoiseHCALminRBXEMF;
-  double mTreenoiseHCALrms10GeVHitTime;
-  double mTreenoiseHCALrms25GeVHitTime;
-  double mTreenoiseHCALspikeNoiseSumE;
-  double mTreenoiseHCALspikeNoiseSumEt;
-  double mTreenoiseHCALtriangleNoiseSumE;
-  double mTreenoiseHCALtriangleNoiseSumEt;
-  double mTreenoiseHCALTS4TS5NoiseSumE;
-  double mTreenoiseHCALTS4TS5NoiseSumEt;
-  
+  int mTreeNFilter; 
+  Bool_t mTreeFilterResults[100];
+  int mTreeFilterName[100][20];
+
+    
   int nTreePileUp;
   int mTreePUbx[3];
   int mTreePUNumInteractions[3];
@@ -622,7 +604,7 @@ private:
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
   double mTreeElefbrem[100];
-  double mTreeElePFiso[100][9];
+  double mTreeElePFiso[100][3];
   double mTreeEledr03HcalDepth1[100];
   double mTreeEledr03HcalDepth2[100];
   double mTreeElee2x5Max[100];
@@ -729,7 +711,7 @@ private:
   double mTreeMuovy[100];
   double mTreeMuovz[100];
   double mTreeMuoValidFraction[100];
-  double mTreeMuoPFiso[100][9];
+  double mTreeMuoPFiso[100][5];
   
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];
@@ -868,7 +850,7 @@ private:
 
   double mTreeEventWeight;
   int    mTreeProcID;
-  double mTreePthat;
+  double mTreeQscale;
   double mTreebfield;
 
 };
