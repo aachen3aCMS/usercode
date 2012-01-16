@@ -351,13 +351,13 @@ private:
   int mTreetrighltname[20];
   
   int mTreeNtrig;
-  int mTreetrigL1pre[1000];
-  int mTreetrigHLTpre[1000];
-  int mTreetrigname[1000][20];
-  int mTreefiltname[1000][20];
-  double mTreetrigpt[1000];
-  double mTreetrigeta[1000];
-  double mTreetrigphi[1000];
+  int mTreetrigL1pre[3000];
+  int mTreetrigHLTpre[3000];
+  int mTreetrigname[3000][20];
+  int mTreefiltname[3000][20];
+  double mTreetrigpt[3000];
+  double mTreetrigeta[3000];
+  double mTreetrigphi[3000];
   
   double mTreeMET[10];
   double mTreeMEX[10];

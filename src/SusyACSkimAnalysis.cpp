@@ -298,12 +298,21 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
             mTreetrigeta[mTreeNtrig] = objRef->eta();
             mTreetrigphi[mTreeNtrig] = objRef->phi();
             mTreeNtrig++;
-            if (mTreeNtrig==1000) break;
+            if (mTreeNtrig==3000){ 
+				cout << "WARNING! Event contains more than 3000 triggers!" << endl;
+				break;
+			}
+            
           }
-          if (mTreeNtrig==1000) break;
+          if (mTreeNtrig==3000){
+			   cout << "WARNING! Event contains more than 3000 triggers!" << endl;
+			   break;
+		   }
         }
-        if (mTreeNtrig==1000) break;
-        
+        if (mTreeNtrig==3000){
+			cout << "WARNING! Event contains more than 3000 triggers!" << endl;
+			break;
+		}
         /*
         const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
         for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll )
@@ -533,7 +542,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeNFilter++;
   }
 		
-	cout <<  mTreeNFilter << endl;
    
 
 

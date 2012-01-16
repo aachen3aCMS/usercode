@@ -73,7 +73,7 @@ class TreeContent {
 
    Double_t        global_weight;
    Int_t           global_procID;
-   Double_t        global_pthat;
+   Double_t        global_qscale;
    Double_t        global_bfield;
    Int_t           global_store;
    UInt_t           global_run;
@@ -112,62 +112,19 @@ class TreeContent {
    Int_t           noise_ecal_flag;
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
-   Double_t        noise_hcal_eventChargeFraction;
-   Double_t        noise_hcal_eventEMEnergy;
-   Double_t        noise_hcal_eventEMFraction;
-   Double_t        noise_hcal_eventHadEnergy;
-   Double_t        noise_hcal_eventTrackEnergy;
-   Double_t        noise_hcal_flatNoiseSumE;
-   Double_t        noise_hcal_flatNoiseSumEt;
-   Int_t           noise_hcal_HasBadRBXTS4TS5;
-   Double_t        noise_hcal_isolatedNoiseSumE;
-   Double_t        noise_hcal_isolatedNoiseSumEt;
-   Double_t        noise_hcal_max10GeVHitTime;
-   Double_t        noise_hcal_max25GeVHitTime;
-   Double_t        noise_hcal_maxE10TS;
-   Double_t        noise_hcal_maxE2Over10TS;
-   Double_t        noise_hcal_maxE2TS;
-   Int_t           noise_hcal_maxHPDHits;
-   Int_t           noise_hcal_maxHPDNoOtherHits;
-   Int_t           noise_hcal_maxRBXHits;
-   Int_t           noise_hcal_maxZeros;
-   Double_t        noise_hcal_min10GeVHitTime;
-   Double_t        noise_hcal_min25GeVHitTime;
-   Double_t        noise_hcal_minE10TS;
-   Double_t        noise_hcal_minE2Over10TS;
-   Double_t        noise_hcal_minE2TS;
-   Double_t        noise_hcal_minHPDEMF;
-   Double_t        noise_hcal_minRBXEMF;
-   Int_t           noise_hcal_noiseFilterStatus;
-   Int_t           noise_hcal_noiseType;
-   Int_t           noise_hcal_num10GeVHits;
-   Int_t           noise_hcal_num25GeVHits;
-   Int_t           noise_hcal_numFlatNoiseChannels;
-   Int_t           noise_hcal_numIsolatedNoiseChannels;
-   Int_t           noise_hcal_numProblematicRBXs;
-   Int_t           noise_hcal_numSpikeNoiseChannels;
-   Int_t           noise_hcal_numTriangleNoiseChannels;
-   Int_t           noise_hcal_numTS4TS5NoiseChannels;
-   Int_t           noise_hcal_passHighLevelNoiseFilter;
-   Int_t           noise_hcal_passLooseNoiseFilter;
-   Int_t           noise_hcal_passTightNoiseFilter;
-   Double_t        noise_hcal_rms10GeVHitTime;
-   Double_t        noise_hcal_rms25GeVHitTime;
-   Double_t        noise_hcal_spikeNoiseSumE;
-   Double_t        noise_hcal_spikeNoiseSumEt;
-   Double_t        noise_hcal_triangleNoiseSumE;
-   Double_t        noise_hcal_triangleNoiseSumEt;
-   Double_t        noise_hcal_TS4TS5NoiseSumE;
-   Double_t        noise_hcal_TS4TS5NoiseSumEt;
+   Bool_t          noise_HBHE_filter_result;
+   Int_t 		   eventfilter_n;
+   Bool_t		   eventfilter_results[100];
+   Int_t           eventfilter_names[100][20];	   
    Int_t           trig_HLTName[20];
    Int_t           trig_n;
-   Int_t           trig_L1prescale[1000];   //[trig_n]
-   Int_t           trig_HLTprescale[1000];   //[trig_n]
-   Int_t           trig_name[1000][20];   //[trig_n]
-   Int_t           trig_filter[1000][20];   //[trig_n]
-   Double_t        trig_pt[1000];   //[trig_n]
-   Double_t        trig_eta[1000];   //[trig_n]
-   Double_t        trig_phi[1000];   //[trig_n]
+   Int_t           trig_L1prescale[3000];   //[trig_n]
+   Int_t           trig_HLTprescale[3000];   //[trig_n]
+   Int_t           trig_name[3000][20];   //[trig_n]
+   Int_t           trig_filter[3000][20];   //[trig_n]
+   Double_t        trig_pt[3000];   //[trig_n]
+   Double_t        trig_eta[3000];   //[trig_n]
+   Double_t        trig_phi[3000];   //[trig_n]
    Int_t           truth_n;
    Int_t           truth_pdgid[100];   //[truth_n]
    Int_t           truth_bvtxid[100];   //[truth_n]
@@ -374,7 +331,7 @@ class TreeContent {
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
    Double_t        ele_SwissCross[100];   //[ele_n]
-   Double_t        ele_PFiso[100][9];      //[ele_n]
+   Double_t        ele_PFiso[100][3];      //[ele_n]
    Double_t        ele_PFCand_px[100];   //[ele_n]
    Double_t        ele_PFCand_py[100];   //[ele_n]
    Double_t        ele_PFCand_pz[100];   //[ele_n]
@@ -471,7 +428,7 @@ class TreeContent {
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
    Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
    Double_t        muo_TevReco_ndof[100][7];   //[muo_n]
-   Double_t        muo_PFiso[100][9];      //[muo_n]
+   Double_t        muo_PFiso[100][5];      //[muo_n]
    Double_t        muo_PFCand_px[100];   //[muo_n]
    Double_t        muo_PFCand_py[100];   //[muo_n]
    Double_t        muo_PFCand_pz[100];   //[muo_n]
@@ -574,7 +531,7 @@ class TreeContent {
    // List of branches
    TBranch        *b_global_weight;   //!
    TBranch        *b_global_procID;   //!
-   TBranch        *b_global_pthat;   //!
+   TBranch        *b_global_qscale;   //!
    TBranch        *b_global_bfield;   //!
    TBranch        *b_global_store;   //!
    TBranch        *b_global_run;   //!
@@ -613,53 +570,10 @@ class TreeContent {
    TBranch        *b_noise_ecal_flag;   //!
    TBranch        *b_noise_ecal_ieta;   //!
    TBranch        *b_noise_ecal_iphi;   //!
-   TBranch        *b_noise_hcal_eventChargeFraction;   //!
-   TBranch        *b_noise_hcal_eventEMEnergy;   //!
-   TBranch        *b_noise_hcal_eventEMFraction;   //!
-   TBranch        *b_noise_hcal_eventHadEnergy;   //!
-   TBranch        *b_noise_hcal_eventTrackEnergy;   //!
-   TBranch        *b_noise_hcal_flatNoiseSumE;   //!
-   TBranch        *b_noise_hcal_flatNoiseSumEt;   //!
-   TBranch        *b_noise_hcal_HasBadRBXTS4TS5;   //!
-   TBranch        *b_noise_hcal_isolatedNoiseSumE;   //!
-   TBranch        *b_noise_hcal_isolatedNoiseSumEt;   //!
-   TBranch        *b_noise_hcal_max10GeVHitTime;   //!
-   TBranch        *b_noise_hcal_max25GeVHitTime;   //!
-   TBranch        *b_noise_hcal_maxE10TS;   //!
-   TBranch        *b_noise_hcal_maxE2Over10TS;   //!
-   TBranch        *b_noise_hcal_maxE2TS;   //!
-   TBranch        *b_noise_hcal_maxHPDHits;   //!
-   TBranch        *b_noise_hcal_maxHPDNoOtherHits;   //!
-   TBranch        *b_noise_hcal_maxRBXHits;   //!
-   TBranch        *b_noise_hcal_maxZeros;   //!
-   TBranch        *b_noise_hcal_min10GeVHitTime;   //!
-   TBranch        *b_noise_hcal_min25GeVHitTime;   //!
-   TBranch        *b_noise_hcal_minE10TS;   //!
-   TBranch        *b_noise_hcal_minE2Over10TS;   //!
-   TBranch        *b_noise_hcal_minE2TS;   //!
-   TBranch        *b_noise_hcal_minHPDEMF;   //!
-   TBranch        *b_noise_hcal_minRBXEMF;   //!
-   TBranch        *b_noise_hcal_noiseFilterStatus;   //!
-   TBranch        *b_noise_hcal_noiseType;   //!
-   TBranch        *b_noise_hcal_num10GeVHits;   //!
-   TBranch        *b_noise_hcal_num25GeVHits;   //!
-   TBranch        *b_noise_hcal_numFlatNoiseChannels;   //!
-   TBranch        *b_noise_hcal_numIsolatedNoiseChannels;   //!
-   TBranch        *b_noise_hcal_numProblematicRBXs;   //!
-   TBranch        *b_noise_hcal_numSpikeNoiseChannels;   //!
-   TBranch        *b_noise_hcal_numTriangleNoiseChannels;   //!
-   TBranch        *b_noise_hcal_numTS4TS5NoiseChannels;   //!
-   TBranch        *b_noise_hcal_passHighLevelNoiseFilter;   //!
-   TBranch        *b_noise_hcal_passLooseNoiseFilter;   //!
-   TBranch        *b_noise_hcal_passTightNoiseFilter;   //!
-   TBranch        *b_noise_hcal_rms10GeVHitTime;   //!
-   TBranch        *b_noise_hcal_rms25GeVHitTime;   //!
-   TBranch        *b_noise_hcal_spikeNoiseSumE;   //!
-   TBranch        *b_noise_hcal_spikeNoiseSumEt;   //!
-   TBranch        *b_noise_hcal_triangleNoiseSumE;   //!
-   TBranch        *b_noise_hcal_triangleNoiseSumEt;   //!
-   TBranch        *b_noise_hcal_TS4TS5NoiseSumE;   //!
-   TBranch        *b_noise_hcal_TS4TS5NoiseSumEt;   //!
+   TBranch		  *b_eventfilter_n; //!
+   TBranch		  *b_eventfilter_names; //!
+   TBranch        *b_eventfilter_results; //!
+   TBranch		  *b_noise_HBHE_filter_result; //!
    TBranch        *b_trig_HLTName;   //!
    TBranch        *b_trig_n;   //!
    TBranch        *b_trig_L1prescale;   //!
@@ -1095,6 +1009,7 @@ TreeContent::TreeContent(TTree *tree)
          f->cd("out.root:/ACSkimAnalysis");
       }
       tree = (TTree*)gDirectory->Get("allData");
+
    }
    Init(tree);
 }
@@ -1144,7 +1059,7 @@ void TreeContent::Init(TTree *tree)
 
    fChain->SetBranchAddress("global_weight", &global_weight, &b_global_weight);
    fChain->SetBranchAddress("global_procID", &global_procID, &b_global_procID);
-   fChain->SetBranchAddress("global_pthat", &global_pthat, &b_global_pthat);
+   fChain->SetBranchAddress("global_qscale", &global_qscale, &b_global_qscale);
    fChain->SetBranchAddress("global_bfield", &global_bfield, &b_global_bfield);
    fChain->SetBranchAddress("global_store", &global_store, &b_global_store);
    fChain->SetBranchAddress("global_run", &global_run, &b_global_run);
@@ -1183,53 +1098,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("noise_ecal_flag", &noise_ecal_flag, &b_noise_ecal_flag);
    fChain->SetBranchAddress("noise_ecal_ieta", &noise_ecal_ieta, &b_noise_ecal_ieta);
    fChain->SetBranchAddress("noise_ecal_iphi", &noise_ecal_iphi, &b_noise_ecal_iphi);
-   fChain->SetBranchAddress("noise_hcal_eventChargeFraction", &noise_hcal_eventChargeFraction, &b_noise_hcal_eventChargeFraction);
-   fChain->SetBranchAddress("noise_hcal_eventEMEnergy", &noise_hcal_eventEMEnergy, &b_noise_hcal_eventEMEnergy);
-   fChain->SetBranchAddress("noise_hcal_eventEMFraction", &noise_hcal_eventEMFraction, &b_noise_hcal_eventEMFraction);
-   fChain->SetBranchAddress("noise_hcal_eventHadEnergy", &noise_hcal_eventHadEnergy, &b_noise_hcal_eventHadEnergy);
-   fChain->SetBranchAddress("noise_hcal_eventTrackEnergy", &noise_hcal_eventTrackEnergy, &b_noise_hcal_eventTrackEnergy);
-   fChain->SetBranchAddress("noise_hcal_flatNoiseSumE", &noise_hcal_flatNoiseSumE, &b_noise_hcal_flatNoiseSumE);
-   fChain->SetBranchAddress("noise_hcal_flatNoiseSumEt", &noise_hcal_flatNoiseSumEt, &b_noise_hcal_flatNoiseSumEt);
-   fChain->SetBranchAddress("noise_hcal_HasBadRBXTS4TS5", &noise_hcal_HasBadRBXTS4TS5, &b_noise_hcal_HasBadRBXTS4TS5);
-   fChain->SetBranchAddress("noise_hcal_isolatedNoiseSumE", &noise_hcal_isolatedNoiseSumE, &b_noise_hcal_isolatedNoiseSumE);
-   fChain->SetBranchAddress("noise_hcal_isolatedNoiseSumEt", &noise_hcal_isolatedNoiseSumEt, &b_noise_hcal_isolatedNoiseSumEt);
-   fChain->SetBranchAddress("noise_hcal_max10GeVHitTime", &noise_hcal_max10GeVHitTime, &b_noise_hcal_max10GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_max25GeVHitTime", &noise_hcal_max25GeVHitTime, &b_noise_hcal_max25GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_maxE10TS", &noise_hcal_maxE10TS, &b_noise_hcal_maxE10TS);
-   fChain->SetBranchAddress("noise_hcal_maxE2Over10TS", &noise_hcal_maxE2Over10TS, &b_noise_hcal_maxE2Over10TS);
-   fChain->SetBranchAddress("noise_hcal_maxE2TS", &noise_hcal_maxE2TS, &b_noise_hcal_maxE2TS);
-   fChain->SetBranchAddress("noise_hcal_maxHPDHits", &noise_hcal_maxHPDHits, &b_noise_hcal_maxHPDHits);
-   fChain->SetBranchAddress("noise_hcal_maxHPDNoOtherHits", &noise_hcal_maxHPDNoOtherHits, &b_noise_hcal_maxHPDNoOtherHits);
-   fChain->SetBranchAddress("noise_hcal_maxRBXHits", &noise_hcal_maxRBXHits, &b_noise_hcal_maxRBXHits);
-   fChain->SetBranchAddress("noise_hcal_maxZeros", &noise_hcal_maxZeros, &b_noise_hcal_maxZeros);
-   fChain->SetBranchAddress("noise_hcal_min10GeVHitTime", &noise_hcal_min10GeVHitTime, &b_noise_hcal_min10GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_min25GeVHitTime", &noise_hcal_min25GeVHitTime, &b_noise_hcal_min25GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_minE10TS", &noise_hcal_minE10TS, &b_noise_hcal_minE10TS);
-   fChain->SetBranchAddress("noise_hcal_minE2Over10TS", &noise_hcal_minE2Over10TS, &b_noise_hcal_minE2Over10TS);
-   fChain->SetBranchAddress("noise_hcal_minE2TS", &noise_hcal_minE2TS, &b_noise_hcal_minE2TS);
-   fChain->SetBranchAddress("noise_hcal_minHPDEMF", &noise_hcal_minHPDEMF, &b_noise_hcal_minHPDEMF);
-   fChain->SetBranchAddress("noise_hcal_minRBXEMF", &noise_hcal_minRBXEMF, &b_noise_hcal_minRBXEMF);
-   fChain->SetBranchAddress("noise_hcal_noiseFilterStatus", &noise_hcal_noiseFilterStatus, &b_noise_hcal_noiseFilterStatus);
-   fChain->SetBranchAddress("noise_hcal_noiseType", &noise_hcal_noiseType, &b_noise_hcal_noiseType);
-   fChain->SetBranchAddress("noise_hcal_num10GeVHits", &noise_hcal_num10GeVHits, &b_noise_hcal_num10GeVHits);
-   fChain->SetBranchAddress("noise_hcal_num25GeVHits", &noise_hcal_num25GeVHits, &b_noise_hcal_num25GeVHits);
-   fChain->SetBranchAddress("noise_hcal_numFlatNoiseChannels", &noise_hcal_numFlatNoiseChannels, &b_noise_hcal_numFlatNoiseChannels);
-   fChain->SetBranchAddress("noise_hcal_numIsolatedNoiseChannels", &noise_hcal_numIsolatedNoiseChannels, &b_noise_hcal_numIsolatedNoiseChannels);
-   fChain->SetBranchAddress("noise_hcal_numProblematicRBXs", &noise_hcal_numProblematicRBXs, &b_noise_hcal_numProblematicRBXs);
-   fChain->SetBranchAddress("noise_hcal_numSpikeNoiseChannels", &noise_hcal_numSpikeNoiseChannels, &b_noise_hcal_numSpikeNoiseChannels);
-   fChain->SetBranchAddress("noise_hcal_numTriangleNoiseChannels", &noise_hcal_numTriangleNoiseChannels, &b_noise_hcal_numTriangleNoiseChannels);
-   fChain->SetBranchAddress("noise_hcal_numTS4TS5NoiseChannels", &noise_hcal_numTS4TS5NoiseChannels, &b_noise_hcal_numTS4TS5NoiseChannels);
-   fChain->SetBranchAddress("noise_hcal_passHighLevelNoiseFilter", &noise_hcal_passHighLevelNoiseFilter, &b_noise_hcal_passHighLevelNoiseFilter);
-   fChain->SetBranchAddress("noise_hcal_passLooseNoiseFilter", &noise_hcal_passLooseNoiseFilter, &b_noise_hcal_passLooseNoiseFilter);
-   fChain->SetBranchAddress("noise_hcal_passTightNoiseFilter", &noise_hcal_passTightNoiseFilter, &b_noise_hcal_passTightNoiseFilter);
-   fChain->SetBranchAddress("noise_hcal_rms10GeVHitTime", &noise_hcal_rms10GeVHitTime, &b_noise_hcal_rms10GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_rms25GeVHitTime", &noise_hcal_rms25GeVHitTime, &b_noise_hcal_rms25GeVHitTime);
-   fChain->SetBranchAddress("noise_hcal_spikeNoiseSumE", &noise_hcal_spikeNoiseSumE, &b_noise_hcal_spikeNoiseSumE);
-   fChain->SetBranchAddress("noise_hcal_spikeNoiseSumEt", &noise_hcal_spikeNoiseSumEt, &b_noise_hcal_spikeNoiseSumEt);
-   fChain->SetBranchAddress("noise_hcal_triangleNoiseSumE", &noise_hcal_triangleNoiseSumE, &b_noise_hcal_triangleNoiseSumE);
-   fChain->SetBranchAddress("noise_hcal_triangleNoiseSumEt", &noise_hcal_triangleNoiseSumEt, &b_noise_hcal_triangleNoiseSumEt);
-   fChain->SetBranchAddress("noise_hcal_TS4TS5NoiseSumE", &noise_hcal_TS4TS5NoiseSumE, &b_noise_hcal_TS4TS5NoiseSumE);
-   fChain->SetBranchAddress("noise_hcal_TS4TS5NoiseSumEt", &noise_hcal_TS4TS5NoiseSumEt, &b_noise_hcal_TS4TS5NoiseSumEt);
+   fChain->SetBranchAddress("noise_HBHE_filter_result", &noise_HBHE_filter_result, &b_noise_HBHE_filter_result);
+   fChain->SetBranchAddress("eventfilter_n", &eventfilter_n, &b_eventfilter_n);
+   fChain->SetBranchAddress("eventfilter_names", &eventfilter_names, &b_eventfilter_names);
+   fChain->SetBranchAddress("eventfilter_results", &eventfilter_results, &b_eventfilter_results);
    fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
    fChain->SetBranchAddress("trig_L1prescale", &trig_L1prescale, &b_trig_L1prescale);
