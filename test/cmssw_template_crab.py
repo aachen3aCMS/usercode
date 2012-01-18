@@ -29,6 +29,7 @@ calojetSwitch=@DOCALOJETS@
 Pythia8Switch=@PYTHIA8@
 SherpaSwitch=@SHERPA@
 FastJetsSwitch=@FASTJET@
+MatchAllSwitch=@MATCHALL@
 SusyParSwith=@SUSYPAR@
 #~ qscalehigh=200.
 #~ qscalelow=50.
@@ -97,23 +98,9 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
     src=cms.InputTag('offlinePrimaryVertices')
 )
-+######################################################################
-+# event cleaning
- process.scrapingVeto = cms.EDFilter("FilterOutScraping",
-                                      applyfilter = cms.untracked.bool(True),
-                                      debugOn = cms.untracked.bool(False),
-                                      numtrack = cms.untracked.uint32(10),
-                                      thresh = cms.untracked.double(0.2)
-                                      )
-+# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-+process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
- 
-+# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
-+# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
-+process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
-
-
+# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011         
+process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 
 
 ### Input / output ###
@@ -283,7 +270,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
 
     is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
-	is_PYTHIA8 = cms.bool(Pythia8Switch),  # set to 'True' if running on PYTHIA8    
+    is_PYTHIA8 = cms.bool(Pythia8Switch),  # set to 'True' if running on PYTHIA8    
     is_SHERPA  = cms.bool(SherpaSwitch),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(FastJetsSwitch),  # set to 'True' for fat jets
     matchAll   = cms.bool(MatchAllSwitch),  # if True all truth leptons are matched else only ele and mu
