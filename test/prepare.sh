@@ -443,77 +443,76 @@ function main()
     # sanity checks on skimming cuts. Gives warnings, does not prevent you from doing something you really want to.
 
     # sanity checks on skimming cuts
-    if  [ $NELE = $NTEST2 ] && [ $NMUO = $NTEST2 ] && [ $NPFELE = $NTEST2 ] && [ $NPHO = $NTEST2 ] && [ $NTAU = $NTEST2 ] && [ $NPFJET = $NTEST2 ] && [ $NCALOJET = $NTEST2 ] && [ $METCALO = $NTEST ] && [ $METPF = $NTEST ] && [ $METTC = $NTEST ] ; then
-    #~ if [ $NELE = $NTEST2 ] ; then
-	echo " WARNING! You have spedicifed no object to cut on!"
+    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $NCALOJET == $NTEST2 && $METCALO == $NTEST && $METPF == $NTEST && $METTC == $NTEST ]] ; then
+	echo "WARNING! You have specifed no object to cut on!"
     fi
 
-    if [ $NELE = $NTEST2 ] && [ $ELEPT != $NTEST ]; then
+    if [[ $NELE == $NTEST2 &&  $ELEPT != $NTEST ]]; then
 	echo "WARNING! elept > 0 but nele = 0. Cut has no effect!"
     fi
-    if [ $NMUO = $NTEST2 ] && [ $MUOPT != $NTEST ]; then
-	echo "WARNING! muopt > 0 but nmuo = 0. Cut has no effect!"
+    if [[ $NMUO == $NTEST2  &&  $MUOPT != $NTEST ]]; then
+	echo "WARNING! muopt > 0 but nmuo == 0. Cut has no effect!"
     fi
-    if [ $NPFELE = $NTEST2 ] && [ $PFELEPT != $NTEST ]; then
-	echo "WARNING! pfelept > 0 but npfele = 0. Cut has no effect!"
+    if [[ $NPFELE == $NTEST2  &&  $PFELEPT != $NTEST ]]; then
+	echo "WARNING! pfelept > 0 but npfele == 0. Cut has no effect!"
     fi
-    if [ $NTAU = $NTEST2 ] && [ $TAUPT != $NTEST ]; then
-	echo "WARNING! taupt > 0 but ntau = 0. Cut has no effect!"
+    if [[ $NTAU == $NTEST2  &&  $TAUPT != $NTEST ]]; then
+	echo "WARNING! taupt > 0 but ntau == 0. Cut has no effect!"
     fi
-    if [ $NPHO = $NTEST2 ] && [ $PHOPT != $NTEST ]; then
-	echo "WARNING! phopt > 0 but npho = 0. Cut has no effect!"
+    if [[ $NPHO == $NTEST2  &&  $PHOPT != $NTEST ]]; then
+	echo "WARNING! phopt > 0 but npho == 0. Cut has no effect!"
     fi
-    if [ $NPFJET = $NTEST2 ] && [ $PFJETPT != $NTEST ]; then
-	echo "WARNING! pfjetpt > 0 but npfjet = 0. Cut has no effect!"
+    if [[ $NPFJET == $NTEST2  &&  $PFJETPT != $NTEST ]]; then
+	echo "WARNING! pfjetpt > 0 but npfjet == 0. Cut has no effect!"
     fi
-    if [ $NCALOJET = $NTEST2 ] && [ $CALOJETPT != $NTEST ]; then
-	echo "WARNING! calojetpt > 0 but ncalojet = 0. Cut has no effect!"
+    if [[ $NCALOJET == $NTEST2  &&  $CALOJETPT != $NTEST ]]; then
+	echo "WARNING! calojetpt > 0 but ncalojet == 0. Cut has no effect!"
     fi
 
-    if [ $NELE != $NTEST2 ]; then
+    if [[ $NELE != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NELE electron(s) with pt > $ELEPT GeV and eta < $ELEETA"
     fi
-    if [ $NMUO != $NTEST2 ]; then
+    if [[ $NMUO != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NMUO muon(s) with pt > $MUOPTFIRST GeV for the first and $MUOPTOTHER GeV for the others and eta < $MUOETA"
     fi
-    if [ $NPFELE != $NTEST2 ]; then
+    if [[ $NPFELE != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NPFELE PFelectron(s) with pt > $PFELEPT GeV and eta < $PFELEETA"
     fi
-    if [ $NPHO != $NTEST2 ]; then
+    if [[ $NPHO != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NPHO photon(s) with pt > $PHOPT GeV and eta < $PHOETA"
     fi
-    if [ $NTAU != $NTEST2 ]; then
+    if [[ $NTAU != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NTAU tau(s) with pt > $TAUPT GeV and eta < $TAUETA"
     fi
-    if [ $NCALOJET != $NTEST2 ]; then
+    if [[ $NCALOJET != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NCALOJET calojet(s) with pt > $CALOJETPT GeV and eta < $CALOJETETA"
     fi
-    if [ $NPFJET != $NTEST2 ]; then
+    if [[ $NPFJET != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NPFJET pfjet(s) with pt > $PFJETPT GeV and eta < $PFJETETA"
     fi
-    if [ $METPF != $NTEST ]; then
+    if [[ $METPF != $NTEST ]]; then
 	echo "Preparing Skim requiring PFMET > $METPF GeV"
     fi
-    if [ $METCALO != $NTEST ]; then
+    if [[ $METCALO != $NTEST ]]; then
 	echo "Preparing Skim requiring CALOMET > $METCALO GeV"
     fi
-    if [ $METTC != $NTEST ]; then
+    if [[ $METTC != $NTEST ]]; then
 	echo "Preparing Skim requiring TCMET > $METTC GeV"
     fi
 
     echo "Preparing crab task with following options:"
     NTEST3="False"
 
-    if [ $DOTAU = $NTEST3 ]; then
+    if [[ $DOTAU == $NTEST3 ]]; then
 	echo "Taus are OFF!"
     fi
-    if [ $DOTAU != $NTEST3 ]; then
+    if [[ $DOTAU != $NTEST3 ]]; then
 	echo "Taus are ON!"
     fi
-    if [ $DOCALOJETS = $NTEST3 ]; then
+    if [[ $DOCALOJETS == $NTEST3 ]]; then
 	echo "Calojets are OFF!"
     fi
-    if [ $DOCALOJETS != $NTEST3 ]; then
+    if [[ $DOCALOJETS != $NTEST3 ]]; then
 	echo "Calojets are ON!"
     fi
     if [[ -n $DATA ]]; then
@@ -522,25 +521,25 @@ function main()
     if [[ -n $MC ]]; then
     	echo "Running on MC"
     	echo "MC configuration:"
-    	if [ $PYTHIA8 = $NTEST3 ]; then
+    	if [[ $PYTHIA8 == $NTEST3 ]]; then
     	    echo "Special PYTHIA8 setting is OFF!"
     	fi
-    	if [ $PYTHIA8 != $NTEST3 ]; then
+    	if [[ $PYTHIA8 != $NTEST3 ]]; then
     	    echo "Special PYTHIA8 setting is ON!"
     	fi
-    	if [ $SHERPA = $NTEST3 ]; then
+    	if [[ $SHERPA == $NTEST3 ]]; then
     	    echo "Special SHERPA setting is OFF!"
     	fi
-    	if [ $SHERPA != $NTEST3 ]; then
+    	if [[ $SHERPA != $NTEST3 ]]; then
     	    echo "Special SHERPA setting is ON!"
     	fi
-    	if [ $SUSYPAR = $NTEST3 ]; then
+    	if [[ $SUSYPAR == $NTEST3 ]]; then
     	    echo "Special Susy Parameter setting is OFF!"
     	fi
-    	if [ $SUSYPAR != $NTEST3 ]; then
+    	if [[ $SUSYPAR != $NTEST3 ]]; then
     	    echo "Special Susy Parameter setting is ON!"
     	fi
-    	if [ $MATCHALL = $NTEST3 ]; then
+    	if [[ $MATCHALL == $NTEST3 ]]; then
     	    echo "WARNING! MC Truth Matching only for e, mu and their neutrinos!"
     	fi
 
