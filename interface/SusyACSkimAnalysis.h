@@ -350,14 +350,15 @@ private:
 
   int mTreetrighltname[20];
   
+  enum { nMaxTrigger = 7000 };
   int mTreeNtrig;
-  int mTreetrigL1pre[3000];
-  int mTreetrigHLTpre[3000];
-  int mTreetrigname[3000][20];
-  int mTreefiltname[3000][20];
-  double mTreetrigpt[3000];
-  double mTreetrigeta[3000];
-  double mTreetrigphi[3000];
+  int mTreetrigL1pre[nMaxTrigger];
+  int mTreetrigHLTpre[nMaxTrigger];
+  int mTreetrigname[nMaxTrigger][20];
+  int mTreefiltname[nMaxTrigger][20];
+  double mTreetrigpt[nMaxTrigger];
+  double mTreetrigeta[nMaxTrigger];
+  double mTreetrigphi[nMaxTrigger];
   
   double mTreeMET[10];
   double mTreeMEX[10];

@@ -179,7 +179,8 @@ void SusyACSkimAnalysis::beginMyRun(const edm::Run& iRun, const edm::EventSetup&
 // Called in for each event
 //
 bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    nrEventTotalRaw_++;
+
+  nrEventTotalRaw_++;
   using namespace edm;
   using namespace reco;
   using namespace pat;
@@ -196,7 +197,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   for (int i=0; i<20; i++) {
     mTreetrighltname[i] = 0;
 
-    for (int j=0; j<1000; j++) {
+    for (int j=0; j<nMaxTrigger; j++) {
       mTreetrigname[j][i] = 0;
       mTreefiltname[j][i] = 0;
     }
@@ -284,10 +285,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
             //	    cout << "  " << (*ll)->label() << "  " << (*itt)->pt() << "  "  << (*itt)->eta() << endl;
             int *filtname = pack((*ll)->label().c_str());
 			
+			// cut trigger names at 20*4 bytes
 			int tempmax = get_size(tempname);
 			if (tempmax>20) tempmax=20;			
 			for (int l=0; l<tempmax; l++) mTreetrigname[mTreeNtrig][l] = tempname[l];
 			
+			// cut filter names at 20*4 bytes
 			tempmax = get_size(filtname);
 			if (tempmax>20) tempmax=20;			
             for (int l=0; l<tempmax; l++) mTreefiltname[mTreeNtrig][l] = filtname[l];
@@ -298,21 +301,20 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
             mTreetrigeta[mTreeNtrig] = objRef->eta();
             mTreetrigphi[mTreeNtrig] = objRef->phi();
             mTreeNtrig++;
-            if (mTreeNtrig==3000){ 
-				cout << "WARNING! Event contains more than 3000 triggers!" << endl;
-				break;
-			}
-            
+            if (mTreeNtrig==nMaxTrigger){ 
+	      cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+	      break;
+	    }
           }
-          if (mTreeNtrig==3000){
-			   cout << "WARNING! Event contains more than 3000 triggers!" << endl;
-			   break;
+          if (mTreeNtrig==nMaxTrigger){
+	    cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+	    break;
 		   }
         }
-        if (mTreeNtrig==3000){
-			cout << "WARNING! Event contains more than 3000 triggers!" << endl;
-			break;
-		}
+        if (mTreeNtrig==nMaxTrigger){
+	  cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+	  break;
+	}
         /*
         const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
         for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll )
@@ -3359,7 +3361,7 @@ void SusyACSkimAnalysis::initPlots() {
 
   h_counters = fs->make<TH1F>("h_counters", "Event Counter", 10, 0, 10);
 
-  mAllData->SetAutoSave(10000);
+  mAllData->SetAutoSave(20000000);
 
   // Add the branches
 

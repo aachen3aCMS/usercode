@@ -13,6 +13,8 @@ def addScrapingFilter( process ):
     
 
 
+# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
+# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
 def addKinematicsFilter( process ):
     process.load( 'GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi' )
 
@@ -99,17 +101,16 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     src=cms.InputTag('offlinePrimaryVertices')
 )
 
-# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011         
+# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
 process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
-
 
 ### Input / output ###
 
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
-    ),
+    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root'
+    ]),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 process.maxEvents = cms.untracked.PSet(
@@ -278,8 +279,15 @@ process.ACSkimAnalysis = cms.EDFilter(
     doCaloJet  = cms.bool(calojetSwitch),
     doTaus     = cms.bool(tauSwitch),
 
-
-
+    # This is used to access the results of all filters that ran.
+    #
+    filters = cms.PSet(
+        AllFilters = cms.PSet(
+            process = cms.string( 'PAT' ),
+            results = cms.string( 'TriggerResults' ),
+            paths = cms.vstring()
+            )
+        ),
 
     calojetTag = calojetTag,
     pfjetTag   = pfjetTag,
