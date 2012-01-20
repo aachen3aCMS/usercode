@@ -502,7 +502,7 @@ function main()
     fi
 
     echo "Preparing crab task with following options:"
-    NTEST3="'false'"
+    NTEST3="False"
 
     if [ $DOTAU = $NTEST3 ]; then
 	echo "Taus are OFF!"
