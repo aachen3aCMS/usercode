@@ -179,6 +179,82 @@ void SusyACSkimAnalysis::beginMyRun(const edm::Run& iRun, const edm::EventSetup&
 // Called in for each event
 //
 bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+   //Processing event filter infos. Stolen from MUSiC Has to happen first because otherwise the events are not counted correctly when using the Pythia kinematics filter
+    mTreeNFilter=0;
+    bool changed;
+	   
+   if( ! filters[0].config.init( iEvent.getRun(), iSetup, filters[0].process, changed ) ){
+	throw cms::Exception( "FILTER ERROR" ) << "Initialization of filter config failed.";
+   }
+
+   //the trigger config has actually changed, so read in the new one
+   if( changed ){
+     //~ cout << "TRIGGER INFO: HLT table changed in run " << iEvent.run() << ", building new trigger map for process " << filters[filt].process << endl;
+     //reset the map
+	  filters[0].filter_infos.clear();
+
+	  for( vector<string>::const_iterator filter_name = filters[0].filter_names.begin(); filter_name != filters[0].filter_names.end(); ++filter_name ){
+		   //get the number of the trigger path
+		   unsigned int index = filters[0].config.triggerIndex( *filter_name );
+
+		   //check if that's a valid number
+		   if( index < filters[0].config.size() ){
+		   //it is, so store the name and the number
+		   FilterDef flt;
+		   flt.name = *filter_name;
+		   flt.ID = index;
+		   flt.active = true;
+		   filters[0].filter_infos.push_back( flt );
+		   } else {
+		   //the number is invalid, the trigger path is not in the config
+		   //~ cout << "TRIGGER WARNING: In run " << iEvent.run() << " trigger " << *filter_name << " not found in HLT config, not added to trigger map (so not used)." << endl;
+	     }
+	  }
+   }	   
+		   
+   edm::Handle< edm::TriggerResults > filterResultsHandle;
+   iEvent.getByLabel( filters[0].results, filterResultsHandle );
+   for( vector< FilterDef >::iterator filt = filters[0].filter_infos.begin(); filt != filters[0].filter_infos.end(); ++filt ) {
+     if( !filt->active ) continue;
+
+	 bool wasrun = filterResultsHandle->wasrun( filt->ID );
+	 bool error  = filterResultsHandle->error( filt->ID );
+
+	 if( wasrun && !error ){
+	 //~ cout << "Filternummer: " << mTreeNFilter << endl;
+	 //~ cout << "Filter: " << filt->name.c_str() << endl;
+     
+	 int *tempname = pack(filt->name.c_str());
+	 int tempmax=get_size(tempname);
+	 if (tempmax>20) tempmax=20;
+	 for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
+	 mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID );
+     
+     if (TString(filt->name).Contains("p_kinematics") && filterResultsHandle->accept( filt->ID )==0 ) return 0;
+     //~ if (TString(filt->name).Contains("p_kinematics")  ) cout << "Hier " << filterResultsHandle->accept(filt->ID);
+     
+	 //~ cout << "Result: " << filterResultsHandle->accept( filt->ID ) << endl;
+	 //~ cout << "Filter result " << filterResultsHandle->accept( filt2->ID ) << endl;
+	 //~ if( fDebug > 0 && filterResultsHandle->accept( filt->ID ) )
+	 //~ cout << endl << "Event in process: '" << filter.process << "' passed filter: '" << filt->name << "'." << endl;
+	 } else {
+		//either error or was not run
+		//~ int *tempname=pack("notrun");
+		int *tempname = pack(filt->name.c_str());
+		int tempmax=get_size(tempname);
+		if (tempmax>20) tempmax=20;
+		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
+		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
+		mTreeFilterResults[mTreeNFilter]=false;
+
+		//~ if( !wasrun ) cout << "FILTER WARNING: Filter: " << filt2->name << " in process " << filters[filt].process << " was not executed!" << endl;
+		//~ if( error )   cout << "FILTER WARNING: An error occured during execution of Filter: " << filt2->name << " in process " << filters[filt].process << endl;
+		//~ cout << "FILTER WARNING: Run " << iEvent.run() << " - LS " << iEvent.luminosityBlock() << " - Event " << iEvent.id().event() << endl;
+	}
+    mTreeNFilter++;
+  }
+    
+
 
   nrEventTotalRaw_++;
   using namespace edm;
@@ -419,7 +495,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   }
   edm::Handle<double> rhoH;
-  iEvent.getByLabel(edm::InputTag("kt6PFJets","rho"),rhoH);
+  iEvent.getByLabel(edm::InputTag("kt6PFJetsPFlow","rho"),rhoH);
   if(rhoH.isValid()){
            mTreeElerho=(*rhoH);
        }
@@ -473,76 +549,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 				     << "  Qscale = " <<  mTreeQscale << std::endl;
   */
 
-   //Processing event filter infos. Stolen from MUSiC
-   mTreeNFilter=0;
-   
-   bool changed;
-	   
-   if( ! filters[0].config.init( iEvent.getRun(), iSetup, filters[0].process, changed ) ){
-	throw cms::Exception( "FILTER ERROR" ) << "Initialization of filter config failed.";
-   }
 
-   //the trigger config has actually changed, so read in the new one
-   if( changed ){
-     //~ cout << "TRIGGER INFO: HLT table changed in run " << iEvent.run() << ", building new trigger map for process " << filters[filt].process << endl;
-     //reset the map
-	  filters[0].filter_infos.clear();
-
-	  for( vector<string>::const_iterator filter_name = filters[0].filter_names.begin(); filter_name != filters[0].filter_names.end(); ++filter_name ){
-		   //get the number of the trigger path
-		   unsigned int index = filters[0].config.triggerIndex( *filter_name );
-
-		   //check if that's a valid number
-		   if( index < filters[0].config.size() ){
-		   //it is, so store the name and the number
-		   FilterDef flt;
-		   flt.name = *filter_name;
-		   flt.ID = index;
-		   flt.active = true;
-		   filters[0].filter_infos.push_back( flt );
-		   } else {
-		   //the number is invalid, the trigger path is not in the config
-		   //~ cout << "TRIGGER WARNING: In run " << iEvent.run() << " trigger " << *filter_name << " not found in HLT config, not added to trigger map (so not used)." << endl;
-	     }
-	  }
-   }	   
-		   
-   edm::Handle< edm::TriggerResults > filterResultsHandle;
-   iEvent.getByLabel( filters[0].results, filterResultsHandle );
-   for( vector< FilterDef >::iterator filt = filters[0].filter_infos.begin(); filt != filters[0].filter_infos.end(); ++filt ) {
-     if( !filt->active ) continue;
-
-	 bool wasrun = filterResultsHandle->wasrun( filt->ID );
-	 bool error  = filterResultsHandle->error( filt->ID );
-
-	 if( wasrun && !error ){
-	 //~ cout << "Filternummer: " << mTreeNFilter << endl;
-	 //~ cout << "Filter: " << filt->name.c_str() << endl;
-	 int *tempname = pack(filt->name.c_str());
-	 int tempmax=get_size(tempname);
-	 if (tempmax>20) tempmax=20;
-	 for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
-	 mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID );
-	 //~ cout << "Result: " << filterResultsHandle->accept( filt->ID ) << endl;
-	 //~ cout << "Filter result " << filterResultsHandle->accept( filt2->ID ) << endl;
-	 //~ if( fDebug > 0 && filterResultsHandle->accept( filt->ID ) )
-	 //~ cout << endl << "Event in process: '" << filter.process << "' passed filter: '" << filt->name << "'." << endl;
-	 } else {
-		//either error or was not run
-		//~ int *tempname=pack("notrun");
-		int *tempname = pack(filt->name.c_str());
-		int tempmax=get_size(tempname);
-		if (tempmax>20) tempmax=20;
-		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
-		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
-		mTreeFilterResults[mTreeNFilter]=false;
-
-		//~ if( !wasrun ) cout << "FILTER WARNING: Filter: " << filt2->name << " in process " << filters[filt].process << " was not executed!" << endl;
-		//~ if( error )   cout << "FILTER WARNING: An error occured during execution of Filter: " << filt2->name << " in process " << filters[filt].process << endl;
-		//~ cout << "FILTER WARNING: Run " << iEvent.run() << " - LS " << iEvent.luminosityBlock() << " - Event " << iEvent.id().event() << endl;
-	}
-    mTreeNFilter++;
-  }
 		
    
 

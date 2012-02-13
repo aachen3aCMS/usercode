@@ -332,7 +332,7 @@ private:
   
 
   Bool_t mTreenoiseHBHEFilterResult;
-  
+  Bool_t IsPythiaFiltered;
   int mTreeNFilter; 
   Bool_t mTreeFilterResults[100];
   int mTreeFilterName[100][20];

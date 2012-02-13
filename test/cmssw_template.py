@@ -13,14 +13,55 @@ def addScrapingFilter( process ):
     process.p_scrapingFilter = cms.Path( process.scrapingFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_scrapingFilter' )
     
+def addCSCHaloFilter ( process ):
+    process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
+    process.p_CSCHaloFilter = cms.Path(process.CSCTightHaloFilter )
+    process.ACSkimAnalysis.filterlist.append( 'p_CSCHaloFilter' )
+    
+def addHCALLaserFilter ( process ):
+    process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
+    process.p_HCALLaserFilter = cms.Path(process.hcalLaserEventFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_HCALLaserFilter' )
+    
+def addECALDeadCellFilterTP ( process ):
+    process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+    process.p_ECALDeadCellFilterTP = cms.Path(process.EcalDeadCellTriggerPrimitiveFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterTP' )
 
+def addECALDeadCellFilterTPBE ( process ):
+    process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+    process.load('RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi')
+    process.EcalDeadCellBoundaryEnergyFilter.taggingMode = cms.bool(False)
+    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyDeadCellsEB=cms.untracked.double(10)
+    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyDeadCellsEE=cms.untracked.double(10)
+    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyGapEB=cms.untracked.double(100)
+    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyGapEE=cms.untracked.double(100)
+    process.EcalDeadCellBoundaryEnergyFilter.enableGap=cms.untracked.bool(False)
+    process.EcalDeadCellBoundaryEnergyFilter.limitDeadCellToChannelStatusEB = cms.vint32(12,14)
+    process.EcalDeadCellBoundaryEnergyFilter.limitDeadCellToChannelStatusEE = cms.vint32(12,14)
 
+    process.p_ECALDeadCellFilterTPBE = cms.Path(process.EcalDeadCellTriggerPrimitiveFilter*process.EcalDeadCellBoundaryEnergyFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterTPBE' )
+
+def addTrackingFailureFilter ( process ):
+    process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
+    process.trackingFailureFilter.JetSource = cms.InputTag('ak5PFJetsL2L3Residual')
+    process.trackingFailureFilter.VertexSource = cms.InputTag('goodOfflinePrimaryVertices')
+    process.p_TrackingFailureFilter = cms.Path(process.goodOfflinePrimaryVertices*process.ak5PFJetsL2L3Residual*process.trackingFailureFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_TrackingFailureFilter' )
+    
+def addMuonFailureFilter ( process ):
+    process.load('RecoMET.METFilters.inconsistentMuonPFCandidateFilter_cfi')
+    process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
+    process.p_MuonFailureFilter = cms.Path(process.greedyMuonPFCandidateFilter*process.inconsistentMuonPFCandidateFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_MuonFailureFilter' )
 def addKinematicsFilter( process ):
     process.load( 'GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi' )
 
     process.p_kinematicsfilter = cms.Path( process.totalKinematicsFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_kinematicsfilter' )
-    
+
+
 
 
 process = cms.Process("ANA")
@@ -31,7 +72,8 @@ process = cms.Process("ANA")
 qscalehigh=-1.
 qscalelow=-1.
 isData=False
-tauSwitch=False;
+tauSwitch=False
+IsPythiaShowered=True
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -58,6 +100,9 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 # see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
 process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 
+# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
+# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
+process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 
 #-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
@@ -101,6 +146,10 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     src=cms.InputTag('offlinePrimaryVertices')
 )
 
+
+
+
+
 process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 
 
@@ -110,6 +159,8 @@ process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
     '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
+    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
+    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
     ),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
@@ -117,8 +168,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 #PAT Stuff
-if not tauSwitch:
-	removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
+if not tauSwitch and not isData:
+    removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger(process)
@@ -141,7 +192,7 @@ process.patMuons.embedStandAloneMuon = False;
 
 
 if tauSwitch:
-	process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 # PF2PAT
 from PhysicsTools.PatAlgos.tools.pfTools import *
@@ -153,7 +204,7 @@ if isData:
 else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
 if tauSwitch:
-	adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+    adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
 
 # for PFnoPU
@@ -167,7 +218,7 @@ process.pfJetsPFlow.doRhoFastjet = False
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 process.kt6PFJetsPFlow = kt4PFJets.clone(
     rParam = cms.double(0.6),
-    #src = cms.InputTag('pfNoElectron'+postfix),
+    src = cms.InputTag('pfNoElectron'+postfix),
     doAreaFastjet = cms.bool(True),
     doRhoFastjet = cms.bool(True)
     )
@@ -232,8 +283,13 @@ process.pfType1CorrectedMet.src = cms.InputTag("pfMetPFnoPU")
 process.pfType1CorrectedPFMet = pfType1CorrectedMet.clone()
 process.pfType1CorrectedPFMet.src     = cms.InputTag("pfMet")
 
+if tauSwitch:
+    tausequence = cms.Sequence( process.PFTau)
+else: 
+    tausequence = cms.Sequence()
 
-
+    
+    
 ################################
 ###                          ###
 ###  Analysis configuration  ###
@@ -270,9 +326,9 @@ ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 ### Cuts and switches ###
 process.ACSkimAnalysis = cms.EDFilter(
     "SusyACSkimAnalysis",
-
+    
     is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
-	is_PYTHIA8 = cms.bool(False),  # set to 'True' if running on PYTHIA8    
+    is_PYTHIA8 = cms.bool(False),  # set to 'True' if running on PYTHIA8    
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
     matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
@@ -355,7 +411,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     jetselqual = cms.string("LOOSE")
     
 
-		
+        
 )
 
 
@@ -363,48 +419,44 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 
 ### Define the paths
-if tauSwitch:
-	process.p = cms.Path(
-		process.kt6PFJets * 
-		process.ak5PFJets *
-		process.goodOfflinePrimaryVertices*
-		process.HBHENoiseFilterResultProducer*
-		process.PFTau*
-		process.patDefaultSequence*
-		getattr(process,"patPF2PATSequence"+postfix)*
-		process.pfMetPFnoPU*
-		process.pfJetMETcorr*
-		process.pfType1CorrectedMet*
-		process.pfType1CorrectedPFMet
-		)
-else: 
-	process.p = cms.Path(
-		process.kt6PFJets * 
-		process.ak5PFJets *
-		process.goodOfflinePrimaryVertices*
-		process.HBHENoiseFilterResultProducer*
-		process.patDefaultSequence*
-		getattr(process,"patPF2PATSequence"+postfix)*
-		process.pfMetPFnoPU*
-		process.pfJetMETcorr*
-		process.pfType1CorrectedMet*
-		process.pfType1CorrectedPFMet
-		)
+
+    
+process.p = cms.Path(
+    process.kt6PFJets * 
+    process.ak5PFJets *
+    process.goodOfflinePrimaryVertices*
+    process.HBHENoiseFilterResultProducer*
+    tausequence*
+    process.patDefaultSequence*
+    getattr(process,"patPF2PATSequence"+postfix)*
+    process.pfMetPFnoPU*
+    process.pfJetMETcorr*
+    process.pfType1CorrectedMet*
+    process.pfType1CorrectedPFMet
+    )
+
+        
 
     # The skimmer is in the endpath because then the results of all preceding paths
     # are available. This is used to access the outcome of filters that ran.
     #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
+addCSCHaloFilter( process ) 
+addHCALLaserFilter( process ) 
+addECALDeadCellFilterTP( process ) 
+#~ addECALDeadCellFilterTPBE( process ) 
+#~ addTrackingFailureFilter( process ) 
+addMuonFailureFilter( process ) 
 
 
-if not isData:
-	addKinematicsFilter( process )
+if IsPythiaShowered:
+    addKinematicsFilter( process )
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()    
     
-process.e = cms.EndPath( process.ACSkimAnalysis )
+process.e = cms.EndPath(process.ACSkimAnalysis )
 
 
 

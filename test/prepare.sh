@@ -56,7 +56,7 @@ function createconfigfiles()
     fi
 
     PYFILE="$JOBDIR/cmssw.py"
-    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@CALOJETPT@/$CALOJETPT/g -e s/@CALOJETETA@/$CALOJETETA/g -e s/@NCALOJET@/$NCALOJET/g -e s/@METCALO@/$METCALO/g -e s/@METTC@/$METTC/g -e s/@METPF@/$METPF/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@DOCALOJETS@/$DOCALOJETS/g -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@FASTJET@/$FASTJET/g $CMSSWCFG >> $PYFILE
+    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@CALOJETPT@/$CALOJETPT/g -e s/@CALOJETETA@/$CALOJETETA/g -e s/@NCALOJET@/$NCALOJET/g -e s/@METCALO@/$METCALO/g -e s/@METTC@/$METTC/g -e s/@METPF@/$METPF/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@DOCALOJETS@/$DOCALOJETS/g -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@FASTJET@/$FASTJET/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
 	#~ sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g $CMSSWCFG >> $PYFILE
     # create CRAB configuration file from template
     echo "Creating crab configuration file..."
@@ -141,6 +141,7 @@ function main()
     DOCALOJETS=
     FASTJET=
     PYTHIA8=
+    ISPYTHIASHOWERED=
     MATCHALL=
     SHERPA=
     SUSYPAR=
@@ -426,6 +427,10 @@ function main()
     SEG2=( $SEG )
     PYTHIA8=${SEG2[1]}
 
+    SEG=`grep "IsPythiaShowered" $CUTCFG`
+    SEG2=( $SEG )
+    ISPYTHIASHOWERED=${SEG2[1]}
+
     SEG=`grep "Sherpa" $CUTCFG`
     SEG2=( $SEG )
     SHERPA=${SEG2[1]}
@@ -526,6 +531,12 @@ function main()
     	fi
     	if [[ $PYTHIA8 != $NTEST3 ]]; then
     	    echo "Special PYTHIA8 setting is ON!"
+    	fi
+    	if [[ $ISPYTHIASHOWERED == $NTEST3 ]]; then
+    	    echo "Pythia Kinematics Filter is OFF!"
+    	fi
+    	if [[ $ISPYTHIASHOWERED != $NTEST3 ]]; then
+    	    echo "Pythia Kinematics Filter is ON!"
     	fi
     	if [[ $SHERPA == $NTEST3 ]]; then
     	    echo "Special SHERPA setting is OFF!"
