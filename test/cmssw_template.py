@@ -1,7 +1,5 @@
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
-
-
 def addScrapingFilter( process ):
     process.scrapingFilter = cms.EDFilter( 'FilterOutScraping',
                                            applyfilter = cms.untracked.bool( True ),
@@ -62,13 +60,19 @@ def addKinematicsFilter( process ):
     process.ACSkimAnalysis.filterlist.append( 'p_kinematicsfilter' )
 
 
-
-
 process = cms.Process("ANA")
-    
+
 #~ isData=@ISDATA@
 #~ qscalehigh=@QSCALE_LOW@
 #~ qscalelow=@QSCALE_HIGH@
+#~ tauSwitch=@DOTAU@
+#~ calojetSwitch=@DOCALOJETS@
+#~ Pythia8Switch=@PYTHIA8@
+#~ SherpaSwitch=@SHERPA@
+#~ FastJetsSwitch=@FASTJET@
+#~ MatchAllSwitch=@MATCHALL@
+#~ SusyParSwith=@SUSYPAR@
+#~ IsPythiaShowered=@ISPYTHIASHOWERED@ 
 qscalehigh=-1.
 qscalelow=-1.
 isData=False
@@ -87,7 +91,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
-process.GlobalTag.globaltag = cms.string('START44_V5::All')
+process.GlobalTag.globaltag = cms.string('START50_V15A::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -147,12 +151,6 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 )
 
 
-
-
-
-process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
-
-
 ### Input / output ###
 
 # Input file
@@ -188,9 +186,6 @@ process.patMuons.embedStandAloneMuon = False;
 #process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
 
 
-
-
-
 if tauSwitch:
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
@@ -203,8 +198,8 @@ if isData:
     removeMCMatching(process, ['All'])
 else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
-if tauSwitch:
-    adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+#~ if tauSwitch:
+    #~ adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
 
 # for PFnoPU
@@ -256,38 +251,32 @@ addTcMET(process, 'TC')
 # get the jet corrections
 from PhysicsTools.PatAlgos.tools.jetTools import *
 
-# Add met with NoPU to the Collections
-from aachen3a.ACSusyAnalysis.pfMET_cfi import *
-process.pfMetPFnoPU         = pfMET.clone()
-process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
-process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
-process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
+# Add met with NoPU to the Collections FIXED
+#~ from aachen3a.ACSusyAnalysis.pfMET_cfi import *
+#~ process.pfMetPFnoPU         = pfMET.clone()
+#~ process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
+#~ process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
+#~ process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
 
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
 
-process.pfType1CorrectedMet =   pfType1CorrectedMet.clone()
-process.pfCandsNotInJet =       pfCandsNotInJet.clone()
-process.pfJetMETcorr =          pfJetMETcorr.clone()
-process.pfCandMETcorr =         pfCandMETcorr.clone()
-
-if isData:
-    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3Residual')
-else:
-    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3')
-    
-process.pfType1CorrectedMet.src = cms.InputTag("pfMetPFnoPU")
-
-process.pfType1CorrectedPFMet = pfType1CorrectedMet.clone()
-process.pfType1CorrectedPFMet.src     = cms.InputTag("pfMet")
+process.pfMETType1 = pfType1CorrectedMet.clone()
+process.pfMETType1.applyType0Corrections = cms.bool(False)
+process.pfMETType0 = pfType1CorrectedMet.clone()
+process.pfMETType0.applyType1Corrections = cms.bool(False)
 
 if tauSwitch:
     tausequence = cms.Sequence( process.PFTau)
 else: 
     tausequence = cms.Sequence()
-
+    
+if IsPythiaShowered: 
+    filtersequence = cms.Sequence( process.totalKinematicsFilter )
+else:
+    filtersequence = cms.Sequence()
     
     
 ################################
@@ -309,9 +298,9 @@ tauTag         = cms.InputTag("patTausPFlow")
 metTag        = cms.InputTag("patMETs")
 metTagTC    = cms.InputTag("patMETsTC")
 metTagPF    = cms.InputTag("patMETsPFlow")
-metTagPFnoPU=cms.InputTag("pfMetPFnoPU")
+metTagPFnoPU=cms.InputTag("pfMETType0")
 metTagJPFnoPUType1 =cms.InputTag("pfType1CorrectedMet")
-metTagcorMetGlobalMuons     = cms.InputTag("pfType1CorrectedPFMet")
+metTagcorMetGlobalMuons     = cms.InputTag("pfMETType1")
 #these two are ignored for now:
 metTagHO    = cms.InputTag("metHO")
 metTagNoHF= cms.InputTag("metNoHF")
@@ -422,6 +411,7 @@ process.ACSkimAnalysis = cms.EDFilter(
 
     
 process.p = cms.Path(
+	filtersequence*
     process.kt6PFJets * 
     process.ak5PFJets *
     process.goodOfflinePrimaryVertices*
@@ -429,10 +419,13 @@ process.p = cms.Path(
     tausequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
-    process.pfMetPFnoPU*
-    process.pfJetMETcorr*
-    process.pfType1CorrectedMet*
-    process.pfType1CorrectedPFMet
+    #~ process.pfMetPFnoPU*
+    #~ process.pfJetMETcorr*
+    #~ process.pfType1CorrectedMet
+   # process.pfType1CorrectedPFMet
+    process.producePFMETCorrections*
+    process.pfMETType0*
+    process.pfMETType1
     )
 
         
@@ -442,12 +435,10 @@ process.p = cms.Path(
     #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
-addCSCHaloFilter( process ) 
-addHCALLaserFilter( process ) 
-addECALDeadCellFilterTP( process ) 
-#~ addECALDeadCellFilterTPBE( process ) 
-#~ addTrackingFailureFilter( process ) 
-addMuonFailureFilter( process ) 
+#~ addCSCHaloFilter( process ) 
+#~ addHCALLaserFilter( process ) 
+#~ addECALDeadCellFilterTP( process ) 
+#~ addMuonFailureFilter( process ) 
 
 
 if IsPythiaShowered:
@@ -455,7 +446,7 @@ if IsPythiaShowered:
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()    
-    
+#~ process.outpath = cms.EndPath(process.out2)  
 process.e = cms.EndPath(process.ACSkimAnalysis )
 
 

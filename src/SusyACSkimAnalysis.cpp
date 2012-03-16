@@ -1917,7 +1917,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       if (muons[i].combinedMuon().isNonnull() && 
       (!tevMap1.failedToGet() && !tevMap2.failedToGet() && !tevMap3.failedToGet())) {
 
-    reco::TrackRef cocktailTrack = muon::tevOptimized(muons[i], *tevMap1, *tevMap2, *tevMap3);
+    reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], *tevMap1, *tevMap2, *tevMap3)).first;
 
     if ( cocktailTrack.isAvailable() ) {
         mTreeMuoCocktailPt[countmuo] = cocktailTrack.get()->pt(); 
@@ -2349,18 +2349,18 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  mTreeTauvx[counttau]         = tauVtxPoint.X();
 		  mTreeTauvy[counttau]         = tauVtxPoint.Y();
 		  mTreeTauvz[counttau]         = tauVtxPoint.Z();
-		  tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();
-		  mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
-		  mTreeTauvx2[counttau]         = tauVtxPoint2.X();
-		  mTreeTauvy2[counttau]         = tauVtxPoint2.Y();
-		  mTreeTauvz2[counttau]         = tauVtxPoint2.Z();
+		  
+		  //~ tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();
+		  //~ mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
+		  //~ mTreeTauvx2[counttau]         = tauVtxPoint2.X();
+		  //~ mTreeTauvy2[counttau]         = tauVtxPoint2.Y();
+		  //~ mTreeTauvz2[counttau]         = tauVtxPoint2.Z();
 		  mTreeTauParticleIso[counttau]= taus[i].userIsolation("pat::PfAllParticleIso");
 		  mTreeTauChadIso[counttau]    = taus[i].userIsolation("pat::PfChargedHadronIso");
 		  mTreeTauNhadIso[counttau]    = taus[i].userIsolation("pat::PfNeutralHadronIso");
 		  mTreeTauGamIso[counttau]     = taus[i].userIsolation("pat::PfGammaIso");      
 
-		  mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
-		  mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
+
 		  
 		  mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
 		  mTreeTauIsolationPFGammaCandsEtSum[counttau] = taus[i].isolationPFGammaCandsEtSum();
@@ -2375,7 +2375,40 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  mTreeTauEtaetaMoment[counttau] = taus[i].etaetaMoment();
 		  mTreeTauElectronPreIDOutput[counttau] = taus[i].electronPreIDOutput();
 		  mTreeTauBremsRecoveryEOverPLead[counttau] = taus[i].bremsRecoveryEOverPLead();
-		  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+	
+		  
+		  if (taus[i].leadPFChargedHadrCand().isNonnull()){
+			tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();  
+			mTreeTauvx2[counttau]         = tauVtxPoint2.X();
+			mTreeTauvy2[counttau]         = tauVtxPoint2.Y();
+			mTreeTauvz2[counttau]         = tauVtxPoint2.Z();
+			mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
+		  } else {
+			mTreeTauvx2[counttau] = -999.;
+			mTreeTauvy2[counttau] = -999.;
+			mTreeTauvz2[counttau] = -999.;
+			mTreeTauPFLeadChargedPT[counttau] = -1.;
+		  }
+		  //~ mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
+		  //~ mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
+		  //~ mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+		  if (taus[i].signalPFChargedHadrCands().isNonnull()) {
+			  mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
+		  }  else {
+			 mTreeTauPFChargedHadrCands[counttau] = -1;
+		  }
+
+		  if (taus[i].signalPFGammaCands().isNonnull()) {
+			  mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
+		  }  else {
+			 mTreeTauPFGammaCands[counttau] = -1;
+		  }		  
+
+		  if (taus[i].signalTracks().isNonnull()) {
+			  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+		  }  else {
+			 mTreeTauNSignalTracks[counttau] = -1;
+		  }			  
 		  //~ cout << taus[i].userIsolation("pat::EcalIso") << endl;
 		  counttau++;
 		}

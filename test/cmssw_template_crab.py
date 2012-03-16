@@ -73,10 +73,11 @@ FastJetsSwitch=@FASTJET@
 MatchAllSwitch=@MATCHALL@
 SusyParSwith=@SUSYPAR@
 IsPythiaShowered=@ISPYTHIASHOWERED@
-#~ qscalehigh=200.
-#~ qscalelow=50.
+#~ qscalehigh=-1.
+#~ qscalelow=-1.
 #~ isData=False
-#~ tauSwitch=False;
+#~ tauSwitch=False
+#~ IsPythiaShowered=True
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -99,6 +100,14 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+
+# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
+process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+
+# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
+# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
+process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
+
 
 #-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -141,19 +150,16 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     src=cms.InputTag('offlinePrimaryVertices')
 )
 
-# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
-# Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
-# see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
-process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 ### Input / output ###
 
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root'
-    ]),
+    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
+    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
+    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
+    ),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 process.maxEvents = cms.untracked.PSet(
@@ -180,8 +186,6 @@ process.patMuons.embedStandAloneMuon = False;
 #process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
 
 
-
-
 if tauSwitch:
 	process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
@@ -194,8 +198,8 @@ if isData:
     removeMCMatching(process, ['All'])
 else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
-if tauSwitch:
-	adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+#~ if tauSwitch:
+	#~ adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
 
 # for PFnoPU
@@ -247,32 +251,22 @@ addTcMET(process, 'TC')
 # get the jet corrections
 from PhysicsTools.PatAlgos.tools.jetTools import *
 
-# Add met with NoPU to the Collections
-from aachen3a.ACSusyAnalysis.pfMET_cfi import *
-process.pfMetPFnoPU         = pfMET.clone()
-process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
-process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
-process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
+# Add met with NoPU to the Collections FIXED
+#~ from aachen3a.ACSusyAnalysis.pfMET_cfi import *
+#~ process.pfMetPFnoPU         = pfMET.clone()
+#~ process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
+#~ process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
+#~ process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
 
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
 
-process.pfType1CorrectedMet =   pfType1CorrectedMet.clone()
-process.pfCandsNotInJet =       pfCandsNotInJet.clone()
-process.pfJetMETcorr =          pfJetMETcorr.clone()
-process.pfCandMETcorr =         pfCandMETcorr.clone()
-
-if isData:
-    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3Residual')
-else:
-    process.pfJetMETcorr.jetCorrLabel = cms.string('ak5PFL1FastL2L3')
-    
-process.pfType1CorrectedMet.src = cms.InputTag("pfMetPFnoPU")
-
-process.pfType1CorrectedPFMet = pfType1CorrectedMet.clone()
-process.pfType1CorrectedPFMet.src     = cms.InputTag("pfMet")
+process.pfMETType1 = pfType1CorrectedMet.clone()
+process.pfMETType1.applyType0Corrections = cms.bool(False)
+process.pfMETType0 = pfType1CorrectedMet.clone()
+process.pfMETType0.applyType1Corrections = cms.bool(False)
 
 if tauSwitch:
     tausequence = cms.Sequence( process.PFTau)
@@ -301,9 +295,9 @@ tauTag         = cms.InputTag("patTausPFlow")
 metTag        = cms.InputTag("patMETs")
 metTagTC    = cms.InputTag("patMETsTC")
 metTagPF    = cms.InputTag("patMETsPFlow")
-metTagPFnoPU=cms.InputTag("pfMetPFnoPU")
+metTagPFnoPU=cms.InputTag("pfMETType0")
 metTagJPFnoPUType1 =cms.InputTag("pfType1CorrectedMet")
-metTagcorMetGlobalMuons     = cms.InputTag("pfType1CorrectedPFMet")
+metTagcorMetGlobalMuons     = cms.InputTag("pfMETType1")
 #these two are ignored for now:
 metTagHO    = cms.InputTag("metHO")
 metTagNoHF= cms.InputTag("metNoHF")
@@ -417,10 +411,13 @@ process.p = cms.Path(
     tausequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
-    process.pfMetPFnoPU*
-    process.pfJetMETcorr*
-    process.pfType1CorrectedMet*
-    process.pfType1CorrectedPFMet
+    #~ process.pfMetPFnoPU*
+    #~ process.pfJetMETcorr*
+    #~ process.pfType1CorrectedMet
+   # process.pfType1CorrectedPFMet
+    process.producePFMETCorrections*
+    process.pfMETType0*
+    process.pfMETType1
     )
 
         
@@ -430,12 +427,10 @@ process.p = cms.Path(
     #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
-addCSCHaloFilter( process ) 
-addHCALLaserFilter( process ) 
-addECALDeadCellFilterTP( process ) 
-#~ addECALDeadCellFilterTPBE( process ) 
-#~ addTrackingFailureFilter( process ) 
-addMuonFailureFilter( process ) 
+#~ addCSCHaloFilter( process ) 
+#~ addHCALLaserFilter( process ) 
+#~ addECALDeadCellFilterTP( process ) 
+#~ addMuonFailureFilter( process ) 
 
 
 if IsPythiaShowered:
@@ -443,5 +438,5 @@ if IsPythiaShowered:
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()    
-    
+#~ process.outpath = cms.EndPath(process.out2)  
 process.e = cms.EndPath(process.ACSkimAnalysis )
