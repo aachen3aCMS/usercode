@@ -1,9 +1,13 @@
+2012-03-19 Sebastian Thüer <thuer -at- physik.rwth-aachen.de>
+	* Prepared the skimmer for 5_2_X
+	* Taus not working ...
+	* Removed METFilters (have to be checked)
 2012-03-15 Sebastian Thüer <thuer -at- physik.rwth-aachen.de>
 	* Prepared the skimmer for 5_1_X
-		* Adjusted Cocktail reco
-		* Taus are available, added safety checks, 
-		  still need to be adjusted to the up to date recommendations
-		* Type1 MET corrections fixed to the changes in the release
+	* Adjusted Cocktail reco
+	* Taus are available, added safety checks, 
+	  still need to be adjusted to the up to date recommendations
+	* Type1 MET corrections fixed to the changes in the release
 2012-01-04 Jan Schulte <jschulte -at - physik.rwth-aache.de>
 	* fixed PF Muons
 	* changed PF Isolation to work with 4_4_X

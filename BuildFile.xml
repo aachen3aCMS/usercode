@@ -20,5 +20,3 @@
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="DataFormats/METReco"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>

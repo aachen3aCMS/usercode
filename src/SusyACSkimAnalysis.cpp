@@ -294,11 +294,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   Handle< pat::TriggerEvent > myTriggerEvent;
   iEvent.getByLabel( "patTriggerEvent", myTriggerEvent );
-
+  TString trigger_TString = trigger_;
   if ( !myTriggerEvent.isValid() )
     edm::LogWarning("SusyACSkimAnalysis") << "No pat::TriggerEvent found for InputTag patTriggerEvent";
   else {
-
+	bool accept_trigger = trigger_TString.Contains("None");
     int *tlname = pack(myTriggerEvent->nameHltTable().c_str());
     int tempmax = get_size(tlname);
     if (tempmax>20) tempmax=20;
@@ -310,7 +310,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       TString ttname = (*it)->name();
       std::string tname   = (*it)->name();
-      TString trigger_TString = trigger_;
 
       // save all accepted HLT_ trigger results
       if ( myTriggerEvent->path(tname)->wasAccept() &&
@@ -321,8 +320,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
            !ttname.Contains("_step") &&
            !ttname.Contains("DQM")) {
         
-        if(!trigger_TString.Contains("None") && !ttname.Contains(trigger_))
-            return 0;
+        //~ if(!trigger_TString.Contains("None") && !ttname.Contains(trigger_))
+            //~ return 0;
+          if(ttname.Contains(trigger_)) {
+				accept_trigger = true;
+			}
         pre1 = -1;
         pre2 = -1;
         if ( hltConfigInit_ ) {
@@ -346,7 +348,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
         else
           edm::LogWarning("SusyACSkimAnalysis") << "HLT configuration not properly extracted";
-        
         //	cout << "   --> " << ttname << endl;
         
         int *tempname = pack(tname.c_str());
@@ -420,6 +421,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         */
       }
     }
+    if (!accept_trigger)
+          return 0;
   }
   // Count all events
   // Global event variables

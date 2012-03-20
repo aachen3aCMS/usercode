@@ -111,7 +111,7 @@ process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 #-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-process.load('RecoJets.Configuration.RecoPFJets_cff')
+#~ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.ak5PFJets.doAreaFastjet = True
 
