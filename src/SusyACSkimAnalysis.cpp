@@ -354,44 +354,58 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         
         const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname,false);
         for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll ) {
-          TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
-          for ( TriggerObjectRefVector::const_iterator itt = torv.begin(); 
-            itt != torv.end(); ++itt ) {
-            const TriggerObjectRef objRef( *itt );
+            if(ttname.Contains("Ele")||ttname.Contains("Muo")|| ttname.Contains("Photon")){
+                TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
+                for ( TriggerObjectRefVector::const_iterator itt = torv.begin(); itt != torv.end(); ++itt ) {
+                    const TriggerObjectRef objRef( *itt );
+                    
+                    //	    cout << "  " << (*ll)->label() << "  " << (*itt)->pt() << "  "  << (*itt)->eta() << endl;
+                    int *filtname = pack((*ll)->label().c_str());
+                    
+                    // cut trigger names at 20*4 bytes
+                    int tempmax = get_size(tempname);
+                    if (tempmax>20) tempmax=20;			
+                    for (int l=0; l<tempmax; l++) mTreetrigname[mTreeNtrig][l] = tempname[l];
+                    
+                    // cut filter names at 20*4 bytes
+                    tempmax = get_size(filtname);
+                    if (tempmax>20) tempmax=20;			
+                    for (int l=0; l<tempmax; l++) mTreefiltname[mTreeNtrig][l] = filtname[l];
+                    
+                    mTreetrigL1pre[mTreeNtrig]  = pre1; 
+                    mTreetrigHLTpre[mTreeNtrig] = pre2; // (*it)->prescale();
+                    mTreetrigpt[mTreeNtrig]  = objRef->pt();
+                    mTreetrigeta[mTreeNtrig] = objRef->eta();
+                    mTreetrigphi[mTreeNtrig] = objRef->phi();
+                    mTreeNtrig++;
+                    if (mTreeNtrig==nMaxTrigger){ 
+                      cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+                      break;
+                    }
+                }
+                if (mTreeNtrig==nMaxTrigger){
+                    cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+                    break;
+                }
+            }else{
             
-            //	    cout << "  " << (*ll)->label() << "  " << (*itt)->pt() << "  "  << (*itt)->eta() << endl;
-            int *filtname = pack((*ll)->label().c_str());
-			
-			// cut trigger names at 20*4 bytes
-			int tempmax = get_size(tempname);
-			if (tempmax>20) tempmax=20;			
-			for (int l=0; l<tempmax; l++) mTreetrigname[mTreeNtrig][l] = tempname[l];
-			
-			// cut filter names at 20*4 bytes
-			tempmax = get_size(filtname);
-			if (tempmax>20) tempmax=20;			
-            for (int l=0; l<tempmax; l++) mTreefiltname[mTreeNtrig][l] = filtname[l];
-            
-            mTreetrigL1pre[mTreeNtrig]  = pre1; 
-            mTreetrigHLTpre[mTreeNtrig] = pre2; // (*it)->prescale();
-            mTreetrigpt[mTreeNtrig]  = objRef->pt();
-            mTreetrigeta[mTreeNtrig] = objRef->eta();
-            mTreetrigphi[mTreeNtrig] = objRef->phi();
-            mTreeNtrig++;
-            if (mTreeNtrig==nMaxTrigger){ 
-	      cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
-	      break;
-	    }
-          }
-          if (mTreeNtrig==nMaxTrigger){
-	    cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
-	    break;
-		   }
+                int tempmax = get_size(tempname);
+                if (tempmax>20) tempmax=20;   
+                for (int l=0; l<tempmax; l++) mTreetrigname[mTreeNtrig][l]=tempname[l];
+                mTreetrigL1pre[mTreeNtrig]=pre1;
+                mTreetrigHLTpre[mTreeNtrig]=pre2;
+                mTreetrigpt[mTreeNtrig]  = -1;
+                mTreetrigeta[mTreeNtrig] = 999;
+                mTreetrigphi[mTreeNtrig] = 999;           
+                tempmax = 1;
+                for (int l=0; l<tempmax; l++) mTreefiltname[mTreeNtrig][l] = 0;    
+                mTreeNtrig++;       
+            }
         }
         if (mTreeNtrig==nMaxTrigger){
-	  cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
-	  break;
-	}
+            cout << "WARNING! Event contains more than " << nMaxTrigger << " triggers!" << endl;
+            break;
+        }
         /*
         const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname);
         for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll )

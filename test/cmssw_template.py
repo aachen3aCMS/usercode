@@ -77,7 +77,7 @@ qscalehigh=-1.
 qscalelow=-1.
 isData=False
 tauSwitch=False
-IsPythiaShowered=True
+IsPythiaShowered=False
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -92,6 +92,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
 process.GlobalTag.globaltag = cms.string('START50_V15A::All')
+#process.GlobalTag.globaltag = cms.string('START52_V7::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -156,34 +157,29 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
+    #'file:/user/thuer/RelVal_5_2_0_AOD.root']
+    #'file:/user/thuer/Wprime1300Summer12_3.root']
+    #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
+    '/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
+   #'/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/F2F8B140-1476-E111-851C-00259020081C.root']
+    #'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
     ),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(300)
 )
 #PAT Stuff
 if not tauSwitch and not isData:
     removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
-# switch on PAT trigger
-from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
-switchOnTrigger(process)
-process.patTrigger.processName = "*"
-process.patTriggerEvent.processName = "*"
 
-process.patJets.addTagInfos = cms.bool(False)  # AOD only
 
 process.patMuons.embedCombinedMuon = False;
 process.patMuons.embedStandAloneMuon = False;
 
-# add iso deposits
-#from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
-#addMuonUserIsolation(process)
 
-#process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
 
 
 if tauSwitch:
@@ -200,6 +196,12 @@ else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
 #~ if tauSwitch:
     #~ adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+
+
+
+# switch on PAT trigger
+from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
+switchOnTrigger(process)
 
 
 # for PFnoPU
@@ -411,9 +413,9 @@ process.ACSkimAnalysis = cms.EDFilter(
 
     
 process.p = cms.Path(
-	filtersequence*
-    process.kt6PFJets * 
-    process.ak5PFJets *
+    filtersequence*
+    #process.kt6PFJets * 
+    #process.ak5PFJets *
     process.goodOfflinePrimaryVertices*
     process.HBHENoiseFilterResultProducer*
     tausequence*
@@ -423,7 +425,7 @@ process.p = cms.Path(
     #~ process.pfJetMETcorr*
     #~ process.pfType1CorrectedMet
    # process.pfType1CorrectedPFMet
-    process.producePFMETCorrections*
+    #process.producePFMETCorrections*
     process.pfMETType0*
     process.pfMETType1
     )

@@ -168,22 +168,12 @@ process.maxEvents = cms.untracked.PSet(
 #PAT Stuff
 if not tauSwitch and not isData:
 	removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
-# switch on PAT trigger
-from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
-switchOnTrigger(process)
-process.patTrigger.processName = "*"
-process.patTriggerEvent.processName = "*"
 
-process.patJets.addTagInfos = cms.bool(False)  # AOD only
+
 
 process.patMuons.embedCombinedMuon = False;
 process.patMuons.embedStandAloneMuon = False;
 
-# add iso deposits
-#from PhysicsTools.PatAlgos.tools.muonTools import addMuonUserIsolation
-#addMuonUserIsolation(process)
-
-#process.load("aachen3a.ACSusyAnalysis.pfIsoForLeptons_cff")
 
 
 if tauSwitch:
@@ -201,6 +191,9 @@ else:
 #~ if tauSwitch:
 	#~ adaptPFTaus(process,"hpsPFTau",postfix=postfix)
 
+# switch on PAT trigger
+from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
+switchOnTrigger(process)
 
 # for PFnoPU
 process.pfPileUpPFlow.Enable = True
@@ -396,7 +389,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     jetselqual = cms.string("LOOSE")
     
 
-		
+
 )
 
 
@@ -404,8 +397,8 @@ process.ACSkimAnalysis = cms.EDFilter(
 ### Define the paths
 process.p = cms.Path(
     filtersequence*
-    process.kt6PFJets * 
-    process.ak5PFJets *
+    #process.kt6PFJets * 
+    #process.ak5PFJets *
     process.goodOfflinePrimaryVertices*
     process.HBHENoiseFilterResultProducer*
     tausequence*
@@ -415,7 +408,7 @@ process.p = cms.Path(
     #~ process.pfJetMETcorr*
     #~ process.pfType1CorrectedMet
    # process.pfType1CorrectedPFMet
-    process.producePFMETCorrections*
+    #process.producePFMETCorrections*
     process.pfMETType0*
     process.pfMETType1
     )
