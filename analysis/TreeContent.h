@@ -480,6 +480,7 @@ class TreeContent {
    Int_t           PFmuo_TrackerLayersMeasCm[100];   //[PFmuo_n]
    Int_t           PFmuo_TrackerLayersNotMeasCm[100];   //[PFmuo_n]
    Double_t        PFmuo_Valid_fraction[100];   //[PFmuo_n]
+
    Int_t           tau_n;
    Double_t        tau_p[100];   //[tau_n]
    Double_t        tau_pt[100];   //[tau_n]
@@ -491,6 +492,7 @@ class TreeContent {
    Double_t        tau_Eta[100];   //[tau_n]
    Double_t        tau_Phi[100];   //[tau_n]
    Int_t           tau_DecayMode[100];   //[tau_n]
+   Int_t           tau_Charge[100];   //[tau_n]
    Double_t        tau_vx[100];   //[tau_n]
    Double_t        tau_vy[100];   //[tau_n]
    Double_t        tau_vz[100];   //[tau_n]
@@ -519,7 +521,27 @@ class TreeContent {
    Double_t        tau_ElectronPreIDOutput[100];   //[tau_n]
    Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
    Double_t        tau_BremsRecoveryEOverPLead[100];   //[tau_n]
-   Double_t        tau_id[100][10];   //[tau_n]
+   Double_t        tau_id[100][18];   //[tau_n]
+   Double_t        tau_M[100];
+   Double_t        tau_Mt[100];
+   Int_t    	   tau_GenJet_Match_n;
+   Int_t    	   tau_GenJet_DecayMode[100][50];
+   Int_t     	   tau_GenJetMatch_Pos[100];
+   Double_t        tau_GenJet_E[100];
+   Double_t        tau_GenJet_Et[100];
+   Double_t        tau_GenJet_EmE[100];
+   Double_t        tau_GenJet_HadE[100];
+   Double_t        tau_GenJet_InvE[100];
+   Double_t        tau_GenJet_Eta[100];
+   Double_t        tau_GenJet_Phi[100];
+   Double_t        tau_GenJet_M[100];
+   Double_t        tau_GenJet_Mt[100];
+   Double_t        tau_GenJet_P[100];
+   Double_t        tau_GenJet_Pt[100];
+   Double_t        tau_GenJet_Px[100];
+   Double_t        tau_GenJet_Py[100];
+   Double_t        tau_GenJet_Pz[100];
+
    Double_t        susyScanM0;
    Double_t        susyScanM12;
    Double_t        susyScanA0;

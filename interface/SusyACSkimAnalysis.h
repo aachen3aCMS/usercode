@@ -92,6 +92,8 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+
 using namespace std;
 using namespace pat;
 using namespace ACSusyAnalysis;
@@ -222,7 +224,7 @@ private:
   isoContainer *muIsoFromDepsValueMap_;
 
   TString ACmuonID[24];
-  TString ACtauID[16];
+  TString ACtauID[18];
 
   double _jeta[100];
   double _jphi[100];
@@ -791,16 +793,19 @@ private:
   int mTreeTauDecayMode[100];
   int mTreeTauPFChargedHadrCands[100];
   int mTreeTauPFGammaCands[100];
-  double mTreeTauID[100][16];
+  double mTreeTauID[100][18];
   double mTreeTauP[100];
   double mTreeTauPt[100];
   double mTreeTauE[100];
   double mTreeTauEt[100];
+  double mTreeTauMass[100];
+  double mTreeTauMt[100];
   double mTreeTauPx[100];
   double mTreeTauPy[100];
   double mTreeTauPz[100];
   double mTreeTauEta[100];
   double mTreeTauPhi[100];
+  int mTreeTauCharge[100];
   double mTreeTauvx[100];
   double mTreeTauvy[100];
   double mTreeTauvz[100];
@@ -811,7 +816,27 @@ private:
   double mTreeTauChadIso[100];
   double mTreeTauNhadIso[100];
   double mTreeTauGamIso[100];
-  
+
+
+  int mTreeNTruthMatchTaus;
+  int mTreePosTruthMatchTaus[100];
+  int mTreeGenTauDecay[100][50];
+
+  double mTreeTauGenJetE[100];
+  double mTreeTauGenJetEt[100];
+  double mTreeTauGenJetEmE[100];
+  double mTreeTauGenJetHadE[100];
+  double mTreeTauGenJetInvE[100];
+  double mTreeTauGenJetEta[100];
+  double mTreeTauGenJetPhi[100];
+  double mTreeTauGenJetMass[100];
+  double mTreeTauGenJetMt[100];
+  double mTreeTauGenJetP[100];
+  double mTreeTauGenJetPt[100];
+  double mTreeTauGenJetPx[100];
+  double mTreeTauGenJetPy[100];
+  double mTreeTauGenJetPz[100];
+
   double mTreeTauIsolationPFChargedHadrCandsPtSum[100]; 
   double mTreeTauIsolationPFGammaCandsEtSum[100]; 
   double mTreeTauEcalStripSumEOverPLead[100]; 

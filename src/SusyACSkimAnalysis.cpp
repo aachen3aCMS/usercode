@@ -2303,6 +2303,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       mTreeNPFmuons=countPFmuon;
   }
+
+
 	mTreeNtaus = 0;
   //TAUS
   if (doTaus_)
@@ -2320,6 +2322,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		
 		mTreeNtaus = tauHandle->size();
 		int counttau=0;
+   		int counterTauTruthMatch = 0;
 		
 		for( int i=0;i<mTreeNtaus ; i++){
 		  taus.push_back((*tauHandle)[i]);
@@ -2334,6 +2337,35 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		if(mTreeNtaus >100) mTreeNtaus =100;
 		
 		
+	for (int i=0;i<mTreeNtaus ; i++){
+
+			mTreePosTruthMatchTaus[i]	=  -1;
+ 	  		mTreeTauGenJetE[i]		=  -1.;
+ 	  		mTreeTauGenJetEt[i]		=  -1.;
+ 	  		mTreeTauGenJetEmE[i]		=  -1.;
+ 	  		mTreeTauGenJetHadE[i] 		=  -1.;
+ 	  		mTreeTauGenJetInvE[i]		=  -1.;
+ 	  		mTreeTauGenJetEta[i] 		=  -100.;
+	  		mTreeTauGenJetPhi[i]		=  -100.;
+ 	  		mTreeTauGenJetMass[i]		=  -1.;
+ 	  		mTreeTauGenJetMt[i] 		=  -1.;
+ 	  		mTreeTauGenJetP[i] 		=  -1.;
+ 	  		mTreeTauGenJetPt[i]		=  -1.;
+ 	  		mTreeTauGenJetPx[i] 		=  -1000000.;
+ 	  		mTreeTauGenJetPy[i] 		=  -1000000.;
+ 	  		mTreeTauGenJetPz[i] 		=  -1000000.;
+
+			int *taudecayname = pack("FakeTau");
+
+         		for (int l=0; l<get_size(taudecayname); l++) mTreeGenTauDecay[i][l] = taudecayname[l];
+
+    			for(int j=0; j<18; j++){
+        			mTreeTauID[i][j] = -1.;
+			}
+	}		
+		
+
+
 		for( int i=0;i<mTreeNtaus ; i++){
 		if (taus[i].pt() > taupt_ && fabs(taus[i].eta()) < taueta_ ) 
 			ctau_++;
@@ -2348,52 +2380,62 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 			  mTreeNtautrign[counttau]++;
 			}
 		  }	
-		  for(int j=0; j<10; j++){
-			mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
-			//~ cout << ACtauID[j] << " " <<mTreeTauID[counttau][j]<< endl;
-		  }
+
+ 		for(int j=0; j<18; j++){
+        		mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
+//         		cout << ACtauID[j] << " " <<mTreeTauID[counttau][j]<< endl;
+      		}
+
+
 		  mTreeTauP[counttau]          = taus[i].p();
 		  mTreeTauPt[counttau]         = taus[i].pt();
 		  mTreeTauE[counttau]          = taus[i].energy();
 		  mTreeTauEt[counttau]         = taus[i].et();
+  		  mTreeTauMass[counttau]       = taus[i].mass();
+  		  mTreeTauMt[counttau]         = taus[i].mt();
 		  mTreeTauPx[counttau]         = taus[i].momentum().X();
 		  mTreeTauPy[counttau]         = taus[i].momentum().Y();
 		  mTreeTauPz[counttau]         = taus[i].momentum().Z();
 		  mTreeTauEta[counttau]        = taus[i].eta();
 		  mTreeTauPhi[counttau]        = taus[i].phi();
 		  mTreeTauDecayMode[counttau]  = taus[i].decayMode();
+		  mTreeTauCharge[counttau]  = taus[i].charge();
+
 		  tauVtxPoint					= taus[i].vertex();           
 		  mTreeTauvx[counttau]         = tauVtxPoint.X();
 		  mTreeTauvy[counttau]         = tauVtxPoint.Y();
 		  mTreeTauvz[counttau]         = tauVtxPoint.Z();
-		  
-		  //~ tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();
-		  //~ mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
-		  //~ mTreeTauvx2[counttau]         = tauVtxPoint2.X();
-		  //~ mTreeTauvy2[counttau]         = tauVtxPoint2.Y();
-		  //~ mTreeTauvz2[counttau]         = tauVtxPoint2.Z();
+
+
+//   		  tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();
+//       		  mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
+//      		  mTreeTauvx2[counttau]         = tauVtxPoint2.X();
+//       		  mTreeTauvy2[counttau]         = tauVtxPoint2.Y();
+//   		 	  mTreeTauvz2[counttau]         = tauVtxPoint2.Z();
 		  mTreeTauParticleIso[counttau]= taus[i].userIsolation("pat::PfAllParticleIso");
 		  mTreeTauChadIso[counttau]    = taus[i].userIsolation("pat::PfChargedHadronIso");
 		  mTreeTauNhadIso[counttau]    = taus[i].userIsolation("pat::PfNeutralHadronIso");
 		  mTreeTauGamIso[counttau]     = taus[i].userIsolation("pat::PfGammaIso");      
 
+// 	  mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
+// 	  mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
+// 	  
+	  mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
+	  mTreeTauIsolationPFGammaCandsEtSum[counttau] = taus[i].isolationPFGammaCandsEtSum();
+	  mTreeTauEcalStripSumEOverPLead[counttau] = taus[i].ecalStripSumEOverPLead();
+	  mTreeTauEMFraction[counttau] = taus[i].emFraction();
+	  mTreeTauHcal3x3OverPLead[counttau] = taus[i].hcal3x3OverPLead();
+	  mTreeTauHcalMaxOverPLead[counttau] = taus[i].hcalMaxOverPLead();
+	  mTreeTauHcalTotOverPLead[counttau] = taus[i].hcalTotOverPLead();
+	  mTreeTauLeadPFChargedHadrCandsignedSipt[counttau] = taus[i].leadPFChargedHadrCandsignedSipt();
+	  mTreeTauPhiphiMoment[counttau] = taus[i].phiphiMoment();
+	  mTreeTauEtaphiMoment[counttau] = taus[i].etaphiMoment();
+	  mTreeTauEtaetaMoment[counttau] = taus[i].etaetaMoment();
+	  mTreeTauElectronPreIDOutput[counttau] = taus[i].electronPreIDOutput();
+	  mTreeTauBremsRecoveryEOverPLead[counttau] = taus[i].bremsRecoveryEOverPLead();
+// 	  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+	  //~ cout << taus[i].userIsolation("pat::EcalIso") << endl;
 
-		  
-		  mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
-		  mTreeTauIsolationPFGammaCandsEtSum[counttau] = taus[i].isolationPFGammaCandsEtSum();
-		  mTreeTauEcalStripSumEOverPLead[counttau] = taus[i].ecalStripSumEOverPLead();
-		  mTreeTauEMFraction[counttau] = taus[i].emFraction();
-		  mTreeTauHcal3x3OverPLead[counttau] = taus[i].hcal3x3OverPLead();
-		  mTreeTauHcalMaxOverPLead[counttau] = taus[i].hcalMaxOverPLead();
-		  mTreeTauHcalTotOverPLead[counttau] = taus[i].hcalTotOverPLead();
-		  mTreeTauLeadPFChargedHadrCandsignedSipt[counttau] = taus[i].leadPFChargedHadrCandsignedSipt();
-		  mTreeTauPhiphiMoment[counttau] = taus[i].phiphiMoment();
-		  mTreeTauEtaphiMoment[counttau] = taus[i].etaphiMoment();
-		  mTreeTauEtaetaMoment[counttau] = taus[i].etaetaMoment();
-		  mTreeTauElectronPreIDOutput[counttau] = taus[i].electronPreIDOutput();
-		  mTreeTauBremsRecoveryEOverPLead[counttau] = taus[i].bremsRecoveryEOverPLead();
-	
-		  
 		  if (taus[i].leadPFChargedHadrCand().isNonnull()){
 			tauVtxPoint2                 = taus[i].leadPFChargedHadrCand()->vertex();  
 			mTreeTauvx2[counttau]         = tauVtxPoint2.X();
@@ -2406,9 +2448,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 			mTreeTauvz2[counttau] = -999.;
 			mTreeTauPFLeadChargedPT[counttau] = -1.;
 		  }
-		  //~ mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
-		  //~ mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
-		  //~ mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+
+
 		  if (taus[i].signalPFChargedHadrCands().isNonnull()) {
 			  mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
 		  }  else {
@@ -2425,15 +2466,52 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 			  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
 		  }  else {
 			 mTreeTauNSignalTracks[counttau] = -1;
-		  }			  
-		  //~ cout << taus[i].userIsolation("pat::EcalIso") << endl;
-		  counttau++;
+		  }	
+
+
+	  if (is_MC) {
+
+		if(taus[i].genJet()!=0){
+
+			mTreePosTruthMatchTaus[counterTauTruthMatch]	= i;
+ 	  		mTreeTauGenJetE[counterTauTruthMatch]		= taus[i].genJet()->energy();
+ 	  		mTreeTauGenJetEt[counterTauTruthMatch]		= taus[i].genJet()->et();
+ 	  		mTreeTauGenJetEmE[counterTauTruthMatch]		= taus[i].genJet()->emEnergy();
+ 	  		mTreeTauGenJetHadE[counterTauTruthMatch] 	= taus[i].genJet()->hadEnergy();
+ 	  		mTreeTauGenJetInvE[counterTauTruthMatch]	= taus[i].genJet()->invisibleEnergy();
+ 	  		mTreeTauGenJetEta[counterTauTruthMatch] 	= taus[i].genJet()->eta();
+	  		mTreeTauGenJetPhi[counterTauTruthMatch]		= taus[i].genJet()->phi();
+ 	  		mTreeTauGenJetMass[counterTauTruthMatch]	= taus[i].genJet()->mass();
+ 	  		mTreeTauGenJetMt[counterTauTruthMatch] 		= taus[i].genJet()->mt();
+ 	  		mTreeTauGenJetP[counterTauTruthMatch] 		= taus[i].genJet()->p();
+ 	  		mTreeTauGenJetPt[counterTauTruthMatch]		= taus[i].genJet()->pt();
+ 	  		mTreeTauGenJetPx[counterTauTruthMatch] 		= taus[i].genJet()->px();
+ 	  		mTreeTauGenJetPy[counterTauTruthMatch] 		= taus[i].genJet()->py();
+ 	  		mTreeTauGenJetPz[counterTauTruthMatch] 		= taus[i].genJet()->pz();
+
+			int *taudecayname = pack((JetMCTagUtils::genTauDecayMode(*(taus[i].genJet()))).c_str());
+         		for (int l=0; l<get_size(taudecayname); l++) mTreeGenTauDecay[counterTauTruthMatch][l] = taudecayname[l];
+
+	  		counterTauTruthMatch++;
+	 
+		}else{
+// 			cout << "Nullpointer (else)" << endl;
 		}
-		mTreeNtaus=counttau;
-	  }
-	  
-  
+
+	}	 
+
+      counttau++;
+    }
+	
+
+//   cout << "Anzahl true taus pro event: " << counterTauTruthMatch << endl;
+
+    mTreeNTruthMatchTaus=counterTauTruthMatch;
+
+    mTreeNtaus=counttau;
   }
+}
+
   if (ntau_     > 0 && ctau_     < ntau_)     return 0;
   // fatjets
   mTreeNfatjet = 0;
@@ -3966,12 +4044,15 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_pt", mTreeTauPt, "tau_pt[tau_n]/double");
   mAllData->Branch("tau_E", mTreeTauE, "tau_E[tau_n]/double");
   mAllData->Branch("tau_Et", mTreeTauEt, "tau_Et[tau_n]/double"); 
+  mAllData->Branch("tau_M", mTreeTauMass, "tau_M[tau_n]/double");
+  mAllData->Branch("tau_Mt", mTreeTauMt, "tau_Mt[tau_n]/double"); 
   mAllData->Branch("tau_Px", mTreeTauPx, "tau_Px[tau_n]/double"); 
   mAllData->Branch("tau_Py", mTreeTauPy, "tau_Py[tau_n]/double"); 
   mAllData->Branch("tau_Pz", mTreeTauPz, "tau_Pz[tau_n]/double"); 
   mAllData->Branch("tau_Eta", mTreeTauEta, "tau_Eta[tau_n]/double"); 
   mAllData->Branch("tau_Phi", mTreeTauPhi, "tau_Phi[tau_n]/double"); 
-  mAllData->Branch("tau_DecayMode",   mTreeTauDecayMode,    "tau_DecayMode[tau_n]/I");   
+  mAllData->Branch("tau_DecayMode",   mTreeTauDecayMode,    "tau_DecayMode[tau_n]/I");
+  mAllData->Branch("tau_Charge", mTreeTauCharge,"tau_Charge[tau_n]/I");
   mAllData->Branch("tau_vx", mTreeTauvx, "tau_vx[tau_n]/double"); 
   mAllData->Branch("tau_vy", mTreeTauvy, "tau_vy[tau_n]/double"); 
   mAllData->Branch("tau_vz", mTreeTauvz, "tau_vz[tau_n]/double"); 
@@ -3986,7 +4067,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_GamIso", mTreeTauGamIso, "tau_GamIso[tau_n]/double"); 
   mAllData->Branch("tau_PFChargedHadrCands", mTreeTauPFChargedHadrCands, "tau_PFChargedHadrCands[tau_n]/I"); 
   mAllData->Branch("tau_PFGammaCands", mTreeTauPFGammaCands, "tau_PFGammaCands[tau_n]/I"); 
-  
+ 
   mAllData->Branch("tau_IsolationPFChargedHadrCandsPtSum", mTreeTauIsolationPFChargedHadrCandsPtSum, "tau_IsolationPFChargedHadrCandsPtSum[tau_n]/double"); 
   mAllData->Branch("tau_IsolationPFGammaCandsEtSum", mTreeTauIsolationPFGammaCandsEtSum, "tau_IsolationIsolationPFGammaCandsEtSum[tau_n]/double"); 
   mAllData->Branch("tau_EcalStripSumEOverPLead", mTreeTauEcalStripSumEOverPLead, "tau_EcalStripSumEOverPLead[tau_n]/double"); 
@@ -4004,7 +4085,32 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_PFLeadChargedPT", mTreeTauPFLeadChargedPT, "tau_PFLeadChargedPT[tau_n]/double"); 
   mAllData->Branch("tau_BremsRecoveryEOverPLead", mTreeTauBremsRecoveryEOverPLead, "tau_BremsRecoveryEOverPLead[tau_n]/double"); 
 
-  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][10]/double");
+  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][18]/double");
+
+
+  mAllData->Branch("tau_GenJet_Match_n",   &mTreeNTruthMatchTaus,    "tau_GenJet_Match_n/I");
+
+  mAllData->Branch("tau_GenJet_DecayMode",mTreeGenTauDecay,"tau_Gen_DecayMode[tau_n][50]/I");
+
+  mAllData->Branch("tau_GenJetMatch_Pos", mTreePosTruthMatchTaus, "tau_GenJetMatch_Pos[tau_n]/I"); 
+  mAllData->Branch("tau_GenJet_E",mTreeTauGenJetE,"tau_GenJet_E[tau_n]/double");
+  mAllData->Branch("tau_GenJet_Et", mTreeTauGenJetEt, "tau_GenJet_Et[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_EmE",mTreeTauGenJetEmE,"tau_GenJet_EmE[tau_n]/double");
+  mAllData->Branch("tau_GenJet_HadE", mTreeTauGenJetHadE, "tau_GenJet_HadE[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_InvE",mTreeTauGenJetInvE,"tau_GenJet_InvE[tau_n]/double");
+  mAllData->Branch("tau_GenJet_Eta", mTreeTauGenJetEta, "tau_GenJet_Eta[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_Phi",mTreeTauGenJetPhi,"tau_GenJet_Phi[tau_n]/double");
+  mAllData->Branch("tau_GenJet_M", mTreeTauGenJetMass, "tau_GenJet_M[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_Mt",mTreeTauGenJetMt,"tau_GenJet_Mt[tau_n]/double");
+  mAllData->Branch("tau_GenJet_P", mTreeTauGenJetP, "tau_GenJet_P[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_Pt",mTreeTauGenJetPt,"tau_GenJet_Pt[tau_n]/double");
+  mAllData->Branch("tau_GenJet_Et", mTreeTauGenJetEt, "tau_GenJet_Et[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_Px", mTreeTauGenJetPx, "tau_GenJet_Px[tau_n]/double"); 
+  mAllData->Branch("tau_GenJet_Py",mTreeTauGenJetPy,"tau_GenJet_Py[tau_n]/double");
+  mAllData->Branch("tau_GenJet_Pz", mTreeTauGenJetPz, "tau_GenJet_Pz[tau_n]/double"); 
+
+
+
 
   // SUSY
   mAllData->Branch("susyScanM0",  &mTreesusyScanM0, "susyScanM0/double");
@@ -4045,22 +4151,6 @@ void SusyACSkimAnalysis::initPlots() {
 			  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
         
         
-  //~ ACtauID[0]="againstElectron";
-  //~ ACtauID[1]="againstMuon";
-  //~ ACtauID[2]="byIsolation";
-  //~ ACtauID[3]="byIsolationUsingLeadingPion";
-  //~ ACtauID[4]="byTaNC";
-  //~ ACtauID[5]="byTaNCfrHalfPercent";
-  //~ ACtauID[6]="byTaNCfrOnePercent";
-  //~ ACtauID[7]="byTaNCfrQuarterPercent";
-  //~ ACtauID[8]="byTaNCfrTenthPercent";
-  //~ ACtauID[9]="ecalIsolation";
-  //~ ACtauID[10]="ecalIsolationUsingLeadingPion";
-  //~ ACtauID[11]="leadingPionPtCut";
-  //~ ACtauID[12]="leadingTrackFinding";
-  //~ ACtauID[13]="leadingTrackPtCut";
-  //~ ACtauID[14]="trackIsolation";
-  //~ ACtauID[15]="trackIsolationUsingLeadingPion";
 
 
   ACtauID[0]="againstElectronLoose";
@@ -4073,7 +4163,14 @@ void SusyACSkimAnalysis::initPlots() {
   ACtauID[7]="byMediumIsolation";
   ACtauID[8]="byTightIsolation";
   ACtauID[9]="decayModeFinding";
-
+  ACtauID[10]="byVLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[11]="byLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[12]="byMediumCombinedIsolationDeltaBetaCorr";
+  ACtauID[13]="byTightCombinedIsolationDeltaBetaCorr";
+  ACtauID[14]="byVLooseIsolationDeltaBetaCorr";
+  ACtauID[15]="byLooseIsolationDeltaBetaCorr";
+  ACtauID[16]="byMediumIsolationDeltaBetaCorr";
+  ACtauID[17]="byTightIsolationDeltaBetaCorr";
 
 
 

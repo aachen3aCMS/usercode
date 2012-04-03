@@ -188,8 +188,9 @@ if isData:
     removeMCMatching(process, ['All'])
 else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
-#~ if tauSwitch:
-	#~ adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+
+getattr(process,"pfTaus"+postfix).discriminators = cms.VPSet( cms.PSet(discriminator = cms.InputTag("pfTausBaseDiscriminationByDecayModeFinding"+postfix),selectionCut = cms.double(0.5)))
+print("Change discriminators for Pat::tau selection to [pfTausBaseDiscriminationByDecayModeFinding] ")
 
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger

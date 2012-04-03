@@ -1,3 +1,7 @@
+2012-04-03 Simon Knutzen <knutzen -at- physik.rwth-aachen.de>
+	* Taus working now
+	* Changed tau discriminator for HPS PFToPAT selection
+	* Add new tau variables
 2012-03-19 Sebastian Thüer <thuer -at- physik.rwth-aachen.de>
 	* Prepared the skimmer for 5_2_X
 	* Taus not working ...
