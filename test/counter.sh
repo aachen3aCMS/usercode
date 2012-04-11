@@ -54,7 +54,7 @@ then
   OUT_EVENTS=0
   for file in $LIST
   do
-#    echo $file
+#    echo "Checking $file..."
     SEG=`grep "segmentation" $file`
     if [ "$SEG" ]
     then
@@ -129,15 +129,23 @@ then
       let k=k+1
       let m=m+1
       continue
-    fi	
+    fi
+    # Check requirement: SUSYana must have finished
+    FIN=`grep "SusyACSkimAnalysis:ACSkimAnalysis@endJob" $file`
+    if [ "$FIN" == "" ] ; then
+	echo "Endjob not found in file $file"
+      let k=k+1
+      let m=m+1
+      continue
+    fi
 
     EVENTS1=`grep "Events total" $file | awk '{print $5}'`
     EVENTS2=`grep "of events" $file | awk '{print $6}'`
     EVENTS3=`grep "of events" $file | awk '{print $10}'`
 #    echo $file "  "$EVENTS1"|"$EVENTS2"|"$EVENTS3
-    TOTAL_EVENTS=$(echo "$TOTAL_EVENTS+$EVENTS1" | bc)
-    PASS_EVENTS=$(echo "$PASS_EVENTS+$EVENTS2" | bc)
-    OUT_EVENTS=$(echo "$OUT_EVENTS+$EVENTS3" | bc)
+    let TOTAL_EVENTS=$TOTAL_EVENTS+$EVENTS1
+    let PASS_EVENTS=$PASS_EVENTS+$EVENTS2
+    let OUT_EVENTS=$OUT_EVENTS+$EVENTS3
     let k=k+1
     let j=j+1
   done
