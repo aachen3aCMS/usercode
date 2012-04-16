@@ -354,7 +354,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         
         const TriggerFilterRefVector mpf = myTriggerEvent->pathFilters(tname,false);
         for ( TriggerFilterRefVector::const_iterator ll=mpf.begin(); ll!=mpf.end(); ++ll ) {
-            if(ttname.Contains("Ele")||ttname.Contains("Muo")|| ttname.Contains("Photon")){
+            if(ttname.Contains("Ele")||ttname.Contains("Mu")|| ttname.Contains("Photon")){
                 TriggerObjectRefVector torv = myTriggerEvent->filterObjects((*ll)->label());   
                 for ( TriggerObjectRefVector::const_iterator itt = torv.begin(); itt != torv.end(); ++itt ) {
                     const TriggerObjectRef objRef( *itt );
