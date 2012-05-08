@@ -342,6 +342,7 @@ public :
    Double_t        ele_EoverP[100];   //[ele_n]
    Int_t           ele_Classification[100];   //[ele_n]
    Bool_t          ele_HasMatchedConversions[100];   //[ele_n]
+   Bool_t          ele_SCRawEt[100];   //[ele_n]
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
@@ -885,6 +886,7 @@ public :
    TBranch        *b_ele_EoverP;   //!
    TBranch        *b_ele_Classification;   //!
    TBranch        *b_ele_HasMatchedConversions;   //!
+   TBranch        *b_ele_SCRawEt;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -1500,6 +1502,7 @@ void allData::Init(TTree *tree)
    fChain->SetBranchAddress("ele_EoverP", ele_EoverP, &b_ele_EoverP);
    fChain->SetBranchAddress("ele_Classification", ele_Classification, &b_ele_Classification);
    fChain->SetBranchAddress("ele_HasMatchedConversions", ele_HasMatchedConversions, &b_ele_HasMatchedConversions);
+   fChain->SetBranchAddress("ele_SCRawEt", ele_SCRawEt, &b_ele_SCRawEt);
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", &pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", &pfele_E, &b_pfele_E);
