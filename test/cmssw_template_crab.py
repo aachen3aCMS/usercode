@@ -189,8 +189,6 @@ if isData:
 else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
 
-getattr(process,"pfTaus"+postfix).discriminators = cms.VPSet( cms.PSet(discriminator = cms.InputTag("pfTausBaseDiscriminationByDecayModeFinding"+postfix),selectionCut = cms.double(0.5)))
-print("Change discriminators for Pat::tau selection to [pfTausBaseDiscriminationByDecayModeFinding] ")
 
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
@@ -211,6 +209,9 @@ process.kt6PFJetsPFlow = kt4PFJets.clone(
     doAreaFastjet = cms.bool(True),
     doRhoFastjet = cms.bool(True)
     )
+    
+process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
 process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
 if isData:
@@ -253,6 +254,10 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 #~ process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
 
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
+process.eleIsoSequence = setupPFElectronIso(process, 'patElectrons')
+process.phoIsoSequence = setupPFPhotonIso(process, 'patPhotons')
+
 
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
@@ -280,6 +285,7 @@ else:
 ### Definition of all tags here
 elecTag         = cms.InputTag("patElectrons")
 pfelecTag      = cms.InputTag("patElectronsPFlow")
+gsfelecTag         = cms.InputTag("gsfElectrons")
 photonTag         = cms.InputTag("patPhotons")
 calojetTag     = cms.InputTag("patJetsAK5Calo")
 pfjetTag        = cms.InputTag("patJetsPFlow")
@@ -302,6 +308,30 @@ reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB")
 reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE")
 #ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
 ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
+
+# For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
+
+IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
+	cms.InputTag('elPFIsoDepositGammaPFIso'),
+	cms.InputTag('elPFIsoDepositNeutralPFIso'))
+IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
+	cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+	cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'))
+IsoValElectronNoPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03NoPFIdPFIso'),
+	cms.InputTag('elPFIsoValueGamma03NoPFIdPFIso'),
+	cms.InputTag('elPFIsoValueNeutral03NoPFIdPFIso'))
+IsoDepPhoton = cms.VInputTag(cms.InputTag('phPFIsoDepositChargedPFIso'),
+	cms.InputTag('phPFIsoDepositGammaPFIso'),
+	cms.InputTag('phPFIsoDepositNeutralPFIso'))
+IsoValPhotonPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03PFIdPFIso'),
+	cms.InputTag('phPFIsoValueGamma03PFIdPFIso'),
+	cms.InputTag('phPFIsoValueNeutral03PFIdPFIso'))
+IsoValPhotonNoPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03NoPFIdPFIso'),
+	cms.InputTag('phPFIsoValueGamma03NoPFIdPFIso'),
+	cms.InputTag('phPFIsoValueNeutral03NoPFIdPFIso'))
+
+	
+#~ inputTagIsoValElectronsPFId = cms.InputTag("IsoValElectronPF")
 
 ### Cuts and switches ###
 process.ACSkimAnalysis = cms.EDFilter(
@@ -329,6 +359,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     calojetTag = calojetTag,
     pfjetTag   = pfjetTag,
     elecTag    = elecTag,
+    gsfelecTag    = gsfelecTag,
     photonTag  = photonTag,
     pfelecTag  = pfelecTag,
     muonTag    = muonTag,
@@ -348,6 +379,11 @@ process.ACSkimAnalysis = cms.EDFilter(
     ebhitsTag  = ebhitsTag,
     reducedBarrelRecHitCollection = reducedBarrelRecHitCollection,
     reducedEndcapRecHitCollection = reducedEndcapRecHitCollection,
+    
+	IsoDepElectron = IsoDepElectron,
+	IsoValElectronPF = IsoValElectronPF,
+	IsoDepPhoton = IsoDepPhoton,
+	IsoValPhotonPF = IsoValPhotonPF,
 
 
     qscale_low  = cms.double(qscalelow),
@@ -405,6 +441,10 @@ process.p = cms.Path(
     tausequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
+    process.pfParticleSelectionSequence*
+    process.eleIsoSequence*
+    process.phoIsoSequence*
+    process.kt6PFJetsForIsolation*
     #~ process.pfMetPFnoPU*
     #~ process.pfJetMETcorr*
     #~ process.pfType1CorrectedMet

@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 // ROOT includes
 #include <TNtuple.h>
@@ -94,6 +95,11 @@
 
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
+#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
+
+
 using namespace std;
 using namespace pat;
 using namespace ACSusyAnalysis;
@@ -106,7 +112,7 @@ class SusyACSkimAnalysis : public edm::EDFilter {
 public:
   explicit SusyACSkimAnalysis(const edm::ParameterSet&);
   ~SusyACSkimAnalysis();
-  
+	 
 private:
   //*** CMSSW interface
   /// Called once per job, at start
@@ -132,6 +138,9 @@ private:
 
   double DeltaPhi(double a, double b);
   double DeltaR(double a, double b, double c, double d);
+  //~ bool SortEleRefs(pat::ElectronRef& a, pat::ElectronRef& b); 
+  //~ bool SortInt(int a, int b); 
+  
 
 private:
 
@@ -173,6 +182,7 @@ private:
   edm::InputTag metTagTC_;
   edm::InputTag photonTag_;
   edm::InputTag elecTag_;
+  edm::InputTag gsfelecTag_;
   edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
   edm::InputTag PFmuonTag_;
@@ -188,6 +198,22 @@ private:
   edm::InputTag ebhitsTag_;
   edm::InputTag freducedBarrelRecHitCollection_;
   edm::InputTag freducedEndcapRecHitCollection_;
+  edm::InputTag IsoDepElectron;
+  edm::InputTag IsoValElectronPF;
+  edm::InputTag IsoDepPhoton;
+  edm::InputTag IsoValPhotonPF;
+  
+  
+  std::vector<edm::InputTag> inputTagIsoDepElectrons_;
+  std::vector<edm::InputTag> inputTagIsoDepPhotons_;
+  //  std::vector<edm::InputTag> inputTagIsoValElectronsNoPFId_;
+  std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
+  //~ std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
+  std::vector<edm::InputTag> inputTagIsoValPhotonsPFId_;     
+
+  typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
+  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+
 
   bool is_PYTHIA8;
   bool is_MC;
@@ -208,6 +234,8 @@ private:
   GreaterByPt<pat::Electron>  ptcomp_ele;
   GreaterByPt<pat::Jet>       ptcomp_jet;
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
+  GreaterByPtRef<pat::ElectronRef>   ptcomp_EleRef;
+  GreaterByPtRef<pat::PhotonRef>   ptcomp_PhotonRef;
 
   typedef std::pair<std::string,float> IdPair;
 
@@ -556,6 +584,9 @@ private:
   double mTreePhoe1x5[100];
   double mTreePhoe3x3[100];
   double mTreePhoSwissCross[100];
+  bool mTreePhohasMatchedPromptElectron[100];
+  double mTreePhoPFisoEG[100][3];
+
 
   double mTreePhoRoundness[100];
   double mTreePhoAngle[100];
@@ -577,6 +608,7 @@ private:
   int    mTreeEleTrkExpHitsInner[100];
   int    mTreeEleisECal[100];
   int    mTreeEleisTracker[100];
+  int    mTreeEleClassification[100];
  
   double mTreeEleEt[100];
   double mTreeEleP[100];
@@ -590,9 +622,12 @@ private:
   double mTreeEleEta[100];
   double mTreeElePhi[100];
   double mTreeEleHCalOverEm[100];
+  double mTreeEleHCalOverEmBc[100];
   double mTreeEleDr03TkSumPt[100];
   double mTreeEleDr04HCalTowerSumEt[100];
   double mTreeEleDr03HCalTowerSumEt[100];
+  double mTreeEleDr04HCalTowerSumEtBc[100];
+  double mTreeEleDr03HCalTowerSumEtBc[100];
   double mTreeEleDr04ECalRecHitSumEt[100];
   double mTreeEleDr03ECalRecHitSumEt[100];
   double mTreeEleSigmaIetaIeta[100];
@@ -603,10 +638,12 @@ private:
   double mTreeEled0vtx[100];
   double mTreeEled0bs[100];
   double mTreeElesd0[100];
+  double mTreeEledzvtx[100];
   double mTreeEleConvdist[100];
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
   double mTreeElefbrem[100];
+  double mTreeElePFisoEG[100][3];
   double mTreeElePFiso[100][3];
   double mTreeEledr03HcalDepth1[100];
   double mTreeEledr03HcalDepth2[100];
@@ -619,6 +656,10 @@ private:
   double mTreeElehcalDepth2TowerSumEt03[100];
   double mTreeEleSwissCross[100];
   double mTreeEleEoverP[100];
+  double mTreeEleECalEnergy[100];
+  double mTreeEleTrackMomentumAtVtx[100];
+  bool mTreeElehasMatchedConversion[100];
+  double mTreeEleSCRawEt[100];
 
   
   double mTreeElePFCandPx[100];
@@ -630,7 +671,7 @@ private:
   int mTreeElePFCandpfid[100];
   double mTreeElePFCandpfDeltaR[100];
   double mTreeElerho;
-  
+  double mTreeElerhoEG;
 
   int    mTreeNPFEle;
   int    mTreePFEleTruth[100];
@@ -674,10 +715,18 @@ private:
   int    mTreeMuoValidTrackerHitsCm[100];
   int    mTreeMuoValidPixelHitsCm[100];
   int    mTreeMuoChambersMatched[100];
+  int    mTreeMuoStationsMatched[100];
   int    mTreeMuoTrackerLayersMeasCm[100];
   int    mTreeMuoTrackerLayersNotMeasCm[100];
+  int    mTreeMuoValidMuonHitsTk[100];
+  int    mTreeMuoValidTrackerHitsTk[100];
+  int    mTreeMuoValidPixelHitsTk[100];
+  int    mTreeMuoTrackerLayersMeasTk[100];
+  int    mTreeMuoTrackerLayersNotMeasTk[100];
   int    mTreeMuoLostHits[100];
+  int    mTreeMuoLostHitsTk[100];
   int    mTreeMuoID[100][24];
+  int    mTreeMuoIsPF[100];
 
   
   double mTreeMuoEt[100];
@@ -705,16 +754,15 @@ private:
   double mTreeMuod0Tk[100];
   double mTreeMuosd0Cm[100];
   double mTreeMuosd0Tk[100];
+  double mTreeMuodzTk[100];
   double mTreeMuocalocomp[100];
   double mTreeMuocaltowe[100];
-  double mTreeMuod0bsCm[100];
   double mTreeMuod0OriginCm[100];
-  double mTreeMuodzbsCm[100];
   double mTreeMuovx[100];
   double mTreeMuovy[100];
   double mTreeMuovz[100];
   double mTreeMuoValidFraction[100];
-  double mTreeMuoPFiso[100][5];
+  double mTreeMuoPFiso[100][7];
   
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];
@@ -778,9 +826,7 @@ private:
   double mTreePFMuosd0Tk[100];
   double mTreePFMuocalocomp[100];
   double mTreePFMuocaltowe[100];
-  double mTreePFMuod0bsCm[100];
   double mTreePFMuod0OriginCm[100];
-  double mTreePFMuodzbsCm[100];
   double mTreePFMuoCmvx[100];
   double mTreePFMuoCmvy[100];
   double mTreePFMuoCmvz[100];
