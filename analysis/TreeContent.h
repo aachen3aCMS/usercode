@@ -1,96 +1,44 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Tue Oct  6 09:55:10 2009 by ROOT version 5.22/00a
+// Tue May  8 15:31:08 2012 by ROOT version 5.26/00c
 // from TTree allData/data after cuts
 // found on file: out.root
 //////////////////////////////////////////////////////////
 
-#ifndef TreeContent_h
-#define TreeContent_h
+#ifndef allData_h
+#define allData_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 
-#define INTSIZE 4
-
-class TreeContent {
- public :
-  
-  union u64 {
-    char c[INTSIZE];
-    int i;
-  };
-  
-  int get_size(const int* a) {
-    int size=0;
-    u64 tmp;
-    for(int i=0; ; ++i ) {
-      tmp.i = a[i];
-      size++;
-      for(int j=0; j < INTSIZE ; ++j )
-        if(tmp.c[j] == '\x0')
-          return size;
-    }
-    return -1;
-  }
-  
-  std::string unpack(const int* a) {
-    int size = get_size(a);
-    u64 tmp;
-    char* c = new char[size*INTSIZE];
-    for(int i=0; i < size ; ++i) {
-      tmp.i = a[i];
-      for(int j=0; j < INTSIZE; ++j )
-        c[i*INTSIZE+j] = tmp.c[j];
-    }
-    std::string ret( c );
-    delete[] c;
-    return ret;
-  }
-
-  
-  int* pack(const char* c) {
-    u64 tmp;
-    int j=0,count=0;
-    int size = strlen(c)/INTSIZE+1;
-    int* ii=new int[size];
-    for(int i=0 ; ; i++) {
-      tmp.c[j++]=c[i];
-      ii[count]=tmp.i;
-      if(j==INTSIZE) {
-        j=0;
-        count++;
-      }
-      if(c[i] == '\x0')
-        break;
-    }
-    return ii;
-  }
-
+class allData {
+public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
+   // Declaration of leaf types
    Double_t        global_weight;
    Int_t           global_procID;
    Double_t        global_qscale;
    Double_t        global_bfield;
    Int_t           global_store;
-   UInt_t           global_run;
-   UInt_t           global_event;
+   UInt_t          global_run;
+   UInt_t          global_event;
    Int_t           global_bx;
    Int_t           global_orbit;
    Int_t           global_exp;
    Int_t           global_isdata;
-   Int_t           global_rho;
+   Double_t        global_rhoEG;
+   Double_t        global_rho;
    Int_t           lumi_section;
    Double_t        lumi_del;
    Double_t        lumi_rec;
    Double_t        lumi_delerr;
    Double_t        lumi_recerr;
-   Int_t           pu_bunchx[3];
    Int_t           pu_n;
    Int_t           pu_vtxn;
+   Int_t           pu_bunchx[3];   //[pu_n]
    Int_t           pu_num_int[3];   //[pu_n]
    Double_t        pu_inst_Lumi[3][100];   //[pu_n]
    Double_t        pu_zPos[3][100];   //[pu_n]
@@ -113,18 +61,18 @@ class TreeContent {
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
    Bool_t          noise_HBHE_filter_result;
-   Int_t 		   eventfilter_n;
-   Bool_t		   eventfilter_results[100];
-   Int_t           eventfilter_names[100][20];	   
+   Int_t           eventfilter_n;
+   Bool_t          eventfilter_results[100];   //[eventfilter_n]
+   Int_t           eventfilter_names[100][20];   //[eventfilter_n]
    Int_t           trig_HLTName[20];
    Int_t           trig_n;
-   Int_t           trig_L1prescale[3000];   //[trig_n]
-   Int_t           trig_HLTprescale[3000];   //[trig_n]
-   Int_t           trig_name[3000][20];   //[trig_n]
-   Int_t           trig_filter[3000][20];   //[trig_n]
-   Double_t        trig_pt[3000];   //[trig_n]
-   Double_t        trig_eta[3000];   //[trig_n]
-   Double_t        trig_phi[3000];   //[trig_n]
+   Int_t           trig_L1prescale[7000];   //[trig_n]
+   Int_t           trig_HLTprescale[7000];   //[trig_n]
+   Int_t           trig_name[7000][20];   //[trig_n]
+   Int_t           trig_filter[7000][20];   //[trig_n]
+   Double_t        trig_pt[7000];   //[trig_n]
+   Double_t        trig_eta[7000];   //[trig_n]
+   Double_t        trig_phi[7000];   //[trig_n]
    Int_t           truth_n;
    Int_t           truth_pdgid[100];   //[truth_n]
    Int_t           truth_bvtxid[100];   //[truth_n]
@@ -281,8 +229,51 @@ class TreeContent {
    Double_t        SC_E[200];   //[SC_n]
    Double_t        SC_phi[200];   //[SC_n]
    Double_t        SC_eta[200];   //[SC_n]
-   Int_t           SC_trign[200];  //[SC_n]
-   Int_t           SC_trig[200][500]; //[SC_n][500]
+   Int_t           SC_trign[100];   //[SC_n]
+   Int_t           SC_trig[100][500];   //[SC_n]
+   Int_t           pho_n;
+   Int_t           pho_truth[100];   //[pho_n]
+   Int_t           pho_trign[100];   //[pho_n]
+   Int_t           pho_trig[100][500];   //[pho_n]
+   Double_t        pho_PFCand_px[100];   //[pho_n]
+   Double_t        pho_PFCand_py[100];   //[pho_n]
+   Double_t        pho_PFCand_pz[100];   //[pho_n]
+   Double_t        pho_PFCand_E[100];   //[pho_n]
+   Double_t        pho_PFCand_eta[100];   //[pho_n]
+   Double_t        pho_PFCand_phi[100];   //[pho_n]
+   Int_t           pho_PFCand_pfid[100];   //[pho_n]
+   Double_t        pho_PFCand_DeltaR[100];   //[pho_n]
+   Double_t        pho_E[100];   //[pho_n]
+   Double_t        pho_RawE[100];   //[pho_n]
+   Double_t        pho_Et[100];   //[pho_n]
+   Double_t        pho_p[100];   //[pho_n]
+   Double_t        pho_pt[100];   //[pho_n]
+   Double_t        pho_px[100];   //[pho_n]
+   Double_t        pho_py[100];   //[pho_n]
+   Double_t        pho_pz[100];   //[pho_n]
+   Double_t        pho_eta[100];   //[pho_n]
+   Double_t        pho_phi[100];   //[pho_n]
+   Double_t        pho_SCeta[100];   //[pho_n]
+   Double_t        pho_Dr03TkSumPt[100];   //[pho_n]
+   Double_t        pho_Dr04TkSumPt[100];   //[pho_n]
+   Double_t        pho_SigmaIetaIeta[100];   //[pho_n]
+   Double_t        pho_SwissCross[100];   //[pho_n]
+   Double_t        pho_e5x5[100];   //[pho_n]
+   Double_t        pho_e1x5[100];   //[pho_n]
+   Double_t        pho_e3x3[100];   //[pho_n]
+   Double_t        pho_HCalOverEm[100];   //[pho_n]
+   Int_t           pho_isPF[100];   //[pho_n]
+   Double_t        pho_EcaloIso[100];   //[pho_n]
+   Double_t        pho_HcaloIso[100];   //[pho_n]
+   Double_t        pho_TrackIso[100];   //[pho_n]
+   Double_t        pho_PFisoEG[100][3];   //[pho_n]
+   Double_t        pho_Roundness[100];   //[pho_n]
+   Double_t        pho_Angle[100];   //[pho_n]
+   Double_t        pho_R9[100];   //[pho_n]
+   Double_t        pho_SCEtaWidth[100];   //[pho_n]
+   Int_t           pho_HasPixelSeed[100];   //[pho_n]
+   Int_t           pho_HasConvTracks[100];   //[pho_n]
+   Bool_t          pho_HasMatchedPromptElectron[100];   //[pho_n]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -293,12 +284,12 @@ class TreeContent {
    Double_t        ele_px[100];   //[ele_n]
    Double_t        ele_py[100];   //[ele_n]
    Double_t        ele_pz[100];   //[ele_n]
-   Double_t        ele_EoverP[100];   //[ele_n]
    Double_t        ele_eta[100];   //[ele_n]
    Double_t        ele_phi[100];   //[ele_n]
    Double_t        ele_charge[100];   //[ele_n]
    Double_t        ele_TrkChiNorm[100];   //[ele_n]
    Double_t        ele_d0vtx[100];   //[ele_n]
+   Double_t        ele_dzvtx[100];   //[ele_n]
    Double_t        ele_d0bs[100];   //[ele_n]
    Double_t        ele_sd0[100];   //[ele_n]
    Int_t           ele_hits[100];   //[ele_n]
@@ -308,9 +299,12 @@ class TreeContent {
    Int_t           ele_ValidHitFirstPxlB[100];   //[ele_n]
    Int_t           ele_TrkExpHitsInner[100];   //[ele_n]
    Double_t        ele_HCalOverEm[100];   //[ele_n]
+   Double_t        ele_HCalOverEmBc[100];   //[ele_n]
    Double_t        ele_Dr03TkSumPt[100];   //[ele_n]
    Double_t        ele_Dr04HCalSumEt[100];   //[ele_n]
    Double_t        ele_Dr03HCalSumEt[100];   //[ele_n]
+   Double_t        ele_Dr04HCalSumEtBc[100];   //[ele_n]
+   Double_t        ele_Dr03HCalSumEtBc[100];   //[ele_n]
    Double_t        ele_Dr04ECalSumEt[100];   //[ele_n]
    Double_t        ele_Dr03ECalSumEt[100];   //[ele_n]
    Double_t        ele_SigmaIetaIeta[100];   //[ele_n]
@@ -330,8 +324,8 @@ class TreeContent {
    Int_t           ele_trign[100];   //[ele_n]
    Int_t           ele_trig[100][500];   //[ele_n]
    Int_t           ele_SC[100];   //[ele_n]
-   Double_t        ele_SwissCross[100];   //[ele_n]
-   Double_t        ele_PFiso[100][3];      //[ele_n]
+   Double_t        ele_PFisoEG[100][3];   //[ele_n]
+   Double_t        ele_PFiso[100][3];   //[ele_n]
    Double_t        ele_PFCand_px[100];   //[ele_n]
    Double_t        ele_PFCand_py[100];   //[ele_n]
    Double_t        ele_PFCand_pz[100];   //[ele_n]
@@ -342,15 +336,20 @@ class TreeContent {
    Double_t        ele_PFCand_DeltaR[100];   //[ele_n]
    Double_t        ele_hcalDepth1TowerSumEt03[100];   //[ele_n]
    Double_t        ele_hcalDepth2TowerSumEt03[100];   //[ele_n]
-   
+   Double_t        ele_EcalEnergy[100];   //[ele_n]
+   Double_t        ele_TrackMomentumAtVtx[100];   //[ele_n]
+   Double_t        ele_SwissCross[100];   //[ele_n]
+   Double_t        ele_EoverP[100];   //[ele_n]
+   Int_t           ele_Classification[100];   //[ele_n]
+   Bool_t          ele_HasMatchedConversions[100];   //[ele_n]
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
    Double_t        pfele_Et[100];   //[pfele_n]
    Double_t        pfele_CaloEt[100];   //[pfele_n]
    Double_t        pfele_pt[100];   //[pfele_n]
-   Double_t        pfele_TrackptError[100];   //[pfele_n]
-   Double_t        pfele_Trackpt[100];   //[pfele_n]
+   Double_t        pfele_TrackptError[100];   //[ele_n]
+   Double_t        pfele_Trackpt[100];   //[ele_n]
    Double_t        pfele_px[100];   //[pfele_n]
    Double_t        pfele_py[100];   //[pfele_n]
    Double_t        pfele_pz[100];   //[pfele_n]
@@ -374,7 +373,6 @@ class TreeContent {
    Double_t        pfele_chadIso[100];   //[pfele_n]
    Double_t        pfele_nhadIso[100];   //[pfele_n]
    Double_t        pfele_gamIso[100];   //[pfele_n]
-   
    Int_t           muo_n;
    Double_t        muo_E[100];   //[muo_n]
    Double_t        muo_Et[100];   //[muo_n]
@@ -394,41 +392,52 @@ class TreeContent {
    Double_t        muo_ECalIsoDep[100];   //[muo_n]
    Double_t        muo_HCalIsoDep[100];   //[muo_n]
    Double_t        muo_AllIso[100];   //[muo_n]
-   Double_t        muo_TrkChiNormCm[100];   //[muo_n]
    Double_t        muo_TrkChiNormTk[100];   //[muo_n]
-   Double_t        muo_d0Cm[100];   //[muo_n]
    Double_t        muo_d0Tk[100];   //[muo_n]
-   Double_t        muo_sd0Cm[100];   //[muo_n]
    Double_t        muo_sd0Tk[100];   //[muo_n]
+   Double_t        muo_dzTk[100];   //[muo_n]
    Double_t        muo_calocomp[100];   //[muo_n]
    Double_t        muo_calotower_e[100];   //[muo_n]
    Int_t           muo_prompttight[100];   //[muo_n]
-   Int_t           muo_hitsCm[100];   //[muo_n]
    Int_t           muo_hitsTk[100];   //[muo_n]
    Int_t           muo_truth[100];   //[muo_n]
    Int_t           muo_trign[100];   //[muo_n]
    Int_t           muo_trig[100][500];   //[muo_n]
    Int_t           muo_ID[100][24];   //[muo_n]
+   Int_t           muo_ChambersMatched[100];   //[muo_n]
+   Int_t           muo_StationsMatched[100];   //[muo_n]
+   Double_t        muo_Valid_fraction[100];   //[muo_n]
+   Double_t        muo_TrkChiNormCm[100];   //[muo_n]
+   Int_t           muo_hitsCm[100];   //[muo_n]
+   Double_t        muo_d0Cm[100];   //[muo_n]
+   Double_t        muo_sd0Cm[100];   //[muo_n]
+   Double_t        muo_d0OriginCm[100];   //[muo_n]
+   Double_t        muo_vx[100];   //[muo_n]
+   Double_t        muo_vy[100];   //[muo_n]
+   Double_t        muo_vz[100];   //[muo_n]
    Int_t           muo_ValidMuonHitsCm[100];   //[muo_n]
    Int_t           muo_ValidTrackerHitsCm[100];   //[muo_n]
    Int_t           muo_ValidPixelHitsCm[100];   //[muo_n]
-   Int_t           muo_ChambersMatched[100];   //[muo_n]
-   Double_t        muo_d0bsCm[100];   //[muo_n]
-   Double_t        muo_d0OriginCm[100];   //[muo_n]
-   Double_t        muo_dzbsCm[100];   //[muo_n]
    Int_t           muo_TrackerLayersMeasCm[100];   //[muo_n]
    Int_t           muo_TrackerLayersNotMeasCm[100];   //[muo_n]
+   Int_t           muo_ValidMuonHitsTk[100];   //[muo_n]
+   Int_t           muo_ValidTrackerHitsTk[100];   //[muo_n]
+   Int_t           muo_ValidPixelHitsTk[100];   //[muo_n]
+   Int_t           muo_TrackerLayersMeasTk[100];   //[muo_n]
+   Int_t           muo_TrackerLayersNotMeasTk[100];   //[muo_n]
+   Int_t           muo_LostHits[100];   //[muo_n]
+   Int_t           muo_LostHitsTk[100];   //[muo_n]
+   Int_t           muo_isPFMuon[100];   //[muo_n]
    Double_t        muo_Cocktail_pt[100];   //[muo_n]
    Double_t        muo_Cocktail_phi[100];   //[muo_n]
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
-   Double_t        muo_Valid_fraction[100];   //[muo_n]
    Double_t        muo_TevReco_pt[100][7];   //[muo_n]
    Double_t        muo_TevReco_ptError[100][7];   //[muo_n]
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
    Double_t        muo_TevReco_phi[100][7];   //[muo_n]
    Double_t        muo_TevReco_chi2[100][7];   //[muo_n]
    Double_t        muo_TevReco_ndof[100][7];   //[muo_n]
-   Double_t        muo_PFiso[100][5];      //[muo_n]
+   Double_t        muo_PFiso[100][7];   //[muo_n]
    Double_t        muo_PFCand_px[100];   //[muo_n]
    Double_t        muo_PFCand_py[100];   //[muo_n]
    Double_t        muo_PFCand_pz[100];   //[muo_n]
@@ -474,18 +483,20 @@ class TreeContent {
    Int_t           PFmuo_ValidTrackerHitsCm[100];   //[PFmuo_n]
    Int_t           PFmuo_ValidPixelHitsCm[100];   //[PFmuo_n]
    Int_t           PFmuo_ChambersMatched[100];   //[PFmuo_n]
-   Double_t        PFmuo_d0bsCm[100];   //[PFmuo_n]
    Double_t        PFmuo_d0OriginCm[100];   //[PFmuo_n]
-   Double_t        PFmuo_dzbsCm[100];   //[PFmuo_n]
+   Double_t        PFmuo_vx[100];   //[PFmuo_n]
+   Double_t        PFmuo_vy[100];   //[PFmuo_n]
+   Double_t        PFmuo_vz[100];   //[PFmuo_n]
    Int_t           PFmuo_TrackerLayersMeasCm[100];   //[PFmuo_n]
    Int_t           PFmuo_TrackerLayersNotMeasCm[100];   //[PFmuo_n]
    Double_t        PFmuo_Valid_fraction[100];   //[PFmuo_n]
-
    Int_t           tau_n;
    Double_t        tau_p[100];   //[tau_n]
    Double_t        tau_pt[100];   //[tau_n]
    Double_t        tau_E[100];   //[tau_n]
    Double_t        tau_Et[100];   //[tau_n]
+   Double_t        tau_M[100];   //[tau_n]
+   Double_t        tau_Mt[100];   //[tau_n]
    Double_t        tau_Px[100];   //[tau_n]
    Double_t        tau_Py[100];   //[tau_n]
    Double_t        tau_Pz[100];   //[tau_n]
@@ -518,30 +529,29 @@ class TreeContent {
    Double_t        tau_PhiPhiMoment[100];   //[tau_n]
    Double_t        tau_EtaPhiMoment[100];   //[tau_n]
    Double_t        tau_EtaEtaMoment[100];   //[tau_n]
+   Int_t           tau_NSignalTracks[100];   //[tau_n]
    Double_t        tau_ElectronPreIDOutput[100];   //[tau_n]
    Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
    Double_t        tau_BremsRecoveryEOverPLead[100];   //[tau_n]
    Double_t        tau_id[100][18];   //[tau_n]
-   Double_t        tau_M[100];
-   Double_t        tau_Mt[100];
-   Int_t    	   tau_GenJet_Match_n;
-   Int_t    	   tau_GenJet_DecayMode[100][50];
-   Int_t     	   tau_GenJetMatch_Pos[100];
-   Double_t        tau_GenJet_E[100];
-   Double_t        tau_GenJet_Et[100];
-   Double_t        tau_GenJet_EmE[100];
-   Double_t        tau_GenJet_HadE[100];
-   Double_t        tau_GenJet_InvE[100];
-   Double_t        tau_GenJet_Eta[100];
-   Double_t        tau_GenJet_Phi[100];
-   Double_t        tau_GenJet_M[100];
-   Double_t        tau_GenJet_Mt[100];
-   Double_t        tau_GenJet_P[100];
-   Double_t        tau_GenJet_Pt[100];
-   Double_t        tau_GenJet_Px[100];
-   Double_t        tau_GenJet_Py[100];
-   Double_t        tau_GenJet_Pz[100];
-
+   Int_t           tau_GenJet_Match_n;
+   Int_t           tau_GenJet_DecayMode[100][50];   //[tau_n]
+   Int_t           tau_GenJetMatch_Pos[100];   //[tau_n]
+   Double_t        tau_GenJet_E[100];   //[tau_n]
+   Double_t        tau_GenJet_Et[100];   //[tau_n]
+   Double_t        tau_GenJet_EmE[100];   //[tau_n]
+   Double_t        tau_GenJet_HadE[100];   //[tau_n]
+   Double_t        tau_GenJet_InvE[100];   //[tau_n]
+   Double_t        tau_GenJet_Eta[100];   //[tau_n]
+   Double_t        tau_GenJet_Phi[100];   //[tau_n]
+   Double_t        tau_GenJet_M[100];   //[tau_n]
+   Double_t        tau_GenJet_Mt[100];   //[tau_n]
+   Double_t        tau_GenJet_P[100];   //[tau_n]
+   Double_t        tau_GenJet_Pt[100];   //[tau_n]
+   Double_t        tau_GenJet_Et[100];   //[tau_n]
+   Double_t        tau_GenJet_Px[100];   //[tau_n]
+   Double_t        tau_GenJet_Py[100];   //[tau_n]
+   Double_t        tau_GenJet_Pz[100];   //[tau_n]
    Double_t        susyScanM0;
    Double_t        susyScanM12;
    Double_t        susyScanA0;
@@ -562,15 +572,16 @@ class TreeContent {
    TBranch        *b_global_orbit;   //!
    TBranch        *b_global_exp;   //!
    TBranch        *b_global_isdata;   //!
+   TBranch        *b_global_rhoEG;   //!
    TBranch        *b_global_rho;   //!
    TBranch        *b_lumi_section;   //!
    TBranch        *b_lumi_del;   //!
    TBranch        *b_lumi_rec;   //!
    TBranch        *b_lumi_delerr;   //!
    TBranch        *b_lumi_recerr;   //!
-   TBranch        *b_pu_bunchx;   //!
    TBranch        *b_pu_n;   //!
    TBranch        *b_pu_vtxn;   //!
+   TBranch        *b_pu_bunchx;   //!
    TBranch        *b_pu_num_int;   //!
    TBranch        *b_pu_inst_Lumi;   //!
    TBranch        *b_pu_zPos;   //!
@@ -592,10 +603,10 @@ class TreeContent {
    TBranch        *b_noise_ecal_flag;   //!
    TBranch        *b_noise_ecal_ieta;   //!
    TBranch        *b_noise_ecal_iphi;   //!
-   TBranch		  *b_eventfilter_n; //!
-   TBranch		  *b_eventfilter_names; //!
-   TBranch        *b_eventfilter_results; //!
-   TBranch		  *b_noise_HBHE_filter_result; //!
+   TBranch        *b_noise_HBHE_filter_result;   //!
+   TBranch        *b_eventfilter_n;   //!
+   TBranch        *b_eventfilter_results;   //!
+   TBranch        *b_eventfilter_names;   //!
    TBranch        *b_trig_HLTName;   //!
    TBranch        *b_trig_n;   //!
    TBranch        *b_trig_L1prescale;   //!
@@ -763,12 +774,54 @@ class TreeContent {
    TBranch        *b_SC_eta;   //!
    TBranch        *b_SC_trign;   //!
    TBranch        *b_SC_trig;   //!
+   TBranch        *b_pho_n;   //!
+   TBranch        *b_pho_truth;   //!
+   TBranch        *b_pho_trign;   //!
+   TBranch        *b_pho_trig;   //!
+   TBranch        *b_pho_PFCand_px;   //!
+   TBranch        *b_pho_PFCand_py;   //!
+   TBranch        *b_pho_PFCand_pz;   //!
+   TBranch        *b_pho_PFCand_E;   //!
+   TBranch        *b_pho_PFCand_eta;   //!
+   TBranch        *b_pho_PFCand_phi;   //!
+   TBranch        *b_pho_PFCand_pfid;   //!
+   TBranch        *b_pho_PFCand_DeltaR;   //!
+   TBranch        *b_pho_E;   //!
+   TBranch        *b_pho_RawE;   //!
+   TBranch        *b_pho_Et;   //!
+   TBranch        *b_pho_p;   //!
+   TBranch        *b_pho_pt;   //!
+   TBranch        *b_pho_px;   //!
+   TBranch        *b_pho_py;   //!
+   TBranch        *b_pho_pz;   //!
+   TBranch        *b_pho_eta;   //!
+   TBranch        *b_pho_phi;   //!
+   TBranch        *b_pho_SCeta;   //!
+   TBranch        *b_pho_Dr03TkSumPt;   //!
+   TBranch        *b_pho_Dr04TkSumPt;   //!
+   TBranch        *b_pho_SigmaIetaIeta;   //!
+   TBranch        *b_pho_SwissCross;   //!
+   TBranch        *b_pho_e5x5;   //!
+   TBranch        *b_pho_e1x5;   //!
+   TBranch        *b_pho_e3x3;   //!
+   TBranch        *b_pho_HCalOverEm;   //!
+   TBranch        *b_pho_isPF;   //!
+   TBranch        *b_pho_EcaloIso;   //!
+   TBranch        *b_pho_HcaloIso;   //!
+   TBranch        *b_pho_TrackIso;   //!
+   TBranch        *b_pho_PFisoEG;   //!
+   TBranch        *b_pho_Roundness;   //!
+   TBranch        *b_pho_Angle;   //!
+   TBranch        *b_pho_R9;   //!
+   TBranch        *b_pho_SCEtaWidth;   //!
+   TBranch        *b_pho_HasPixelSeed;   //!
+   TBranch        *b_pho_HasConvTracks;   //!
+   TBranch        *b_pho_HasMatchedPromptElectron;   //!
    TBranch        *b_ele_n;   //!
    TBranch        *b_ele_E;   //!
    TBranch        *b_ele_Et;   //!
    TBranch        *b_ele_p;   //!
    TBranch        *b_ele_pt;   //!
-   TBranch        *b_ele_EoverP;   //!
    TBranch        *b_ele_TrackptError;   //!
    TBranch        *b_ele_Trackpt;   //!
    TBranch        *b_ele_px;   //!
@@ -779,6 +832,7 @@ class TreeContent {
    TBranch        *b_ele_charge;   //!
    TBranch        *b_ele_TrkChiNorm;   //!
    TBranch        *b_ele_d0vtx;   //!
+   TBranch        *b_ele_dzvtx;   //!
    TBranch        *b_ele_d0bs;   //!
    TBranch        *b_ele_sd0;   //!
    TBranch        *b_ele_hits;   //!
@@ -788,9 +842,12 @@ class TreeContent {
    TBranch        *b_ele_ValidHitFirstPxlB;   //!
    TBranch        *b_ele_TrkExpHitsInner;   //!
    TBranch        *b_ele_HCalOverEm;   //!
+   TBranch        *b_ele_HCalOverEmBc;   //!
    TBranch        *b_ele_Dr03TkSumPt;   //!
    TBranch        *b_ele_Dr04HCalSumEt;   //!
    TBranch        *b_ele_Dr03HCalSumEt;   //!
+   TBranch        *b_ele_Dr04HCalSumEtBc;   //!
+   TBranch        *b_ele_Dr03HCalSumEtBc;   //!
    TBranch        *b_ele_Dr04ECalSumEt;   //!
    TBranch        *b_ele_Dr03ECalSumEt;   //!
    TBranch        *b_ele_SigmaIetaIeta;   //!
@@ -810,7 +867,7 @@ class TreeContent {
    TBranch        *b_ele_trign;   //!
    TBranch        *b_ele_trig;   //!
    TBranch        *b_ele_SC;   //!
-   TBranch        *b_ele_SwissCross;   //!
+   TBranch        *b_ele_PFisoEG;   //!
    TBranch        *b_ele_PFiso;   //!
    TBranch        *b_ele_PFCand_px;   //!
    TBranch        *b_ele_PFCand_py;   //!
@@ -822,6 +879,12 @@ class TreeContent {
    TBranch        *b_ele_PFCand_DeltaR;   //!
    TBranch        *b_ele_hcalDepth1TowerSumEt03;   //!
    TBranch        *b_ele_hcalDepth2TowerSumEt03;   //!
+   TBranch        *b_ele_EcalEnergy;   //!
+   TBranch        *b_ele_TrackMomentumAtVtx;   //!
+   TBranch        *b_ele_SwissCross;   //!
+   TBranch        *b_ele_EoverP;   //!
+   TBranch        *b_ele_Classification;   //!
+   TBranch        *b_ele_HasMatchedConversions;   //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -872,34 +935,45 @@ class TreeContent {
    TBranch        *b_muo_ECalIsoDep;   //!
    TBranch        *b_muo_HCalIsoDep;   //!
    TBranch        *b_muo_AllIso;   //!
-   TBranch        *b_muo_TrkChiNormCm;   //!
    TBranch        *b_muo_TrkChiNormTk;   //!
-   TBranch        *b_muo_d0Cm;   //!
    TBranch        *b_muo_d0Tk;   //!
-   TBranch        *b_muo_sd0Cm;   //!
    TBranch        *b_muo_sd0Tk;   //!
+   TBranch        *b_muo_dzTk;   //!
    TBranch        *b_muo_calocomp;   //!
    TBranch        *b_muo_calotower_e;   //!
    TBranch        *b_muo_prompttight;   //!
-   TBranch        *b_muo_hitsCm;   //!
    TBranch        *b_muo_hitsTk;   //!
    TBranch        *b_muo_truth;   //!
    TBranch        *b_muo_trign;   //!
    TBranch        *b_muo_trig;   //!
    TBranch        *b_muo_ID;   //!
+   TBranch        *b_muo_ChambersMatched;   //!
+   TBranch        *b_muo_StationsMatched;   //!
+   TBranch        *b_muo_Valid_fraction;   //!
+   TBranch        *b_muo_TrkChiNormCm;   //!
+   TBranch        *b_muo_hitsCm;   //!
+   TBranch        *b_muo_d0Cm;   //!
+   TBranch        *b_muo_sd0Cm;   //!
+   TBranch        *b_muo_d0OriginCm;   //!
+   TBranch        *b_muo_vx;   //!
+   TBranch        *b_muo_vy;   //!
+   TBranch        *b_muo_vz;   //!
    TBranch        *b_muo_ValidMuonHitsCm;   //!
    TBranch        *b_muo_ValidTrackerHitsCm;   //!
    TBranch        *b_muo_ValidPixelHitsCm;   //!
-   TBranch        *b_muo_ChambersMatched;   //!
-   TBranch        *b_muo_d0bsCm;   //!
-   TBranch        *b_muo_d0OriginCm;   //!
-   TBranch        *b_muo_dzbsCm;   //!
    TBranch        *b_muo_TrackerLayersMeasCm;   //!
    TBranch        *b_muo_TrackerLayersNotMeasCm;   //!
+   TBranch        *b_muo_ValidMuonHitsTk;   //!
+   TBranch        *b_muo_ValidTrackerHitsTk;   //!
+   TBranch        *b_muo_ValidPixelHitsTk;   //!
+   TBranch        *b_muo_TrackerLayersMeasTk;   //!
+   TBranch        *b_muo_TrackerLayersNotMeasTk;   //!
+   TBranch        *b_muo_LostHits;   //!
+   TBranch        *b_muo_LostHitsTk;   //!
+   TBranch        *b_muo_isPFMuon;   //!
    TBranch        *b_muo_Cocktail_pt;   //!
    TBranch        *b_muo_Cocktail_phi;   //!
    TBranch        *b_muo_Cocktail_eta;   //!
-   TBranch        *b_muo_Valid_fraction;   //!
    TBranch        *b_muo_TevReco_pt;   //!
    TBranch        *b_muo_TevReco_ptError;   //!
    TBranch        *b_muo_TevReco_eta;   //!
@@ -952,9 +1026,10 @@ class TreeContent {
    TBranch        *b_PFmuo_ValidTrackerHitsCm;   //!
    TBranch        *b_PFmuo_ValidPixelHitsCm;   //!
    TBranch        *b_PFmuo_ChambersMatched;   //!
-   TBranch        *b_PFmuo_d0bsCm;   //!
    TBranch        *b_PFmuo_d0OriginCm;   //!
-   TBranch        *b_PFmuo_dzbsCm;   //!
+   TBranch        *b_PFmuo_vx;   //!
+   TBranch        *b_PFmuo_vy;   //!
+   TBranch        *b_PFmuo_vz;   //!
    TBranch        *b_PFmuo_TrackerLayersMeasCm;   //!
    TBranch        *b_PFmuo_TrackerLayersNotMeasCm;   //!
    TBranch        *b_PFmuo_Valid_fraction;   //!
@@ -963,12 +1038,15 @@ class TreeContent {
    TBranch        *b_tau_pt;   //!
    TBranch        *b_tau_E;   //!
    TBranch        *b_tau_Et;   //!
+   TBranch        *b_tau_M;   //!
+   TBranch        *b_tau_Mt;   //!
    TBranch        *b_tau_Px;   //!
    TBranch        *b_tau_Py;   //!
    TBranch        *b_tau_Pz;   //!
    TBranch        *b_tau_Eta;   //!
    TBranch        *b_tau_Phi;   //!
    TBranch        *b_tau_DecayMode;   //!
+   TBranch        *b_tau_Charge;   //!
    TBranch        *b_tau_vx;   //!
    TBranch        *b_tau_vy;   //!
    TBranch        *b_tau_vz;   //!
@@ -994,10 +1072,29 @@ class TreeContent {
    TBranch        *b_tau_PhiPhiMoment;   //!
    TBranch        *b_tau_EtaPhiMoment;   //!
    TBranch        *b_tau_EtaEtaMoment;   //!
+   TBranch        *b_tau_NSignalTracks;   //!
    TBranch        *b_tau_ElectronPreIDOutput;   //!
    TBranch        *b_tau_PFLeadChargedPT;   //!
    TBranch        *b_tau_BremsRecoveryEOverPLead;   //!
    TBranch        *b_tau_id;   //!
+   TBranch        *b_tau_GenJet_Match_n;   //!
+   TBranch        *b_tau_GenJet_DecayMode;   //!
+   TBranch        *b_tau_GenJetMatch_Pos;   //!
+   TBranch        *b_tau_GenJet_E;   //!
+   TBranch        *b_tau_GenJet_Et;   //!
+   TBranch        *b_tau_GenJet_EmE;   //!
+   TBranch        *b_tau_GenJet_HadE;   //!
+   TBranch        *b_tau_GenJet_InvE;   //!
+   TBranch        *b_tau_GenJet_Eta;   //!
+   TBranch        *b_tau_GenJet_Phi;   //!
+   TBranch        *b_tau_GenJet_M;   //!
+   TBranch        *b_tau_GenJet_Mt;   //!
+   TBranch        *b_tau_GenJet_P;   //!
+   TBranch        *b_tau_GenJet_Pt;   //!
+   TBranch        *b_tau_GenJet_Et;   //!
+   TBranch        *b_tau_GenJet_Px;   //!
+   TBranch        *b_tau_GenJet_Py;   //!
+   TBranch        *b_tau_GenJet_Pz;   //!
    TBranch        *b_susyScanM0;   //!
    TBranch        *b_susyScanM12;   //!
    TBranch        *b_susyScanA0;   //!
@@ -1006,8 +1103,8 @@ class TreeContent {
    TBranch        *b_susyScanRun;   //!
    TBranch        *b_susyScantanbeta;   //!
 
-   TreeContent(TTree *tree=0);
-   virtual ~TreeContent();
+   allData(TTree *tree=0);
+   virtual ~allData();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -1019,8 +1116,8 @@ class TreeContent {
 
 #endif
 
-#ifdef TreeContent_cxx
-TreeContent::TreeContent(TTree *tree)
+#ifdef allData_cxx
+allData::allData(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -1036,19 +1133,19 @@ TreeContent::TreeContent(TTree *tree)
    Init(tree);
 }
 
-TreeContent::~TreeContent()
+allData::~allData()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t TreeContent::GetEntry(Long64_t entry)
+Int_t allData::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t TreeContent::LoadTree(Long64_t entry)
+Long64_t allData::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -1063,7 +1160,7 @@ Long64_t TreeContent::LoadTree(Long64_t entry)
    return centry;
 }
 
-void TreeContent::Init(TTree *tree)
+void allData::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -1090,15 +1187,16 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("global_orbit", &global_orbit, &b_global_orbit);
    fChain->SetBranchAddress("global_exp", &global_exp, &b_global_exp);
    fChain->SetBranchAddress("global_isdata", &global_isdata, &b_global_isdata);
+   fChain->SetBranchAddress("global_rhoEG", &global_rhoEG, &b_global_rhoEG);
    fChain->SetBranchAddress("global_rho", &global_rho, &b_global_rho);
    fChain->SetBranchAddress("lumi_section", &lumi_section, &b_lumi_section);
    fChain->SetBranchAddress("lumi_del", &lumi_del, &b_lumi_del);
    fChain->SetBranchAddress("lumi_rec", &lumi_rec, &b_lumi_rec);
    fChain->SetBranchAddress("lumi_delerr", &lumi_delerr, &b_lumi_delerr);
    fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
-   fChain->SetBranchAddress("pu_bunchx", pu_bunchx, &b_pu_bunchx);
    fChain->SetBranchAddress("pu_n", &pu_n, &b_pu_n);
    fChain->SetBranchAddress("pu_vtxn", &pu_vtxn, &b_pu_vtxn);
+   fChain->SetBranchAddress("pu_bunchx", pu_bunchx, &b_pu_bunchx);
    fChain->SetBranchAddress("pu_num_int", pu_num_int, &b_pu_num_int);
    fChain->SetBranchAddress("pu_inst_Lumi", pu_inst_Lumi, &b_pu_inst_Lumi);
    fChain->SetBranchAddress("pu_zPos", pu_zPos, &b_pu_zPos);
@@ -1122,31 +1220,31 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("noise_ecal_iphi", &noise_ecal_iphi, &b_noise_ecal_iphi);
    fChain->SetBranchAddress("noise_HBHE_filter_result", &noise_HBHE_filter_result, &b_noise_HBHE_filter_result);
    fChain->SetBranchAddress("eventfilter_n", &eventfilter_n, &b_eventfilter_n);
-   fChain->SetBranchAddress("eventfilter_names", &eventfilter_names, &b_eventfilter_names);
-   fChain->SetBranchAddress("eventfilter_results", &eventfilter_results, &b_eventfilter_results);
+   fChain->SetBranchAddress("eventfilter_results", eventfilter_results, &b_eventfilter_results);
+   fChain->SetBranchAddress("eventfilter_names", eventfilter_names, &b_eventfilter_names);
    fChain->SetBranchAddress("trig_HLTName", trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
-   fChain->SetBranchAddress("trig_L1prescale", &trig_L1prescale, &b_trig_L1prescale);
-   fChain->SetBranchAddress("trig_HLTprescale", &trig_HLTprescale, &b_trig_HLTprescale);
-   fChain->SetBranchAddress("trig_name", &trig_name, &b_trig_name);
-   fChain->SetBranchAddress("trig_filter", &trig_filter, &b_trig_filter);
-   fChain->SetBranchAddress("trig_pt", &trig_pt, &b_trig_pt);
-   fChain->SetBranchAddress("trig_eta", &trig_eta, &b_trig_eta);
-   fChain->SetBranchAddress("trig_phi", &trig_phi, &b_trig_phi);
+   fChain->SetBranchAddress("trig_L1prescale", trig_L1prescale, &b_trig_L1prescale);
+   fChain->SetBranchAddress("trig_HLTprescale", trig_HLTprescale, &b_trig_HLTprescale);
+   fChain->SetBranchAddress("trig_name", trig_name, &b_trig_name);
+   fChain->SetBranchAddress("trig_filter", trig_filter, &b_trig_filter);
+   fChain->SetBranchAddress("trig_pt", trig_pt, &b_trig_pt);
+   fChain->SetBranchAddress("trig_eta", trig_eta, &b_trig_eta);
+   fChain->SetBranchAddress("trig_phi", trig_phi, &b_trig_phi);
    fChain->SetBranchAddress("truth_n", &truth_n, &b_truth_n);
-   fChain->SetBranchAddress("truth_pdgid", truth_pdgid, &b_truth_pdgid);
-   fChain->SetBranchAddress("truth_bvtxid", truth_bvtxid, &b_truth_bvtxid);
-   fChain->SetBranchAddress("truth_evtxid", truth_evtxid, &b_truth_evtxid);
-   fChain->SetBranchAddress("truth_E", truth_E, &b_truth_E);
-   fChain->SetBranchAddress("truth_Et", truth_Et, &b_truth_Et);
-   fChain->SetBranchAddress("truth_p", truth_p, &b_truth_p);
-   fChain->SetBranchAddress("truth_pt", truth_pt, &b_truth_pt);
-   fChain->SetBranchAddress("truth_px", truth_px, &b_truth_px);
-   fChain->SetBranchAddress("truth_py", truth_py, &b_truth_py);
-   fChain->SetBranchAddress("truth_pz", truth_pz, &b_truth_pz);
-   fChain->SetBranchAddress("truth_eta", truth_eta, &b_truth_eta);
-   fChain->SetBranchAddress("truth_phi", truth_phi, &b_truth_phi);
-   fChain->SetBranchAddress("truth_m", truth_m, &b_truth_m);
+   fChain->SetBranchAddress("truth_pdgid", &truth_pdgid, &b_truth_pdgid);
+   fChain->SetBranchAddress("truth_bvtxid", &truth_bvtxid, &b_truth_bvtxid);
+   fChain->SetBranchAddress("truth_evtxid", &truth_evtxid, &b_truth_evtxid);
+   fChain->SetBranchAddress("truth_E", &truth_E, &b_truth_E);
+   fChain->SetBranchAddress("truth_Et", &truth_Et, &b_truth_Et);
+   fChain->SetBranchAddress("truth_p", &truth_p, &b_truth_p);
+   fChain->SetBranchAddress("truth_pt", &truth_pt, &b_truth_pt);
+   fChain->SetBranchAddress("truth_px", &truth_px, &b_truth_px);
+   fChain->SetBranchAddress("truth_py", &truth_py, &b_truth_py);
+   fChain->SetBranchAddress("truth_pz", &truth_pz, &b_truth_pz);
+   fChain->SetBranchAddress("truth_eta", &truth_eta, &b_truth_eta);
+   fChain->SetBranchAddress("truth_phi", &truth_phi, &b_truth_phi);
+   fChain->SetBranchAddress("truth_m", &truth_m, &b_truth_m);
    fChain->SetBranchAddress("truthl_n", &truthl_n, &b_truthl_n);
    fChain->SetBranchAddress("truthl_ori", truthl_ori, &b_truthl_ori);
    fChain->SetBranchAddress("truthl_pdgid", truthl_pdgid, &b_truthl_pdgid);
@@ -1211,28 +1309,28 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_Type6EtFraction", met_Type6EtFraction, &b_met_Type6EtFraction);
    fChain->SetBranchAddress("met_Type7EtFraction", met_Type7EtFraction, &b_met_Type7EtFraction);
    fChain->SetBranchAddress("calojet_n", &calojet_n, &b_calojet_n);
-   fChain->SetBranchAddress("calojet_E", calojet_E, &b_calojet_E);
-   fChain->SetBranchAddress("calojet_Et", calojet_Et, &b_calojet_Et);
-   fChain->SetBranchAddress("calojet_p", calojet_p, &b_calojet_p);
-   fChain->SetBranchAddress("calojet_pt", calojet_pt, &b_calojet_pt);
-   fChain->SetBranchAddress("calojet_pt_raw", calojet_pt_raw, &b_calojet_pt_raw);
-   fChain->SetBranchAddress("calojet_px", calojet_px, &b_calojet_px);
-   fChain->SetBranchAddress("calojet_py", calojet_py, &b_calojet_py);
-   fChain->SetBranchAddress("calojet_pz", calojet_pz, &b_calojet_pz);
-   fChain->SetBranchAddress("calojet_eta", calojet_eta, &b_calojet_eta);
-   fChain->SetBranchAddress("calojet_phi", calojet_phi, &b_calojet_phi);
-   fChain->SetBranchAddress("calojet_fem", calojet_fem, &b_calojet_fem);
-   fChain->SetBranchAddress("calojet_fhad", calojet_fhad, &b_calojet_fhad);
-   fChain->SetBranchAddress("calojet_btag", calojet_btag, &b_calojet_btag);
-   fChain->SetBranchAddress("calojet_charge", calojet_charge, &b_calojet_charge);
-   fChain->SetBranchAddress("calojet_fHPD", calojet_fHPD, &b_calojet_fHPD);
-   fChain->SetBranchAddress("calojet_fRBX", calojet_fRBX, &b_calojet_fRBX);
-   fChain->SetBranchAddress("calojet_n90hits", calojet_n90hits, &b_calojet_n90hits);
-   fChain->SetBranchAddress("calojet_n90", calojet_n90, &b_calojet_n90);
-   fChain->SetBranchAddress("calojet_flav", calojet_flav, &b_calojet_flav);
-   fChain->SetBranchAddress("calojet_truth", calojet_truth, &b_calojet_truth);
-   fChain->SetBranchAddress("calojet_const", calojet_const, &b_calojet_const);
-   fChain->SetBranchAddress("calojet_ID", calojet_ID, &b_calojet_ID);
+   fChain->SetBranchAddress("calojet_E", &calojet_E, &b_calojet_E);
+   fChain->SetBranchAddress("calojet_Et", &calojet_Et, &b_calojet_Et);
+   fChain->SetBranchAddress("calojet_p", &calojet_p, &b_calojet_p);
+   fChain->SetBranchAddress("calojet_pt", &calojet_pt, &b_calojet_pt);
+   fChain->SetBranchAddress("calojet_pt_raw", &calojet_pt_raw, &b_calojet_pt_raw);
+   fChain->SetBranchAddress("calojet_px", &calojet_px, &b_calojet_px);
+   fChain->SetBranchAddress("calojet_py", &calojet_py, &b_calojet_py);
+   fChain->SetBranchAddress("calojet_pz", &calojet_pz, &b_calojet_pz);
+   fChain->SetBranchAddress("calojet_eta", &calojet_eta, &b_calojet_eta);
+   fChain->SetBranchAddress("calojet_phi", &calojet_phi, &b_calojet_phi);
+   fChain->SetBranchAddress("calojet_fem", &calojet_fem, &b_calojet_fem);
+   fChain->SetBranchAddress("calojet_fhad", &calojet_fhad, &b_calojet_fhad);
+   fChain->SetBranchAddress("calojet_btag", &calojet_btag, &b_calojet_btag);
+   fChain->SetBranchAddress("calojet_charge", &calojet_charge, &b_calojet_charge);
+   fChain->SetBranchAddress("calojet_fHPD", &calojet_fHPD, &b_calojet_fHPD);
+   fChain->SetBranchAddress("calojet_fRBX", &calojet_fRBX, &b_calojet_fRBX);
+   fChain->SetBranchAddress("calojet_n90hits", &calojet_n90hits, &b_calojet_n90hits);
+   fChain->SetBranchAddress("calojet_n90", &calojet_n90, &b_calojet_n90);
+   fChain->SetBranchAddress("calojet_flav", &calojet_flav, &b_calojet_flav);
+   fChain->SetBranchAddress("calojet_truth", &calojet_truth, &b_calojet_truth);
+   fChain->SetBranchAddress("calojet_const", &calojet_const, &b_calojet_const);
+   fChain->SetBranchAddress("calojet_ID", &calojet_ID, &b_calojet_ID);
    fChain->SetBranchAddress("pfjet_n", &pfjet_n, &b_pfjet_n);
    fChain->SetBranchAddress("pfjet_E", pfjet_E, &b_pfjet_E);
    fChain->SetBranchAddress("pfjet_Et", pfjet_Et, &b_pfjet_Et);
@@ -1289,9 +1387,51 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("SC_E", SC_E, &b_SC_E);
    fChain->SetBranchAddress("SC_phi", SC_phi, &b_SC_phi);
    fChain->SetBranchAddress("SC_eta", SC_eta, &b_SC_eta);
-   fChain->SetBranchAddress("SC_trign",SC_trign   ,   &b_SC_trign);
-   fChain->SetBranchAddress("SC_trig",SC_trig     ,   &b_SC_trig);  
-   
+   fChain->SetBranchAddress("SC_trign", SC_trign, &b_SC_trign);
+   fChain->SetBranchAddress("SC_trig", SC_trig, &b_SC_trig);
+   fChain->SetBranchAddress("pho_n", &pho_n, &b_pho_n);
+   fChain->SetBranchAddress("pho_truth", pho_truth, &b_pho_truth);
+   fChain->SetBranchAddress("pho_trign", pho_trign, &b_pho_trign);
+   fChain->SetBranchAddress("pho_trig", pho_trig, &b_pho_trig);
+   fChain->SetBranchAddress("pho_PFCand_px", pho_PFCand_px, &b_pho_PFCand_px);
+   fChain->SetBranchAddress("pho_PFCand_py", pho_PFCand_py, &b_pho_PFCand_py);
+   fChain->SetBranchAddress("pho_PFCand_pz", pho_PFCand_pz, &b_pho_PFCand_pz);
+   fChain->SetBranchAddress("pho_PFCand_E", pho_PFCand_E, &b_pho_PFCand_E);
+   fChain->SetBranchAddress("pho_PFCand_eta", pho_PFCand_eta, &b_pho_PFCand_eta);
+   fChain->SetBranchAddress("pho_PFCand_phi", pho_PFCand_phi, &b_pho_PFCand_phi);
+   fChain->SetBranchAddress("pho_PFCand_pfid", pho_PFCand_pfid, &b_pho_PFCand_pfid);
+   fChain->SetBranchAddress("pho_PFCand_DeltaR", pho_PFCand_DeltaR, &b_pho_PFCand_DeltaR);
+   fChain->SetBranchAddress("pho_E", pho_E, &b_pho_E);
+   fChain->SetBranchAddress("pho_RawE", pho_RawE, &b_pho_RawE);
+   fChain->SetBranchAddress("pho_Et", pho_Et, &b_pho_Et);
+   fChain->SetBranchAddress("pho_p", pho_p, &b_pho_p);
+   fChain->SetBranchAddress("pho_pt", pho_pt, &b_pho_pt);
+   fChain->SetBranchAddress("pho_px", pho_px, &b_pho_px);
+   fChain->SetBranchAddress("pho_py", pho_py, &b_pho_py);
+   fChain->SetBranchAddress("pho_pz", pho_pz, &b_pho_pz);
+   fChain->SetBranchAddress("pho_eta", pho_eta, &b_pho_eta);
+   fChain->SetBranchAddress("pho_phi", pho_phi, &b_pho_phi);
+   fChain->SetBranchAddress("pho_SCeta", pho_SCeta, &b_pho_SCeta);
+   fChain->SetBranchAddress("pho_Dr03TkSumPt", pho_Dr03TkSumPt, &b_pho_Dr03TkSumPt);
+   fChain->SetBranchAddress("pho_Dr04TkSumPt", pho_Dr04TkSumPt, &b_pho_Dr04TkSumPt);
+   fChain->SetBranchAddress("pho_SigmaIetaIeta", pho_SigmaIetaIeta, &b_pho_SigmaIetaIeta);
+   fChain->SetBranchAddress("pho_SwissCross", pho_SwissCross, &b_pho_SwissCross);
+   fChain->SetBranchAddress("pho_e5x5", pho_e5x5, &b_pho_e5x5);
+   fChain->SetBranchAddress("pho_e1x5", pho_e1x5, &b_pho_e1x5);
+   fChain->SetBranchAddress("pho_e3x3", pho_e3x3, &b_pho_e3x3);
+   fChain->SetBranchAddress("pho_HCalOverEm", pho_HCalOverEm, &b_pho_HCalOverEm);
+   fChain->SetBranchAddress("pho_isPF", pho_isPF, &b_pho_isPF);
+   fChain->SetBranchAddress("pho_EcaloIso", pho_EcaloIso, &b_pho_EcaloIso);
+   fChain->SetBranchAddress("pho_HcaloIso", pho_HcaloIso, &b_pho_HcaloIso);
+   fChain->SetBranchAddress("pho_TrackIso", pho_TrackIso, &b_pho_TrackIso);
+   fChain->SetBranchAddress("pho_PFisoEG", pho_PFisoEG, &b_pho_PFisoEG);
+   fChain->SetBranchAddress("pho_Roundness", pho_Roundness, &b_pho_Roundness);
+   fChain->SetBranchAddress("pho_Angle", pho_Angle, &b_pho_Angle);
+   fChain->SetBranchAddress("pho_R9", pho_R9, &b_pho_R9);
+   fChain->SetBranchAddress("pho_SCEtaWidth", pho_SCEtaWidth, &b_pho_SCEtaWidth);
+   fChain->SetBranchAddress("pho_HasPixelSeed", pho_HasPixelSeed, &b_pho_HasPixelSeed);
+   fChain->SetBranchAddress("pho_HasConvTracks", pho_HasConvTracks, &b_pho_HasConvTracks);
+   fChain->SetBranchAddress("pho_HasMatchedPromptElectron", pho_HasMatchedPromptElectron, &b_pho_HasMatchedPromptElectron);
    fChain->SetBranchAddress("ele_n", &ele_n, &b_ele_n);
    fChain->SetBranchAddress("ele_E", ele_E, &b_ele_E);
    fChain->SetBranchAddress("ele_Et", ele_Et, &b_ele_Et);
@@ -1307,6 +1447,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_charge", ele_charge, &b_ele_charge);
    fChain->SetBranchAddress("ele_TrkChiNorm", ele_TrkChiNorm, &b_ele_TrkChiNorm);
    fChain->SetBranchAddress("ele_d0vtx", ele_d0vtx, &b_ele_d0vtx);
+   fChain->SetBranchAddress("ele_dzvtx", ele_dzvtx, &b_ele_dzvtx);
    fChain->SetBranchAddress("ele_d0bs", ele_d0bs, &b_ele_d0bs);
    fChain->SetBranchAddress("ele_sd0", ele_sd0, &b_ele_sd0);
    fChain->SetBranchAddress("ele_hits", ele_hits, &b_ele_hits);
@@ -1316,9 +1457,12 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_ValidHitFirstPxlB", ele_ValidHitFirstPxlB, &b_ele_ValidHitFirstPxlB);
    fChain->SetBranchAddress("ele_TrkExpHitsInner", ele_TrkExpHitsInner, &b_ele_TrkExpHitsInner);
    fChain->SetBranchAddress("ele_HCalOverEm", ele_HCalOverEm, &b_ele_HCalOverEm);
+   fChain->SetBranchAddress("ele_HCalOverEmBc", ele_HCalOverEmBc, &b_ele_HCalOverEmBc);
    fChain->SetBranchAddress("ele_Dr03TkSumPt", ele_Dr03TkSumPt, &b_ele_Dr03TkSumPt);
    fChain->SetBranchAddress("ele_Dr04HCalSumEt", ele_Dr04HCalSumEt, &b_ele_Dr04HCalSumEt);
    fChain->SetBranchAddress("ele_Dr03HCalSumEt", ele_Dr03HCalSumEt, &b_ele_Dr03HCalSumEt);
+   fChain->SetBranchAddress("ele_Dr04HCalSumEtBc", ele_Dr04HCalSumEtBc, &b_ele_Dr04HCalSumEtBc);
+   fChain->SetBranchAddress("ele_Dr03HCalSumEtBc", ele_Dr03HCalSumEtBc, &b_ele_Dr03HCalSumEtBc);
    fChain->SetBranchAddress("ele_Dr04ECalSumEt", ele_Dr04ECalSumEt, &b_ele_Dr04ECalSumEt);
    fChain->SetBranchAddress("ele_Dr03ECalSumEt", ele_Dr03ECalSumEt, &b_ele_Dr03ECalSumEt);
    fChain->SetBranchAddress("ele_SigmaIetaIeta", ele_SigmaIetaIeta, &b_ele_SigmaIetaIeta);
@@ -1338,50 +1482,55 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_trign", ele_trign, &b_ele_trign);
    fChain->SetBranchAddress("ele_trig", ele_trig, &b_ele_trig);
    fChain->SetBranchAddress("ele_SC", ele_SC, &b_ele_SC);
-   fChain->SetBranchAddress("ele_SwissCross", ele_SwissCross, &b_ele_SwissCross);
-   fChain->SetBranchAddress("ele_PFiso",ele_PFiso,    &b_ele_PFiso);
-   fChain->SetBranchAddress("ele_PFCand_px", ele_PFCand_px ,&b_ele_PFCand_px);
-   fChain->SetBranchAddress("ele_PFCand_py",  ele_PFCand_py ,&b_ele_PFCand_py);
-   fChain->SetBranchAddress("ele_PFCand_pz",  ele_PFCand_pz ,&b_ele_PFCand_pz);
-   fChain->SetBranchAddress("ele_PFCand_E",  ele_PFCand_E ,&b_ele_PFCand_E);
-   fChain->SetBranchAddress("ele_PFCand_eta",  ele_PFCand_eta ,&b_ele_PFCand_eta);
-   fChain->SetBranchAddress("ele_PFCand_phi",  ele_PFCand_phi ,&b_ele_PFCand_phi);
-   fChain->SetBranchAddress("ele_PFCand_pfid",  ele_PFCand_pfid ,&b_ele_PFCand_pfid);
-   fChain->SetBranchAddress("ele_PFCand_DeltaR",  ele_PFCand_DeltaR ,&b_ele_PFCand_DeltaR);
+   fChain->SetBranchAddress("ele_PFisoEG", ele_PFisoEG, &b_ele_PFisoEG);
+   fChain->SetBranchAddress("ele_PFiso", ele_PFiso, &b_ele_PFiso);
+   fChain->SetBranchAddress("ele_PFCand_px", ele_PFCand_px, &b_ele_PFCand_px);
+   fChain->SetBranchAddress("ele_PFCand_py", ele_PFCand_py, &b_ele_PFCand_py);
+   fChain->SetBranchAddress("ele_PFCand_pz", ele_PFCand_pz, &b_ele_PFCand_pz);
+   fChain->SetBranchAddress("ele_PFCand_E", ele_PFCand_E, &b_ele_PFCand_E);
+   fChain->SetBranchAddress("ele_PFCand_eta", ele_PFCand_eta, &b_ele_PFCand_eta);
+   fChain->SetBranchAddress("ele_PFCand_phi", ele_PFCand_phi, &b_ele_PFCand_phi);
+   fChain->SetBranchAddress("ele_PFCand_pfid", ele_PFCand_pfid, &b_ele_PFCand_pfid);
+   fChain->SetBranchAddress("ele_PFCand_DeltaR", ele_PFCand_DeltaR, &b_ele_PFCand_DeltaR);
    fChain->SetBranchAddress("ele_hcalDepth1TowerSumEt03", ele_hcalDepth1TowerSumEt03, &b_ele_hcalDepth1TowerSumEt03);
    fChain->SetBranchAddress("ele_hcalDepth2TowerSumEt03", ele_hcalDepth2TowerSumEt03, &b_ele_hcalDepth2TowerSumEt03);
-   fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
-   fChain->SetBranchAddress("pfele_p", pfele_p, &b_pfele_p);
-   fChain->SetBranchAddress("pfele_E", pfele_E, &b_pfele_E);
+   fChain->SetBranchAddress("ele_EcalEnergy", ele_EcalEnergy, &b_ele_EcalEnergy);
+   fChain->SetBranchAddress("ele_TrackMomentumAtVtx", ele_TrackMomentumAtVtx, &b_ele_TrackMomentumAtVtx);
+   fChain->SetBranchAddress("ele_SwissCross", ele_SwissCross, &b_ele_SwissCross);
    fChain->SetBranchAddress("ele_EoverP", ele_EoverP, &b_ele_EoverP);
-   fChain->SetBranchAddress("pfele_Et", pfele_Et, &b_pfele_Et);
-   fChain->SetBranchAddress("pfele_CaloEt", pfele_CaloEt, &b_pfele_CaloEt);
-   fChain->SetBranchAddress("pfele_pt", pfele_pt, &b_pfele_pt);
+   fChain->SetBranchAddress("ele_Classification", ele_Classification, &b_ele_Classification);
+   fChain->SetBranchAddress("ele_HasMatchedConversions", ele_HasMatchedConversions, &b_ele_HasMatchedConversions);
+   fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
+   fChain->SetBranchAddress("pfele_p", &pfele_p, &b_pfele_p);
+   fChain->SetBranchAddress("pfele_E", &pfele_E, &b_pfele_E);
+   fChain->SetBranchAddress("pfele_Et", &pfele_Et, &b_pfele_Et);
+   fChain->SetBranchAddress("pfele_CaloEt", &pfele_CaloEt, &b_pfele_CaloEt);
+   fChain->SetBranchAddress("pfele_pt", &pfele_pt, &b_pfele_pt);
    fChain->SetBranchAddress("pfele_TrackptError", pfele_TrackptError, &b_pfele_TrackptError);
    fChain->SetBranchAddress("pfele_Trackpt", pfele_Trackpt, &b_pfele_Trackpt);
-   fChain->SetBranchAddress("pfele_px", pfele_px, &b_pfele_px);
-   fChain->SetBranchAddress("pfele_py", pfele_py, &b_pfele_py);
-   fChain->SetBranchAddress("pfele_pz", pfele_pz, &b_pfele_pz);
-   fChain->SetBranchAddress("pfele_eta", pfele_eta, &b_pfele_eta);
-   fChain->SetBranchAddress("pfele_phi", pfele_phi, &b_pfele_phi);
-   fChain->SetBranchAddress("pfele_charge", pfele_charge, &b_pfele_charge);
-   fChain->SetBranchAddress("pfele_truth", pfele_truth, &b_pfele_truth);
-   fChain->SetBranchAddress("pfele_trign", pfele_trign, &b_pfele_trign);
-   fChain->SetBranchAddress("pfele_trig", pfele_trig, &b_pfele_trig);
-   fChain->SetBranchAddress("pfele_SC", pfele_SC, &b_pfele_SC);
-   fChain->SetBranchAddress("pfele_SwissCross", pfele_SwissCross, &b_pfele_SwissCross);
-   fChain->SetBranchAddress("pfele_caloEt", pfele_caloEt , &b_pfele_caloEt);
-   fChain->SetBranchAddress("pfele_SCeta", pfele_SCeta , &b_pfele_SCeta);
-   fChain->SetBranchAddress("pfele_HCalOverEm",pfele_HCalOverEm , &b_pfele_HCalOverEm);
-   fChain->SetBranchAddress("pfele_Dr03TkSumPt",pfele_Dr03TkSumPt , &b_pfele_Dr03TkSumPt);
-   fChain->SetBranchAddress("pfele_Dr04HCalSumEt",pfele_Dr04HCalSumEt , &b_pfele_Dr04HCalSumEt);
-   fChain->SetBranchAddress("pfele_Dr03HCalSumEt",pfele_Dr03HCalSumEt , &b_pfele_Dr03HCalSumEt);
-   fChain->SetBranchAddress("pfele_Dr04ECalSumEt",pfele_Dr04ECalSumEt , &b_pfele_Dr04ECalSumEt);
-   fChain->SetBranchAddress("pfele_Dr03ECalSumEt",pfele_Dr03ECalSumEt , &b_pfele_Dr03ECalSumEt);
-   fChain->SetBranchAddress("pfele_particleIso",pfele_particleIso , &b_pfele_particleIso);
-   fChain->SetBranchAddress("pfele_chadIso",pfele_chadIso , &b_pfele_chadIso);
-   fChain->SetBranchAddress("pfele_nhadIso",pfele_nhadIso , &b_pfele_nhadIso);
-   fChain->SetBranchAddress("pfele_gamIso",pfele_gamIso , &b_pfele_gamIso);
+   fChain->SetBranchAddress("pfele_px", &pfele_px, &b_pfele_px);
+   fChain->SetBranchAddress("pfele_py", &pfele_py, &b_pfele_py);
+   fChain->SetBranchAddress("pfele_pz", &pfele_pz, &b_pfele_pz);
+   fChain->SetBranchAddress("pfele_eta", &pfele_eta, &b_pfele_eta);
+   fChain->SetBranchAddress("pfele_phi", &pfele_phi, &b_pfele_phi);
+   fChain->SetBranchAddress("pfele_charge", &pfele_charge, &b_pfele_charge);
+   fChain->SetBranchAddress("pfele_truth", &pfele_truth, &b_pfele_truth);
+   fChain->SetBranchAddress("pfele_trign", &pfele_trign, &b_pfele_trign);
+   fChain->SetBranchAddress("pfele_trig", &pfele_trig, &b_pfele_trig);
+   fChain->SetBranchAddress("pfele_SC", &pfele_SC, &b_pfele_SC);
+   fChain->SetBranchAddress("pfele_SwissCross", &pfele_SwissCross, &b_pfele_SwissCross);
+   fChain->SetBranchAddress("pfele_caloEt", &pfele_caloEt, &b_pfele_caloEt);
+   fChain->SetBranchAddress("pfele_SCeta", &pfele_SCeta, &b_pfele_SCeta);
+   fChain->SetBranchAddress("pfele_HCalOverEm", &pfele_HCalOverEm, &b_pfele_HCalOverEm);
+   fChain->SetBranchAddress("pfele_Dr03TkSumPt", &pfele_Dr03TkSumPt, &b_pfele_Dr03TkSumPt);
+   fChain->SetBranchAddress("pfele_Dr04HCalSumEt", &pfele_Dr04HCalSumEt, &b_pfele_Dr04HCalSumEt);
+   fChain->SetBranchAddress("pfele_Dr03HCalSumEt", &pfele_Dr03HCalSumEt, &b_pfele_Dr03HCalSumEt);
+   fChain->SetBranchAddress("pfele_Dr04ECalSumEt", &pfele_Dr04ECalSumEt, &b_pfele_Dr04ECalSumEt);
+   fChain->SetBranchAddress("pfele_Dr03ECalSumEt", &pfele_Dr03ECalSumEt, &b_pfele_Dr03ECalSumEt);
+   fChain->SetBranchAddress("pfele_particleIso", &pfele_particleIso, &b_pfele_particleIso);
+   fChain->SetBranchAddress("pfele_chadIso", &pfele_chadIso, &b_pfele_chadIso);
+   fChain->SetBranchAddress("pfele_nhadIso", &pfele_nhadIso, &b_pfele_nhadIso);
+   fChain->SetBranchAddress("pfele_gamIso", &pfele_gamIso, &b_pfele_gamIso);
    fChain->SetBranchAddress("muo_n", &muo_n, &b_muo_n);
    fChain->SetBranchAddress("muo_E", muo_E, &b_muo_E);
    fChain->SetBranchAddress("muo_Et", muo_Et, &b_muo_Et);
@@ -1401,49 +1550,60 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_ECalIsoDep", muo_ECalIsoDep, &b_muo_ECalIsoDep);
    fChain->SetBranchAddress("muo_HCalIsoDep", muo_HCalIsoDep, &b_muo_HCalIsoDep);
    fChain->SetBranchAddress("muo_AllIso", muo_AllIso, &b_muo_AllIso);
-   fChain->SetBranchAddress("muo_TrkChiNormCm", muo_TrkChiNormCm, &b_muo_TrkChiNormCm);
    fChain->SetBranchAddress("muo_TrkChiNormTk", muo_TrkChiNormTk, &b_muo_TrkChiNormTk);
-   fChain->SetBranchAddress("muo_d0Cm", muo_d0Cm, &b_muo_d0Cm);
    fChain->SetBranchAddress("muo_d0Tk", muo_d0Tk, &b_muo_d0Tk);
-   fChain->SetBranchAddress("muo_sd0Cm", muo_sd0Cm, &b_muo_sd0Cm);
    fChain->SetBranchAddress("muo_sd0Tk", muo_sd0Tk, &b_muo_sd0Tk);
+   fChain->SetBranchAddress("muo_dzTk", muo_dzTk, &b_muo_dzTk);
    fChain->SetBranchAddress("muo_calocomp", muo_calocomp, &b_muo_calocomp);
    fChain->SetBranchAddress("muo_calotower_e", muo_calotower_e, &b_muo_calotower_e);
    fChain->SetBranchAddress("muo_prompttight", muo_prompttight, &b_muo_prompttight);
-   fChain->SetBranchAddress("muo_hitsCm", muo_hitsCm, &b_muo_hitsCm);
    fChain->SetBranchAddress("muo_hitsTk", muo_hitsTk, &b_muo_hitsTk);
    fChain->SetBranchAddress("muo_truth", muo_truth, &b_muo_truth);
    fChain->SetBranchAddress("muo_trign", muo_trign, &b_muo_trign);
    fChain->SetBranchAddress("muo_trig", muo_trig, &b_muo_trig);
    fChain->SetBranchAddress("muo_ID", muo_ID, &b_muo_ID);
+   fChain->SetBranchAddress("muo_ChambersMatched", muo_ChambersMatched, &b_muo_ChambersMatched);
+   fChain->SetBranchAddress("muo_StationsMatched", muo_StationsMatched, &b_muo_StationsMatched);
+   fChain->SetBranchAddress("muo_Valid_fraction", muo_Valid_fraction, &b_muo_Valid_fraction);
+   fChain->SetBranchAddress("muo_TrkChiNormCm", muo_TrkChiNormCm, &b_muo_TrkChiNormCm);
+   fChain->SetBranchAddress("muo_hitsCm", muo_hitsCm, &b_muo_hitsCm);
+   fChain->SetBranchAddress("muo_d0Cm", muo_d0Cm, &b_muo_d0Cm);
+   fChain->SetBranchAddress("muo_sd0Cm", muo_sd0Cm, &b_muo_sd0Cm);
+   fChain->SetBranchAddress("muo_d0OriginCm", muo_d0OriginCm, &b_muo_d0OriginCm);
+   fChain->SetBranchAddress("muo_vx", muo_vx, &b_muo_vx);
+   fChain->SetBranchAddress("muo_vy", muo_vy, &b_muo_vy);
+   fChain->SetBranchAddress("muo_vz", muo_vz, &b_muo_vz);
    fChain->SetBranchAddress("muo_ValidMuonHitsCm", muo_ValidMuonHitsCm, &b_muo_ValidMuonHitsCm);
    fChain->SetBranchAddress("muo_ValidTrackerHitsCm", muo_ValidTrackerHitsCm, &b_muo_ValidTrackerHitsCm);
    fChain->SetBranchAddress("muo_ValidPixelHitsCm", muo_ValidPixelHitsCm, &b_muo_ValidPixelHitsCm);
-   fChain->SetBranchAddress("muo_ChambersMatched", muo_ChambersMatched, &b_muo_ChambersMatched);
-   fChain->SetBranchAddress("muo_d0bsCm", muo_d0bsCm, &b_muo_d0bsCm);
-   fChain->SetBranchAddress("muo_d0OriginCm", muo_d0OriginCm, &b_muo_d0OriginCm);
-   fChain->SetBranchAddress("muo_dzbsCm", muo_dzbsCm, &b_muo_dzbsCm);
    fChain->SetBranchAddress("muo_TrackerLayersMeasCm", muo_TrackerLayersMeasCm, &b_muo_TrackerLayersMeasCm);
    fChain->SetBranchAddress("muo_TrackerLayersNotMeasCm", muo_TrackerLayersNotMeasCm, &b_muo_TrackerLayersNotMeasCm);
+   fChain->SetBranchAddress("muo_ValidMuonHitsTk", muo_ValidMuonHitsTk, &b_muo_ValidMuonHitsTk);
+   fChain->SetBranchAddress("muo_ValidTrackerHitsTk", muo_ValidTrackerHitsTk, &b_muo_ValidTrackerHitsTk);
+   fChain->SetBranchAddress("muo_ValidPixelHitsTk", muo_ValidPixelHitsTk, &b_muo_ValidPixelHitsTk);
+   fChain->SetBranchAddress("muo_TrackerLayersMeasTk", muo_TrackerLayersMeasTk, &b_muo_TrackerLayersMeasTk);
+   fChain->SetBranchAddress("muo_TrackerLayersNotMeasTk", muo_TrackerLayersNotMeasTk, &b_muo_TrackerLayersNotMeasTk);
+   fChain->SetBranchAddress("muo_LostHits", muo_LostHits, &b_muo_LostHits);
+   fChain->SetBranchAddress("muo_LostHitsTk", muo_LostHitsTk, &b_muo_LostHitsTk);
+   fChain->SetBranchAddress("muo_isPFMuon", muo_isPFMuon, &b_muo_isPFMuon);
    fChain->SetBranchAddress("muo_Cocktail_pt", muo_Cocktail_pt, &b_muo_Cocktail_pt);
    fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
-   fChain->SetBranchAddress("muo_Valid_fraction", muo_Valid_fraction, &b_muo_Valid_fraction);
-   fChain->SetBranchAddress("muo_TevReco_pt",muo_TevReco_pt,&b_muo_TevReco_pt);
-   fChain->SetBranchAddress("muo_TevReco_ptError",muo_TevReco_ptError,&b_muo_TevReco_ptError);
-   fChain->SetBranchAddress("muo_TevReco_eta",muo_TevReco_eta,&b_muo_TevReco_eta);
-   fChain->SetBranchAddress("muo_TevReco_phi",muo_TevReco_phi,&b_muo_TevReco_phi);
-   fChain->SetBranchAddress("muo_TevReco_chi2",muo_TevReco_chi2,&b_muo_TevReco_chi2);
-   fChain->SetBranchAddress("muo_TevReco_ndof",muo_TevReco_ndof,&b_muo_TevReco_ndof);
-   fChain->SetBranchAddress("muo_PFiso",muo_PFiso,&b_muo_PFiso);
-   fChain->SetBranchAddress("muo_PFCand_px", muo_PFCand_px ,&b_muo_PFCand_px);
-   fChain->SetBranchAddress("muo_PFCand_py",  muo_PFCand_py ,&b_muo_PFCand_py);
-   fChain->SetBranchAddress("muo_PFCand_pz",  muo_PFCand_pz ,&b_muo_PFCand_pz);
-   fChain->SetBranchAddress("muo_PFCand_E",  muo_PFCand_E ,&b_muo_PFCand_E);
-   fChain->SetBranchAddress("muo_PFCand_eta",  muo_PFCand_eta ,&b_muo_PFCand_eta);
-   fChain->SetBranchAddress("muo_PFCand_phi",  muo_PFCand_phi ,&b_muo_PFCand_phi);
-   fChain->SetBranchAddress("muo_PFCand_pfid",  muo_PFCand_pfid ,&b_muo_PFCand_pfid);
-   fChain->SetBranchAddress("muo_PFCand_DeltaR",  muo_PFCand_DeltaR ,&b_muo_PFCand_DeltaR);
+   fChain->SetBranchAddress("muo_TevReco_pt", muo_TevReco_pt, &b_muo_TevReco_pt);
+   fChain->SetBranchAddress("muo_TevReco_ptError", muo_TevReco_ptError, &b_muo_TevReco_ptError);
+   fChain->SetBranchAddress("muo_TevReco_eta", muo_TevReco_eta, &b_muo_TevReco_eta);
+   fChain->SetBranchAddress("muo_TevReco_phi", muo_TevReco_phi, &b_muo_TevReco_phi);
+   fChain->SetBranchAddress("muo_TevReco_chi2", muo_TevReco_chi2, &b_muo_TevReco_chi2);
+   fChain->SetBranchAddress("muo_TevReco_ndof", muo_TevReco_ndof, &b_muo_TevReco_ndof);
+   fChain->SetBranchAddress("muo_PFiso", muo_PFiso, &b_muo_PFiso);
+   fChain->SetBranchAddress("muo_PFCand_px", muo_PFCand_px, &b_muo_PFCand_px);
+   fChain->SetBranchAddress("muo_PFCand_py", muo_PFCand_py, &b_muo_PFCand_py);
+   fChain->SetBranchAddress("muo_PFCand_pz", muo_PFCand_pz, &b_muo_PFCand_pz);
+   fChain->SetBranchAddress("muo_PFCand_E", muo_PFCand_E, &b_muo_PFCand_E);
+   fChain->SetBranchAddress("muo_PFCand_eta", muo_PFCand_eta, &b_muo_PFCand_eta);
+   fChain->SetBranchAddress("muo_PFCand_phi", muo_PFCand_phi, &b_muo_PFCand_phi);
+   fChain->SetBranchAddress("muo_PFCand_pfid", muo_PFCand_pfid, &b_muo_PFCand_pfid);
+   fChain->SetBranchAddress("muo_PFCand_DeltaR", muo_PFCand_DeltaR, &b_muo_PFCand_DeltaR);
    fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
    fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
    fChain->SetBranchAddress("PFmuo_pt", PFmuo_pt, &b_PFmuo_pt);
@@ -1481,52 +1641,75 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("PFmuo_ValidTrackerHitsCm", PFmuo_ValidTrackerHitsCm, &b_PFmuo_ValidTrackerHitsCm);
    fChain->SetBranchAddress("PFmuo_ValidPixelHitsCm", PFmuo_ValidPixelHitsCm, &b_PFmuo_ValidPixelHitsCm);
    fChain->SetBranchAddress("PFmuo_ChambersMatched", PFmuo_ChambersMatched, &b_PFmuo_ChambersMatched);
-   fChain->SetBranchAddress("PFmuo_d0bsCm", PFmuo_d0bsCm, &b_PFmuo_d0bsCm);
    fChain->SetBranchAddress("PFmuo_d0OriginCm", PFmuo_d0OriginCm, &b_PFmuo_d0OriginCm);
-   fChain->SetBranchAddress("PFmuo_dzbsCm", PFmuo_dzbsCm, &b_PFmuo_dzbsCm);
+   fChain->SetBranchAddress("PFmuo_vx", PFmuo_vx, &b_PFmuo_vx);
+   fChain->SetBranchAddress("PFmuo_vy", PFmuo_vy, &b_PFmuo_vy);
+   fChain->SetBranchAddress("PFmuo_vz", PFmuo_vz, &b_PFmuo_vz);
    fChain->SetBranchAddress("PFmuo_TrackerLayersMeasCm", PFmuo_TrackerLayersMeasCm, &b_PFmuo_TrackerLayersMeasCm);
    fChain->SetBranchAddress("PFmuo_TrackerLayersNotMeasCm", PFmuo_TrackerLayersNotMeasCm, &b_PFmuo_TrackerLayersNotMeasCm);
    fChain->SetBranchAddress("PFmuo_Valid_fraction", PFmuo_Valid_fraction, &b_PFmuo_Valid_fraction);
    fChain->SetBranchAddress("tau_n", &tau_n, &b_tau_n);
-   fChain->SetBranchAddress("tau_p", tau_p, &b_tau_p);
-   fChain->SetBranchAddress("tau_pt", tau_pt, &b_tau_pt);
-   fChain->SetBranchAddress("tau_E", tau_E, &b_tau_E);
-   fChain->SetBranchAddress("tau_Et", tau_Et, &b_tau_Et);
-   fChain->SetBranchAddress("tau_Px", tau_Px, &b_tau_Px);
-   fChain->SetBranchAddress("tau_Py", tau_Py, &b_tau_Py);
-   fChain->SetBranchAddress("tau_Pz", tau_Pz, &b_tau_Pz);
-   fChain->SetBranchAddress("tau_Eta", tau_Eta, &b_tau_Eta);
-   fChain->SetBranchAddress("tau_Phi", tau_Phi, &b_tau_Phi);
-   fChain->SetBranchAddress("tau_DecayMode", tau_DecayMode, &b_tau_DecayMode);
-   fChain->SetBranchAddress("tau_vx", tau_vx, &b_tau_vx);
-   fChain->SetBranchAddress("tau_vy", tau_vy, &b_tau_vy);
-   fChain->SetBranchAddress("tau_vz", tau_vz, &b_tau_vz);
-   fChain->SetBranchAddress("tau_vx2", tau_vx2, &b_tau_vx2);
-   fChain->SetBranchAddress("tau_vy2", tau_vy2, &b_tau_vy2);
-   fChain->SetBranchAddress("tau_vz2", tau_vz2, &b_tau_vz2);
-   fChain->SetBranchAddress("tau_trign", tau_trign, &b_tau_trign);
-   fChain->SetBranchAddress("tau_trig", tau_trig, &b_tau_trig);
-   fChain->SetBranchAddress("tau_ParticleIso", tau_ParticleIso, &b_tau_ParticleIso);
-   fChain->SetBranchAddress("tau_ChadIso", tau_ChadIso, &b_tau_ChadIso);
-   fChain->SetBranchAddress("tau_NhadIso", tau_NhadIso, &b_tau_NhadIso);
-   fChain->SetBranchAddress("tau_GamIso", tau_GamIso, &b_tau_GamIso);
-   fChain->SetBranchAddress("tau_PFChargedHadrCands", tau_PFChargedHadrCands, &b_tau_PFChargedHadrCands);
-   fChain->SetBranchAddress("tau_PFGammaCands", tau_PFGammaCands, &b_tau_PFGammaCands);
-   fChain->SetBranchAddress("tau_IsolationPFChargedHadrCandsPtSum", tau_IsolationPFChargedHadrCandsPtSum, &b_tau_IsolationPFChargedHadrCandsPtSum);
-   fChain->SetBranchAddress("tau_IsolationPFGammaCandsEtSum", tau_IsolationPFGammaCandsEtSum, &b_tau_IsolationPFGammaCandsEtSum);
-   fChain->SetBranchAddress("tau_EcalStripSumEOverPLead", tau_EcalStripSumEOverPLead, &b_tau_EcalStripSumEOverPLead);
-   fChain->SetBranchAddress("tau_EMfraction", tau_EMfraction, &b_tau_EMfraction);
-   fChain->SetBranchAddress("tau_Hcal3x3OverPLead", tau_Hcal3x3OverPLead, &b_tau_Hcal3x3OverPLead);
-   fChain->SetBranchAddress("tau_HcalMaxOverPLead", tau_HcalMaxOverPLead, &b_tau_HcalMaxOverPLead);
-   fChain->SetBranchAddress("tau_HcalTotOverPLead", tau_HcalTotOverPLead, &b_tau_HcalTotOverPLead);
-   fChain->SetBranchAddress("tau_LeadPFChargedHadrCandsignedSipt", tau_LeadPFChargedHadrCandsignedSipt, &b_tau_LeadPFChargedHadrCandsignedSipt);
-   fChain->SetBranchAddress("tau_PhiPhiMoment", tau_PhiPhiMoment, &b_tau_PhiPhiMoment);
-   fChain->SetBranchAddress("tau_EtaPhiMoment", tau_EtaPhiMoment, &b_tau_EtaPhiMoment);
-   fChain->SetBranchAddress("tau_EtaEtaMoment", tau_EtaEtaMoment, &b_tau_EtaEtaMoment);
-   fChain->SetBranchAddress("tau_ElectronPreIDOutput", tau_ElectronPreIDOutput, &b_tau_ElectronPreIDOutput);
-   fChain->SetBranchAddress("tau_PFLeadChargedPT", tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
-   fChain->SetBranchAddress("tau_BremsRecoveryEOverPLead", tau_BremsRecoveryEOverPLead, &b_tau_BremsRecoveryEOverPLead);
-   fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
+   fChain->SetBranchAddress("tau_p", &tau_p, &b_tau_p);
+   fChain->SetBranchAddress("tau_pt", &tau_pt, &b_tau_pt);
+   fChain->SetBranchAddress("tau_E", &tau_E, &b_tau_E);
+   fChain->SetBranchAddress("tau_Et", &tau_Et, &b_tau_Et);
+   fChain->SetBranchAddress("tau_M", &tau_M, &b_tau_M);
+   fChain->SetBranchAddress("tau_Mt", &tau_Mt, &b_tau_Mt);
+   fChain->SetBranchAddress("tau_Px", &tau_Px, &b_tau_Px);
+   fChain->SetBranchAddress("tau_Py", &tau_Py, &b_tau_Py);
+   fChain->SetBranchAddress("tau_Pz", &tau_Pz, &b_tau_Pz);
+   fChain->SetBranchAddress("tau_Eta", &tau_Eta, &b_tau_Eta);
+   fChain->SetBranchAddress("tau_Phi", &tau_Phi, &b_tau_Phi);
+   fChain->SetBranchAddress("tau_DecayMode", &tau_DecayMode, &b_tau_DecayMode);
+   fChain->SetBranchAddress("tau_Charge", &tau_Charge, &b_tau_Charge);
+   fChain->SetBranchAddress("tau_vx", &tau_vx, &b_tau_vx);
+   fChain->SetBranchAddress("tau_vy", &tau_vy, &b_tau_vy);
+   fChain->SetBranchAddress("tau_vz", &tau_vz, &b_tau_vz);
+   fChain->SetBranchAddress("tau_vx2", &tau_vx2, &b_tau_vx2);
+   fChain->SetBranchAddress("tau_vy2", &tau_vy2, &b_tau_vy2);
+   fChain->SetBranchAddress("tau_vz2", &tau_vz2, &b_tau_vz2);
+   fChain->SetBranchAddress("tau_trign", &tau_trign, &b_tau_trign);
+   fChain->SetBranchAddress("tau_trig", &tau_trig, &b_tau_trig);
+   fChain->SetBranchAddress("tau_ParticleIso", &tau_ParticleIso, &b_tau_ParticleIso);
+   fChain->SetBranchAddress("tau_ChadIso", &tau_ChadIso, &b_tau_ChadIso);
+   fChain->SetBranchAddress("tau_NhadIso", &tau_NhadIso, &b_tau_NhadIso);
+   fChain->SetBranchAddress("tau_GamIso", &tau_GamIso, &b_tau_GamIso);
+   fChain->SetBranchAddress("tau_PFChargedHadrCands", &tau_PFChargedHadrCands, &b_tau_PFChargedHadrCands);
+   fChain->SetBranchAddress("tau_PFGammaCands", &tau_PFGammaCands, &b_tau_PFGammaCands);
+   fChain->SetBranchAddress("tau_IsolationPFChargedHadrCandsPtSum", &tau_IsolationPFChargedHadrCandsPtSum, &b_tau_IsolationPFChargedHadrCandsPtSum);
+   fChain->SetBranchAddress("tau_IsolationPFGammaCandsEtSum", &tau_IsolationPFGammaCandsEtSum, &b_tau_IsolationPFGammaCandsEtSum);
+   fChain->SetBranchAddress("tau_EcalStripSumEOverPLead", &tau_EcalStripSumEOverPLead, &b_tau_EcalStripSumEOverPLead);
+   fChain->SetBranchAddress("tau_EMfraction", &tau_EMfraction, &b_tau_EMfraction);
+   fChain->SetBranchAddress("tau_Hcal3x3OverPLead", &tau_Hcal3x3OverPLead, &b_tau_Hcal3x3OverPLead);
+   fChain->SetBranchAddress("tau_HcalMaxOverPLead", &tau_HcalMaxOverPLead, &b_tau_HcalMaxOverPLead);
+   fChain->SetBranchAddress("tau_HcalTotOverPLead", &tau_HcalTotOverPLead, &b_tau_HcalTotOverPLead);
+   fChain->SetBranchAddress("tau_LeadPFChargedHadrCandsignedSipt", &tau_LeadPFChargedHadrCandsignedSipt, &b_tau_LeadPFChargedHadrCandsignedSipt);
+   fChain->SetBranchAddress("tau_PhiPhiMoment", &tau_PhiPhiMoment, &b_tau_PhiPhiMoment);
+   fChain->SetBranchAddress("tau_EtaPhiMoment", &tau_EtaPhiMoment, &b_tau_EtaPhiMoment);
+   fChain->SetBranchAddress("tau_EtaEtaMoment", &tau_EtaEtaMoment, &b_tau_EtaEtaMoment);
+   fChain->SetBranchAddress("tau_NSignalTracks", &tau_NSignalTracks, &b_tau_NSignalTracks);
+   fChain->SetBranchAddress("tau_ElectronPreIDOutput", &tau_ElectronPreIDOutput, &b_tau_ElectronPreIDOutput);
+   fChain->SetBranchAddress("tau_PFLeadChargedPT", &tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
+   fChain->SetBranchAddress("tau_BremsRecoveryEOverPLead", &tau_BremsRecoveryEOverPLead, &b_tau_BremsRecoveryEOverPLead);
+   fChain->SetBranchAddress("tau_id", &tau_id, &b_tau_id);
+   fChain->SetBranchAddress("tau_GenJet_Match_n", &tau_GenJet_Match_n, &b_tau_GenJet_Match_n);
+   fChain->SetBranchAddress("tau_GenJet_DecayMode", &tau_GenJet_DecayMode, &b_tau_GenJet_DecayMode);
+   fChain->SetBranchAddress("tau_GenJetMatch_Pos", &tau_GenJetMatch_Pos, &b_tau_GenJetMatch_Pos);
+   fChain->SetBranchAddress("tau_GenJet_E", &tau_GenJet_E, &b_tau_GenJet_E);
+   fChain->SetBranchAddress("tau_GenJet_Et", &tau_GenJet_Et, &b_tau_GenJet_Et);
+   fChain->SetBranchAddress("tau_GenJet_EmE", &tau_GenJet_EmE, &b_tau_GenJet_EmE);
+   fChain->SetBranchAddress("tau_GenJet_HadE", &tau_GenJet_HadE, &b_tau_GenJet_HadE);
+   fChain->SetBranchAddress("tau_GenJet_InvE", &tau_GenJet_InvE, &b_tau_GenJet_InvE);
+   fChain->SetBranchAddress("tau_GenJet_Eta", &tau_GenJet_Eta, &b_tau_GenJet_Eta);
+   fChain->SetBranchAddress("tau_GenJet_Phi", &tau_GenJet_Phi, &b_tau_GenJet_Phi);
+   fChain->SetBranchAddress("tau_GenJet_M", &tau_GenJet_M, &b_tau_GenJet_M);
+   fChain->SetBranchAddress("tau_GenJet_Mt", &tau_GenJet_Mt, &b_tau_GenJet_Mt);
+   fChain->SetBranchAddress("tau_GenJet_P", &tau_GenJet_P, &b_tau_GenJet_P);
+   fChain->SetBranchAddress("tau_GenJet_Pt", &tau_GenJet_Pt, &b_tau_GenJet_Pt);
+   fChain->SetBranchAddress("tau_GenJet_Et", &tau_GenJet_Et, &b_tau_GenJet_Et);
+   fChain->SetBranchAddress("tau_GenJet_Px", &tau_GenJet_Px, &b_tau_GenJet_Px);
+   fChain->SetBranchAddress("tau_GenJet_Py", &tau_GenJet_Py, &b_tau_GenJet_Py);
+   fChain->SetBranchAddress("tau_GenJet_Pz", &tau_GenJet_Pz, &b_tau_GenJet_Pz);
    fChain->SetBranchAddress("susyScanM0", &susyScanM0, &b_susyScanM0);
    fChain->SetBranchAddress("susyScanM12", &susyScanM12, &b_susyScanM12);
    fChain->SetBranchAddress("susyScanA0", &susyScanA0, &b_susyScanA0);
@@ -1537,7 +1720,7 @@ void TreeContent::Init(TTree *tree)
    Notify();
 }
 
-Bool_t TreeContent::Notify()
+Bool_t allData::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -1548,18 +1731,18 @@ Bool_t TreeContent::Notify()
    return kTRUE;
 }
 
-void TreeContent::Show(Long64_t entry)
+void allData::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t TreeContent::Cut(Long64_t entry)
+Int_t allData::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef TreeContent_cxx
+#endif // #ifdef allData_cxx
