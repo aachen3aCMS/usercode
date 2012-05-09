@@ -536,6 +536,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
         mTreePUbx[i]                 = PVI->getBunchCrossing();
         
+
+	if(mTreePUbx[i] == 0) {
+          mTreePUTrueNrInter = PVI->getTrueNumInteractions();
+	}
+
         mTreePUNumInteractions[i]       = PVI->getPU_NumInteractions();
         mTreePUN[i]                     = PVI->getPU_instLumi().size();
         
@@ -1215,6 +1220,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::InputTag calotowersProducer_;
   edm::Handle< std::vector<pat::Electron> > elecHandle;
   iEvent.getByLabel(elecTag_, elecHandle);
+  
+   //These can be deleted, when the ecal energy is fixed!!!
+  edm::Handle< std::vector<reco::GsfElectron> > elecCorrHandle;
+  iEvent.getByLabel("gsfElectronsHEEPCorr", elecCorrHandle);
+  
 
 
   std::vector<pat::ElectronRef> EleRefs;
@@ -1262,15 +1272,14 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   
   std::vector<pat::Electron> eles;
-  std::vector<pat::Electron> Unsortedeles;
+  std::vector<reco::GsfElectron> elesCorr;
+  
   elemet_x=0;
   elemet_y=0;
   elemet_sumpt=0;
 
-  mTreeSumET[9]  = mTreeSumET[3];
-  mTreeMEX[9]    = mTreeMEX[3];
-  mTreeMEY[9]    = mTreeMEY[3];    
-  if ( !elecHandle.isValid()) 
+  
+  if ( !elecHandle.isValid() || !elecCorrHandle.isValid()) 
     edm::LogWarning("SusyACSkimAnalysis") << "No Electron results found for InputTag " << elecTag_;
   else {
     
@@ -1280,17 +1289,14 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     for (int i=0; i<mTreeNele; i++) {
       eles.push_back((*elecHandle)[i]);
+      elesCorr.push_back((*elecCorrHandle)[i]);
       pat::ElectronRef myElectronRef(elecHandle,i);
       EleRefs.push_back(myElectronRef);
     }
-    //~ if (mTreeNele >1 ){
-	//~ pat::ElectronRef myElectronRef2(elecHandle,0);
-	//~ pat::ElectronRef myElectronRef3(elecHandle,1);
-	//~ cout << SortEleRefs(myElectronRef2,myElectronRef3) << endl;
-	//~ }
+
     sort(eles.begin(), eles.end(), ptcomp_ele); 
+    sort(elesCorr.begin(), elesCorr.end(), ptcomp_eleCorr); 
      
-    //~ sort(EleRefs.begin(), EleRefs.end(), SortEleRefs);
     sort(EleRefs.begin(), EleRefs.end(), ptcomp_EleRef);
 
     if ( mTreeNele > 100 ) mTreeNele = 100;
@@ -1354,6 +1360,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleP[countele]          = eles[i].p();
       mTreeElePt[countele]         = eles[i].pt();
       mTreeEleEoverP[countele]         = eles[i].eSuperClusterOverP();
+      
 	  
       mTreeEleTrackptError[countele] = eles[i].gsfTrack()->ptError();
       mTreeEleTrackpt[countele]    = eles[i].gsfTrack()->pt();
@@ -1365,11 +1372,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleEta[countele]        = eles[i].eta();
       mTreeElePhi[countele]        = eles[i].phi();
       mTreeEleCharge[countele]     = eles[i].charge();
-      mTreeEleCaloEt[countele]     = eles[i].caloEnergy()*sin(eles[i].p4().theta());
-	  mTreeEleSCRawEt[countele]    = eles[i].superCluster()->rawEnergy()*sin(eles[i].superCluster()->position().Theta());
+      mTreeEleCaloEt[countele]     = eles[i].caloEnergy()*sin(eles[i].superCluster()->position().Theta());
+      
+      mTreeEleSCRawEt[countele]    = eles[i].superCluster()->rawEnergy()*sin(eles[i].superCluster()->position().Theta());
       mTreeEleECalEnergy[countele]      = eles[i].ecalEnergy();
       mTreeEleTrackMomentumAtVtx[countele]      = eles[i].trackMomentumAtVtx().R();
-
+      mTreeEleSCEta[countele]           = eles[i].caloPosition().eta();
+      mTreeEleSCEt[countele]           = eles[i].superCluster()->energy()*sin(eles[i].superCluster()->position().Theta());
+      
+      
       mTreeEleHCalOverEm[countele]          = eles[i].hadronicOverEm(); 
       mTreeEleHCalOverEmBc[countele]          = eles[i].hcalOverEcalBc(); 
       mTreeEleDr03TkSumPt[countele]         = eles[i].dr03TkSumPt(); 
@@ -1381,6 +1392,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleDr03ECalRecHitSumEt[countele] = eles[i].dr03EcalRecHitSumEt(); 
       // Electron Classification encoded as integers
       mTreeEleClassification[countele] = eles[i].classification();
+      //These can be deleted, when the ecal energy is fixed!!!
+      mTreeEleCorrHCalOverEm[countele]          = elesCorr[i].hadronicOverEm(); 
+      mTreeEleCorrHCalOverEmBc[countele]          = elesCorr[i].hcalOverEcalBc(); 
+      mTreeEleCorrCaloEt[countele]     = elesCorr[i].caloEnergy()*sin(elesCorr[i].superCluster()->position().Theta());
+      mTreeEleCorrEoverP[countele]         = elesCorr[i].eSuperClusterOverP();
       
 
       mTreeElePFiso[countele][0]= eles[i].pfIsolationVariables().chargedHadronIso;
@@ -1389,7 +1405,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       
 
 		//Particle Based isolation following EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation  
-	  mTreeElePFisoEG[countele][0]= (*(*electronIsoVals)[0])[EleRefs[i]];
+      mTreeElePFisoEG[countele][0]= (*(*electronIsoVals)[0])[EleRefs[i]];
       mTreeElePFisoEG[countele][1]= (*(*electronIsoVals)[2])[EleRefs[i]];
       mTreeElePFisoEG[countele][2]= (*(*electronIsoVals)[1])[EleRefs[i]];
       
@@ -1667,9 +1683,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   std::vector<pat::Muon> muons;
 
-  mTreeSumET[8]  = mTreeSumET[3];
-  mTreeMEX[8]    = mTreeMEX[3];
-  mTreeMEY[8]    = mTreeMEY[3];  
   mumet_x=0;
   mumet_y=0;
   mumet_sumpt=0;
@@ -3518,7 +3531,8 @@ void SusyACSkimAnalysis::initPlots() {
   
   mAllData->Branch("pu_n",  &nTreePileUp, "pu_n/I");
   mAllData->Branch("pu_vtxn",  &mTreePUN, "pu_vtxn/I");
-  mAllData->Branch("pu_bunchx",  mTreePUbx, "pu_bunchx[pu_n]/I");
+//   mAllData->Branch("pu_bunchx",  mTreePUbx, "pu_bunchx[pu_n]/I");
+  mAllData->Branch("pu_TrueNrInter",  &mTreePUTrueNrInter, "pu_TrueNrInter/double");
   mAllData->Branch("pu_num_int", mTreePUNumInteractions, "pu_num_int[pu_n]/I");
   mAllData->Branch("pu_inst_Lumi", mTreePUInstLumi, "pu_inst_Lumi[pu_n][100]/double");
   mAllData->Branch("pu_zPos", mTreePUzPosi , "pu_zPos[pu_n][100]/double");
@@ -3865,6 +3879,13 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_Classification", mTreeEleClassification,    "ele_Classification[ele_n]/I");
   mAllData->Branch("ele_HasMatchedConversions", mTreeElehasMatchedConversion,    "ele_HasMatchedConversions[ele_n]/O");
   mAllData->Branch("ele_SCRawEt",           mTreeEleSCRawEt, "ele_SCRawEt[ele_n]/double");
+  mAllData->Branch("ele_SCEt",           mTreeEleSCEt, "ele_SCEt[ele_n]/double");
+  //These can be deleted, when the ecal energy is fixed!!!
+  mAllData->Branch("ele_caloEtCorr",           mTreeEleCorrCaloEt,                         "ele_caloEtCorr[ele_n]/double");
+  mAllData->Branch("ele_EoverPCorr", mTreeEleCorrEoverP,    "ele_EoverPCorr[ele_n]/double");
+  mAllData->Branch("ele_HCalOverEmCorr",       mTreeEleCorrHCalOverEm,                     "ele_HCalOverEmCorr[ele_n]/double");
+  mAllData->Branch("ele_HCalOverEmBcCorr",     mTreeEleCorrHCalOverEmBc,                   "ele_HCalOverEmCorr[ele_n]/doubleBc");
+
 
 
   // PF Electrons

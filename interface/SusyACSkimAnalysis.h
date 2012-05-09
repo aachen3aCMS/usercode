@@ -232,6 +232,7 @@ private:
   GreaterByPt<pat::Tau>       ptcomp_tau;
   GreaterByPt<pat::Photon>    ptcomp_photon;
   GreaterByPt<pat::Electron>  ptcomp_ele;
+  GreaterByPt<reco::GsfElectron>  ptcomp_eleCorr;
   GreaterByPt<pat::Jet>       ptcomp_jet;
   GreaterByPt<reco::GenJet>   ptcomp_genjet;
   GreaterByPtRef<pat::ElectronRef>   ptcomp_EleRef;
@@ -377,6 +378,8 @@ private:
   double mTreePUzPosi[3][100];
   double mTreePUsumPthi[3][100];
   double mTreePUsumPtlo[3][100];
+
+  double mTreePUTrueNrInter; 
 
   int mTreetrighltname[20];
   
@@ -660,6 +663,12 @@ private:
   double mTreeEleTrackMomentumAtVtx[100];
   bool mTreeElehasMatchedConversion[100];
   double mTreeEleSCRawEt[100];
+  double mTreeEleSCEt[100];
+  //These can be deleted, when the ecal energy is fixed!!!
+  double mTreeEleCorrEoverP[100];
+  double mTreeEleCorrHCalOverEm[100];
+  double mTreeEleCorrHCalOverEmBc[100];
+  double mTreeEleCorrCaloEt[100];
 
   
   double mTreeElePFCandPx[100];

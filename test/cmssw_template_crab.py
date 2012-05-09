@@ -73,6 +73,7 @@ FastJetsSwitch=@FASTJET@
 MatchAllSwitch=@MATCHALL@
 SusyParSwith=@SUSYPAR@
 IsPythiaShowered=@ISPYTHIASHOWERED@
+highEnergyEle??csw0
 #~ qscalehigh=-1.
 #~ qscalelow=-1.
 #~ isData=False
@@ -114,6 +115,10 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 #~ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.ak5PFJets.doAreaFastjet = True
+
+#--This is a temporary fix for electrons
+process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
+process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
 
 #--To modify noPU needed for METnoPU -------------------------------------------
 process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
@@ -429,13 +434,14 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
-
+from SHarper.HEEPAnalyzer.heepTools import *
+swapCollection(process,"gsfElectrons","gsfElectronsHEEPCorr")
 
 ### Define the paths
 process.p = cms.Path(
     filtersequence*
-    #process.kt6PFJets * 
-    #process.ak5PFJets *
+    process.gsfElectronsHEEPCorr*
+    process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     process.HBHENoiseFilterResultProducer*
     tausequence*

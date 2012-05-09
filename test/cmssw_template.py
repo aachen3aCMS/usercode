@@ -78,6 +78,7 @@ qscalelow=-1.
 isData=False
 tauSwitch=True
 IsPythiaShowered=False
+
 # Message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -115,6 +116,13 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 #~ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets.doRhoFastjet = True
 process.ak5PFJets.doAreaFastjet = True
+
+
+
+#--This is a temporary fix for electrons
+process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
+process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
+
 
 #--To modify noPU needed for METnoPU -------------------------------------------
 process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
@@ -158,10 +166,10 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
     #'file:/user/thuer/RelVal_5_2_0_AOD.root']
-    #'file:/user/thuer/Wprime1300Summer12_3.root']
+    #'file:/home/home1/institut_3a/knutzen/CMSSW_5_2_0/src/aachen3a/ACSusyAnalysis/test/sourceTest/Wprime1300Summer12_3.root']
     #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
-    '/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
-   #'/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/F2F8B140-1476-E111-851C-00259020081C.root']
+    #'/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
+   '/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/F2F8B140-1476-E111-851C-00259020081C.root']
     #'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
@@ -247,6 +255,7 @@ process.patJetCorrFactors.useRho = True
 getattr(process,"patPF2PATSequence"+postfix).replace(
     getattr(process,"pfNoElectron"+postfix),
     getattr(process,"pfNoElectron"+postfix)*process.kt6PFJetsPFlow )
+    
 
 
 # add TrackCorrected  met
@@ -286,7 +295,8 @@ if IsPythiaShowered:
 else:
     filtersequence = cms.Sequence()
     
-    
+
+
 ################################
 ###                          ###
 ###  Analysis configuration  ###
@@ -444,11 +454,15 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 ### Define the paths
 
+from SHarper.HEEPAnalyzer.heepTools import *
+swapCollection(process,"gsfElectrons","gsfElectronsHEEPCorr")
     
 process.p = cms.Path(
     filtersequence*
     #process.kt6PFJets * 
     #process.ak5PFJets *
+    process.gsfElectronsHEEPCorr*
+    process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     process.HBHENoiseFilterResultProducer*
     tausequence*

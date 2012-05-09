@@ -1,3 +1,10 @@
+2012-05-09 Klaas Padeken <padeken -at- physik.rwth-aachen.de> Simon Knutzen <knutzen -at- physik.rwth-aachen.de> Jan Schulte <jschulte -at - physik.rwth-aache.de>
+	* Number of True Interactions
+    * Electron HEEP Corrections
+    * Some new muon variables
+    * rho for Electrons
+    * corrected Electron isolation
+    * Electron Classifications
 2012-04-03 Simon Knutzen <knutzen -at- physik.rwth-aachen.de>
 	* Taus working now
 	* Changed tau discriminator for HPS PFToPAT selection
