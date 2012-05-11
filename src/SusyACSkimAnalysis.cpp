@@ -2340,7 +2340,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		
 		math::XYZPoint tauVtxPoint(0,0,0);
 		math::XYZPoint tauVtxPoint2(0,0,0);
-		if(mTreeNtaus >100) mTreeNtaus =100;
+		if(mTreeNtaus >50) mTreeNtaus =50;
 		
 		
 	for (int i=0;i<mTreeNtaus ; i++){
@@ -2541,7 +2541,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       mTreeNjet = jetHandle2->size();
       
-      if ( mTreeNjet > 100 ) mTreeNjet = 100;
+      if ( mTreeNjet > 50 ) mTreeNjet = 50;
       
       for (int i=0; i<mTreeNjet; i++) {
 	

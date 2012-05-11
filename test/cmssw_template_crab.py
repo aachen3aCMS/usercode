@@ -73,7 +73,6 @@ FastJetsSwitch=@FASTJET@
 MatchAllSwitch=@MATCHALL@
 SusyParSwith=@SUSYPAR@
 IsPythiaShowered=@ISPYTHIASHOWERED@
-highEnergyEle??csw0
 #~ qscalehigh=-1.
 #~ qscalelow=-1.
 #~ isData=False
@@ -171,9 +170,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 #PAT Stuff
-if not tauSwitch and not isData:
-	removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
-
 
 
 process.patMuons.embedCombinedMuon = False;
@@ -434,8 +430,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
-from SHarper.HEEPAnalyzer.heepTools import *
-swapCollection(process,"gsfElectrons","gsfElectronsHEEPCorr")
 
 ### Define the paths
 process.p = cms.Path(

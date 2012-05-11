@@ -75,7 +75,7 @@ process = cms.Process("ANA")
 #~ IsPythiaShowered=@ISPYTHIASHOWERED@ 
 qscalehigh=-1.
 qscalelow=-1.
-isData=False
+isData=True
 tauSwitch=True
 IsPythiaShowered=False
 
@@ -92,8 +92,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
-process.GlobalTag.globaltag = cms.string('START50_V15A::All')
-#process.GlobalTag.globaltag = cms.string('START52_V7::All')
+#process.GlobalTag.globaltag = cms.string('START50_V15A::All')
+process.GlobalTag.globaltag = cms.string('START52_V7::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -165,11 +165,12 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    #'file:/user/thuer/RelVal_5_2_0_AOD.root']
+#    'file:/user/knutzen/CMSSW_Test_Source/444A67B8-3A84-E111-8AF9-003048F024C2.root']
+	'/store/data/Run2012A/DoubleMu/AOD/PromptReco-v1/000/191/692/141FBBF6-6A8B-E111-B373-0025B324400C.root']
     #'file:/home/home1/institut_3a/knutzen/CMSSW_5_2_0/src/aachen3a/ACSusyAnalysis/test/sourceTest/Wprime1300Summer12_3.root']
     #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
     #'/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
-   '/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/F2F8B140-1476-E111-851C-00259020081C.root']
+    #'/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/F2F8B140-1476-E111-851C-00259020081C.root']
     #'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
@@ -179,10 +180,6 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(300)
 )
-#PAT Stuff
-if not tauSwitch and not isData:
-    removeSpecificPATObjects(process,['Taus']) #removes Taus and Jets from PAT default sequence. Not needed there.
-
 
 process.patMuons.embedCombinedMuon = False;
 process.patMuons.embedStandAloneMuon = False;
@@ -361,7 +358,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     is_PYTHIA8 = cms.bool(False),  # set to 'True' if running on PYTHIA8    
     is_SHERPA  = cms.bool(False),  # set to 'True' if running on SHERPA
     do_fatjets = cms.bool(False),  # set to 'True' for fat jets
-    matchAll   = cms.bool(False),  # if True all truth leptons are matched else only ele and mu
+    matchAll   = cms.bool(True),  # if True all truth leptons are matched else only ele and mu
     susyPar    = cms.bool(False),
     doCaloJet  = cms.bool(False),
     doTaus     = cms.bool(tauSwitch),
@@ -454,8 +451,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 ### Define the paths
 
-from SHarper.HEEPAnalyzer.heepTools import *
-swapCollection(process,"gsfElectrons","gsfElectronsHEEPCorr")
     
 process.p = cms.Path(
     filtersequence*
