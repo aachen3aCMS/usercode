@@ -1,19 +1,72 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Tue May  8 15:31:08 2012 by ROOT version 5.26/00c
-// from TTree allData/data after cuts
+// from TTree TreeContent/data after cuts
 // found on file: out.root
 //////////////////////////////////////////////////////////
 
-#ifndef allData_h
-#define allData_h
+#ifndef TreeContent_h
+#define TreeContent_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 
-class allData {
-public :
+#define INTSIZE 4
+
+class TreeContent {
+ public :
+  union u64 {
+    char c[INTSIZE];
+    int i;
+  };
+  
+  int get_size(const int* a) {
+    int size=0;
+    u64 tmp;
+    for(int i=0; ; ++i ) {
+      tmp.i = a[i];
+      size++;
+      for(int j=0; j < INTSIZE ; ++j )
+        if(tmp.c[j] == '\x0')
+          return size;
+    }
+    return -1;
+  }
+  
+  std::string unpack(const int* a) {
+    int size = get_size(a);
+    u64 tmp;
+    char* c = new char[size*INTSIZE];
+    for(int i=0; i < size ; ++i) {
+      tmp.i = a[i];
+      for(int j=0; j < INTSIZE; ++j )
+        c[i*INTSIZE+j] = tmp.c[j];
+    }
+    std::string ret( c );
+    delete[] c;
+    return ret;
+  }
+
+  
+  int* pack(const char* c) {
+    u64 tmp;
+    int j=0,count=0;
+    int size = strlen(c)/INTSIZE+1;
+    int* ii=new int[size];
+    for(int i=0 ; ; i++) {
+      tmp.c[j++]=c[i];
+      ii[count]=tmp.i;
+      if(j==INTSIZE) {
+        j=0;
+        count++;
+      }
+      if(c[i] == '\x0')
+        break;
+    }
+    return ii;
+  }
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -38,7 +91,6 @@ public :
    Double_t        lumi_recerr;
    Int_t           pu_n;
    Int_t           pu_vtxn;
-   Int_t           pu_bunchx[3];   //[pu_n]
    Int_t           pu_num_int[3];   //[pu_n]
    Double_t        pu_inst_Lumi[3][100];   //[pu_n]
    Double_t        pu_zPos[3][100];   //[pu_n]
@@ -549,7 +601,6 @@ public :
    Double_t        tau_GenJet_Mt[100];   //[tau_n]
    Double_t        tau_GenJet_P[100];   //[tau_n]
    Double_t        tau_GenJet_Pt[100];   //[tau_n]
-   Double_t        tau_GenJet_Et[100];   //[tau_n]
    Double_t        tau_GenJet_Px[100];   //[tau_n]
    Double_t        tau_GenJet_Py[100];   //[tau_n]
    Double_t        tau_GenJet_Pz[100];   //[tau_n]
@@ -582,7 +633,6 @@ public :
    TBranch        *b_lumi_recerr;   //!
    TBranch        *b_pu_n;   //!
    TBranch        *b_pu_vtxn;   //!
-   TBranch        *b_pu_bunchx;   //!
    TBranch        *b_pu_num_int;   //!
    TBranch        *b_pu_inst_Lumi;   //!
    TBranch        *b_pu_zPos;   //!
@@ -1093,7 +1143,6 @@ public :
    TBranch        *b_tau_GenJet_Mt;   //!
    TBranch        *b_tau_GenJet_P;   //!
    TBranch        *b_tau_GenJet_Pt;   //!
-   TBranch        *b_tau_GenJet_Et;   //!
    TBranch        *b_tau_GenJet_Px;   //!
    TBranch        *b_tau_GenJet_Py;   //!
    TBranch        *b_tau_GenJet_Pz;   //!
@@ -1105,8 +1154,8 @@ public :
    TBranch        *b_susyScanRun;   //!
    TBranch        *b_susyScantanbeta;   //!
 
-   allData(TTree *tree=0);
-   virtual ~allData();
+   TreeContent(TTree *tree=0);
+   virtual ~TreeContent();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -1118,8 +1167,8 @@ public :
 
 #endif
 
-#ifdef allData_cxx
-allData::allData(TTree *tree)
+#ifdef TreeContent_cxx
+TreeContent::TreeContent(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -1129,25 +1178,25 @@ allData::allData(TTree *tree)
          f = new TFile("out.root");
          f->cd("out.root:/ACSkimAnalysis");
       }
-      tree = (TTree*)gDirectory->Get("allData");
+      tree = (TTree*)gDirectory->Get("TreeContent");
 
    }
    Init(tree);
 }
 
-allData::~allData()
+TreeContent::~TreeContent()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t allData::GetEntry(Long64_t entry)
+Int_t TreeContent::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t allData::LoadTree(Long64_t entry)
+Long64_t TreeContent::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -1162,7 +1211,7 @@ Long64_t allData::LoadTree(Long64_t entry)
    return centry;
 }
 
-void allData::Init(TTree *tree)
+void TreeContent::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -1198,7 +1247,6 @@ void allData::Init(TTree *tree)
    fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
    fChain->SetBranchAddress("pu_n", &pu_n, &b_pu_n);
    fChain->SetBranchAddress("pu_vtxn", &pu_vtxn, &b_pu_vtxn);
-   fChain->SetBranchAddress("pu_bunchx", pu_bunchx, &b_pu_bunchx);
    fChain->SetBranchAddress("pu_num_int", pu_num_int, &b_pu_num_int);
    fChain->SetBranchAddress("pu_inst_Lumi", pu_inst_Lumi, &b_pu_inst_Lumi);
    fChain->SetBranchAddress("pu_zPos", pu_zPos, &b_pu_zPos);
@@ -1709,7 +1757,6 @@ void allData::Init(TTree *tree)
    fChain->SetBranchAddress("tau_GenJet_Mt", &tau_GenJet_Mt, &b_tau_GenJet_Mt);
    fChain->SetBranchAddress("tau_GenJet_P", &tau_GenJet_P, &b_tau_GenJet_P);
    fChain->SetBranchAddress("tau_GenJet_Pt", &tau_GenJet_Pt, &b_tau_GenJet_Pt);
-   fChain->SetBranchAddress("tau_GenJet_Et", &tau_GenJet_Et, &b_tau_GenJet_Et);
    fChain->SetBranchAddress("tau_GenJet_Px", &tau_GenJet_Px, &b_tau_GenJet_Px);
    fChain->SetBranchAddress("tau_GenJet_Py", &tau_GenJet_Py, &b_tau_GenJet_Py);
    fChain->SetBranchAddress("tau_GenJet_Pz", &tau_GenJet_Pz, &b_tau_GenJet_Pz);
@@ -1723,7 +1770,7 @@ void allData::Init(TTree *tree)
    Notify();
 }
 
-Bool_t allData::Notify()
+Bool_t TreeContent::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -1734,18 +1781,18 @@ Bool_t allData::Notify()
    return kTRUE;
 }
 
-void allData::Show(Long64_t entry)
+void TreeContent::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t allData::Cut(Long64_t entry)
+Int_t TreeContent::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef allData_cxx
+#endif // #ifdef TreeContent_cxx
