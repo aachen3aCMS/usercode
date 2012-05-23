@@ -6,7 +6,7 @@
 #
 #   Carsten Magass, January 2009
 #                   April 2010 (update)
-#
+#                   April 2012 (update) more than 1000 files can be handled and some common error codes are included
 
 if [ $# -ne 3 ]
 then
@@ -138,6 +138,66 @@ then
       let m=m+1
       continue
     fi
+    EX50115=`grep "EXECUTABLE_EXIT_STATUS = 50115" $file`
+
+    if [ "$EX50115" ]
+    then
+      echo "  -> Exit status 50115 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+
+    EX8021=`grep "EXECUTABLE_EXIT_STATUS = 8021" $file`
+
+    if [ "$EX8021" ]
+    then
+      echo "  -> Exit status 8021 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+
+    EX8004=`grep "EXECUTABLE_EXIT_STATUS = 8004" $file`
+
+    if [ "$EX8004" ]
+    then
+      echo "  -> Exit status 8004 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+    
+    EX8028=`grep "EXECUTABLE_EXIT_STATUS = 8028" $file`
+
+    if [ "$EX8028" ]
+    then
+      echo "  -> Exit status 8028 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+    
+        EX8022=`grep "EXECUTABLE_EXIT_STATUS = 8022" $file`
+
+    if [ "$EX8022" ]
+    then
+      echo "  -> Exit status 8022 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+    
+          EX1=`grep "EXECUTABLE_EXIT_STATUS = 1" $file`
+
+    if [ "$EX1" ]
+    then
+      echo "  -> Exit status 1 in " $file
+      let k=k+1
+      let m=m+1
+      continue
+    fi	
+
 
     EVENTS1=`grep "Events total" $file | awk '{print $5}'`
     EVENTS2=`grep "of events" $file | awk '{print $6}'`
@@ -189,18 +249,21 @@ f=`echo "/pnfs/physik.rwth-aachen.de/cms/store/user/"$1"/output/"$2"/"$3`
 
 
 
-n=`./mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
+#n=`mysrmls.sh $1 output/$2/$3 | grep root | wc -l`
+n=`uberftp grid-ftp.physik.rwth-aachen.de "active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/;ls "| awk '{ print $9 }' | grep root | wc -l  `
 echo "  found "$n" files in $f"
 echo
-nu=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u | wc -l`
+#nu=`mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u | wc -l`
+nu=`uberftp grid-ftp.physik.rwth-aachen.de "active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/;ls "| awk '{ print $9 }' | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u | wc -l`
 if [ $nu -gt 0 ]
 then
   echo "     -> the following files appear more than once and have to be deleted using srmrm:"
   echo
-  list=`./mysrmls.sh $1 output/$2/$3 | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u`
+  list=`uberftp grid-ftp.physik.rwth-aachen.de "active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/;ls "| awk '{ print $9 }' | grep root | awk -F_ '{print $1 "_" $2 }' | sort | uniq -d | sort -u`
   for s in $list
   do
-    file=`./mysrmls.sh $1 output/$2/$3 | grep $s'_'`
+    #file=`mysrmls.sh $1 output/$2/$3 | grep $s'_'`
+    file=`uberftp grid-ftp.physik.rwth-aachen.de "active; cd /pnfs/physik.rwth-aachen.de/cms/store/user/$1/output/$2/$3/;ls "| awk '{ print $9 }' | grep $s'_'`
     echo "        " $s : $file
     good=`grep $s'_' $DIR/crab_*/res/*out | grep newL  | awk '{print $4}' | awk -F'out_' '{print "out_"$2}'`
     for ff in $file
@@ -212,7 +275,7 @@ then
       fi
     done
 
-#    file=`./mysrmls.sh $1 output/$2/$3 | grep $s'_'`
+#    file=`mysrmls.sh $1 output/$2/$3 | grep $s'_'`
 #    ffile=`grep $s CRAB-zz-v62/crab_*/res/*out | grep newL  | awk '{print $4}' | awk -F'out_' '{print "out_"$2}'`
 #    echo $file " => " $ffile
   done
