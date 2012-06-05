@@ -667,9 +667,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     else {
       
-      float currentToBFieldScaleFactor = 2.09237036221512717e-04;
-      float current = (*dcsHandle)[0].magnetCurrent();
-      bfield = current*currentToBFieldScaleFactor;
+      
+      if (dcsHandle->size() > 0){
+		float currentToBFieldScaleFactor = 2.09237036221512717e-04;  
+		float current = (*dcsHandle)[0].magnetCurrent();
+		bfield = current*currentToBFieldScaleFactor;
+	  }
+
     }
   }
 
@@ -703,7 +707,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	const reco::Candidate& p = (*genParticles)[ i ];
        
 	//if (p.status() == 1 && (abs(p.pdgId()) == 11 || abs(p.pdgId()) == 13)) {
-	if ( (!matchAll_&& (  (p.status() == 1) && (abs(p.pdgId()) == 11 || abs(p.pdgId()) == 13 || ( abs(p.pdgId()) == 22 && p.p4().Pt()>1. )  )) ) || (abs(p.pdgId())== 4000013) || ( matchAll_&& ( (abs(p.pdgId())< 19&&abs(p.pdgId())> 10) || (abs(p.pdgId()) == 22 && p.p4().Pt()>1.) ) ) || (!matchAll_ &&  doTaus_ && (abs(p.pdgId()) == 15 || abs(p.pdgId()) == 16)) ){
+	if ( (!matchAll_&& (  (p.status() == 1) && (abs(p.pdgId()) == 11 || abs(p.pdgId()) == 13 || abs(p.pdgId()) == 12 || abs(p.pdgId()) == 14 || ( abs(p.pdgId()) == 22 && p.p4().Pt()>1. )  )) ) || (abs(p.pdgId())== 4000013) || ( matchAll_&& ( (abs(p.pdgId())< 19&&abs(p.pdgId())> 10) || (abs(p.pdgId()) == 22 && p.p4().Pt()>1.) ) ) || (!matchAll_ &&  doTaus_ && (abs(p.pdgId()) == 15 || abs(p.pdgId()) == 16)) ){ 
 	  mTreetruthlpdgid[mTreeNtruthl] = p.pdgId();
 	  mTreetruthlE[mTreeNtruthl]     = p.p4().E();
 	  mTreetruthlEt[mTreeNtruthl]    = p.p4().Et();
