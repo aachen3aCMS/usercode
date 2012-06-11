@@ -42,10 +42,16 @@ def addECALDeadCellFilterTPBE ( process ):
     process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterTPBE' )
 
 def addTrackingFailureFilter ( process ):
+    
+    process.goodVertices = cms.EDFilter(
+        "VertexSelector",
+        filter = cms.bool(False),
+        src = cms.InputTag("offlinePrimaryVertices"),
+        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+    )
+           
     process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
-    process.trackingFailureFilter.JetSource = cms.InputTag('ak5PFJetsL2L3Residual')
-    process.trackingFailureFilter.VertexSource = cms.InputTag('goodOfflinePrimaryVertices')
-    process.p_TrackingFailureFilter = cms.Path(process.goodOfflinePrimaryVertices*process.ak5PFJetsL2L3Residual*process.trackingFailureFilter)
+    process.p_TrackingFailureFilter = cms.Path(process.goodVertices*process.trackingFailureFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_TrackingFailureFilter' )
     
 def addMuonFailureFilter ( process ):
@@ -58,6 +64,12 @@ def addKinematicsFilter( process ):
 
     process.p_kinematicsfilter = cms.Path( process.totalKinematicsFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_kinematicsfilter' )
+
+def addBadSuperCrystalFilter( process ):
+
+    process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+    process.p_BadSuperCrystalFilter = cms.Path(process.eeBadScFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_BadSuperCrystalFilter' )
 
 
 process = cms.Process("ANA")
@@ -160,8 +172,8 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    '/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
-    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011A.root',
+    #'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
+    'file:/.automount/home/home__home1/institut_3a/schneider/CMSSW_5_2_5/src/aachen3a/ACSusyAnalysis/test/pickevents.txt/RunA_900/crab_0_120522_113153/res/pickevents_1_1_9gb.root']
     #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
     ),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
@@ -461,11 +473,12 @@ process.p = cms.Path(
     #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
-#~ addCSCHaloFilter( process ) 
-#~ addHCALLaserFilter( process ) 
-#~ addECALDeadCellFilterTP( process ) 
-#~ addMuonFailureFilter( process ) 
-
+addCSCHaloFilter( process ) 
+addHCALLaserFilter( process ) 
+addECALDeadCellFilterTP( process ) 
+#addMuonFailureFilter( process ) 
+addBadSuperCrystalFilter( process )
+addTrackingFailureFilter( process )
 
 if IsPythiaShowered:
     addKinematicsFilter( process )
