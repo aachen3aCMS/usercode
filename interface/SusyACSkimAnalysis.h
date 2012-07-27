@@ -362,10 +362,10 @@ private:
 
   
 
-  Bool_t mTreenoiseHBHEFilterResult;
+  int mTreenoiseHBHEFilterResult;
   Bool_t IsPythiaFiltered;
   int mTreeNFilter; 
-  Bool_t mTreeFilterResults[100];
+  int mTreeFilterResults[100];
   int mTreeFilterName[100][20];
 
     
@@ -583,11 +583,12 @@ private:
   double mTreePhoHcaloIso[100];
   double mTreePhoTrackIso[100];
   double mTreePhoHCalOverEm[100];
+  double mTreePhoHTowOverEm[100];
   double mTreePhoe5x5[100];
   double mTreePhoe1x5[100];
   double mTreePhoe3x3[100];
   double mTreePhoSwissCross[100];
-  bool mTreePhohasMatchedPromptElectron[100];
+  int    mTreePhohasMatchedPromptElectron[100];
   double mTreePhoPFisoEG[100][3];
 
 
@@ -661,7 +662,7 @@ private:
   double mTreeEleEoverP[100];
   double mTreeEleECalEnergy[100];
   double mTreeEleTrackMomentumAtVtx[100];
-  bool mTreeElehasMatchedConversion[100];
+  int    mTreeElehasMatchedConversion[100];
   double mTreeEleSCRawEt[100];
   double mTreeEleSCEt[100];
   //These can be deleted, when the ecal energy is fixed!!!

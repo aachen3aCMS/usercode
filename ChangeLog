@@ -1,3 +1,7 @@
+2012-07-27 Julien Caudron <julien.caudron -at- physik.rwth-aachen.de>
+	* Boolean branches in the skimmer have been changed to integer
+	* hadTowOverEm added for photon
+	* photon pf isolation reprocessing from the 25th may update
 2012-05-09 Klaas Padeken <padeken -at- physik.rwth-aachen.de> Simon Knutzen <knutzen -at- physik.rwth-aachen.de> Jan Schulte <jschulte -at - physik.rwth-aache.de>
 	* Number of True Interactions
     * Electron HEEP Corrections

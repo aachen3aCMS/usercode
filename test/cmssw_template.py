@@ -307,6 +307,16 @@ else:
     filtersequence = cms.Sequence()
     
 
+# photon
+# the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
+# which require the EGammaAnalysisTools photonIsoProducer from:
+#  cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
+process.phoPFIso.verbose = False
+IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
+                               cms.InputTag('phoPFIso:phIsoForGsfEle'),
+                               cms.InputTag('phoPFIso:nhIsoForGsfEle'))
+#it also requires to add phoPFIso in the path
 
 ################################
 ###                          ###
@@ -356,9 +366,10 @@ IsoValElectronNoPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03NoPFIdPFIs
 IsoDepPhoton = cms.VInputTag(cms.InputTag('phPFIsoDepositChargedPFIso'),
 	cms.InputTag('phPFIsoDepositGammaPFIso'),
 	cms.InputTag('phPFIsoDepositNeutralPFIso'))
-IsoValPhotonPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03PFIdPFIso'),
-	cms.InputTag('phPFIsoValueGamma03PFIdPFIso'),
-	cms.InputTag('phPFIsoValueNeutral03PFIdPFIso'))
+#already defined above
+#IsoValPhotonPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03PFIdPFIso'),
+#	cms.InputTag('phPFIsoValueGamma03PFIdPFIso'),
+#	cms.InputTag('phPFIsoValueNeutral03PFIdPFIso'))
 IsoValPhotonNoPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03NoPFIdPFIso'),
 	cms.InputTag('phPFIsoValueGamma03NoPFIdPFIso'),
 	cms.InputTag('phPFIsoValueNeutral03NoPFIdPFIso'))
@@ -480,6 +491,7 @@ process.p = cms.Path(
     process.pfParticleSelectionSequence*
     process.eleIsoSequence*
     process.phoIsoSequence*
+    process.phoPFIso*
     process.kt6PFJetsForIsolation*
     #~ process.pfMetPFnoPU*
     #~ process.pfJetMETcorr*

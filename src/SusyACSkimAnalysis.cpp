@@ -239,7 +239,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	 int tempmax=get_size(tempname);
 	 if (tempmax>20) tempmax=20;
 	 for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
-	 mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID );
+	 mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID ) ? 1 : 0;
      
      if (TString(filt->name).Contains("p_kinematics") && filterResultsHandle->accept( filt->ID )==0 ) return 0;
      //~ if (TString(filt->name).Contains("p_kinematics")  ) cout << "Hier " << filterResultsHandle->accept(filt->ID);
@@ -256,7 +256,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		if (tempmax>20) tempmax=20;
 		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
 		for (int l=0; l<tempmax; l++) mTreeFilterName[mTreeNFilter][l] = tempname[l];
-		mTreeFilterResults[mTreeNFilter]=false;
+		mTreeFilterResults[mTreeNFilter]=0;
 
 		//~ if( !wasrun ) cout << "FILTER WARNING: Filter: " << filt2->name << " in process " << filters[filt].process << " was not executed!" << endl;
 		//~ if( error )   cout << "FILTER WARNING: An error occured during execution of Filter: " << filt2->name << " in process " << filters[filt].process << endl;
@@ -565,11 +565,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    if(!hcalnoiseFlag.isValid()) {
      edm::LogWarning("SusyACSkimAnalysis") << " could not find HcalNoiseFlag.\n";
      // true means event is not flagged as noise
-     mTreenoiseHBHEFilterResult = true;
+     mTreenoiseHBHEFilterResult = 1;
    }
    
    else { 
-	     mTreenoiseHBHEFilterResult = *hcalnoiseFlag;
+     mTreenoiseHBHEFilterResult = (*hcalnoiseFlag)  ? 1 : 0;
    }
 
   
@@ -1029,6 +1029,9 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle< std::vector<reco::GsfElectron> > gsfelecHandle;
   iEvent.getByLabel(gsfelecTag_, gsfelecHandle);
 
+  edm::Handle< std::vector<reco::Photon> > rphotonHandle;
+  iEvent.getByLabel("photons", rphotonHandle);
+
   std::vector<pat::Photon> photons;
   std::vector<pat::PhotonRef> PhotonRefs;
 
@@ -1113,14 +1116,35 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	//Particle Based Isolation
 	
-		
-		
-		
-      mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[PhotonRefs[i]];
-      mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[PhotonRefs[i]];
-      mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[PhotonRefs[i]];
-      // iso for HEEP cuts
+      mTreePhoPFisoEG[countphoton][0]= -999;
+      mTreePhoPFisoEG[countphoton][1]= -999;
+      mTreePhoPFisoEG[countphoton][2]= -999;
+      try {
+	mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[PhotonRefs[i]];
+	mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[PhotonRefs[i]];
+	mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[PhotonRefs[i]];
+      }
+      catch (...){
+	//the PhotonRefs value has not been found
+	//maybe the photonIsoValPFId is based on reco::photon instead of pat::photon
+	int i_reco = -1;
+	for (unsigned int j=0; j<rphotonHandle->size(); j++){
+	  if (DeltaR(photons[i].eta(), (*rphotonHandle)[j].eta(), photons[i].phi(), (*rphotonHandle)[j].phi()) < 0.001){
+	    //pat::photon and reco::photon should have exactly the same eta,phi values, right ?
+	    i_reco = j; 
+	    break;
+	  }
+	}
+	if (i_reco != -1){
+	  reco::PhotonRef myPhotonRef(rphotonHandle,i_reco);
+	  mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[myPhotonRef];
+	  mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[myPhotonRef];
+	  mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[myPhotonRef];
+	}
+      }
+
       mTreePhoHCalOverEm[countphoton] = photons[i].hadronicOverEm();
+      mTreePhoHTowOverEm[countphoton] = photons[i].hadTowOverEm();
       mTreePhoisPF[countphoton] = photons[i].isPFlowPhoton();
 
 
@@ -1148,7 +1172,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreePhoHasPixelSeed[countphoton] = photons[i].hasPixelSeed();
       mTreePhoHasConvTracks[countphoton]= photons[i].hasConversionTracks () ;
       
-      mTreePhohasMatchedPromptElectron[countphoton] = ConversionTools::hasMatchedPromptElectron(photons[i].superCluster(), gsfelecHandle, hConversions, bsPoint);
+      mTreePhohasMatchedPromptElectron[countphoton] = ConversionTools::hasMatchedPromptElectron(photons[i].superCluster(), gsfelecHandle, hConversions, bsPoint) ? 1 : 0;
       
       
       //Zernike moments ?
@@ -1456,7 +1480,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeEleConvr[countele]    = convInfo.radiusOfConversion();
       
       
-      mTreeElehasMatchedConversion[countele] = ConversionTools::hasMatchedConversion(eles[i],hConversions, bsPoint);
+      mTreeElehasMatchedConversion[countele] = ConversionTools::hasMatchedConversion(eles[i],hConversions, bsPoint) ? 1 : 0;
 
       if (eles[i].gsfTrack().isNonnull()) {
 
@@ -3566,9 +3590,9 @@ void SusyACSkimAnalysis::initPlots() {
   
   
   
-  mAllData->Branch("noise_HBHE_filter_result",        &mTreenoiseHBHEFilterResult, "noise_HBHE_filter_result/O");
+  mAllData->Branch("noise_HBHE_filter_result",        &mTreenoiseHBHEFilterResult, "noise_HBHE_filter_result/I");
   mAllData->Branch("eventfilter_n",        &mTreeNFilter, "eventfilter_n/I"); 
-  mAllData->Branch("eventfilter_results",        mTreeFilterResults, "eventfilter_results[eventfilter_n]/O");
+  mAllData->Branch("eventfilter_results",        mTreeFilterResults, "eventfilter_results[eventfilter_n]/I");
   mAllData->Branch("eventfilter_names",        mTreeFilterName, "eventfilter_names[eventfilter_n][20]/I");
 
   
@@ -3797,6 +3821,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("pho_e1x5",             mTreePhoe1x5,                           "pho_e1x5[pho_n]/double");
   mAllData->Branch("pho_e3x3",             mTreePhoe3x3,                           "pho_e3x3[pho_n]/double");
   mAllData->Branch("pho_HCalOverEm",       mTreePhoHCalOverEm,                     "pho_HCalOverEm[pho_n]/double");
+  mAllData->Branch("pho_HTowOverEm",       mTreePhoHTowOverEm,                     "pho_HTowOverEm[pho_n]/double");
   mAllData->Branch("pho_isPF",     mTreePhoisPF,     "pho_isPF[pho_n]/I");
   mAllData->Branch("pho_EcaloIso",mTreePhoEcaloIso,    "pho_EcaloIso[pho_n]/double");
   mAllData->Branch("pho_HcaloIso",mTreePhoHcaloIso,    "pho_HcaloIso[pho_n]/double");
@@ -3810,7 +3835,7 @@ void SusyACSkimAnalysis::initPlots() {
 
   mAllData->Branch("pho_HasPixelSeed",mTreePhoHasPixelSeed,    "pho_HasPixelSeed[pho_n]/I");
   mAllData->Branch("pho_HasConvTracks",mTreePhoHasConvTracks,    "pho_HasConvTracks[pho_n]/I");
-  mAllData->Branch("pho_HasMatchedPromptElectron",mTreePhohasMatchedPromptElectron,    "pho_HasMatchedPromptElectron[pho_n]/O");
+  mAllData->Branch("pho_HasMatchedPromptElectron",mTreePhohasMatchedPromptElectron,    "pho_HasMatchedPromptElectron[pho_n]/I");
   
   
   // Electrons
@@ -3881,7 +3906,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("ele_SwissCross", mTreeEleSwissCross,    "ele_SwissCross[ele_n]/double");
   mAllData->Branch("ele_EoverP", mTreeEleEoverP,    "ele_EoverP[ele_n]/double");
   mAllData->Branch("ele_Classification", mTreeEleClassification,    "ele_Classification[ele_n]/I");
-  mAllData->Branch("ele_HasMatchedConversions", mTreeElehasMatchedConversion,    "ele_HasMatchedConversions[ele_n]/O");
+  mAllData->Branch("ele_HasMatchedConversions", mTreeElehasMatchedConversion,    "ele_HasMatchedConversions[ele_n]/I");
   mAllData->Branch("ele_SCRawEt",           mTreeEleSCRawEt, "ele_SCRawEt[ele_n]/double");
   mAllData->Branch("ele_SCEt",           mTreeEleSCEt, "ele_SCEt[ele_n]/double");
   //These can be deleted, when the ecal energy is fixed!!!
