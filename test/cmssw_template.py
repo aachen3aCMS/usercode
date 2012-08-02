@@ -180,7 +180,7 @@ process.source = cms.Source("PoolSource",
 #    'file:/user/knutzen/CMSSW_Test_Source/444A67B8-3A84-E111-8AF9-003048F024C2.root']
 	#'/store/data/Run2012A/DoubleMu/AOD/PromptReco-v1/000/191/692/141FBBF6-6A8B-E111-B373-0025B324400C.root']
 	#'file:/.automount/home/home__home1/institut_3a/schneider/CMSSW_5_2_5/src/aachen3a/ACSusyAnalysis/test/pickevents.txt/RunA_900/crab_0_120522_113153/res/pickevents_1_1_9gb.root']
-	'file:/afs/cern.ch/work/a/aferapon/public/forPVT/Collisions12_8TeV/highST_15TeV_event.root']
+	'file:/user/knutzen/CMSSW_Test_Source/TTJET_52_RelVal.root']
     #'file:/home/home1/institut_3a/knutzen/CMSSW_5_2_0/src/aachen3a/ACSusyAnalysis/test/sourceTest/Wprime1300Summer12_3.root']
     #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
     #'/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
