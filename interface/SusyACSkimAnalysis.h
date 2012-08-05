@@ -99,6 +99,26 @@
 
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 
+//  Vertexing
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+// particle vertex
+//
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
+#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+
 
 using namespace std;
 using namespace pat;
@@ -213,6 +233,25 @@ private:
 
   typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+
+
+   typedef struct{
+     int valid;
+     double chi2;
+     int ndf;
+     double covMat[7];
+     double vals[7];
+
+     static std::string contents(){return
+     "valid/I"
+     ":chi2/F:ndf/I"
+     ":vals[7]/F:covMat[7]/F"
+     ;}
+} _DimuVertexInfo;
+  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRef 
+trackref2,_DimuVertexInfo& storeVertInfo);
+  edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
+
 
 
   bool is_PYTHIA8;
@@ -588,7 +627,11 @@ private:
   double mTreePhoe1x5[100];
   double mTreePhoe3x3[100];
   double mTreePhoSwissCross[100];
+<<<<<<< SusyACSkimAnalysis.h
+  int mTreePhohasMatchedPromptElectron[100];
+=======
   int    mTreePhohasMatchedPromptElectron[100];
+>>>>>>> 1.34
   double mTreePhoPFisoEG[100][3];
 
 
@@ -662,7 +705,11 @@ private:
   double mTreeEleEoverP[100];
   double mTreeEleECalEnergy[100];
   double mTreeEleTrackMomentumAtVtx[100];
+<<<<<<< SusyACSkimAnalysis.h
+  int mTreeElehasMatchedConversion[100];
+=======
   int    mTreeElehasMatchedConversion[100];
+>>>>>>> 1.34
   double mTreeEleSCRawEt[100];
   double mTreeEleSCEt[100];
   //These can be deleted, when the ecal energy is fixed!!!
@@ -739,6 +786,14 @@ private:
   int    mTreeMuoIsPF[100];
 
   
+
+int mTreeDiMuonVertexValid[5][5];
+int mTreeDiMuonVertexNdf[5][5];
+double mTreeDiMuonVertexChi2[5][5];
+double mTreeDiMuonVertexMass[5][5];
+
+
+
   double mTreeMuoEt[100];
   double mTreeMuoP[100];
   double mTreeMuoPt[100];

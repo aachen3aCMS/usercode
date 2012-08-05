@@ -7,7 +7,6 @@ def addScrapingFilter( process ):
                                            numtrack = cms.untracked.uint32( 10 ),
                                            thresh = cms.untracked.double( 0.25 )
                                            )
-
     process.p_scrapingFilter = cms.Path( process.scrapingFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_scrapingFilter' )
     
@@ -21,35 +20,28 @@ def addHCALLaserFilter ( process ):
     process.p_HCALLaserFilter = cms.Path(process.hcalLaserEventFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_HCALLaserFilter' )
     
+
+#make 2 filter for Trigger Primitive and  Boundary Energy:
 def addECALDeadCellFilterTP ( process ):
     process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+    ## For AOD and RECO recommendation to use recovered rechits
+    process.EcalDeadCellTriggerPrimitiveFilter.tpDigiCollection = cms.InputTag("ecalTPSkimNA")
     process.p_ECALDeadCellFilterTP = cms.Path(process.EcalDeadCellTriggerPrimitiveFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterTP' )
 
-def addECALDeadCellFilterTPBE ( process ):
-    process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+#use the default
+def addECALDeadCellFilterBE ( process ):
     process.load('RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi')
-    process.EcalDeadCellBoundaryEnergyFilter.taggingMode = cms.bool(False)
-    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyDeadCellsEB=cms.untracked.double(10)
-    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyDeadCellsEE=cms.untracked.double(10)
-    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyGapEB=cms.untracked.double(100)
-    process.EcalDeadCellBoundaryEnergyFilter.cutBoundEnergyGapEE=cms.untracked.double(100)
-    process.EcalDeadCellBoundaryEnergyFilter.enableGap=cms.untracked.bool(False)
-    process.EcalDeadCellBoundaryEnergyFilter.limitDeadCellToChannelStatusEB = cms.vint32(12,14)
-    process.EcalDeadCellBoundaryEnergyFilter.limitDeadCellToChannelStatusEE = cms.vint32(12,14)
-
-    process.p_ECALDeadCellFilterTPBE = cms.Path(process.EcalDeadCellTriggerPrimitiveFilter*process.EcalDeadCellBoundaryEnergyFilter)
-    process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterTPBE' )
+    process.p_ECALDeadCellFilterBE = cms.Path(process.EcalDeadCellBoundaryEnergyFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_ECALDeadCellFilterBE' )
 
 def addTrackingFailureFilter ( process ):
-    
     process.goodVertices = cms.EDFilter(
         "VertexSelector",
         filter = cms.bool(False),
         src = cms.InputTag("offlinePrimaryVertices"),
         cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
     )
-           
     process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
     process.p_TrackingFailureFilter = cms.Path(process.goodVertices*process.trackingFailureFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_TrackingFailureFilter' )
@@ -59,18 +51,24 @@ def addMuonFailureFilter ( process ):
     process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
     process.p_MuonFailureFilter = cms.Path(process.greedyMuonPFCandidateFilter*process.inconsistentMuonPFCandidateFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_MuonFailureFilter' )
+
 def addKinematicsFilter( process ):
     process.load( 'GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi' )
-
     process.p_kinematicsfilter = cms.Path( process.totalKinematicsFilter )
     process.ACSkimAnalysis.filterlist.append( 'p_kinematicsfilter' )
 
 def addBadSuperCrystalFilter( process ):
-
     process.load('RecoMET.METFilters.eeBadScFilter_cfi')
     process.p_BadSuperCrystalFilter = cms.Path(process.eeBadScFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_BadSuperCrystalFilter' )
 
+def addHBHENoiseFilter( process ):
+    #see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
+    #process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+    ## The iso-based HBHE noise filter ___________________________________________||
+    process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
+    process.p_HBHENoiseFilter = cms.Path(process.HBHENoiseFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_HBHENoiseFilter' )
 
 process = cms.Process("ANA")
 
@@ -87,7 +85,7 @@ process = cms.Process("ANA")
 #~ IsPythiaShowered=@ISPYTHIASHOWERED@ 
 qscalehigh=-1.
 qscalelow=-1.
-isData=True
+isData=False
 tauSwitch=True
 IsPythiaShowered=False
 
@@ -101,11 +99,12 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
 #process.GlobalTag.globaltag = cms.string('START50_V15A::All')
-process.GlobalTag.globaltag = cms.string('START52_V7::All')
+#process.GlobalTag.globaltag = cms.string('START52_V7::All')
+process.GlobalTag.globaltag = cms.string('START53_V2::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -116,7 +115,7 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 
 # see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+#process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 
 # Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
 # see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
@@ -124,16 +123,16 @@ process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 
 #-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
-process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+#process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 #~ process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJets.doRhoFastjet = True
-process.ak5PFJets.doAreaFastjet = True
+#process.kt6PFJets.doRhoFastjet = True
+#process.ak5PFJets.doAreaFastjet = True
 
 
 
 #--This is a temporary fix for electrons
-process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
-process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
+#process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
+#process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
 
 
 #--To modify noPU needed for METnoPU -------------------------------------------
@@ -180,6 +179,8 @@ process.source = cms.Source("PoolSource",
 #    'file:/user/knutzen/CMSSW_Test_Source/444A67B8-3A84-E111-8AF9-003048F024C2.root']
 	#'/store/data/Run2012A/DoubleMu/AOD/PromptReco-v1/000/191/692/141FBBF6-6A8B-E111-B373-0025B324400C.root']
 	#'file:/.automount/home/home__home1/institut_3a/schneider/CMSSW_5_2_5/src/aachen3a/ACSusyAnalysis/test/pickevents.txt/RunA_900/crab_0_120522_113153/res/pickevents_1_1_9gb.root']
+	'file:/user/knutzen/RelVal_Source/RelVal532.root']
+	#'file:/disk1/pickevents_merged.root']
 	'file:/user/knutzen/CMSSW_Test_Source/TTJET_52_RelVal.root']
     #'file:/home/home1/institut_3a/knutzen/CMSSW_5_2_0/src/aachen3a/ACSusyAnalysis/test/sourceTest/Wprime1300Summer12_3.root']
     #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
@@ -318,6 +319,18 @@ IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
                                cms.InputTag('phoPFIso:nhIsoForGsfEle'))
 #it also requires to add phoPFIso in the path
 
+
+# photon
+# the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
+# which require the EGammaAnalysisTools photonIsoProducer from:
+#  cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
+process.phoPFIso.verbose = False
+IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
+                               cms.InputTag('phoPFIso:phIsoForGsfEle'),
+                               cms.InputTag('phoPFIso:nhIsoForGsfEle'))
+
+
 ################################
 ###                          ###
 ###  Analysis configuration  ###
@@ -349,8 +362,8 @@ genJetTag    = cms.InputTag("ak5GenJets")
 vtxTag         = cms.InputTag("offlinePrimaryVertices")
 reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB")
 reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE")
-ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
-#ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
+#ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
+ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
 
 # For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
 
@@ -481,10 +494,9 @@ process.p = cms.Path(
     filtersequence*
     #process.kt6PFJets * 
     #process.ak5PFJets *
-    process.gsfElectronsHEEPCorr*
+    #process.gsfElectronsHEEPCorr*
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
-    process.HBHENoiseFilterResultProducer*
     tausequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
@@ -493,11 +505,7 @@ process.p = cms.Path(
     process.phoIsoSequence*
     process.phoPFIso*
     process.kt6PFJetsForIsolation*
-    #~ process.pfMetPFnoPU*
-    #~ process.pfJetMETcorr*
-    #~ process.pfType1CorrectedMet
-   # process.pfType1CorrectedPFMet
-    #process.producePFMETCorrections*
+    process.producePFMETCorrections*
     process.pfMETType0*
     process.pfMETType1
     )
@@ -509,12 +517,14 @@ process.p = cms.Path(
     #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
-addCSCHaloFilter( process ) 
-addHCALLaserFilter( process ) 
-addECALDeadCellFilterTP( process ) 
-#addMuonFailureFilter( process ) 
+addCSCHaloFilter( process )
+addHCALLaserFilter( process )
+addECALDeadCellFilterTP( process )
+addECALDeadCellFilterBE( process )
+addMuonFailureFilter( process )
 addBadSuperCrystalFilter( process )
 addTrackingFailureFilter( process )
+addHBHENoiseFilter( process )
 
 if IsPythiaShowered:
     addKinematicsFilter( process )

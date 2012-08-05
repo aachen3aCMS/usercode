@@ -20,4 +20,10 @@
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="DataFormats/METReco"/>
 <use   name="PhysicsTools/JetMCUtils"/>
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/VertexPrimitives"/>
+<use   name="RecoVertex/KinematicFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
 <flags   EDM_PLUGIN="1"/>
