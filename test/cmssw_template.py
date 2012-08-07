@@ -85,7 +85,7 @@ process = cms.Process("ANA")
 #~ IsPythiaShowered=@ISPYTHIASHOWERED@ 
 qscalehigh=-1.
 qscalelow=-1.
-isData=False
+isData=True
 tauSwitch=True
 IsPythiaShowered=False
 
@@ -102,9 +102,9 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #~ process.GlobalTag.globaltag = cms.string('@GLOBALTAG@')
-#process.GlobalTag.globaltag = cms.string('START50_V15A::All')
+process.GlobalTag.globaltag = cms.string('GR_R_53_V8::All')
 #process.GlobalTag.globaltag = cms.string('START52_V7::All')
-process.GlobalTag.globaltag = cms.string('START53_V2::All')
+#process.GlobalTag.globaltag = cms.string('START53_V2::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-- PAT standard config -------------------------------------------------------
@@ -177,11 +177,10 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
 #    'file:/user/knutzen/CMSSW_Test_Source/444A67B8-3A84-E111-8AF9-003048F024C2.root']
-	#'/store/data/Run2012A/DoubleMu/AOD/PromptReco-v1/000/191/692/141FBBF6-6A8B-E111-B373-0025B324400C.root']
+	'/store/data/Run2012C/SingleMu/RAW-RECO/ZMu-Tier1PromptSkim-v3/000/199/435/00000/E2B486F1-5DD7-E111-ACBA-0030487C6A32.root']
 	#'file:/.automount/home/home__home1/institut_3a/schneider/CMSSW_5_2_5/src/aachen3a/ACSusyAnalysis/test/pickevents.txt/RunA_900/crab_0_120522_113153/res/pickevents_1_1_9gb.root']
-	'file:/user/knutzen/RelVal_Source/RelVal532.root']
+	#'file:/user/knutzen/RelVal_Source/RelVal532.root']
 	#'file:/disk1/pickevents_merged.root']
-	'file:/user/knutzen/CMSSW_Test_Source/TTJET_52_RelVal.root']
     #'file:/home/home1/institut_3a/knutzen/CMSSW_5_2_0/src/aachen3a/ACSusyAnalysis/test/sourceTest/Wprime1300Summer12_3.root']
     #'file:/user/thuer/RelVal_CMSSW_5_1_2_TTbar_AODSIM.root']
     #'/store/mc/Summer12/QCD_Pt-120to170_Tune4C_8TeV_pythia8/AODSIM/PU_S7_START50_V15-v1/0000/9C6A903E-846D-E111-AFEF-00261834B55C.root']
@@ -318,17 +317,6 @@ IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
                                cms.InputTag('phoPFIso:phIsoForGsfEle'),
                                cms.InputTag('phoPFIso:nhIsoForGsfEle'))
 #it also requires to add phoPFIso in the path
-
-
-# photon
-# the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
-# which require the EGammaAnalysisTools photonIsoProducer from:
-#  cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
-process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
-process.phoPFIso.verbose = False
-IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:phIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:nhIsoForGsfEle'))
 
 
 ################################

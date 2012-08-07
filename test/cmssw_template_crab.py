@@ -113,20 +113,20 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 
 # see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-#process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
+# process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
 
 # Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
 # see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 
-##-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
+#-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
 #process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-##~ process.load('RecoJets.Configuration.RecoPFJets_cff')
+#~ process.load('RecoJets.Configuration.RecoPFJets_cff')
 #process.kt6PFJets.doRhoFastjet = True
 #process.ak5PFJets.doAreaFastjet = True
 
-##--This is a temporary fix for electrons
+#--This is a temporary fix for electrons
 #process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
 #process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
 
@@ -299,17 +299,6 @@ IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
                                cms.InputTag('phoPFIso:nhIsoForGsfEle'))
 #it also requires to add phoPFIso in the path
 
-=======
-# photon
-# the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
-# which require the EGammaAnalysisTools photonIsoProducer from:
-#  cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
-process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
-process.phoPFIso.verbose = False
-IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:phIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:nhIsoForGsfEle'))
-#it also requires to add phoPFIso in the path
 
 
 ################################
@@ -470,6 +459,7 @@ process.ACSkimAnalysis = cms.EDFilter(
 ### Define the paths
 process.p = cms.Path(
     filtersequence*
+    #process.gsfElectronsHEEPCorr*
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     tausequence*

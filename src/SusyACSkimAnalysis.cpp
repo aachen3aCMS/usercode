@@ -536,7 +536,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
  
-<<<<<<< SusyACSkimAnalysis.cpp
 //   //~ // HBHE noise filter
 //   //~ // see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
 //    edm::Handle<bool> hcalnoiseFlag;
@@ -550,21 +549,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 //    else { 
 //      mTreenoiseHBHEFilterResult = (*hcalnoiseFlag)  ? 1 : 0;
 //    }
-=======
-  //~ // HBHE noise filter
-  //~ // see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-   edm::Handle<bool> hcalnoiseFlag;
-   iEvent.getByLabel("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult", hcalnoiseFlag);
-   if(!hcalnoiseFlag.isValid()) {
-     edm::LogWarning("SusyACSkimAnalysis") << " could not find HcalNoiseFlag.\n";
-     // true means event is not flagged as noise
-     mTreenoiseHBHEFilterResult = 1;
-   }
-   
-   else { 
-     mTreenoiseHBHEFilterResult = (*hcalnoiseFlag)  ? 1 : 0;
-   }
->>>>>>> 1.42
 
   
 
@@ -2191,7 +2175,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     mTreeNmuo = countmuo;
 
-  unsigned int max_muons=5;
+/*  unsigned int max_muons=5;
   for (unsigned int k=0; k<max_muons; k++){
 	for (unsigned int j=0; j<max_muons; j++){
 		mTreeDiMuonVertexValid[k][j]=-1.;
@@ -2224,7 +2208,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 				}
 			}
 		}
-
+*/
   }
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   // PF Muons
@@ -3495,7 +3479,7 @@ bool SusyACSkimAnalysis::isSUSY(int pdgid) {
     return false;
 }
 
-
+/*
 void SusyACSkimAnalysis::storeMuonVertex(
      reco::TrackRef trackref1,
      reco::TrackRef trackref2,
@@ -3548,7 +3532,7 @@ fitted_dimu->currentState().kinematicParametersError().matrix();
          }
 
      }
-}
+}*/
 
 
 bool SusyACSkimAnalysis::isStable(int pdgid) {
@@ -3685,11 +3669,7 @@ void SusyACSkimAnalysis::initPlots() {
   
   
   
-<<<<<<< SusyACSkimAnalysis.cpp
 //   mAllData->Branch("noise_HBHE_filter_result",        &mTreenoiseHBHEFilterResult, "noise_HBHE_filter_result/I");
-=======
-  mAllData->Branch("noise_HBHE_filter_result",        &mTreenoiseHBHEFilterResult, "noise_HBHE_filter_result/I");
->>>>>>> 1.42
   mAllData->Branch("eventfilter_n",        &mTreeNFilter, "eventfilter_n/I"); 
   mAllData->Branch("eventfilter_results",        mTreeFilterResults, "eventfilter_results[eventfilter_n]/I");
   mAllData->Branch("eventfilter_names",        mTreeFilterName, "eventfilter_names[eventfilter_n][20]/I");
@@ -4127,11 +4107,11 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_LostHits", mTreeMuoLostHits,"muo_LostHits[muo_n]/I");  
   mAllData->Branch("muo_LostHitsTk", mTreeMuoLostHitsTk,"muo_LostHits[muo_n]/I");  
   mAllData->Branch("muo_isPFMuon", mTreeMuoIsPF,"muo_isPFMuon[muo_n]/I");  
-
+/*
   mAllData->Branch("muo_DiMuonVertexValid", mTreeDiMuonVertexValid,"muo_DiMuonVertexValid[5][5]/I");
   mAllData->Branch("muo_DiMuonVertexNdf", mTreeDiMuonVertexNdf,"muo_DiMuonVertexNdf[5][5]/I");
   mAllData->Branch("muo_DiMuonVertexChi2", mTreeDiMuonVertexChi2,"muo_DiMuonVertexChi2[5][5]/double");
-  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[5][5]/double");
+  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[5][5]/double");*/
     
   mAllData->Branch("muo_Cocktail_pt",  mTreeMuoCocktailPt,  "muo_Cocktail_pt[muo_n]/double");   
   mAllData->Branch("muo_Cocktail_phi", mTreeMuoCocktailPhi, "muo_Cocktail_phi[muo_n]/double");

@@ -248,8 +248,7 @@ private:
      ":vals[7]/F:covMat[7]/F"
      ;}
 } _DimuVertexInfo;
-  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRef 
-trackref2,_DimuVertexInfo& storeVertInfo);
+//  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRefrackref2,_DimuVertexInfo& storeVertInfo);
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
 
 
@@ -627,11 +626,7 @@ trackref2,_DimuVertexInfo& storeVertInfo);
   double mTreePhoe1x5[100];
   double mTreePhoe3x3[100];
   double mTreePhoSwissCross[100];
-<<<<<<< SusyACSkimAnalysis.h
   int mTreePhohasMatchedPromptElectron[100];
-=======
-  int    mTreePhohasMatchedPromptElectron[100];
->>>>>>> 1.34
   double mTreePhoPFisoEG[100][3];
 
 
@@ -705,11 +700,7 @@ trackref2,_DimuVertexInfo& storeVertInfo);
   double mTreeEleEoverP[100];
   double mTreeEleECalEnergy[100];
   double mTreeEleTrackMomentumAtVtx[100];
-<<<<<<< SusyACSkimAnalysis.h
   int mTreeElehasMatchedConversion[100];
-=======
-  int    mTreeElehasMatchedConversion[100];
->>>>>>> 1.34
   double mTreeEleSCRawEt[100];
   double mTreeEleSCEt[100];
   //These can be deleted, when the ecal energy is fixed!!!
@@ -786,12 +777,12 @@ trackref2,_DimuVertexInfo& storeVertInfo);
   int    mTreeMuoIsPF[100];
 
   
-
+/*
 int mTreeDiMuonVertexValid[5][5];
 int mTreeDiMuonVertexNdf[5][5];
 double mTreeDiMuonVertexChi2[5][5];
 double mTreeDiMuonVertexMass[5][5];
-
+*/
 
 
   double mTreeMuoEt[100];
