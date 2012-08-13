@@ -2175,7 +2175,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     mTreeNmuo = countmuo;
 
-/*  unsigned int max_muons=5;
+  unsigned int max_muons=5;
   for (unsigned int k=0; k<max_muons; k++){
 	for (unsigned int j=0; j<max_muons; j++){
 		mTreeDiMuonVertexValid[k][j]=-1.;
@@ -2189,12 +2189,11 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     _DimuVertexInfo DiMuonVertexInfo;
     
     if (trackRefs.size() < max_muons) max_muons=trackRefs.size();
-      //~ for (unsigned int k=0; k<trackRefs.size(); k++){
-			//~ for (unsigned int j=0; j<trackRefs.size(); j++){
+    
       for (unsigned int k=0; k<max_muons; k++){
 			for (unsigned int j=0; j<max_muons; j++){
-				if(k<j && trackRefs[k].isNonnull()&& trackRefs[j].isNonnull()){
-// 					cout<< j<< "    "<<k<<endl;
+				if(k<j && trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon()){
+
 					SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
 					mTreeDiMuonVertexValid[k][j]=DiMuonVertexInfo.valid;
 					mTreeDiMuonVertexValid[j][k]=DiMuonVertexInfo.valid;
@@ -2208,7 +2207,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 				}
 			}
 		}
-*/
+
   }
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   // PF Muons
@@ -2904,7 +2903,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = metHandle->front().sumEt();
     mTreeMETphi[metn]      = metHandle->front().phi();
     mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = -1;
+    double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;
     
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = metHandle->front().CaloMETInmHF();
@@ -2957,7 +2961,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeSumET[metn]       = metHandle->front().sumEt();
       mTreeMETphi[metn]      = metHandle->front().phi();
       mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-      mTreeMETSignif[metn]   = -1;
+
+      double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
+      double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+      double significance = -1;
+	  if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
+
+      mTreeMETSignif[metn]   = significance;
       
       //calo spesific 
       mTreeMETCaloMETInmHF[metn]     = -1; //metHandle->front().CaloMETInmHF();
@@ -3004,7 +3014,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeSumET[metn]       = metHandle->front().sumEt();
       mTreeMETphi[metn]      = metHandle->front().phi();
       mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-      mTreeMETSignif[metn]   = -1;
+      double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
+	  double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+	  double significance = -1;
+		if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
+
+      mTreeMETSignif[metn]   = significance;
       
       //calo spesific 
       mTreeMETCaloMETInmHF[metn]     = -1; //metHandle->front().CaloMETInmHF();
@@ -3091,7 +3106,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeMETphi[metn]      = metHandle->front().phi();
     mTreeSumETSignif[metn] = metHandle->front().mEtSig();
     //if(metHandle->front().getSignificanceMatrix());
-    mTreeMETSignif[metn]   = metHandle->front().significance();
+    double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;
     
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = -1; //metHandle->front().CaloMETInmHF();
@@ -3138,8 +3158,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = metHandle->front().sumEt();
     mTreeMETphi[metn]      = metHandle->front().phi();
     mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = -1;
-    
+    double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;
+        
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = -1; //metHandle->front().CaloMETInmHF();
     mTreeMETCaloMETInpHF[metn]     = -1; //metHandle->front().CaloMETInpHF();
@@ -3187,8 +3212,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = PFmetHandle->front().sumEt();
     mTreeMETphi[metn]      = PFmetHandle->front().phi();
     mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = PFmetHandle->front().significance();
-    
+    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (PFmetHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;   
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = -1; //PFmetHandle->front().CaloMETInmHF();
     mTreeMETCaloMETInpHF[metn]     = -1; //PFmetHandle->front().CaloMETInpHF();
@@ -3235,8 +3264,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = PFmetHandle->front().sumEt();
     mTreeMETphi[metn]      = PFmetHandle->front().phi();
     mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = PFmetHandle->front().significance();
-    
+    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (PFmetHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance; 
+       
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = -1; //PFmetHandle->front().CaloMETInmHF();
     mTreeMETCaloMETInpHF[metn]     = -1; //PFmetHandle->front().CaloMETInpHF();
@@ -3285,8 +3319,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = PFmetHandle->front().sumEt();
     mTreeMETphi[metn]      = PFmetHandle->front().phi();
     mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = PFmetHandle->front().significance();
-    
+    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (PFmetHandle->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;   
     //calo spesific 
     mTreeMETCaloMETInmHF[metn]     = -1; //PFmetHandle->front().CaloMETInmHF();
     mTreeMETCaloMETInpHF[metn]     = -1; //PFmetHandle->front().CaloMETInpHF();
@@ -3315,6 +3353,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeMETType6EtFraction[metn]      = PFmetHandle->front().Type6EtFraction();
     mTreeMETType7EtFraction[metn]      = PFmetHandle->front().Type7EtFraction();
   }
+ 
   
   
   
@@ -3479,44 +3518,41 @@ bool SusyACSkimAnalysis::isSUSY(int pdgid) {
     return false;
 }
 
-/*
+
 void SusyACSkimAnalysis::storeMuonVertex(
      reco::TrackRef trackref1,
      reco::TrackRef trackref2,
      _DimuVertexInfo& storeVertInfo
 ){
-
-     std::vector<reco::TransientTrack> ttv; ttv.clear();
-     reco::TransientTrack ttrk1 = 
-(*transientTrackBuilder).build(*trackref1);
-       reco::TransientTrack ttrk2 = 
-(*transientTrackBuilder).build(*trackref2);
+	storeVertInfo.valid=0;
+	storeVertInfo.ndf=0;
+	storeVertInfo.chi2=9999;
+	for (int i = 0; i < 7; ++i){
+		storeVertInfo.covMat[i] = -1;
+				 storeVertInfo.vals[i] = -1;
+	}
+       std::vector<reco::TransientTrack> ttv; ttv.clear();
+       reco::TransientTrack ttrk1 = (*transientTrackBuilder).build(*trackref1);
+       reco::TransientTrack ttrk2 = (*transientTrackBuilder).build(*trackref2);
        ttv.push_back(ttrk1);
        ttv.push_back(ttrk2);
 
-//
-//
-//
        std::vector<RefCountedKinematicParticle> rckpVec;
        KinematicParticleFactoryFromTransientTrack pfactory;
        float m_sigma = 0.0000001;
        for (size_t i = 0; i < 2; ++i) {
-         rckpVec.push_back(pfactory.particle(ttv[i], 0.1056583, 0., 0., 
-m_sigma));
-     }
+         rckpVec.push_back(pfactory.particle(ttv[i], 0.1056583, 0., 0., m_sigma));
+	   }
 
        KinematicParticleVertexFitter fitter;
        RefCountedKinematicTree tree = fitter.fit(rckpVec);
 
-     storeVertInfo.valid=0;
+      storeVertInfo.valid=0;
        if (tree->isValid()) {
-         tree->movePointerToTheTop();
-         RefCountedKinematicParticle fitted_dimu     = 
-tree->currentParticle();
-         const AlgebraicVector7& params                 = 
-fitted_dimu->currentState().kinematicParameters().vector();
-         const AlgebraicSymMatrix77& covmat = 
-fitted_dimu->currentState().kinematicParametersError().matrix();
+		            tree->movePointerToTheTop();
+					RefCountedKinematicParticle fitted_dimu  = tree->currentParticle();
+					const AlgebraicVector7& params   = fitted_dimu->currentState().kinematicParameters().vector();
+					const AlgebraicSymMatrix77& covmat = fitted_dimu->currentState().kinematicParametersError().matrix();
          //~ double dimuMass         = params(6);
          //~ double dimuMassErr         = sqrt(covmat(6,6));
          //~ std::cout<<"constrained mass: "<<dimuMass<<" +/- "<<dimuMassErr<<std::endl;
@@ -3532,7 +3568,7 @@ fitted_dimu->currentState().kinematicParametersError().matrix();
          }
 
      }
-}*/
+}
 
 
 bool SusyACSkimAnalysis::isStable(int pdgid) {
@@ -4107,11 +4143,11 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_LostHits", mTreeMuoLostHits,"muo_LostHits[muo_n]/I");  
   mAllData->Branch("muo_LostHitsTk", mTreeMuoLostHitsTk,"muo_LostHits[muo_n]/I");  
   mAllData->Branch("muo_isPFMuon", mTreeMuoIsPF,"muo_isPFMuon[muo_n]/I");  
-/*
+
   mAllData->Branch("muo_DiMuonVertexValid", mTreeDiMuonVertexValid,"muo_DiMuonVertexValid[5][5]/I");
   mAllData->Branch("muo_DiMuonVertexNdf", mTreeDiMuonVertexNdf,"muo_DiMuonVertexNdf[5][5]/I");
   mAllData->Branch("muo_DiMuonVertexChi2", mTreeDiMuonVertexChi2,"muo_DiMuonVertexChi2[5][5]/double");
-  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[5][5]/double");*/
+  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[5][5]/double");
     
   mAllData->Branch("muo_Cocktail_pt",  mTreeMuoCocktailPt,  "muo_Cocktail_pt[muo_n]/double");   
   mAllData->Branch("muo_Cocktail_phi", mTreeMuoCocktailPhi, "muo_Cocktail_phi[muo_n]/double");

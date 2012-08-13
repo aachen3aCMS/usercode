@@ -499,6 +499,11 @@ class TreeContent {
    Double_t        muo_PFCand_phi[100];   //[muo_n]
    Int_t           muo_PFCand_pfid[100];   //[muo_n]
    Double_t        muo_PFCand_DeltaR[100];   //[muo_n]
+   Int_t  		   muo_DiMuonVertexValid[5][5];
+   Int_t  		   muo_DiMuonVertexNdf[5][5];
+   Double_t 	   muo_DiMuonVertexChi2[5][5];
+   Double_t 	   muo_DiMuonVertexMass[5][5];
+   
    Int_t           PFmuo_n;
    Double_t        PFmuo_p[100];   //[PFmuo_n]
    Double_t        PFmuo_pt[100];   //[PFmuo_n]
@@ -1041,6 +1046,10 @@ class TreeContent {
    TBranch        *b_muo_PFCand_phi;   //!
    TBranch        *b_muo_PFCand_pfid;   //!
    TBranch        *b_muo_PFCand_DeltaR;   //!
+   TBranch  	  *b_muo_DiMuonVertexValid;
+   TBranch  	  *b_muo_DiMuonVertexNdf;
+   TBranch 		  *b_muo_DiMuonVertexChi2;
+   TBranch 		  *b_muo_DiMuonVertexMass;   
    TBranch        *b_PFmuo_n;   //!
    TBranch        *b_PFmuo_p;   //!
    TBranch        *b_PFmuo_pt;   //!
@@ -1655,6 +1664,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_PFCand_phi", muo_PFCand_phi, &b_muo_PFCand_phi);
    fChain->SetBranchAddress("muo_PFCand_pfid", muo_PFCand_pfid, &b_muo_PFCand_pfid);
    fChain->SetBranchAddress("muo_PFCand_DeltaR", muo_PFCand_DeltaR, &b_muo_PFCand_DeltaR);
+   fChain->SetBranchAddress("muo_DiMuonVertexValid", muo_DiMuonVertexValid, &b_muo_DiMuonVertexValid);
+   fChain->SetBranchAddress("muo_DiMuonVertexNdf", muo_DiMuonVertexNdf, &b_muo_DiMuonVertexNdf);
+   fChain->SetBranchAddress("muo_DiMuonVertexChi2", muo_DiMuonVertexChi2, &b_muo_DiMuonVertexChi2);
+   fChain->SetBranchAddress("muo_DiMuonVertexMass", muo_DiMuonVertexMass, &b_muo_DiMuonVertexMass);   
    fChain->SetBranchAddress("PFmuo_n", &PFmuo_n, &b_PFmuo_n);
    fChain->SetBranchAddress("PFmuo_p", PFmuo_p, &b_PFmuo_p);
    fChain->SetBranchAddress("PFmuo_pt", PFmuo_pt, &b_PFmuo_pt);

@@ -248,7 +248,7 @@ private:
      ":vals[7]/F:covMat[7]/F"
      ;}
 } _DimuVertexInfo;
-//  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRefrackref2,_DimuVertexInfo& storeVertInfo);
+  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRefrackref2,_DimuVertexInfo& storeVertInfo);
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
 
 
@@ -777,12 +777,11 @@ private:
   int    mTreeMuoIsPF[100];
 
   
-/*
-int mTreeDiMuonVertexValid[5][5];
-int mTreeDiMuonVertexNdf[5][5];
-double mTreeDiMuonVertexChi2[5][5];
-double mTreeDiMuonVertexMass[5][5];
-*/
+  int mTreeDiMuonVertexValid[5][5];
+  int mTreeDiMuonVertexNdf[5][5];
+  double mTreeDiMuonVertexChi2[5][5];
+  double mTreeDiMuonVertexMass[5][5];
+
 
 
   double mTreeMuoEt[100];
