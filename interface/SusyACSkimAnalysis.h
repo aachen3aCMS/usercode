@@ -248,7 +248,7 @@ private:
      ":vals[7]/F:covMat[7]/F"
      ;}
 } _DimuVertexInfo;
-  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRefrackref2,_DimuVertexInfo& storeVertInfo);
+  void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRef trackref2,_DimuVertexInfo& storeVertInfo);
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
 
 
