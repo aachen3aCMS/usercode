@@ -92,6 +92,7 @@ class TreeContent {
    Int_t           pu_n;
    Int_t           pu_vtxn;
    Int_t           pu_num_int[3];   //[pu_n]
+   Double_t        pu_TrueNrInter;
    Double_t        pu_inst_Lumi[3][100];   //[pu_n]
    Double_t        pu_zPos[3][100];   //[pu_n]
    Double_t        pu_sumPthi[3][100];   //[pu_n]
@@ -112,9 +113,8 @@ class TreeContent {
    Int_t           noise_ecal_flag;
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
-   Bool_t          noise_HBHE_filter_result;
    Int_t           eventfilter_n;
-   Bool_t          eventfilter_results[100];   //[eventfilter_n]
+   Int_t           eventfilter_results[100];   //[eventfilter_n]
    Int_t           eventfilter_names[100][20];   //[eventfilter_n]
    Int_t           trig_HLTName[20];
    Int_t           trig_n;
@@ -314,6 +314,7 @@ class TreeContent {
    Double_t        pho_e1x5[100];   //[pho_n]
    Double_t        pho_e3x3[100];   //[pho_n]
    Double_t        pho_HCalOverEm[100];   //[pho_n]
+   Double_t        pho_HTowOverEm[100];   //[pho_n]
    Int_t           pho_isPF[100];   //[pho_n]
    Double_t        pho_EcaloIso[100];   //[pho_n]
    Double_t        pho_HcaloIso[100];   //[pho_n]
@@ -325,7 +326,7 @@ class TreeContent {
    Double_t        pho_SCEtaWidth[100];   //[pho_n]
    Int_t           pho_HasPixelSeed[100];   //[pho_n]
    Int_t           pho_HasConvTracks[100];   //[pho_n]
-   Bool_t          pho_HasMatchedPromptElectron[100];   //[pho_n]
+   Int_t          pho_HasMatchedPromptElectron[100];   //[pho_n]
    Int_t           ele_n;
    Double_t        ele_E[100];   //[ele_n]
    Double_t        ele_Et[100];   //[ele_n]
@@ -393,8 +394,9 @@ class TreeContent {
    Double_t        ele_SwissCross[100];   //[ele_n]
    Double_t        ele_EoverP[100];   //[ele_n]
    Int_t           ele_Classification[100];   //[ele_n]
-   Bool_t          ele_HasMatchedConversions[100];   //[ele_n]
-   Bool_t          ele_SCRawEt[100];   //[ele_n]
+   Int_t           ele_HasMatchedConversions[100];   //[ele_n]
+   Double_t        ele_SCRawEt[100];   //[ele_n]
+   Double_t        ele_SCEt[100];   //[ele_n] 
    Int_t           pfele_n;
    Double_t        pfele_p[100];   //[pfele_n]
    Double_t        pfele_E[100];   //[pfele_n]
@@ -481,6 +483,10 @@ class TreeContent {
    Int_t           muo_LostHits[100];   //[muo_n]
    Int_t           muo_LostHitsTk[100];   //[muo_n]
    Int_t           muo_isPFMuon[100];   //[muo_n]
+   Int_t           muo_DiMuonVertexValid[100][100];
+   Int_t           muo_DiMuonVertexNdf[100][100];
+   Double_t        muo_DiMuonVertexChi2[100][100];
+   Double_t        muo_DiMuonVertexMass[100][100];
    Double_t        muo_Cocktail_pt[100];   //[muo_n]
    Double_t        muo_Cocktail_phi[100];   //[muo_n]
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
@@ -861,6 +867,7 @@ class TreeContent {
    TBranch        *b_pho_e1x5;   //!
    TBranch        *b_pho_e3x3;   //!
    TBranch        *b_pho_HCalOverEm;   //!
+   TBranch        *b_pho_HTowOverEm; 
    TBranch        *b_pho_isPF;   //!
    TBranch        *b_pho_EcaloIso;   //!
    TBranch        *b_pho_HcaloIso;   //!
@@ -942,6 +949,7 @@ class TreeContent {
    TBranch        *b_ele_Classification;   //!
    TBranch        *b_ele_HasMatchedConversions;   //!
    TBranch        *b_ele_SCRawEt;   //!
+   TBranch        *b_ele_SCRawEt;  //!
    TBranch        *b_pfele_n;   //!
    TBranch        *b_pfele_p;   //!
    TBranch        *b_pfele_E;   //!
@@ -1028,6 +1036,10 @@ class TreeContent {
    TBranch        *b_muo_LostHits;   //!
    TBranch        *b_muo_LostHitsTk;   //!
    TBranch        *b_muo_isPFMuon;   //!
+   TBranch        *b_muo_DiMuonVertexValid;   //!
+   TBranch        *b_muo_DiMuonVertexNdf;   //!
+   TBranch        *b_muo_DiMuonVertexChi2;   //!
+   TBranch        *b_muo_DiMuonVertexMass;   //!     
    TBranch        *b_muo_Cocktail_pt;   //!
    TBranch        *b_muo_Cocktail_phi;   //!
    TBranch        *b_muo_Cocktail_eta;   //!
@@ -1256,6 +1268,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("lumi_recerr", &lumi_recerr, &b_lumi_recerr);
    fChain->SetBranchAddress("pu_n", &pu_n, &b_pu_n);
    fChain->SetBranchAddress("pu_vtxn", &pu_vtxn, &b_pu_vtxn);
+   fChain->SetBranchAddress("pu_TrueNrInter", &pu_TrueNrInter, &b_pu_TrueNrInter);
    fChain->SetBranchAddress("pu_num_int", pu_num_int, &b_pu_num_int);
    fChain->SetBranchAddress("pu_inst_Lumi", pu_inst_Lumi, &b_pu_inst_Lumi);
    fChain->SetBranchAddress("pu_zPos", pu_zPos, &b_pu_zPos);
@@ -1277,7 +1290,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("noise_ecal_flag", &noise_ecal_flag, &b_noise_ecal_flag);
    fChain->SetBranchAddress("noise_ecal_ieta", &noise_ecal_ieta, &b_noise_ecal_ieta);
    fChain->SetBranchAddress("noise_ecal_iphi", &noise_ecal_iphi, &b_noise_ecal_iphi);
-   fChain->SetBranchAddress("noise_HBHE_filter_result", &noise_HBHE_filter_result, &b_noise_HBHE_filter_result);
    fChain->SetBranchAddress("eventfilter_n", &eventfilter_n, &b_eventfilter_n);
    fChain->SetBranchAddress("eventfilter_results", eventfilter_results, &b_eventfilter_results);
    fChain->SetBranchAddress("eventfilter_names", eventfilter_names, &b_eventfilter_names);
@@ -1479,6 +1491,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("pho_e1x5", pho_e1x5, &b_pho_e1x5);
    fChain->SetBranchAddress("pho_e3x3", pho_e3x3, &b_pho_e3x3);
    fChain->SetBranchAddress("pho_HCalOverEm", pho_HCalOverEm, &b_pho_HCalOverEm);
+   fChain->SetBranchAddress("pho_HTowOverEm", pho_HTowOverEm, &b_pho_HTowOverEm);
    fChain->SetBranchAddress("pho_isPF", pho_isPF, &b_pho_isPF);
    fChain->SetBranchAddress("pho_EcaloIso", pho_EcaloIso, &b_pho_EcaloIso);
    fChain->SetBranchAddress("pho_HcaloIso", pho_HcaloIso, &b_pho_HcaloIso);
@@ -1560,6 +1573,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("ele_Classification", ele_Classification, &b_ele_Classification);
    fChain->SetBranchAddress("ele_HasMatchedConversions", ele_HasMatchedConversions, &b_ele_HasMatchedConversions);
    fChain->SetBranchAddress("ele_SCRawEt", ele_SCRawEt, &b_ele_SCRawEt);
+   fChain->SetBranchAddress("ele_SCEt", ele_SCEt, &b_ele_SCEt);
    fChain->SetBranchAddress("pfele_n", &pfele_n, &b_pfele_n);
    fChain->SetBranchAddress("pfele_p", &pfele_p, &b_pfele_p);
    fChain->SetBranchAddress("pfele_E", &pfele_E, &b_pfele_E);
@@ -1646,6 +1660,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_LostHits", muo_LostHits, &b_muo_LostHits);
    fChain->SetBranchAddress("muo_LostHitsTk", muo_LostHitsTk, &b_muo_LostHitsTk);
    fChain->SetBranchAddress("muo_isPFMuon", muo_isPFMuon, &b_muo_isPFMuon);
+   fChain->SetBranchAddress("muo_DiMuonVertexValid", muo_DiMuonVertexValid, &b_muo_DiMuonVertexValid);
+   fChain->SetBranchAddress("muo_DiMuonVertexNdf", muo_DiMuonVertexNdf, &b_muo_DiMuonVertexNdf);
+   fChain->SetBranchAddress("muo_DiMuonVertexChi2", muo_DiMuonVertexChi2, &b_muo_DiMuonVertexChi2);
+   fChain->SetBranchAddress("muo_DiMuonVertexMass", muo_DiMuonVertexMass, &b_muo_DiMuonVertexMass);  
    fChain->SetBranchAddress("muo_Cocktail_pt", muo_Cocktail_pt, &b_muo_Cocktail_pt);
    fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);

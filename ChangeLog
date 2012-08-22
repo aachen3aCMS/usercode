@@ -1,4 +1,7 @@
 <<<<<<< ChangeLog
+2012-08-22 Simon Knutzen <knutzen -at- physik.rwth-aachen.de>
+	*TreeContent.h updated
+
 2012-08-05 Simon Knutzen <knutzen -at- physik.rwth-aachen.de>
 	*new Dimuon varibles
 	*new photon isolation

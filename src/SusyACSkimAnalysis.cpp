@@ -4284,7 +4284,6 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_GenJet_Mt",mTreeTauGenJetMt,"tau_GenJet_Mt[tau_n]/double");
   mAllData->Branch("tau_GenJet_P", mTreeTauGenJetP, "tau_GenJet_P[tau_n]/double"); 
   mAllData->Branch("tau_GenJet_Pt",mTreeTauGenJetPt,"tau_GenJet_Pt[tau_n]/double");
-  mAllData->Branch("tau_GenJet_Et", mTreeTauGenJetEt, "tau_GenJet_Et[tau_n]/double"); 
   mAllData->Branch("tau_GenJet_Px", mTreeTauGenJetPx, "tau_GenJet_Px[tau_n]/double"); 
   mAllData->Branch("tau_GenJet_Py",mTreeTauGenJetPy,"tau_GenJet_Py[tau_n]/double");
   mAllData->Branch("tau_GenJet_Pz", mTreeTauGenJetPz, "tau_GenJet_Pz[tau_n]/double"); 
