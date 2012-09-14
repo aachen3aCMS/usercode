@@ -77,10 +77,9 @@ isData=@ISDATA@
 qscalehigh=@QSCALE_LOW@
 qscalelow=@QSCALE_HIGH@
 tauSwitch=@DOTAU@
-calojetSwitch=@DOCALOJETS@
+pfeleSwitch=@DOPFELE@
 Pythia8Switch=@PYTHIA8@
 SherpaSwitch=@SHERPA@
-FastJetsSwitch=@FASTJET@
 MatchAllSwitch=@MATCHALL@
 SusyParSwith=@SUSYPAR@
 IsPythiaShowered=@ISPYTHIASHOWERED@
@@ -171,10 +170,9 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 # Input file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
-    #'/store/mc/Fall11/DYToMuMu_M-10To20_CT10_TuneZ2_7TeV-powheg-pythia/AODSIM/PU_S6-START44_V5-v1/0000/864538D3-E5FB-E011-B5D2-00266CF275E0.root']
-    'file:/.automount/home/home__home1/institut_3a/schneider/CMSSW_5_2_5/src/aachen3a/ACSusyAnalysis/test/pickevents.txt/RunA_900/crab_0_120522_113153/res/pickevents_1_1_9gb.root']
-    #~ 'file:/home/home1/institut_3a/jschulte/CMSSW_4_4_2_patch6/src/aachen3a/ACSusyAnalysis/test/pickevents_merged44_2011B.root']
-    ),
+#    'file:///user/mweber/AODSIM/DoubleMu+Run2012A-13Jul2012-v1.root',
+    'file:///user/mweber/AODSIM/Summer12_DR53X+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph.root'
+    ]),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 process.maxEvents = cms.untracked.PSet(
@@ -202,6 +200,12 @@ else:
      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
 
 
+process.load("PhysicsTools/PatAlgos/patSequences_cff")
+
+from PhysicsTools.PatAlgos.tools.tauTools import *
+switchToPFTauHPS(process)
+
+
 # switch on PAT trigger
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger(process)
@@ -222,6 +226,7 @@ process.kt6PFJetsPFlow = kt4PFJets.clone(
     doRhoFastjet = cms.bool(True)
     )
 
+# https://twiki.cern.ch/twiki/bin/view/CMS/EgammaEARhoCorrection Rho Computation for Electrons
 process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
 process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
@@ -291,7 +296,9 @@ else:
 # photon
 # the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
 # which require the EGammaAnalysisTools photonIsoProducer from:
-#  cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+# cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+# cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
+# cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc 
 process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
 process.phoPFIso.verbose = False
 IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
@@ -313,11 +320,10 @@ elecTag         = cms.InputTag("patElectrons")
 pfelecTag      = cms.InputTag("patElectronsPFlow")
 gsfelecTag         = cms.InputTag("gsfElectrons")
 photonTag         = cms.InputTag("patPhotons")
-calojetTag     = cms.InputTag("patJetsAK5Calo")
 pfjetTag        = cms.InputTag("patJetsPFlow")
 muonTag      = cms.InputTag("patMuons")
 PFmuonTag  = cms.InputTag("selectedPatMuonsPFlow")
-tauTag         = cms.InputTag("patTausPFlow")
+tauTag         = cms.InputTag("patTaus")
 metTag        = cms.InputTag("patMETs")
 metTagTC    = cms.InputTag("patMETsTC")
 metTagPF    = cms.InputTag("patMETsPFlow")
@@ -333,7 +339,9 @@ vtxTag         = cms.InputTag("offlinePrimaryVertices")
 reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB")
 reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE")
 #ebhitsTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB");  # RECO
-ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB");   # AOD
+ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB")   # AOD
+HLTInputTag = cms.InputTag('TriggerResults','','HLT')
+TriggerSummaryTag = cms.InputTag('hltTriggerSummaryAOD',"","HLT")
 
 # For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
 
@@ -366,11 +374,10 @@ process.ACSkimAnalysis = cms.EDFilter(
     is_MC      = cms.bool(not isData),  # set to 'False' for real Data !
     is_PYTHIA8 = cms.bool(Pythia8Switch),  # set to 'True' if running on PYTHIA8
     is_SHERPA  = cms.bool(SherpaSwitch),  # set to 'True' if running on SHERPA
-    do_fatjets = cms.bool(FastJetsSwitch),  # set to 'True' for fat jets
     matchAll   = cms.bool(MatchAllSwitch),  # if True all truth leptons are matched else only ele and mu
     susyPar    = cms.bool(SusyParSwith),
-    doCaloJet  = cms.bool(calojetSwitch),
     doTaus     = cms.bool(tauSwitch),
+    doPFele    = cms.bool(pfeleSwitch),
 
     # This is used to access the results of all filters that ran.
     #
@@ -382,7 +389,6 @@ process.ACSkimAnalysis = cms.EDFilter(
             )
         ),
 
-    calojetTag = calojetTag,
     pfjetTag   = pfjetTag,
     elecTag    = elecTag,
     gsfelecTag    = gsfelecTag,
@@ -405,6 +411,8 @@ process.ACSkimAnalysis = cms.EDFilter(
     ebhitsTag  = ebhitsTag,
     reducedBarrelRecHitCollection = reducedBarrelRecHitCollection,
     reducedEndcapRecHitCollection = reducedEndcapRecHitCollection,
+    HLTInputTag = HLTInputTag,
+    TriggerSummaryTag = TriggerSummaryTag,
 
 	IsoDepElectron = IsoDepElectron,
 	IsoValElectronPF = IsoValElectronPF,
@@ -423,8 +431,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     phoeta     = cms.double(@PHOETA@),
     pfelept    = cms.double(@PFELEPT@),
     pfeleeta   = cms.double(@PFELEETA@),
-    calojetpt  = cms.double(@CALOJETPT@),
-    calojeteta = cms.double(@CALOJETETA@),
     pfjetpt    = cms.double(@PFJETPT@),
     pfjeteta   = cms.double(@PFJETETA@),
     taupt      = cms.double(@TAUPT@),
@@ -436,7 +442,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     npho       = cms.int32(@NPHO@),
     npfele     = cms.int32(@NPFELE@),
     nmuo       = cms.int32(@NMUO@),
-    ncalojet   = cms.int32(@NCALOJET@),
     npfjet     = cms.int32(@NPFJET@),
     ntau       = cms.int32(@NTAU@),
     htc        = cms.double(@HTC@),

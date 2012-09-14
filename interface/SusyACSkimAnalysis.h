@@ -21,6 +21,8 @@
 #include <TNtuple.h>
 #include <TH1F.h>
 #include <TVector3.h>
+#include <TStopwatch.h>
+#include <TLorentzVector.h>
 
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,7 +35,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
@@ -49,7 +50,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -57,7 +57,6 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -69,14 +68,13 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-
-#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
-
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
@@ -86,17 +84,13 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "aachen3a/ACSusyAnalysis/interface/TriggerTools.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
-
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 
 //  Vertexing
@@ -109,16 +103,11 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 // particle vertex
-//
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-
 
 using namespace std;
 using namespace pat;
@@ -138,7 +127,8 @@ private:
   /// Called once per job, at start
   virtual void beginJob();
   /// Called once per run, at start
-  virtual void beginMyRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  
   /// Called for each event
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   /// Called once per job, at end
@@ -157,16 +147,13 @@ private:
   virtual void initPlots();
 
   double DeltaPhi(double a, double b);
-  double DeltaR(double a, double b, double c, double d);
-  //~ bool SortEleRefs(pat::ElectronRef& a, pat::ElectronRef& b); 
-  //~ bool SortInt(int a, int b); 
+  double DeltaR(double a, double b, double c, double d); 
   
-
 private:
-
-  // Plots
+  // Tree
   TTree * mAllData; // Will contain the SUSY-AC specific data
 
+  // Histograms
   TH1F* h_counters;
 
   HLTConfigProvider hltConfig_;
@@ -174,28 +161,37 @@ private:
   L1GtUtils l1GtUtils_;
   int l1error;
 
-	//structs for getting filter informations inside the Skimmer. Shamelessly stolen from MUSiC
+  //structs for getting filter informations inside the Skimmer. Shamelessly stolen from MUSiC
 
-   struct FilterDef {
-      std::string name;
-      unsigned int ID;
-      bool active;
-   };
+  struct FilterDef {
+    std::string name;
+    unsigned int ID;
+    bool active;
+  };
 
 
-   struct FilterResult {
-      std::string   name;
-      std::string   process;
-      edm::InputTag results;
-      edm::InputTag event;
-      HLTConfigProvider config;
-      std::vector< std::string > filter_names;
-      std::vector< FilterDef > filter_infos;
-   };
-   std::vector< FilterResult > filters;
+  struct FilterResult {
+    std::string   name;
+    std::string   process;
+    edm::InputTag results;
+    edm::InputTag event;
+    HLTConfigProvider config;
+    std::vector< std::string > filter_names;
+    std::vector< FilterDef > filter_infos;
+  };
+  std::vector< FilterResult > filters;
+  
+  // Timing
+  // TStopwatch timer1;
+  // TStopwatch timer2;
+  // TStopwatch timer3;
+  // TStopwatch timer4;
+  // TStopwatch timer5;
+  // TStopwatch timer6;
+  // TStopwatch timer7;
+  // TStopwatch timer8;
 
   // Data tags
-  edm::InputTag calojetTag_;
   edm::InputTag pfjetTag_;
   edm::InputTag metTag_;
   edm::InputTag metTagPF_;
@@ -205,7 +201,6 @@ private:
   edm::InputTag gsfelecTag_;
   edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
-  edm::InputTag PFmuonTag_;
   edm::InputTag tauSrc_;
   edm::InputTag metTagPFnoPU_;
   edm::InputTag metTagJPFnoPUType1_ ;
@@ -218,16 +213,18 @@ private:
   edm::InputTag ebhitsTag_;
   edm::InputTag freducedBarrelRecHitCollection_;
   edm::InputTag freducedEndcapRecHitCollection_;
-  edm::InputTag IsoDepElectron;
-  edm::InputTag IsoValElectronPF;
-  edm::InputTag IsoDepPhoton;
+//  edm::InputTag IsoDepElectron;
+//  edm::InputTag IsoValElectronPF;
+//  edm::InputTag IsoDepPhoton;
   edm::InputTag IsoValPhotonPF;
+  edm::InputTag   hltInputTag_;
+  edm::InputTag   TriggerSummary_;
   
   
-  std::vector<edm::InputTag> inputTagIsoDepElectrons_;
-  std::vector<edm::InputTag> inputTagIsoDepPhotons_;
+  //std::vector<edm::InputTag> inputTagIsoDepElectrons_;
+  //std::vector<edm::InputTag> inputTagIsoDepPhotons_;
   //  std::vector<edm::InputTag> inputTagIsoValElectronsNoPFId_;
-  std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
+  //std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
   //~ std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
   std::vector<edm::InputTag> inputTagIsoValPhotonsPFId_;     
 
@@ -235,33 +232,30 @@ private:
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 
 
-   typedef struct{
-     int valid;
-     double chi2;
-     int ndf;
-     double covMat[7];
-     double vals[7];
-
-     static std::string contents(){return
-     "valid/I"
-     ":chi2/F:ndf/I"
-     ":vals[7]/F:covMat[7]/F"
-     ;}
-} _DimuVertexInfo;
+  typedef struct{
+    int valid;
+    double chi2;
+    int ndf;
+    double covMat[7];
+    double vals[7];
+     
+    static std::string contents(){return
+	"valid/I"
+	":chi2/F:ndf/I"
+	":vals[7]/F:covMat[7]/F"
+	;}
+  } _DimuVertexInfo;
+  
   void storeMuonVertex(reco::TrackRef trackref1,reco::TrackRef trackref2,_DimuVertexInfo& storeVertInfo);
   edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
-
-
 
   bool is_PYTHIA8;
   bool is_MC;
   bool is_SHERPA;
-  bool do_fatjets;
   bool matchAll_;
   bool susyPar_;
-  bool doCaloJet_;
   bool doTaus_;
-  //bool beamScaping_;
+  bool doPFele_;
 
   std::string btag_;
   std::string processName_; 
@@ -291,7 +285,7 @@ private:
   isoContainer *muIsoFromDepsValueMap_;
 
   TString ACmuonID[24];
-  TString ACtauID[18];
+  TString ACtauID[31];
 
   double _jeta[100];
   double _jphi[100];
@@ -302,7 +296,6 @@ private:
   int nele_;
   int npfele_;
   int nmuo_;
-  int ncalojet_;
   int npfjet_;
   int ntau_;
   double muoptfirst_;
@@ -314,8 +307,6 @@ private:
   double eleeta_;
   double pfelept_;
   double pfeleeta_;
-  double calojetpt_;
-  double calojeteta_;
   double pfjetpt_;
   double pfjeteta_;
   double metcalo_;
@@ -340,7 +331,6 @@ private:
   int cele_;
   int cpfele_;
   int cmuo_;
-  int ccalojet_;
   int cpfjet_;
   int ctau_;
 
@@ -404,7 +394,7 @@ private:
   Bool_t IsPythiaFiltered;
   int mTreeNFilter; 
   int mTreeFilterResults[100];
-  int mTreeFilterName[100][20];
+  vector<string> mTreeFilterName;
 
     
   int nTreePileUp;
@@ -418,15 +408,17 @@ private:
   double mTreePUsumPtlo[3][100];
 
   double mTreePUTrueNrInter; 
-
-  int mTreetrighltname[20];
   
   enum { nMaxTrigger = 7000 };
   int mTreeNtrig;
+  vector<string> mTreetrigname;
   int mTreetrigL1pre[nMaxTrigger];
   int mTreetrigHLTpre[nMaxTrigger];
-  int mTreetrigname[nMaxTrigger][20];
-  int mTreefiltname[nMaxTrigger][20];
+  
+  int mTreeNtrigFilter;
+  vector<string> mTreefiltname;
+  int mTreetrigid[nMaxTrigger];
+  int mTreetrigFiltern[nMaxTrigger];
   double mTreetrigpt[nMaxTrigger];
   double mTreetrigeta[nMaxTrigger];
   double mTreetrigphi[nMaxTrigger];
@@ -503,29 +495,6 @@ private:
   float mTreepdff2;
   float mTreepdfscale;
 
-  int    mTreeNCalojet;
-  int    mTreeCaloJetTruth[100];
-  int    mTreeCaloJetPart[100];
-  int    mTreeCaloJetConst[100];
-  int    mTreeCaloJetn90[100];
-  int    mTreeCaloJetn90hits[100];
-  int    mTreeCaloJetID[100];
-  double mTreeCaloJetEt[100];
-  double mTreeCaloJetPt[100];
-  double mTreeCaloJetPtRaw[100];
-  double mTreeCaloJetP[100];
-  double mTreeCaloJetPx[100];
-  double mTreeCaloJetPy[100];
-  double mTreeCaloJetPz[100];
-  double mTreeCaloJetE[100];
-  double mTreeCaloJetEta[100];
-  double mTreeCaloJetPhi[100];
-  double mTreeCaloJetFem[100];
-  double mTreeCaloJetFhad[100];
-  double mTreeCaloJetBtag[100];
-  double mTreeCaloJetCharge[100];
-  double mTreeCaloJetfhpd[100];
-  double mTreeCaloJetfrbx[100];
 
   int    mTreeNPFjet;
   int    mTreePFJetTruth[100];
@@ -558,41 +527,15 @@ private:
   double mTreetruthJetEta[100];
   double mTreetruthJetPhi[100];
 
-  int    mTreeNfatjet;
-  int    mTreefatjetnsub[100];
-  double mTreefatjetpt[100];
-  double mTreefatjetpx[100];
-  double mTreefatjetpy[100];
-  double mTreefatjetpz[100];
-  double mTreefatjete[100];
-  double mTreefatjeteta[100];
-  double mTreefatjetphi[100];
-  double mTreefatjetsubpt[100][10];
-  double mTreefatjetsubpx[100][10];
-  double mTreefatjetsubpy[100][10];
-  double mTreefatjetsubpz[100][10];
-  double mTreefatjetsube[100][10];
-  double mTreefatjetsubeta[100][10];
-  double mTreefatjetsubphi[100][10];
-  double mTreefatjetsubfem[100][10];
-  double mTreefatjetsubfhad[100][10];
-  double mTreefatjetsubbtag[100][10];
-  double mTreefatjetsubn90[100][10];
-  double mTreefatjetsubfhpd[100][10];
-  double mTreefatjetsubfrbx[100][10];
 
   int    mTreeNSC;
-  int    mTreeNSCtrign[100];
   int    mTreeSCTruth[200];
   double mTreeSCE[200];
   double mTreeSCPhi[200];
   double mTreeSCEta[200];
-  double mTreeSCtrig[100][500];
 
   int    mTreeNpho;
   int    mTreePhoTruth[100];
-  int    mTreeNphotrign[100];
-  int    mTreePhotrig[100][500];
 
   double mTreePhoPFCandPx[100];
   double mTreePhoPFCandPy[100];
@@ -641,8 +584,6 @@ private:
 
 
   int    mTreeNele;
-  int    mTreeNeletrign[100];
-  int    mTreeEletrig[100][500];
   int    mTreeEleTruth[100];
   int    mTreeEleSC[100];
   int    mTreeEleHits[100];
@@ -685,8 +626,8 @@ private:
   double mTreeEleConvdcot[100];
   double mTreeEleConvr[100];
   double mTreeElefbrem[100];
-  double mTreeElePFisoEG[100][3];
-  double mTreeElePFiso[100][3];
+//  double mTreeElePFisoEG[100][3];
+  double mTreeElePFiso[100][4];
   double mTreeEledr03HcalDepth1[100];
   double mTreeEledr03HcalDepth2[100];
   double mTreeElee2x5Max[100];
@@ -723,8 +664,6 @@ private:
 
   int    mTreeNPFEle;
   int    mTreePFEleTruth[100];
-  int    mTreeNPFEletrign[100];
-  int    mTreePFEletrig[100][500];
   int    mTreePFEleSC[100];
   double mTreePFEleCharge[100];
   double mTreePFEleEt[100];
@@ -753,8 +692,6 @@ private:
   double mTreePFEleGamIso[100];
 
   int    mTreeNmuo;
-  int    mTreeNmuotrign[100];
-  int    mTreeMuotrig[100][500];
   int    mTreeMuoTruth[100];
   int    mTreeMuoHitsCm[100];
   int    mTreeMuoHitsTk[100];
@@ -839,62 +776,13 @@ private:
   int mTreeMuoPFCandpfid[100];
   double mTreeMuoPFCandpfDeltaR[100];
   
-  int    mTreeNPFmuons;
-  int    mTreePFMuoHitsCm[100];
-  int    mTreePFMuoHitsTk[100];
-  int    mTreePFMuoValidMuonHitsCm[100];
-  int    mTreePFMuoValidTrackerHitsCm[100];
-  int    mTreePFMuoValidPixelHitsCm[100];
-  int    mTreePFMuoChambersMatched[100];
-  int    mTreePFMuoTrackerLayersMeasCm[100];
-  int    mTreePFMuoTrackerLayersNotMeasCm[100];
-  //int    mTreePFMuoID[100][24];
-  
-  double mTreePFMuonP[100];
-  double mTreePFMuonPt[100];
-  double mTreePFMuonE[100];
-  double mTreePFMuonEt[100];
-  double mTreePFMuonPx[100];
-  double mTreePFMuonPy[100];
-  double mTreePFMuonPz[100];
-  double mTreePFMuonEta[100];
-  double mTreePFMuonPhi[100];
-  double mTreePFMuonCharge[100];
-  double mTreePFMuonParticleIso[100];
-  double mTreePFMuonChadIso[100];
-  double mTreePFMuonNhadIso[100];
-  double mTreePFMuonGamIso[100];
-  double mTreePFMuonTrkIso[100];
-  double mTreePFMuonRelTrkIso[100];
-  double mTreePFMuonECalIso[100];
-  double mTreePFMuonHCalIso[100];
-  double mTreePFMuonAllIso[100];
-  double mTreePFMuoECalIsoDep[100];
-  double mTreePFMuoHCalIsoDep[100];
-  double mTreePFMuoTrkIsoDep[100];
-  double mTreePFMuoTrkChiNormCm[100];
-  double mTreePFMuoTrkChiNormTk[100];
-  double mTreePFMuoCharge[100];
-  double mTreePFMuod0Cm[100];
-  double mTreePFMuod0Tk[100];
-  double mTreePFMuosd0Cm[100];
-  double mTreePFMuosd0Tk[100];
-  double mTreePFMuocalocomp[100];
-  double mTreePFMuocaltowe[100];
-  double mTreePFMuod0OriginCm[100];
-  double mTreePFMuoCmvx[100];
-  double mTreePFMuoCmvy[100];
-  double mTreePFMuoCmvz[100];
-  double mTreePFMuoValidFraction[100];
   
   
   int mTreeNtaus;  
-  int    mTreeNtautrign[100];
-  int    mTreeTautrig[100][500];
   int mTreeTauDecayMode[100];
   int mTreeTauPFChargedHadrCands[100];
   int mTreeTauPFGammaCands[100];
-  double mTreeTauID[100][18];
+  double mTreeTauID[100][31];
   double mTreeTauP[100];
   double mTreeTauPt[100];
   double mTreeTauE[100];
@@ -907,27 +795,14 @@ private:
   double mTreeTauEta[100];
   double mTreeTauPhi[100];
   int mTreeTauCharge[100];
-  double mTreeTauvx[100];
-  double mTreeTauvy[100];
-  double mTreeTauvz[100];
-  double mTreeTauvx2[100];
-  double mTreeTauvy2[100];
-  double mTreeTauvz2[100];
   double mTreeTauParticleIso[100];
-  double mTreeTauChadIso[100];
-  double mTreeTauNhadIso[100];
-  double mTreeTauGamIso[100];
-
 
   int mTreeNTruthMatchTaus;
   int mTreePosTruthMatchTaus[100];
-  int mTreeGenTauDecay[100][50];
+  int mTreeGenTauDecay[100];
 
   double mTreeTauGenJetE[100];
   double mTreeTauGenJetEt[100];
-  double mTreeTauGenJetEmE[100];
-  double mTreeTauGenJetHadE[100];
-  double mTreeTauGenJetInvE[100];
   double mTreeTauGenJetEta[100];
   double mTreeTauGenJetPhi[100];
   double mTreeTauGenJetMass[100];
@@ -939,20 +814,10 @@ private:
   double mTreeTauGenJetPz[100];
 
   double mTreeTauIsolationPFChargedHadrCandsPtSum[100]; 
-  double mTreeTauIsolationPFGammaCandsEtSum[100]; 
   double mTreeTauEcalStripSumEOverPLead[100]; 
-  double mTreeTauEMFraction[100]; 
-  double mTreeTauHcal3x3OverPLead[100]; 
-  double mTreeTauHcalMaxOverPLead[100]; 
-  double mTreeTauHcalTotOverPLead[100]; 
   double mTreeTauLeadPFChargedHadrCandsignedSipt[100]; 
-  double mTreeTauPhiphiMoment[100]; 
-  double mTreeTauEtaphiMoment[100]; 
-  double mTreeTauEtaetaMoment[100]; 
-  double mTreeTauElectronPreIDOutput[100]; 
   double mTreeTauPFLeadChargedPT[100];
   int mTreeTauNSignalTracks[100];
-  double mTreeTauBremsRecoveryEOverPLead[100];
   
   double mTreesusyScanM0;
   double mTreesusyScanM12;

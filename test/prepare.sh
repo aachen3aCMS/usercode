@@ -14,7 +14,7 @@ Preparation of CMSSW skimming jobs, either MC or data
 
 SYNOPSIS: $NAME [ -d | -m ]
                 -s dataset -t tag -c cutconfig
-                [ -j json-file -n njobs ]
+                [ -g globaltag -j json-file -n njobs ]
 
 OPTIONS:
   -h               This help message
@@ -22,6 +22,7 @@ OPTIONS:
   -d               Running on data
   -s dataset       Dataset path, e.g. /DoubleMu/Run2011A-May10ReReco-v1/AOD
   -t tag           Any tag that allows you to identify this sample, e.g. "data"
+  -g globaltag     global tag, overriding value from configuration file
   -f               Force overwriting of existing directories or files
   -c 		   Configfile for skimming cuts (default cuts.cfg)
 
@@ -56,7 +57,7 @@ function createconfigfiles()
     fi
 
     PYFILE="$JOBDIR/cmssw.py"
-    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@CALOJETPT@/$CALOJETPT/g -e s/@CALOJETETA@/$CALOJETETA/g -e s/@NCALOJET@/$NCALOJET/g -e s/@METCALO@/$METCALO/g -e s/@METTC@/$METTC/g -e s/@METPF@/$METPF/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@DOCALOJETS@/$DOCALOJETS/g -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@FASTJET@/$FASTJET/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
+    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@METCALO@/$METCALO/g -e s/@METTC@/$METTC/g -e s/@METPF@/$METPF/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@DOPFELE@/$DOPFELE/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
 	#~ sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g $CMSSWCFG >> $PYFILE
     # create CRAB configuration file from template
     echo "Creating crab configuration file..."
@@ -107,44 +108,6 @@ function main()
     JSON=
     NJOBS=500
     FORCE=
-    MUOPTFIRST=
-    MUOPTOTHER=
-    NMUO=
-    MUOETA=
-    ELEPT=
-    ELEETA=
-    NELE=
-    PHOPT=
-    PHOETA=
-    NPHO=
-    PFELEPT=
-    PFELEETA=
-    NPFELE=
-    CALOJETPT=
-    CALOJETETA=
-    NCALOJET=
-    PFJETPT=
-    PFJETETA=
-    NPFJET=
-    TAUPT=
-    TAUETA=
-    NTAU=
-    METCALO=
-    METPF=
-    METTC=
-    HTC=
-    PFHTC=
-    TRIGGERCONTAINS=
-    MUOMINV=
-    MUODMINV=
-    DOTAU=
-    DOCALOJETS=
-    FASTJET=
-    PYTHIA8=
-    ISPYTHIASHOWERED=
-    MATCHALL=
-    SHERPA=
-    SUSYPAR=
     # process command line options
     while getopts "hdmu:s:v:t:g:l:c:i:j:n:f" OPTION
     do
@@ -246,209 +209,14 @@ function main()
     NTEST4="1"
 
     # read skimmung cuts and configuration from config file
-    SEG=`grep "muoptfirst" $CUTCFG`
-    SEG2=( $SEG )
-    MUOPTFIRST=${SEG2[1]}
-
-    SEG=`grep "muoptfirst" $CUTCFG`
-    SEG2=( $SEG )
-    MUOPTFIRST=${SEG2[1]}
-
-    SEG=`grep "muoptother" $CUTCFG`
-    SEG2=( $SEG )
-    MUOPTOTHER=${SEG2[1]}
-
-    SEG=`grep "nmuo" $CUTCFG`
-    SEG2=( $SEG )
-    NMUO=${SEG2[1]}
-
-    SEG=`grep "muoeta" $CUTCFG`
-    SEG2=( $SEG )
-    MUOETA=${SEG2[1]}
-
-    SEG=`grep "elept" $CUTCFG`
-    SEG2=( $SEG )
-    ELEPT=${SEG2[1]}
-
-    SEG=`grep "nele" $CUTCFG`
-    SEG2=( $SEG )
-    NELE=${SEG2[1]}
-
-    SEG=`grep "eleeta" $CUTCFG`
-    SEG2=( $SEG )
-    ELEETA=${SEG2[1]}
-
-
-    SEG=`grep "pfelept" $CUTCFG`
-    SEG2=( $SEG )
-    PFELEPT=${SEG2[1]}
-
-    SEG=`grep "npfele" $CUTCFG`
-    SEG2=( $SEG )
-    NPFELE=${SEG2[1]}
-
-    SEG=`grep "pfeleeta" $CUTCFG`
-    SEG2=( $SEG )
-    PFELEETA=${SEG2[1]}
-
-
-    SEG=`grep "phopt" $CUTCFG`
-    SEG2=( $SEG )
-    PHOPT=${SEG2[1]}
-
-    SEG=`grep "npho" $CUTCFG`
-    SEG2=( $SEG )
-    NPHO=${SEG2[1]}
-
-    SEG=`grep "phoeta" $CUTCFG`
-    SEG2=( $SEG )
-    PHOETA=${SEG2[1]}
-
-
-    SEG=`grep "pfelept" $CUTCFG`
-    SEG2=( $SEG )
-    PFELEPT=${SEG2[1]}
-
-    SEG=`grep "npfele" $CUTCFG`
-    SEG2=( $SEG )
-    NPFELE=${SEG2[1]}
-
-    SEG=`grep "pfeleeta" $CUTCFG`
-    SEG2=( $SEG )
-    PFELEETA=${SEG2[1]}
-
-
-    SEG=`grep "calojetpt" $CUTCFG`
-    SEG2=( $SEG )
-    CALOJETPT=${SEG2[1]}
-
-    SEG=`grep "ncalojet" $CUTCFG`
-    SEG2=( $SEG )
-    NCALOJET=${SEG2[1]}
-
-    SEG=`grep "calojeteta" $CUTCFG`
-    SEG2=( $SEG )
-    CALOJETETA=${SEG2[1]}
-
-
-    SEG=`grep "pfjetpt" $CUTCFG`
-    SEG2=( $SEG )
-    PFJETPT=${SEG2[1]}
-
-    SEG=`grep "npfjet" $CUTCFG`
-    SEG2=( $SEG )
-    NPFJET=${SEG2[1]}
-
-    SEG=`grep "pfjeteta" $CUTCFG`
-    SEG2=( $SEG )
-    PFJETETA=${SEG2[1]}
-
-
-    SEG=`grep "taupt" $CUTCFG`
-    SEG2=( $SEG )
-    TAUPT=${SEG2[1]}
-
-    SEG=`grep "ntau" $CUTCFG`
-    SEG2=( $SEG )
-    NTAU=${SEG2[1]}
-
-    SEG=`grep "taueta" $CUTCFG`
-    SEG2=( $SEG )
-    TAUETA=${SEG2[1]}
-
-
-    SEG=`grep "metcalo" $CUTCFG`
-    SEG2=( $SEG )
-    METCALO=${SEG2[1]}
-
-    SEG=`grep "metpf" $CUTCFG`
-    SEG2=( $SEG )
-    METPF=${SEG2[1]}
-
-    SEG=`grep "metc" $CUTCFG`
-    SEG2=( $SEG )
-    METTC=${SEG2[1]}
-
-
-    SEG=`grep "Htc" $CUTCFG`
-    SEG2=( $SEG )
-    HTC=${SEG2[1]}
-
-    SEG=`grep "PFhtc" $CUTCFG`
-    SEG2=( $SEG )
-    PFHTC=${SEG2[1]}
-
-    SEG=`grep "triggerContains" $CUTCFG`
-    SEG2=( $SEG )
-    TRIGGERCONTAINS=${SEG2[1]}
-
-
-    SEG=`grep "muoMinv" $CUTCFG`
-    SEG2=( $SEG )
-    MUODMINV=${SEG2[1]}
-
-    SEG=`grep "muoDMinv" $CUTCFG`
-    SEG2=( $SEG )
-    MUOMINV=${SEG2[1]}
-
-    SEG=`grep "DoTau" $CUTCFG`
-    SEG2=( $SEG )
-    DOTAU=${SEG2[1]}
-
-    if [[ $DATA == $NTEST4 ]]; then
-    	SEG=`grep "GlobalTagData" $CUTCFG`
-    	SEG2=( $SEG )
-    	GLOBALTAG=${SEG2[1]}
-    fi
-
-    if [[ $MC == $NTEST4 ]]; then
-    	SEG=`grep "GlobalTagMC" $CUTCFG`
-    	SEG2=( $SEG )
-    	GLOBALTAG=${SEG2[1]}
-    fi
-
-    SEG=`grep "DoCaloJets" $CUTCFG`
-    SEG2=( $SEG )
-    DOCALOJETS=${SEG2[1]}
-
-    SEG=`grep "SusyPar" $CUTCFG`
-    SEG2=( $SEG )
-    SUSYPAR=${SEG2[1]}
-
-    SEG=`grep "FastJets" $CUTCFG`
-    SEG2=( $SEG )
-    FASTJET=${SEG2[1]}
-
-    SEG=`grep "MatchAll" $CUTCFG`
-    SEG2=( $SEG )
-    MATCHALL=${SEG2[1]}
-
-    SEG=`grep "Pythia8" $CUTCFG`
-    SEG2=( $SEG )
-    PYTHIA8=${SEG2[1]}
-
-    SEG=`grep "IsPythiaShowered" $CUTCFG`
-    SEG2=( $SEG )
-    ISPYTHIASHOWERED=${SEG2[1]}
-
-    SEG=`grep "Sherpa" $CUTCFG`
-    SEG2=( $SEG )
-    SHERPA=${SEG2[1]}
-
-    SEG=`grep "user" $CUTCFG`
-    SEG2=( $SEG )
-    USER=${SEG2[1]}
-
-    SEG=`grep "version" $CUTCFG`
-    SEG2=( $SEG )
-    VERSION=${SEG2[1]}
+    source $CUTCFG
 
     echo "Cuts read from file"
 
     # sanity checks on skimming cuts. Gives warnings, does not prevent you from doing something you really want to.
 
     # sanity checks on skimming cuts
-    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $NCALOJET == $NTEST2 && $METCALO == $NTEST && $METPF == $NTEST && $METTC == $NTEST ]] ; then
+    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $METCALO == $NTEST && $METPF == $NTEST && $METTC == $NTEST ]] ; then
 	echo "WARNING! You have specifed no object to cut on!"
     fi
 
@@ -470,10 +238,6 @@ function main()
     if [[ $NPFJET == $NTEST2  &&  $PFJETPT != $NTEST ]]; then
 	echo "WARNING! pfjetpt > 0 but npfjet == 0. Cut has no effect!"
     fi
-    if [[ $NCALOJET == $NTEST2  &&  $CALOJETPT != $NTEST ]]; then
-	echo "WARNING! calojetpt > 0 but ncalojet == 0. Cut has no effect!"
-    fi
-
     if [[ $NELE != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NELE electron(s) with pt > $ELEPT GeV and eta < $ELEETA"
     fi
@@ -488,9 +252,6 @@ function main()
     fi
     if [[ $NTAU != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NTAU tau(s) with pt > $TAUPT GeV and eta < $TAUETA"
-    fi
-    if [[ $NCALOJET != $NTEST2 ]]; then
-	echo "Preparing Skim requiring $NCALOJET calojet(s) with pt > $CALOJETPT GeV and eta < $CALOJETETA"
     fi
     if [[ $NPFJET != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NPFJET pfjet(s) with pt > $PFJETPT GeV and eta < $PFJETETA"
@@ -514,11 +275,11 @@ function main()
     if [[ $DOTAU != $NTEST3 ]]; then
 	echo "Taus are ON!"
     fi
-    if [[ $DOCALOJETS == $NTEST3 ]]; then
-	echo "Calojets are OFF!"
+    if [[ $DOPFELE == $NTEST3 ]]; then
+	echo "PF electrons are OFF!"
     fi
-    if [[ $DOCALOJETS != $NTEST3 ]]; then
-	echo "Calojets are ON!"
+    if [[ $DOPFELE != $NTEST3 ]]; then
+	echo "PF electrons are ON!"
     fi
     if [[ -n $DATA ]]; then
 	echo "Running on data!"
