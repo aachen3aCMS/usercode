@@ -49,8 +49,6 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
     type = "none";
   }
 
-  TString trigger;
-
   init(1);
 
   Long64_t nbytes = 0, nb = 0;
@@ -79,141 +77,14 @@ void SUSYAna::Loop(TString fout, bool debug, TString type) {
       VertexDump();
       MuonDump(0);      // [less] detailed information 1 [0]
       TruthJetDump();
-      CaloJetDump();
       PFJetDump();
       METDump();
       SCDump();
       EleDump(0);       // [less] detailed information 1 [0]
       PFEleDump(0);       // [less] detailed information 1 [0]
     }
-
-//    if (find_duplicate(global_run, global_event, pdf_scale, v)) {
-//      cout << "SUSYAna: found duplicate " << endl;
-//    }
-
-    // // vertex quality cut
-    // int goodvtx=0;     
-    // for (int bb=0; bb < vtx_n; bb++) {
-    //   if (vtx_fake[bb] == 0) {
-    // 	if (vtx_ndof[bb] > 4.) {
-    // 	  if (fabs(vtx_z[bb]) < 24.) {
-    // 	    goodvtx++;
-    // 	  }
-    // 	}
-    //   }
-    // }
-    // if (goodvtx < 1)
-    //   continue;
-
-    // //Trigger selection
-    // TString triggerName1="HLT_Mu15_v1";
-    // TString triggerName2="HLT_Mu15_v2";
-    // TString triggerName3="HLT_Mu20_v1";
-    // TString triggerName4="HLT_Mu24_v1";
-    // TString triggerName5="HLT_Mu24_v2";
-    // TString triggerName6="HLT_Mu30_v3";
-    // TString triggerName7="HLT_Mu40_v1";
-    // TString triggerName8="HLT_Mu40_v2";
-    // TString triggerName9="HLT_Mu40_v3";
-    // TString triggerName10="HLT_Mu40_v5";
-
-    // TString trigger;
-    // bool trigger_select = false;
-
-    // for(Int_t i=0; i<trig_n;++i){
-    //    trigger = unpack((int*)trig_name[i]);
-    //    if ( trigger.Contains(triggerName1.Data()) || trigger.Contains(triggerName2.Data()) || trigger.Contains(triggerName3.Data()) || trigger.Contains(triggerName4.Data()) || trigger.Contains(triggerName5.Data()) || trigger.Contains(triggerName6.Data()) || trigger.Contains(triggerName7.Data()) || trigger.Contains(triggerName8.Data()) || trigger.Contains(triggerName9.Data()) || trigger.Contains(triggerName10.Data()) ){
-    //       trigger_select = true;
-    //       break;
-    //    }
-    // }
-
-    // if(trigger_select == false){
-    //    continue;
-    // }
-
-
-    // // list Trigger Objects
-    // if (DEBUG) {
-    //   for (int i=0; i<trig_n; i++) {
-    //     cout << "  " << unpack(trig_name[i]) << "  "  << trig_L1prescale[i] << "  " << trig_HLTprescale[i] 
-    // 	    << "  " << trig_pt[i] << "  " << trig_eta[i] << "  " << trig_phi[i] << endl;
-    //   }
-    // }
-
-    // mu from Z
-    int theMu[2] = { -1, -1 };
-    int nMu = 0;
-    if (muo_n != 0)
-      cout << "muo_n: " << muo_n << endl;
-    for (int j = 0; j < muo_n && nMu < 2; j++) {
-      cout << "pt eta phi = " << muo_pt[j] << " " << muo_eta[j] << " " << muo_phi[j] << "    ID [ ";
-      for (int k=0; k<24; k++)
-        cout << muo_ID[j][k] << " ";
-      cout << "] " << endl;
-      if (muo_ID[j][6] == 1)
-        cout << "  -> global prompt tight"<< endl;
-
-      // list matched trigger objects
-      for (int i=0; i<muo_trign[j]; i++) {
-	int id = muo_trig[j][i];
-	TString name = unpack((int*)trig_name[id]);
-	TString filt = unpack(trig_filter[id]);
-	cout << "     #" << i << "  " << name << "  " << filt << "  " << trig_pt[id] << "  " << trig_phi[id] << "  " << trig_pt[id] <<endl;
-      }
-
-      // bool ptcut = (muo_Cocktail_pt[j] > 40) ? true : false;
-      // bool etacut = (muo_Cocktail_eta[j] < 2.1) ? true : false;
-      // //bool goodmuon = (muo_prompttight[j] == 1) ? true : false;
-      // bool hasIso = (muo_RelTrkIso[j] < 0.1) ? true : false;
-      // bool isTrackerMuon = (muo_ID[j][3] == 1) ? true : false;
-      // bool isGlobalMuon = (muo_ID[j][1] == 1) ? true : false;
-      // bool PixelHitsCut = (muo_ValidPixelHitsCm > 0) ? true : false;
-      // bool trackerHitsCut = (muo_ValidTrackerHitsCm[j] > 10) ? true : false;
-      // bool muonHitsCut = (muo_ValidMuonHitsCm[j] > 0) ? true : false;
-      // bool numMatchesCut = (muo_ChambersMatched[j] > 1) ? true : false;
-      // bool dxyCut = (muo_d0Cm[j] < 0.2) ? true : false;
-
-      //
-      // mu isolation 
-      if (muo_TrkIso[j] > 2 || muo_ECalIso[j] > 2 || muo_HCalIso[j] > 2)
-	continue;
-
-      // no electrons, photons, jets
-      bool rejection = false;
-      for (int k = 0; k < ele_n; k++) {
-	if (ele_Et[k] > 20)  {
-	  rejection = true;
-	  break;
-	}
-      }
-      for (int k = 0; k < pfjet_n; k++) {
-	if (pfjet_Et[k] > 20)  {
-	  rejection = true;
-	  break;
-	}
-      }
-      
-      if (rejection) 
-	continue;
-      // OK, accept mu
-      theMu[nMu] = j;
-      nMu++;
-    }
-
-    // require two muons
-    if (nMu == 2) {
-      // check back-to-back in phi
-      double dphi = this->DeltaPhi(muo_phi[theMu[0]], muo_phi[theMu[1]]);
-      if (dphi < 3.14159/4.) {
-	// plot mass in histogram
-	TLorentzVector mu0(muo_px[0], muo_py[0], muo_pz[0], muo_E[0]);
-	TLorentzVector mu1(muo_px[1], muo_py[1], muo_pz[1], muo_E[1]);
-	h1_Z_mass->Fill((mu0+mu1).M());
-      }
-    }
+    TriggerDump("*"); // select e.g all muon trigger with "Mu"
   }
-
   write(fout, 2);
 }
 
@@ -428,7 +299,6 @@ Double_t SUSYAna::MT(const std::vector<TLorentzVector> & objects) {
 void SUSYAna::doJESandRecalculateMET(TString corr) {
 
   // WARNING : Not propagated into TCMET since this need track corrected Jets
-  Double_t caloscale;
   Double_t pfscale;
 
   Double_t dMEx;
@@ -439,11 +309,9 @@ void SUSYAna::doJESandRecalculateMET(TString corr) {
   if (corr == "none")
     return;
   else if (corr == "up") {
-    caloscale = 1.04;
     pfscale   = 1.04;
   }  
   else if (corr == "down") {
-    caloscale = 0.96;
     pfscale   = 0.96;
   }
   else {
@@ -453,37 +321,6 @@ void SUSYAna::doJESandRecalculateMET(TString corr) {
   }
   if (DEBUG) cout << "SUSYAna::doJESandRecalculateMET called with option '" << corr << "'" << endl;
   
-  dMEx   = 0.;
-  dMEy   = 0.;
-  dSumEt = 0.;
-  
-  // Calo Jets
-  for (int i=0; i<calojet_n; i++) {
-
-    // not final, best guess
-    if (calojet_pt_raw[i]>20. && calojet_fem[i]<0.9) {
-      dMEx   += (caloscale - 1.) * calojet_px[i];
-      dMEy   += (caloscale - 1.) * calojet_py[i];
-      dSumEt += (caloscale - 1.) * calojet_Et[i];
-    }
-    calojet_E[i]  *= caloscale;
-    calojet_Et[i] *= caloscale;  
-    calojet_p[i]  *= caloscale;   
-    calojet_pt[i] *= caloscale;  
-    calojet_px[i] *= caloscale;
-    calojet_py[i] *= caloscale;
-    calojet_pz[i] *= caloscale;
-  }
-
-  met_sumet[0] += dSumEt;
-  met_ex[0]    -= dMEx;
-  met_ey[0]    -= dMEy;
-
-  TVector3 mcalo(met_ex[0], met_ey[0], 0.);
-
-  met_phi[0] = mcalo.Phi();
-  met_et[0]  = mcalo.Perp();
-
   // PF Jets
   dMEx   = 0.;
   dMEy   = 0.;

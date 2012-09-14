@@ -32,6 +32,8 @@ v91
  - Taus with pT < 15 GeV are not saved any more
  - PF jets with pT < 10 GeV are not saved any more
  - Tau ID was updated
+ - Tau genjet matches are only stored if they are matched, access through
+   the matched ID
  - Photon ID was updated
  - Trigger objects are now stored as TLorentzVector
  - generated tau decay mode now saved as integer instead of string

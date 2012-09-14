@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 class TreeContent {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -60,13 +62,13 @@ public :
    Int_t           eventfilter_n;
    Bool_t          eventfilter_results[100];   //[eventfilter_n]
    vector<string>  *eventfilter_names;
-   string          *trig_HLTName;
    vector<string>  *trig_name;
    Int_t           trig_n;
    Int_t           trig_L1prescale[7000];   //[trig_n]
    Int_t           trig_HLTprescale[7000];   //[trig_n]
    vector<string>  *trig_filter;
    Int_t           trigFilter_n;
+   Int_t           trig_filterid[7000];   //[trigFilter_n]
    Int_t           trig_id[7000];   //[trigFilter_n]
    Double_t        trig_pt[7000];   //[trigFilter_n]
    Double_t        trig_eta[7000];   //[trigFilter_n]
@@ -493,6 +495,7 @@ public :
    TBranch        *b_trig_HLTprescale;   //!
    TBranch        *b_trig_filter;   //!
    TBranch        *b_trigFilter_n;   //!
+   TBranch        *b_trig_filterid;   //!
    TBranch        *b_trig_id;   //!
    TBranch        *b_trig_pt;   //!
    TBranch        *b_trig_eta;   //!
@@ -933,7 +936,6 @@ void TreeContent::Init(TTree *tree)
 
    // Set object pointer
    eventfilter_names = 0;
-   trig_HLTName = 0;
    trig_name = 0;
    trig_filter = 0;
    // Set branch addresses and branch pointers
@@ -987,13 +989,13 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("eventfilter_n", &eventfilter_n, &b_eventfilter_n);
    fChain->SetBranchAddress("eventfilter_results", eventfilter_results, &b_eventfilter_results);
    fChain->SetBranchAddress("eventfilter_names", &eventfilter_names, &b_eventfilter_names);
-   fChain->SetBranchAddress("trig_HLTName", &trig_HLTName, &b_trig_HLTName);
    fChain->SetBranchAddress("trig_name", &trig_name, &b_trig_name);
    fChain->SetBranchAddress("trig_n", &trig_n, &b_trig_n);
    fChain->SetBranchAddress("trig_L1prescale", trig_L1prescale, &b_trig_L1prescale);
    fChain->SetBranchAddress("trig_HLTprescale", trig_HLTprescale, &b_trig_HLTprescale);
    fChain->SetBranchAddress("trig_filter", &trig_filter, &b_trig_filter);
    fChain->SetBranchAddress("trigFilter_n", &trigFilter_n, &b_trigFilter_n);
+   fChain->SetBranchAddress("trig_filterid", trig_filterid, &b_trig_filterid);
    fChain->SetBranchAddress("trig_id", trig_id, &b_trig_id);
    fChain->SetBranchAddress("trig_pt", trig_pt, &b_trig_pt);
    fChain->SetBranchAddress("trig_eta", trig_eta, &b_trig_eta);

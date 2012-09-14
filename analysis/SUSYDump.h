@@ -15,9 +15,7 @@ void SUSYAna::BasicDump(int i) {
   cout << "   Store " << setw(9) << global_store << "     Orbit " << setw(10) << global_orbit 
        << "     BX " << setw(18) << global_bx << endl;
   cout << endl;
-  cout << "   B Field " << setw(7) << global_bfield << "     Trigger List         " 
-       << unpack(trig_HLTName) << endl;
-  cout << endl;
+  cout << "   B Field " << setw(7) << global_bfield << endl;
   cout << "   Hottest ECAL Cell R9 [ pT eta phi ] [ time chi flag ] : " << setw(7) 
        << noise_ecal_r9 << " [" << setw(7) << fixed << noise_ecal_pt << setw(9) << noise_ecal_eta 
        << setw(9) << noise_ecal_phi << " ] [" << setw(9) << noise_ecal_time << setw(9) 
@@ -48,19 +46,29 @@ void SUSYAna::TriggerDump(TString sel) {
   cout << "   No  Trigger Name                   Filter Name                                  Prescale L1  HLT       pT      eta      phi " << endl;
 
   for (int i=0; i<trig_n; i++) {
-    TString tname =  unpack(trig_name[i]);
+    TString tname =  (*trig_name)[i].c_str();
     if (sel != "*" && !tname.Contains(sel))
       continue;
     cout.flags(ios::right);
     cout << setw(5) << i << "  ";
-    cout.flags(ios::left);
-    cout << setw(30) << tname << " " << setw(50) << unpack(trig_filter[i]);
+    cout << setw(3) << tname << "   ";
     cout.flags(ios::right);
     cout << " " << setw(5) << fixed << trig_L1prescale[i] << setw(5) << trig_HLTprescale[i] 
 	 << setw(9) << trig_pt[i] << setw(9) << trig_eta[i] << setw(9) << trig_phi[i] << endl;
   }
   cout << endl;
 
+  cout << "Found " << trigFilter_n << " trigger objects for " << (*trig_filter).size() << " filter names" << endl;
+  cout << "Trigger object list: name id pt eta phi" << endl;
+
+  for (int i=0; i<trigFilter_n; i++) {
+    cout.flags(ios::left);
+    cout << setw(50) << (*trig_filter)[trig_filterid[i]] << " " << trig_filterid[i] << " " ;
+    cout << setw(10) << trig_id[i] 
+	 << setw(10) << trig_pt[i] 
+	 << setw(10) << trig_eta[i] 
+	 << setw(10) << trig_phi[i] << endl;
+  }
 }
 
 void SUSYAna::MuonDump(bool full) {
@@ -96,11 +104,8 @@ void SUSYAna::MuonDump(bool full) {
     if (full) {
       cout << " [" << setw(3) << muo_ValidPixelHitsCm[i] << setw(3) << muo_ValidTrackerHitsCm[i] << setw(3) 
 	   << muo_ValidMuonHitsCm[i] << setw(6) << muo_ChambersMatched[i] << setw(5) 
-	   << muo_TrackerLayersMeasCm[i] << setw(5) << muo_TrackerLayersNotMeasCm[i] << " ]";
-      cout << " [";
-      for (int k=0; k<muo_trign[i]; k++) 
-	cout << " " << muo_trig[i][k];
-      cout << " ]" <<endl;
+	   << muo_TrackerLayersMeasCm[i] << setw(5) << muo_TrackerLayersNotMeasCm[i] 
+	   << endl;
     }
     else
       cout << endl;
@@ -115,31 +120,6 @@ void SUSYAna::MuonDump(bool full) {
 	     << muo_Cocktail_eta[i] << setw(8) << muo_Cocktail_phi[i] << endl;
       }
     }
-  }
-  cout << endl;
-
-}
-
-void SUSYAna::CaloJetDump() {
-
-  cout << setprecision(3);
-
-  cout << "  ===  CaloJet Dump - #Objects : " << calojet_n << "  === " << endl;
-
-  if (calojet_n<1) {
-    cout << endl;
-    return;
-  }
-
-  cout << "   No       pT     eta     phi     fem  fHPD  fRBX n90 const     btag ID truth" << endl;
-  for (int i=0; i<calojet_n; i++) {
-    cout.flags(ios::right);
-    cout << setw(5) << i << setw(9) << fixed << calojet_pt[i] << setw(8) << calojet_eta[i] 
-	 << setw(8) << calojet_phi[i] << fixed << setprecision(3) << " [" << setw(6) << calojet_fem[i] 
-	 << setw(6) << calojet_fHPD[i] << setw(6) << calojet_fRBX[i] 
-	 << setw(4) << calojet_n90[i] << setw(4) << calojet_const[i] << " ]";
-    cout << setw(9) << fixed << calojet_btag[i] << setw(3) << calojet_ID[i] << setw(4) 
-	 << calojet_truth[i] << endl;
   }
   cout << endl;
 
@@ -342,8 +322,6 @@ void SUSYAna::EleDump(bool full) {
 	   << setw(7) << ele_dr03HcalDepth1[i] << setw(7) << ele_dr03HcalDepth2[i]
 	   << setw(7) << ele_e5x5[i] << " ]";
       cout << " [";
-      for (int k=0; k<ele_trign[i]; k++) 
-	cout << " " << ele_trig[i][k];
       cout << " ]" <<endl;
     }
     else
@@ -376,8 +354,6 @@ void SUSYAna::PFEleDump(bool full) {
     cout << setw(5) << pfele_SC[i] << setw(5) << pfele_truth[i];
     if (full) {
       cout << "   [";
-      for (int k=0; k<pfele_trign[i]; k++) 
-	cout << " " << pfele_trig[i][k];
       cout << " ]" <<endl;
     }
     else

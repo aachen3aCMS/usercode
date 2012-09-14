@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   parseCommandLine(argc,argv);
 
-  SUSYAna *susy;
+  SUSYAna *susy = 0;
 
   TString s(inFile);
   TString type(ag);

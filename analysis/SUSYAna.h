@@ -36,7 +36,6 @@ public :
   void BasicDump(int i);
   void TriggerDump(TString sel);
   void MuonDump(bool full=1);
-  void CaloJetDump();
   void PFJetDump();
   void TruthJetDump();
   void TruthDump();

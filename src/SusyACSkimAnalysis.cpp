@@ -250,7 +250,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   pre2 = 0;
 
   mTreeNtrig = 0;
-  mTreeNtrigFilter=0;
   //reset the vectors:
   mTreetrigname.clear();
   mTreefiltname.clear();
@@ -320,10 +319,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     // e.g.: hltEle27WP80TrackIsoFilter
     //------------------------------------------------------------------------
 
+    mTreeNtrigFilter  = 0;
+    int filter_count           = 0;
     size_t nFilters       = triggerEvent -> sizeFilters();
-    size_t iFilter        = 0;
-    int mTreeNtrig  = 0;
-    for (; iFilter < nFilters; ++iFilter) {
+    for (size_t iFilter = 0; iFilter < nFilters; ++iFilter) {
 
       //------------------------------------------------------------------------
       // Find information for each filter:
@@ -335,15 +334,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       const trigger::Keys& keys = triggerEvent -> filterKeys( iFilter );
       const trigger::Vids& vids = triggerEvent -> filterIds ( iFilter );
 
-      // cout<<"Trigger "<<triggerEvent->usedProcessName()<<endl;
-
       //------------------------------------------------------------------------
       // Loop over the keys to get to the trigger objects that pass the filter
       //------------------------------------------------------------------------
 
       int nKeys = (int) keys.size();
       int nVids = (int) vids.size();
-      assert ( nKeys == nVids ) ;
+      assert(nKeys == nVids);
 
       // useful variables
       vector<TLorentzVector> triggerObjectP4s;
@@ -352,16 +349,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       for (int iTriggerObject = 0; iTriggerObject < nKeys; ++iTriggerObject ) {
 
 	// Get the object ID and key
-
 	int                id  = vids[iTriggerObject];
 	trigger::size_type key = keys[iTriggerObject];
 
 	// Get the trigger object from the key
-
-	const trigger::TriggerObject & triggerObject = triggerObjects [key];
+	const trigger::TriggerObject & triggerObject = triggerObjects[key];
 
 	// Store the trigger object as a TLorentzVector (borrowed from S. Harper)
-
 	TLorentzVector p4;
 	p4.SetPtEtaPhiM ( triggerObject.pt  (),
 			  triggerObject.eta (),
@@ -378,25 +372,20 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       //------------------------------------------------------------------------
 
       if ( nKeys > 0 ) {
-
-	mTreefiltname.push_back ( name );
-
-
 	for (int iFilterObject = 0; iFilterObject < nKeys; ++iFilterObject) {
-
 	  int id = int (triggerObjectIds[iFilterObject]);
-	  mTreetrigid[mTreeNtrig]  = id;
-	  mTreetrigFiltern[mTreeNtrig]  = mTreeNtrigFilter;
-	  mTreetrigpt[mTreeNtrig]  = (float) triggerObjectP4s[iFilterObject].Pt ();
-	  mTreetrigeta[mTreeNtrig] = (float) triggerObjectP4s[iFilterObject].Eta();
-	  mTreetrigphi[mTreeNtrig] = (float) triggerObjectP4s[iFilterObject].Phi();
-	  mTreeNtrig++;
+	  mTreetrigid[mTreeNtrigFilter]  = id;
+	  mTreetrigFiltern[mTreeNtrigFilter] = filter_count;
+	  mTreetrigpt[mTreeNtrigFilter]  = (float) triggerObjectP4s[iFilterObject].Pt();
+	  mTreetrigeta[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Eta();
+	  mTreetrigphi[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Phi();
+	  mTreeNtrigFilter++;
 	}
-
-	mTreeNtrigFilter++;
+	mTreefiltname.push_back(name);
+	filter_count++;
       }
     } // end loop over filters
-  }//end trigger part
+  } //end trigger part
   if (!accept_trigger)
     return 0;
 
@@ -2874,6 +2863,7 @@ void SusyACSkimAnalysis::initPlots() {
 
   mAllData->Branch("trig_filter",      &mTreefiltname);
   mAllData->Branch("trigFilter_n",     &mTreeNtrigFilter,"trigFilter_n/I");
+  mAllData->Branch("trig_filterid",    mTreetrigFiltern, "trig_filterid[trigFilter_n]/I");
   mAllData->Branch("trig_id",          mTreetrigid,      "trig_id[trigFilter_n]/I");
   mAllData->Branch("trig_pt",          mTreetrigpt,      "trig_pt[trigFilter_n]/double");
   mAllData->Branch("trig_eta",         mTreetrigeta,     "trig_eta[trigFilter_n]/double");
