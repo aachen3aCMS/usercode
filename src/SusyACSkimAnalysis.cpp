@@ -357,10 +357,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	// Store the trigger object as a TLorentzVector (borrowed from S. Harper)
 	TLorentzVector p4;
-	p4.SetPtEtaPhiM ( triggerObject.pt  (),
-			  triggerObject.eta (),
-			  triggerObject.phi (),
-			  triggerObject.mass() );
+	DEBUG("Mark 3a");
+	p4.SetPxPyPzE(triggerObject.px  (),
+		      triggerObject.py (),
+		      triggerObject.pz (),
+		      triggerObject.energy() );
+	DEBUG("Mark 3b");
 
 	triggerObjectP4s.push_back ( p4 ) ;
 	triggerObjectIds.push_back ( id ) ;
@@ -377,8 +379,14 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  mTreetrigid[mTreeNtrigFilter]  = id;
 	  mTreetrigFiltern[mTreeNtrigFilter] = filter_count;
 	  mTreetrigpt[mTreeNtrigFilter]  = (float) triggerObjectP4s[iFilterObject].Pt();
-	  mTreetrigeta[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Eta();
-	  mTreetrigphi[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Phi();
+	  if (triggerObjectP4s[iFilterObject].Pt() == 0) {
+	    mTreetrigeta[mTreeNtrigFilter] = 0;
+	    mTreetrigphi[mTreeNtrigFilter] = 0;
+	  }
+	  else {
+	    mTreetrigeta[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Eta();
+	    mTreetrigphi[mTreeNtrigFilter] = (float) triggerObjectP4s[iFilterObject].Phi();
+	  }
 	  mTreeNtrigFilter++;
 	}
 	mTreefiltname.push_back(name);

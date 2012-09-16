@@ -53,8 +53,7 @@ void SUSYAna::TriggerDump(TString sel) {
     cout << setw(5) << i << "  ";
     cout << setw(3) << tname << "   ";
     cout.flags(ios::right);
-    cout << " " << setw(5) << fixed << trig_L1prescale[i] << setw(5) << trig_HLTprescale[i] 
-	 << setw(9) << trig_pt[i] << setw(9) << trig_eta[i] << setw(9) << trig_phi[i] << endl;
+    cout << " " << setw(5) << fixed << trig_L1prescale[i] << setw(5) << trig_HLTprescale[i] << endl;
   }
   cout << endl;
 
