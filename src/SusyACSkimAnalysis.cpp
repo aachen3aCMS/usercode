@@ -220,14 +220,14 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if( wasrun && !error ){
 
-      mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID );
       mTreeFilterName.push_back(filt->name);
+      mTreeFilterResults[mTreeNFilter]=filterResultsHandle->accept( filt->ID ) ? 1 : 0;
 
       if (TString(filt->name).Contains("p_kinematics") && filterResultsHandle->accept( filt->ID )==0 ) return 0;
     } else {
       //either error or was not run
       mTreeFilterName.push_back(filt->name);
-      mTreeFilterResults[mTreeNFilter]=false;
+      mTreeFilterResults[mTreeNFilter]=1;
 
       //~ if( !wasrun ) cout << "FILTER WARNING: Filter: " << filt2->name << " in process " << filters[filt].process << " was not executed!" << endl;
       //~ if( error )   cout << "FILTER WARNING: An error occured during execution of Filter: " << filt2->name << " in process " << filters[filt].process << endl;
@@ -2121,24 +2121,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
 					  << metHandle->size() << " instead of 1";
   if ( metHandle.isValid() && metHandle->size()==1 ) {
-    // in order to get uncorrected MET use
-    // - metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrALL"))
-    // - metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrJES"))
-    // - metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrMUON"))
-    //  NOT metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrMAXN"))
-
-    /*
-      const reco::GenMET * gm = metHandle->front().genMET();
-      cout << " genMET et " << gm->et() << " x " << gm->momentum().X()
-      << " y " << gm->momentum().Y() << endl;
-    */
-
-    /*
-      cout << "MET " << metHandle->front().et()
-      << " uncorrALL " << metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrALL"))
-      << " uncorrJES " << metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrJES"))
-      << " uncorrMUON " << metHandle->front().uncorrectedPt(pat::uncorrectionTypeMET("uncorrMUON")) << endl;
-    */
     int metn = 0;
     mTreeMET[metn]         = metHandle->front().et();
     mTreeMEX[metn]         = metHandle->front().momentum().X();
@@ -2146,31 +2128,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumET[metn]       = metHandle->front().sumEt();
     mTreeMETphi[metn]      = metHandle->front().phi();
     mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-    double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (metHandle->front()).significance();
-    mTreeMETSignif[metn]   = significance;
+    mTreeMETSignif[metn]   = -1;
 
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = metHandle->front().CaloMETInmHF();
-    mTreeMETCaloMETInpHF[metn]      = metHandle->front().CaloMETInpHF();
-    mTreeMETCaloMETPhiInmHF[metn]   = metHandle->front().CaloMETPhiInmHF();
-    mTreeMETCaloMETPhiInpHF[metn]   = metHandle->front().CaloMETPhiInpHF();
-    mTreeMETCaloSETInmHF[metn]      = metHandle->front().CaloSETInmHF();
-    mTreeMETCaloSETInpHF[metn]      = metHandle->front().CaloSETInpHF();
-    mTreeMETemEtFraction[metn]      = metHandle->front().emEtFraction();
-    mTreeMETetFractionHadronic[metn]= metHandle->front().etFractionHadronic();
-    mTreeMETmaxEtInEmTowers[metn]   = metHandle->front().maxEtInEmTowers();
-    mTreeMETmaxEtInHadTowers[metn]  = metHandle->front().maxEtInHadTowers();
-    mTreeMETemEtInHF[metn]          = metHandle->front().emEtInHF();
-    mTreeMETemEtInEE[metn]          = metHandle->front().emEtInEE();
-    mTreeMETemEtInEB[metn]          = metHandle->front().emEtInEB();
-    mTreeMEThadEtInHF[metn]         = metHandle->front().hadEtInHF();
-    mTreeMEThadEtInHE[metn]         = metHandle->front().hadEtInHE();
-    mTreeMEThadEtInHO[metn]         = metHandle->front().hadEtInHO();
-    mTreeMEThadEtInHB[metn]         = metHandle->front().hadEtInHB();
 
     // pf specific
     mTreeMETChargedEMEtFraction[metn]  = -1;
@@ -2193,38 +2152,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 					    << genmetHandle->size() << " instead of 1";
     if (genmetHandle.isValid() && genmetHandle->size()==1) {
       int metn = 1;
-      mTreeMET[metn]         = metHandle->front().et();
-      mTreeMEX[metn]         = metHandle->front().momentum().X();
-      mTreeMEY[metn]         = metHandle->front().momentum().Y();
-      mTreeSumET[metn]       = metHandle->front().sumEt();
-      mTreeMETphi[metn]      = metHandle->front().phi();
-      mTreeSumETSignif[metn] = metHandle->front().mEtSig();
+      mTreeMET[metn]         = genmetHandle->front().et();
+      mTreeMEX[metn]         = genmetHandle->front().momentum().X();
+      mTreeMEY[metn]         = genmetHandle->front().momentum().Y();
+      mTreeSumET[metn]       = genmetHandle->front().sumEt();
+      mTreeMETphi[metn]      = genmetHandle->front().phi();
+      mTreeSumETSignif[metn] = genmetHandle->front().mEtSig();
 
-      double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
-      double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
-      double significance = -1;
-      if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-	significance = (metHandle->front() ).significance();
-      mTreeMETSignif[metn]   = significance;
+      mTreeMETSignif[metn]   = -1;
 
-      // calo specific
-      mTreeMETCaloMETInmHF[metn]      = -1;
-      mTreeMETCaloMETInpHF[metn]      = -1;
-      mTreeMETCaloMETPhiInmHF[metn]   = -1;
-      mTreeMETCaloMETPhiInpHF[metn]   = -1;
-      mTreeMETCaloSETInmHF[metn]      = -1;
-      mTreeMETCaloSETInpHF[metn]      = -1;
-      mTreeMETemEtFraction[metn]      = -1; 
-      mTreeMETetFractionHadronic[metn]= -1; 
-      mTreeMETmaxEtInEmTowers[metn]   = -1; 
-      mTreeMETmaxEtInHadTowers[metn]  = -1; 
-      mTreeMETemEtInHF[metn]          = -1; 
-      mTreeMETemEtInEE[metn]          = -1; 
-      mTreeMETemEtInEB[metn]          = -1; 
-      mTreeMEThadEtInHF[metn]         = -1; 
-      mTreeMEThadEtInHE[metn]         = -1; 
-      mTreeMEThadEtInHO[metn]         = -1; 
-      mTreeMEThadEtInHB[metn]         = -1; 
 
       // pf specific
       mTreeMETChargedEMEtFraction[metn]  = -1;
@@ -2245,37 +2181,14 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 					    << genmet2Handle->size() << " instead of 1";
     if ( genmet2Handle.isValid() && genmet2Handle->size()==1 ) {
       int metn=2;
-      mTreeMET[metn]         = metHandle->front().et();
-      mTreeMEX[metn]         = metHandle->front().momentum().X();
-      mTreeMEY[metn]         = metHandle->front().momentum().Y();
-      mTreeSumET[metn]       = metHandle->front().sumEt();
-      mTreeMETphi[metn]      = metHandle->front().phi();
-      mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-      double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
-      double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
-      double significance = -1;
-      if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-	significance = (metHandle->front() ).significance();
-      mTreeMETSignif[metn]   = significance;
+      mTreeMET[metn]         = genmet2Handle->front().et();
+      mTreeMEX[metn]         = genmet2Handle->front().momentum().X();
+      mTreeMEY[metn]         = genmet2Handle->front().momentum().Y();
+      mTreeSumET[metn]       = genmet2Handle->front().sumEt();
+      mTreeMETphi[metn]      = genmet2Handle->front().phi();
+      mTreeSumETSignif[metn] = genmet2Handle->front().mEtSig();
+      mTreeMETSignif[metn]   = -1;
 
-      // calo specific
-      mTreeMETCaloMETInmHF[metn]      = -1;
-      mTreeMETCaloMETInpHF[metn]      = -1;
-      mTreeMETCaloMETPhiInmHF[metn]   = -1;
-      mTreeMETCaloMETPhiInpHF[metn]   = -1;
-      mTreeMETCaloSETInmHF[metn]      = -1;
-      mTreeMETCaloSETInpHF[metn]      = -1;
-      mTreeMETemEtFraction[metn]      = -1;
-      mTreeMETetFractionHadronic[metn]= -1;
-      mTreeMETmaxEtInEmTowers[metn]   = -1;
-      mTreeMETmaxEtInHadTowers[metn]  = -1;
-      mTreeMETemEtInHF[metn]          = -1;
-      mTreeMETemEtInEE[metn]          = -1;
-      mTreeMETemEtInEB[metn]          = -1;
-      mTreeMEThadEtInHF[metn]         = -1;
-      mTreeMEThadEtInHE[metn]         = -1;
-      mTreeMEThadEtInHO[metn]         = -1;
-      mTreeMEThadEtInHB[metn]         = -1;
 
       // pf specific
       mTreeMETChargedEMEtFraction[metn]  = -1;
@@ -2297,24 +2210,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeSumETSignif[k] = 0.;
       mTreeMETSignif[k]   = 0.;
 
-      // calo specific
-      mTreeMETCaloMETInmHF[k]      = -1;
-      mTreeMETCaloMETInpHF[k]      = -1;
-      mTreeMETCaloMETPhiInmHF[k]   = -1;
-      mTreeMETCaloMETPhiInpHF[k]   = -1;
-      mTreeMETCaloSETInmHF[k]      = -1;
-      mTreeMETCaloSETInpHF[k]      = -1;
-      mTreeMETemEtFraction[k]      = -1;
-      mTreeMETetFractionHadronic[k]= -1;
-      mTreeMETmaxEtInEmTowers[k]   = -1;
-      mTreeMETmaxEtInHadTowers[k]  = -1;
-      mTreeMETemEtInHF[k]          = -1;
-      mTreeMETemEtInEE[k]          = -1;
-      mTreeMETemEtInEB[k]          = -1;
-      mTreeMEThadEtInHF[k]         = -1;
-      mTreeMEThadEtInHE[k]         = -1;
-      mTreeMEThadEtInHO[k]         = -1;
-      mTreeMEThadEtInHB[k]         = -1;
 
       // pf specific
       mTreeMETChargedEMEtFraction[k]  = -1;
@@ -2351,25 +2246,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       significance = (metHandle->front() ).significance();
     mTreeMETSignif[metn]   = significance;
 
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = -1;
-    mTreeMETCaloMETInpHF[metn]      = -1;
-    mTreeMETCaloMETPhiInmHF[metn]   = -1;
-    mTreeMETCaloMETPhiInpHF[metn]   = -1;
-    mTreeMETCaloSETInmHF[metn]      = -1;
-    mTreeMETCaloSETInpHF[metn]      = -1;
-    mTreeMETemEtFraction[metn]      = -1;
-    mTreeMETetFractionHadronic[metn]= -1;
-    mTreeMETmaxEtInEmTowers[metn]   = -1;
-    mTreeMETmaxEtInHadTowers[metn]  = -1;
-    mTreeMETemEtInHF[metn]          = -1;
-    mTreeMETemEtInEE[metn]          = -1;
-    mTreeMETemEtInEB[metn]          = -1;
-    mTreeMEThadEtInHF[metn]         = -1;
-    mTreeMEThadEtInHE[metn]         = -1;
-    mTreeMEThadEtInHO[metn]         = -1;
-    mTreeMEThadEtInHB[metn]         = -1;
-
     // pf specific
     mTreeMETChargedEMEtFraction[metn]  = metHandle->front().ChargedEMEtFraction();
     mTreeMETChargedHadEtFraction[metn] = metHandle->front().ChargedHadEtFraction();
@@ -2402,24 +2278,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       significance = (metHandle->front() ).significance();
     mTreeMETSignif[metn]   = significance;
 
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = -1;
-    mTreeMETCaloMETInpHF[metn]      = -1;
-    mTreeMETCaloMETPhiInmHF[metn]   = -1;
-    mTreeMETCaloMETPhiInpHF[metn]   = -1;
-    mTreeMETCaloSETInmHF[metn]      = -1;
-    mTreeMETCaloSETInpHF[metn]      = -1;
-    mTreeMETemEtFraction[metn]      = -1;
-    mTreeMETetFractionHadronic[metn]= -1;
-    mTreeMETmaxEtInEmTowers[metn]   = -1;
-    mTreeMETmaxEtInHadTowers[metn]  = -1;
-    mTreeMETemEtInHF[metn]          = -1;
-    mTreeMETemEtInEE[metn]          = -1;
-    mTreeMETemEtInEB[metn]          = -1;
-    mTreeMEThadEtInHF[metn]         = -1;
-    mTreeMEThadEtInHE[metn]         = -1;
-    mTreeMEThadEtInHO[metn]         = -1;
-    mTreeMEThadEtInHB[metn]         = -1;
 
     // pf specific
     mTreeMETChargedEMEtFraction[metn]  = -1;
@@ -2450,29 +2308,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
     double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
     double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
+
     if(sigmaX2<1.e10 && sigmaY2<1.e10) 
       significance = (PFmetHandle->front() ).significance();
     mTreeMETSignif[metn]   = significance;
-
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = -1;
-    mTreeMETCaloMETInpHF[metn]      = -1;
-    mTreeMETCaloMETPhiInmHF[metn]   = -1;
-    mTreeMETCaloMETPhiInpHF[metn]   = -1;
-    mTreeMETCaloSETInmHF[metn]      = -1;
-    mTreeMETCaloSETInpHF[metn]      = -1;
-    mTreeMETemEtFraction[metn]      = -1;
-    mTreeMETetFractionHadronic[metn]= -1;
-    mTreeMETmaxEtInEmTowers[metn]   = -1;
-    mTreeMETmaxEtInHadTowers[metn]  = -1;
-    mTreeMETemEtInHF[metn]          = -1;
-    mTreeMETemEtInEE[metn]          = -1;
-    mTreeMETemEtInEB[metn]          = -1;
-    mTreeMEThadEtInHF[metn]         = -1;
-    mTreeMEThadEtInHE[metn]         = -1;
-    mTreeMEThadEtInHO[metn]         = -1;
-    mTreeMEThadEtInHB[metn]         = -1;
 
     // pf specific
     mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
@@ -2506,25 +2345,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     if(sigmaX2<1.e10 && sigmaY2<1.e10) 
       significance = (PFmetHandle->front() ).significance();
     mTreeMETSignif[metn]   = significance;
-
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = -1;
-    mTreeMETCaloMETInpHF[metn]      = -1;
-    mTreeMETCaloMETPhiInmHF[metn]   = -1;
-    mTreeMETCaloMETPhiInpHF[metn]   = -1;
-    mTreeMETCaloSETInmHF[metn]      = -1;
-    mTreeMETCaloSETInpHF[metn]      = -1;
-    mTreeMETemEtFraction[metn]      = -1;
-    mTreeMETetFractionHadronic[metn]= -1;
-    mTreeMETmaxEtInEmTowers[metn]   = -1;
-    mTreeMETmaxEtInHadTowers[metn]  = -1;
-    mTreeMETemEtInHF[metn]          = -1;
-    mTreeMETemEtInEE[metn]          = -1;
-    mTreeMETemEtInEB[metn]          = -1;
-    mTreeMEThadEtInHF[metn]         = -1;
-    mTreeMEThadEtInHE[metn]         = -1;
-    mTreeMEThadEtInHO[metn]         = -1;
-    mTreeMEThadEtInHB[metn]         = -1;
 
     // pf specific
     mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
@@ -2562,24 +2382,6 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       significance = (PFmetHandle->front() ).significance();
     mTreeMETSignif[metn]   = significance;
 
-    // calo specific
-    mTreeMETCaloMETInmHF[metn]      = -1;
-    mTreeMETCaloMETInpHF[metn]      = -1;
-    mTreeMETCaloMETPhiInmHF[metn]   = -1;
-    mTreeMETCaloMETPhiInpHF[metn]   = -1;
-    mTreeMETCaloSETInmHF[metn]      = -1;
-    mTreeMETCaloSETInpHF[metn]      = -1;
-    mTreeMETemEtFraction[metn]      = -1;
-    mTreeMETetFractionHadronic[metn]= -1;
-    mTreeMETmaxEtInEmTowers[metn]   = -1;
-    mTreeMETmaxEtInHadTowers[metn]  = -1;
-    mTreeMETemEtInHF[metn]          = -1;
-    mTreeMETemEtInEE[metn]          = -1;
-    mTreeMETemEtInEB[metn]          = -1;
-    mTreeMEThadEtInHF[metn]         = -1;
-    mTreeMEThadEtInHE[metn]         = -1;
-    mTreeMEThadEtInHO[metn]         = -1;
-    mTreeMEThadEtInHB[metn]         = -1;
 
     //pf specific
     mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
@@ -2861,7 +2663,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("noise_ecal_iphi", &mTreeecaliphi, "noise_ecal_iphi/I");
 
   mAllData->Branch("eventfilter_n",        &mTreeNFilter, "eventfilter_n/I");
-  mAllData->Branch("eventfilter_results",        mTreeFilterResults, "eventfilter_results[eventfilter_n]/O");
+  mAllData->Branch("eventfilter_results",        mTreeFilterResults, "eventfilter_results[eventfilter_n]/I");
   mAllData->Branch("eventfilter_names",        &mTreeFilterName);
 
   mAllData->Branch("trig_name",        &mTreetrigname);
@@ -2943,23 +2745,6 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[8]/double");
   mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[8]/double");
   mAllData->Branch("met_etsignif", &mTreeMETSignif,   "met_etsignif[8]/double");
-  mAllData->Branch("met_CaloMETInmHF",      &mTreeMETCaloMETInmHF,   "met_CaloMETInmHF[8]/double");
-  mAllData->Branch("met_CaloMETInpHF",      &mTreeMETCaloMETInpHF,   "met_CaloMETInpHF[8]/double");
-  mAllData->Branch("met_CaloMETPhiInmHF",   &mTreeMETCaloMETPhiInmHF,   "met_CaloMETPhiInmHF[8]/double");
-  mAllData->Branch("met_CaloMETPhiInpHF",   &mTreeMETCaloMETPhiInpHF,   "met_CaloMETPhiInpHF[8]/double");
-  mAllData->Branch("met_CaloSETInmHF",      &mTreeMETCaloSETInmHF,   "met_CaloSETInmHF[8]/double");
-  mAllData->Branch("met_CaloSETInpHF",      &mTreeMETCaloSETInpHF,   "met_CaloSETInpHF[8]/double");
-  mAllData->Branch("met_emEtFraction",      &mTreeMETemEtFraction,   "met_emEtFraction[8]/double");
-  mAllData->Branch("met_etFractionHadronic",&mTreeMETetFractionHadronic,   "met_etFractionHadronic[8]/double");
-  mAllData->Branch("met_maxEtInEmTowers",   &mTreeMETmaxEtInEmTowers,   "met_maxEtInEmTowers[8]/double");
-  mAllData->Branch("met_maxEtInHadTowers",  &mTreeMETmaxEtInHadTowers,   "met_maxEtInHadTowers[8]/double");
-  mAllData->Branch("met_emEtInHF",          &mTreeMETemEtInHF,   "met_emEtInHF[8]/double");
-  mAllData->Branch("met_emEtInEE",          &mTreeMETemEtInEE,   "met_emEtInEE[8]/double");
-  mAllData->Branch("met_emEtInEB",          &mTreeMETemEtInEB,   "met_emEtInEB[8]/double");
-  mAllData->Branch("met_hadEtInHF",         &mTreeMEThadEtInHF,   "met_hadEtInHF[8]/double");
-  mAllData->Branch("met_hadEtInHE",         &mTreeMEThadEtInHE,   "met_hadEtInHE[8]/double");
-  mAllData->Branch("met_hadEtInHO",         &mTreeMEThadEtInHO,   "met_hadEtInHO[8]/double");
-  mAllData->Branch("met_hadEtInHB",         &mTreeMEThadEtInHB,   "met_hadEtInHB[8]/double");
   mAllData->Branch("met_ChargedEMEtFraction", &mTreeMETChargedEMEtFraction,   "met_ChargedEMEtFraction[8]/double");
   mAllData->Branch("met_ChargedHadEtFraction",&mTreeMETChargedHadEtFraction,   "met_ChargedHadEtFraction[8]/double");
   mAllData->Branch("met_MuonEtFraction",      &mTreeMETMuonEtFraction,   "met_MuonEtFraction[8]/double");

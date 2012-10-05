@@ -60,7 +60,7 @@ public :
    Int_t           noise_ecal_ieta;
    Int_t           noise_ecal_iphi;
    Int_t           eventfilter_n;
-   Bool_t          eventfilter_results[100];   //[eventfilter_n]
+   Int_t          eventfilter_results[100];   //[eventfilter_n]
    vector<string>  *eventfilter_names;
    vector<string>  *trig_name;
    Int_t           trig_n;
