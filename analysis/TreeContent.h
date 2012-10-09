@@ -141,6 +141,16 @@ public :
    Double_t        Genmet_sumetsig[2];
    Double_t        Systmet_et[12];
    Double_t        Systmet_phi[12];
+   Int_t           SystJet_ResUp_n;
+   Double_t        SystJet_ResUp_pt[100];   //[SystJet_ResUp_n]
+   Double_t        SystJet_ResUp_eta[100];   //[SystJet_ResUp_n]
+   Double_t        SystJet_ResUp_phi[100];   //[SystJet_ResUp_n]
+   Double_t        SystJet_ResUp_pt[100];   //[SystJet_ResUp_n]
+   Int_t           SystJet_ResDown_n;
+   Double_t        SystJet_ResDown_pt[100];   //[SystJet_ResDown_n]
+   Double_t        SystJet_ResDown_eta[100];   //[SystJet_ResDown_n]
+   Double_t        SystJet_ResDown_phi[100];   //[SystJet_ResDown_n]
+   Double_t        SystJet_ResDown_pt[100];   //[SystJet_ResDown_n]
    Int_t           pfjet_n;
    Double_t        pfjet_E[100];   //[pfjet_n]
    Double_t        pfjet_Et[100];   //[pfjet_n]
@@ -559,6 +569,16 @@ public :
    TBranch        *b_Genmet_sumetsig;   //!
    TBranch        *b_Systmet_et;   //!
    TBranch        *b_Systmet_phi;   //!
+   TBranch        *b_SystJet_ResUp_n;   //!
+   TBranch        *b_SystJet_ResUp_pt;   //!
+   TBranch        *b_SystJet_ResUp_eta;   //!
+   TBranch        *b_SystJet_ResUp_phi;   //!
+   TBranch        *b_SystJet_ResUp_pt;   //!
+   TBranch        *b_SystJet_ResDown_n;   //!
+   TBranch        *b_SystJet_ResDown_pt;   //!
+   TBranch        *b_SystJet_ResDown_eta;   //!
+   TBranch        *b_SystJet_ResDown_phi;   //!
+   TBranch        *b_SystJet_ResDown_pt;   //!
    TBranch        *b_pfjet_n;   //!
    TBranch        *b_pfjet_E;   //!
    TBranch        *b_pfjet_Et;   //!
@@ -1050,6 +1070,16 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("Genmet_sumetsig", Genmet_sumetsig, &b_Genmet_sumetsig);
    fChain->SetBranchAddress("Systmet_et", Systmet_et, &b_Systmet_et);
    fChain->SetBranchAddress("Systmet_phi", Systmet_phi, &b_Systmet_phi);
+   fChain->SetBranchAddress("SystJet_ResUp_n", &SystJet_ResUp_n, &b_SystJet_ResUp_n);
+   fChain->SetBranchAddress("SystJet_ResUp_pt", SystJet_ResUp_pt, &b_SystJet_ResUp_pt);
+   fChain->SetBranchAddress("SystJet_ResUp_eta", SystJet_ResUp_eta, &b_SystJet_ResUp_eta);
+   fChain->SetBranchAddress("SystJet_ResUp_phi", SystJet_ResUp_phi, &b_SystJet_ResUp_phi);
+//    fChain->SetBranchAddress("SystJet_ResUp_pt", SystJet_ResUp_pt, &b_SystJet_ResUp_pt);
+   fChain->SetBranchAddress("SystJet_ResDown_n", &SystJet_ResDown_n, &b_SystJet_ResDown_n);
+   fChain->SetBranchAddress("SystJet_ResDown_pt", SystJet_ResDown_pt, &b_SystJet_ResDown_pt);
+   fChain->SetBranchAddress("SystJet_ResDown_eta", SystJet_ResDown_eta, &b_SystJet_ResDown_eta);
+   fChain->SetBranchAddress("SystJet_ResDown_phi", SystJet_ResDown_phi, &b_SystJet_ResDown_phi);
+//    fChain->SetBranchAddress("SystJet_ResDown_pt", SystJet_ResDown_pt, &b_SystJet_ResDown_pt);
    fChain->SetBranchAddress("pfjet_n", &pfjet_n, &b_pfjet_n);
    fChain->SetBranchAddress("pfjet_E", pfjet_E, &b_pfjet_E);
    fChain->SetBranchAddress("pfjet_Et", pfjet_Et, &b_pfjet_Et);

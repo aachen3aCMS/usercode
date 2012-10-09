@@ -2263,14 +2263,12 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   for(int i=0; i<12;i++){
     addMETSystematics(iEvent,  METcollection[i], i);
   } 
-  //met uncertainties:
-  //TString METcollectionObjecs [2]={"smearedPatJetsResUp","smearedPatJetsResDown"};
-  //mTreeSystJet_ResUpP4.Clear();
-  //mTreeSystJet_ResDownP4.Clear();
+  //jet uncertainties:
+  TString METcollectionObjecs [2]={"smearedPatJetsResUp","smearedPatJetsResDown"};
   
-  //for(int i=0; i<2;i++){
-    //addMETSystematicsObject(iEvent,  METcollectionObjecs[i], i);
-  //}
+  for(int i=0; i<2;i++){
+    addMETSystematicsObject(iEvent,  METcollectionObjecs[i], i);
+  }
 
   // This filter
   if (met0_ > 0 && mTreeMET[0] < met0_) return 0;
@@ -2366,27 +2364,35 @@ void SusyACSkimAnalysis::addMETSystematics(edm::Event& iEvent, TString METcollec
     }
 }
 
-//void SusyACSkimAnalysis::addMETSystematicsObject(edm::Event& iEvent, TString JETcollection, int ijet){
-    //edm::Handle< std::vector<pat::Jet> > jetHandle;
-    //iEvent.getByLabel(JETcollection.Data(), jetHandle);
-    //if ( !jetHandle.isValid() ) 
-        //edm::LogWarning("SusyACSkimAnalysis") << "No JET results found for InputTag " << JETcollection.Data();
-    //if ( jetHandle.isValid() && jetHandle->size()>=1 ) {
-        //for(unsigned int i=0; i<jetHandle->size();i++){
-            //if((*jetHandle)[i].pt()>10 66 i<100){
-                //tmpJet
-                //if(ijet==0){
-                    //TLorentzVector *jet = (TLorentzVector*)mTreeSystJet_ResUpP4->ConstructedAt(i);
-                    //jet->SetPxPyPzE((*jetHandle)[i].px(),(*jetHandle)[i].py(),(*jetHandle)[i].pz(),(*jetHandle)[i].energy());
-                //}
-                //if(ijet==1){
-                    //TLorentzVector *jet = (TLorentzVector*)mTreeSystJet_ResDownP4->ConstructedAt(i);
-                    //jet->SetPxPyPzE((*jetHandle)[i].px(),(*jetHandle)[i].py(),(*jetHandle)[i].pz(),(*jetHandle)[i].energy());
-                //}
-            //}
-        //}
-    //}
-//}
+void SusyACSkimAnalysis::addMETSystematicsObject(edm::Event& iEvent, TString JETcollection, int ijet){
+    edm::Handle< std::vector<pat::Jet> > jetHandle;
+    iEvent.getByLabel(JETcollection.Data(), jetHandle);
+    mTreeSystJet_ResUp_n=0;
+    mTreeSystJet_ResDown_n=0;
+    
+    if ( !jetHandle.isValid() ) 
+        edm::LogWarning("SusyACSkimAnalysis") << "No JET results found for InputTag " << JETcollection.Data();
+    if ( jetHandle.isValid() && jetHandle->size()>=1 ) {
+        for(unsigned int i=0; i<jetHandle->size();i++){
+            if((*jetHandle)[i].pt()>10 && i<100){
+                if(ijet==0){
+                    mTreeSystJet_ResUp_pt[i]=(*jetHandle)[i].pt();
+                    mTreeSystJet_ResUp_eta[i]=(*jetHandle)[i].eta();
+                    mTreeSystJet_ResUp_phi[i]=(*jetHandle)[i].phi();
+                    mTreeSystJet_ResUp_m[i]=(*jetHandle)[i].mass();
+                    mTreeSystJet_ResUp_n++;
+                }
+                if(ijet==1){
+                    mTreeSystJet_ResDown_pt[i]=(*jetHandle)[i].pt();
+                    mTreeSystJet_ResDown_eta[i]=(*jetHandle)[i].eta();
+                    mTreeSystJet_ResDown_phi[i]=(*jetHandle)[i].phi();
+                    mTreeSystJet_ResDown_m[i]=(*jetHandle)[i].mass();
+                    mTreeSystJet_ResDown_n++;
+                }
+            }
+        }
+    }
+}
 
 void SusyACSkimAnalysis::storeMuonVertex(
   reco::TrackRef trackref1,
@@ -2666,8 +2672,21 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("Systmet_et",       &mTreeSystMET,         "Systmet_et[12]/double");
   mAllData->Branch("Systmet_phi",      &mTreeSystMETphi,      "Systmet_phi[12]/double");
   
-  //mAllData->Branch("SystJet_ResUp",      &mTreeSystJet_ResUpP4);
-  //mAllData->Branch("SystJet_ResDown",      &mTreeSystJet_ResDownP4);
+  
+  
+  mAllData->Branch("SystJet_ResUp_n",     &mTreeSystJet_ResUp_n,      "SystJet_ResUp_n/I");
+  mAllData->Branch("SystJet_ResUp_pt" ,     mTreeSystJet_ResUp_pt,      "SystJet_ResUp_pt[SystJet_ResUp_n]/double");
+  mAllData->Branch("SystJet_ResUp_eta" ,     mTreeSystJet_ResUp_eta,      "SystJet_ResUp_eta[SystJet_ResUp_n]/double");
+  mAllData->Branch("SystJet_ResUp_phi" ,     mTreeSystJet_ResUp_phi,      "SystJet_ResUp_phi[SystJet_ResUp_n]/double");
+  mAllData->Branch("SystJet_ResUp_pt" ,     mTreeSystJet_ResUp_pt,      "SystJet_ResUp_pt[SystJet_ResUp_n]/double");
+  
+  mAllData->Branch("SystJet_ResDown_n",     &mTreeSystJet_ResDown_n,      "SystJet_ResDown_n/I");
+  mAllData->Branch("SystJet_ResDown_pt" ,     mTreeSystJet_ResDown_pt,      "SystJet_ResDown_pt[SystJet_ResDown_n]/double");
+  mAllData->Branch("SystJet_ResDown_eta" ,     mTreeSystJet_ResDown_eta,      "SystJet_ResDown_eta[SystJet_ResDown_n]/double");
+  mAllData->Branch("SystJet_ResDown_phi" ,     mTreeSystJet_ResDown_phi,      "SystJet_ResDown_phi[SystJet_ResDown_n]/double");
+  mAllData->Branch("SystJet_ResDown_pt" ,     mTreeSystJet_ResDown_pt,      "SystJet_ResDown_pt[SystJet_ResDown_n]/double");
+  
+
 
 
   // PF Jets

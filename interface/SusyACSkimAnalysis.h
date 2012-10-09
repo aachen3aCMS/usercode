@@ -139,7 +139,7 @@ private:
   virtual bool isDecaying(int pdgid);
   virtual bool isSUSY(int pdgid);
   void addMETSystematics(edm::Event&, TString METcollection, int imet);
-  //void addMETSystematicsObject(edm::Event&, TString JETcollection, int ijet);
+  void addMETSystematicsObject(edm::Event&, TString JETcollection, int ijet);
 
   /// Print a summary of counts for all selectors
   virtual void printSummary(void);
@@ -442,6 +442,18 @@ private:
   
   double mTreeSystMET[12];
   double mTreeSystMETphi[12];
+  
+  int mTreeSystJet_ResUp_n;
+  double mTreeSystJet_ResUp_pt[100];
+  double mTreeSystJet_ResUp_eta[100];
+  double mTreeSystJet_ResUp_phi[100];
+  double mTreeSystJet_ResUp_m[100];
+  
+  int mTreeSystJet_ResDown_n;
+  double mTreeSystJet_ResDown_pt[100];
+  double mTreeSystJet_ResDown_eta[100];
+  double mTreeSystJet_ResDown_phi[100];
+  double mTreeSystJet_ResDown_m[100];
   
 
   int    mTreeNtracks;
