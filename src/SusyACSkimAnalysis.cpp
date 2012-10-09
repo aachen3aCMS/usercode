@@ -36,29 +36,21 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
 
   // get the data tags
   pfjetTag_          = iConfig.getParameter<edm::InputTag>("pfjetTag");
-  metTag_            = iConfig.getParameter<edm::InputTag>("metTag");
-  metTagPF_          = iConfig.getParameter<edm::InputTag>("metTagPF");
-  metTagTC_          = iConfig.getParameter<edm::InputTag>("metTagTC");
+  metRAWTag_          = iConfig.getParameter<edm::InputTag>("metRAWTag");
+  metType1Tag_        = iConfig.getParameter<edm::InputTag>("metType1Tag");
+  metType0Tag_        = iConfig.getParameter<edm::InputTag>("metType0Tag");
   photonTag_         = iConfig.getParameter<edm::InputTag>("photonTag");
   elecTag_           = iConfig.getParameter<edm::InputTag>("elecTag");
   gsfelecTag_        = iConfig.getParameter<edm::InputTag>("gsfelecTag");
   PFelecTag_         = iConfig.getParameter<edm::InputTag>("pfelecTag");
   muonTag_           = iConfig.getParameter<edm::InputTag>("muonTag");
   tauSrc_            = iConfig.getParameter<edm::InputTag>("tauTag");
-  metTagPFnoPU_      = iConfig.getParameter<edm::InputTag >("metTagPFnoPU");
-  metTagJPFnoPUType1_ = iConfig.getParameter<edm::InputTag >("metTagJPFnoPUType1");
-  metTagcorMetGlobalMuons_ = iConfig.getParameter<edm::InputTag >("metTagcorMetGlobalMuons");
-  metTagHO_          = iConfig.getParameter<edm::InputTag >("metTagHO");
-  metTagNoHF_        = iConfig.getParameter<edm::InputTag >("metTagNoHF");
   genTag_            = iConfig.getParameter<edm::InputTag>("genTag");
   genJetTag_         = iConfig.getParameter<edm::InputTag>("genJetTag");
   vertexTag_         = iConfig.getParameter<edm::InputTag>("vtxTag");
   ebhitsTag_         = iConfig.getParameter<edm::InputTag>("ebhitsTag");
   freducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
   freducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
-//  inputTagIsoDepElectrons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepElectron");
-//  inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");
-//  inputTagIsoDepPhotons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepPhoton");
   inputTagIsoValPhotonsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValPhotonPF");
   hltInputTag_       = iConfig.getParameter<edm::InputTag>("HLTInputTag");
   TriggerSummary_    = iConfig.getParameter<edm::InputTag>("TriggerSummaryTag");
@@ -96,9 +88,9 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   pfeleeta_        = iConfig.getParameter<double>("pfeleeta");
   pfjetpt_         = iConfig.getParameter<double>("pfjetpt");
   pfjeteta_        = iConfig.getParameter<double>("pfjeteta");
-  metcalo_         = iConfig.getParameter<double>("metcalo");
-  metpf_           = iConfig.getParameter<double>("metpf");
-  mettc_           = iConfig.getParameter<double>("mettc");
+  met0_            = iConfig.getParameter<double>("met0");
+  met1_            = iConfig.getParameter<double>("met1");
+  met2_            = iConfig.getParameter<double>("met2");
   htc_             = iConfig.getParameter<double>("htc");
   PFhtc_           = iConfig.getParameter<double>("PFhtc");
   taupt_           = iConfig.getParameter<double>("taupt");
@@ -449,18 +441,18 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     nrEventPassedQscaleRaw_++;
   }
 
-  edm::Handle<double> rhoEGH;
-  iEvent.getByLabel(edm::InputTag("kt6PFJetsForIsolation","rho"),rhoEGH);
-  if(rhoEGH.isValid()){
-    mTreeElerhoEG=(*rhoEGH);
-  }
-  else {
-    edm::LogWarning("SusyACSkimAnalysis") << " could not find rhoEGH";
-    mTreeElerhoEG=-1;
-  }
+  //edm::Handle<double> rhoEGH;
+  //iEvent.getByLabel(edm::InputTag("kt6PFJetsForIsolation","rho"),rhoEGH);
+  //if(rhoEGH.isValid()){
+    //mTreeElerhoEG=(*rhoEGH);
+  //}
+  //else {
+    //edm::LogWarning("SusyACSkimAnalysis") << " could not find rhoEGH";
+    //mTreeElerhoEG=-1;
+  //}
 
   edm::Handle<double> rhoH;
-  iEvent.getByLabel(edm::InputTag("kt6PFJetsPFlow","rho"),rhoH);
+  iEvent.getByLabel(edm::InputTag("kt6PFJets","rho"),rhoH);
   if(rhoH.isValid()){
     mTreeElerho=(*rhoH);
   }
@@ -2112,126 +2104,101 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   DEBUG("Mark 19")
 
-  // MET
-  edm::Handle< std::vector<pat::MET> > metHandle;
-  iEvent.getByLabel(metTag_, metHandle);
-  if (!metHandle.isValid())
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTag_;
-  if ( metHandle->size() !=1 )
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << metHandle->size() << " instead of 1";
-  if ( metHandle.isValid() && metHandle->size()==1 ) {
-    int metn = 0;
-    mTreeMET[metn]         = metHandle->front().et();
-    mTreeMEX[metn]         = metHandle->front().momentum().X();
-    mTreeMEY[metn]         = metHandle->front().momentum().Y();
-    mTreeSumET[metn]       = metHandle->front().sumEt();
-    mTreeMETphi[metn]      = metHandle->front().phi();
-    mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-    mTreeMETSignif[metn]   = -1;
-
-
-    // pf specific
-    mTreeMETChargedEMEtFraction[metn]  = -1;
-    mTreeMETChargedHadEtFraction[metn] = -1;
-    mTreeMETMuonEtFraction[metn]       = -1;
-    mTreeMETNeutralEMFraction[metn]    = -1;
-    mTreeMETNeutralHadEtFraction[metn] = -1;
-    mTreeMETType6EtFraction[metn]      = -1;
-    mTreeMETType7EtFraction[metn]      = -1;
-  }
-
   if (is_MC) {
-    // genMET
+    
+    // genMET 
     edm::Handle< std::vector<reco::GenMET> > genmetHandle;
     iEvent.getByLabel("genMetCalo", genmetHandle);
-    if (!genmetHandle.isValid())
+    if ( !genmetHandle.isValid() ) 
       edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMetCalo";
-    if (genmetHandle->size()!=1)
+    if ( genmetHandle->size()!=1 ) 
       edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
 					    << genmetHandle->size() << " instead of 1";
-    if (genmetHandle.isValid() && genmetHandle->size()==1) {
-      int metn = 1;
-      mTreeMET[metn]         = genmetHandle->front().et();
-      mTreeMEX[metn]         = genmetHandle->front().momentum().X();
-      mTreeMEY[metn]         = genmetHandle->front().momentum().Y();
-      mTreeSumET[metn]       = genmetHandle->front().sumEt();
-      mTreeMETphi[metn]      = genmetHandle->front().phi();
-      mTreeSumETSignif[metn] = genmetHandle->front().mEtSig();
-
-      mTreeMETSignif[metn]   = -1;
-
-
-      // pf specific
-      mTreeMETChargedEMEtFraction[metn]  = -1;
-      mTreeMETChargedHadEtFraction[metn] = -1;
-      mTreeMETMuonEtFraction[metn]       = -1;
-      mTreeMETNeutralEMFraction[metn]    = -1;
-      mTreeMETNeutralHadEtFraction[metn] = -1;
-      mTreeMETType6EtFraction[metn]      = -1;
-      mTreeMETType7EtFraction[metn]      = -1;
+    if ( genmetHandle.isValid() && genmetHandle->size()==1 ) {
+      
+      int metn=0;
+      mTreeGenMET[metn]         = genmetHandle->front().et();
+      mTreeMEX[metn]            = genmetHandle->front().momentum().X();
+      mTreeGenMEY[metn]         = genmetHandle->front().momentum().Y();
+      mTreeGenSumET[metn]       = genmetHandle->front().sumEt();
+      mTreeGenMETphi[metn]      = genmetHandle->front().phi();
+      mTreeGenSumETSignif[metn] = genmetHandle->front().mEtSig();
     }
-
+    
     edm::Handle< std::vector<reco::GenMET> > genmet2Handle;
     iEvent.getByLabel("genMetCaloAndNonPrompt", genmet2Handle);
-    if ( !genmet2Handle.isValid() )
+    if ( !genmet2Handle.isValid() ) 
       edm::LogWarning("SusyACSkimAnalysis") << "No reco::GenMET results found for InputTag genMetCaloAndNonPrompt";
-    if ( genmet2Handle->size()!=1 )
+    if ( genmet2Handle->size()!=1 ) 
       edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
 					    << genmet2Handle->size() << " instead of 1";
     if ( genmet2Handle.isValid() && genmet2Handle->size()==1 ) {
-      int metn=2;
-      mTreeMET[metn]         = genmet2Handle->front().et();
-      mTreeMEX[metn]         = genmet2Handle->front().momentum().X();
-      mTreeMEY[metn]         = genmet2Handle->front().momentum().Y();
-      mTreeSumET[metn]       = genmet2Handle->front().sumEt();
-      mTreeMETphi[metn]      = genmet2Handle->front().phi();
-      mTreeSumETSignif[metn] = genmet2Handle->front().mEtSig();
-      mTreeMETSignif[metn]   = -1;
-
-
-      // pf specific
-      mTreeMETChargedEMEtFraction[metn]  = -1;
-      mTreeMETChargedHadEtFraction[metn] = -1;
-      mTreeMETMuonEtFraction[metn]       = -1;
-      mTreeMETNeutralEMFraction[metn]    = -1;
-      mTreeMETNeutralHadEtFraction[metn] = -1;
-      mTreeMETType6EtFraction[metn]      = -1;
-      mTreeMETType7EtFraction[metn]      = -1;
+      
+      int metn=1;
+      mTreeGenMET[metn]         = genmet2Handle->front().et();
+      mTreeGenMEX[metn]         = genmet2Handle->front().momentum().X();
+      mTreeGenMEY[metn]         = genmet2Handle->front().momentum().Y();
+      mTreeGenSumET[metn]       = genmet2Handle->front().sumEt();
+      mTreeGenMETphi[metn]      = genmet2Handle->front().phi();
+      mTreeGenSumETSignif[metn] = genmet2Handle->front().mEtSig();
+    }
+  }else {
+    for (int k=0; k<=1; k++) {
+      mTreeGenMET[k]         = 0.;
+      mTreeGenMEX[k]         = 0.;
+      mTreeGenMEY[k]         = 0.;
+      mTreeGenSumET[k]       = 0.;
+      mTreeGenMETphi[k]      = 0.;
+      mTreeGenSumETSignif[k] = 0.;
     }
   }
-  else {
-    for (int k=1; k<=2; k++) {
-      mTreeMET[k]         = 0.;
-      mTreeMEX[k]         = 0.;
-      mTreeMEY[k]         = 0.;
-      mTreeSumET[k]       = 0.;
-      mTreeMETphi[k]      = 0.;
-      mTreeSumETSignif[k] = 0.;
-      mTreeMETSignif[k]   = 0.;
-
-
-      // pf specific
-      mTreeMETChargedEMEtFraction[k]  = -1;
-      mTreeMETChargedHadEtFraction[k] = -1;
-      mTreeMETMuonEtFraction[k]       = -1;
-      mTreeMETNeutralEMFraction[k]    = -1;
-      mTreeMETNeutralHadEtFraction[k] = -1;
-      mTreeMETType6EtFraction[k]      = -1;
-      mTreeMETType7EtFraction[k]      = -1;
-    }
-  }
-
-
-  // ParticleFlow MET
-  iEvent.getByLabel(metTagPF_, metHandle);
-  if ( !metHandle.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagPF_;
-  if ( metHandle->size()!=1 )
+  
+  
+  // MET use only pfmet
+  //raw
+  edm::Handle< std::vector<reco::PFMET> > metHandleRAW;
+  iEvent.getByLabel(metRAWTag_, metHandleRAW);
+  if ( !metHandleRAW.isValid() ) 
+    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metRAWTag_;
+  if ( metHandleRAW->size()!=1 ) 
     edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << metHandle->size() << " instead of 1";
+                    << metHandleRAW->size() << " instead of 1";
+  if ( metHandleRAW.isValid() && metHandleRAW->size()==1 ) {
+    int metn=0;
+    mTreeMET[metn]         = metHandleRAW->front().et();
+    mTreeMEX[metn]         = metHandleRAW->front().momentum().X();
+    mTreeMEY[metn]         = metHandleRAW->front().momentum().Y();
+    mTreeSumET[metn]       = metHandleRAW->front().sumEt();
+    mTreeMETphi[metn]      = metHandleRAW->front().phi();
+    mTreeSumETSignif[metn] = metHandleRAW->front().mEtSig();
+    //if(metHandleRAW->front().getSignificanceMatrix());
+    double sigmaX2= (metHandleRAW->front() ).getSignificanceMatrix()(0,0);
+    double sigmaY2= (metHandleRAW->front() ).getSignificanceMatrix()(1,1);
+    double significance = -1;
+    if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandleRAW->front() ).significance();
+
+    mTreeMETSignif[metn]   = significance;
+    
+    //pf spesific
+    mTreeMETChargedEMEtFraction[metn]  = metHandleRAW->front().ChargedEMEtFraction();
+    mTreeMETChargedHadEtFraction[metn] = metHandleRAW->front().ChargedHadEtFraction();
+    mTreeMETMuonEtFraction[metn]       = metHandleRAW->front().MuonEtFraction();
+    mTreeMETNeutralEMFraction[metn]  = metHandleRAW->front().NeutralEMFraction();
+    mTreeMETNeutralHadEtFraction[metn] = metHandleRAW->front().NeutralHadEtFraction();
+    mTreeMETType6EtFraction[metn]      = metHandleRAW->front().Type6EtFraction();
+    mTreeMETType7EtFraction[metn]      = metHandleRAW->front().Type7EtFraction();
+  }
+  
+  //type1
+  edm::Handle< std::vector<pat::MET> > metHandle;
+  iEvent.getByLabel(metType1Tag_, metHandle);
+  if ( !metHandle.isValid() ) 
+    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metType1Tag_;
+  if ( metHandle->size()!=1 ) 
+    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
+				      << metHandle->size() << " instead of 1";
   if ( metHandle.isValid() && metHandle->size()==1 ) {
-    int metn=3;
+    int metn=1;
     mTreeMET[metn]         = metHandle->front().et();
     mTreeMEX[metn]         = metHandle->front().momentum().X();
     mTreeMEY[metn]         = metHandle->front().momentum().Y();
@@ -2240,163 +2207,75 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeSumETSignif[metn] = metHandle->front().mEtSig();
     //if(metHandle->front().getSignificanceMatrix());
     double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (metHandle->front() ).significance();
-    mTreeMETSignif[metn]   = significance;
+	double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (metHandle->front() ).significance();
 
-    // pf specific
+    mTreeMETSignif[metn]   = significance;
+    
+    //pf spesific
     mTreeMETChargedEMEtFraction[metn]  = metHandle->front().ChargedEMEtFraction();
     mTreeMETChargedHadEtFraction[metn] = metHandle->front().ChargedHadEtFraction();
     mTreeMETMuonEtFraction[metn]       = metHandle->front().MuonEtFraction();
-    mTreeMETNeutralEMFraction[metn]    = metHandle->front().NeutralEMFraction();
+    mTreeMETNeutralEMFraction[metn]  = metHandle->front().NeutralEMFraction();
     mTreeMETNeutralHadEtFraction[metn] = metHandle->front().NeutralHadEtFraction();
     mTreeMETType6EtFraction[metn]      = metHandle->front().Type6EtFraction();
     mTreeMETType7EtFraction[metn]      = metHandle->front().Type7EtFraction();
   }
-
-  // TrackCorrected MET
-  iEvent.getByLabel(metTagTC_, metHandle);
-  if ( !metHandle.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagTC_;
-  if ( metHandle->size()!=1 )
+  
+  //type0
+  edm::Handle< std::vector<reco::PFMET> > rmetHandle;
+  iEvent.getByLabel(metType0Tag_, rmetHandle);
+  if ( !rmetHandle.isValid() ) 
+    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metType0Tag_;
+  if ( rmetHandle->size()!=1 ) 
     edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << metHandle->size() << " instead of 1";
-  if ( metHandle.isValid() && metHandle->size()==1 ) {
-    int metn = 4;
-    mTreeMET[metn]         = metHandle->front().et();
-    mTreeMEX[metn]         = metHandle->front().momentum().X();
-    mTreeMEY[metn]         = metHandle->front().momentum().Y();
-    mTreeSumET[metn]       = metHandle->front().sumEt();
-    mTreeMETphi[metn]      = metHandle->front().phi();
-    mTreeSumETSignif[metn] = metHandle->front().mEtSig();
-    double sigmaX2= (metHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (metHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (metHandle->front() ).significance();
+				      << rmetHandle->size() << " instead of 1";
+  if ( rmetHandle.isValid() && rmetHandle->size()==1 ) {
+    int metn=2;
+    mTreeMET[metn]         = rmetHandle->front().et();
+    mTreeMEX[metn]         = rmetHandle->front().momentum().X();
+    mTreeMEY[metn]         = rmetHandle->front().momentum().Y();
+    mTreeSumET[metn]       = rmetHandle->front().sumEt();
+    mTreeMETphi[metn]      = rmetHandle->front().phi();
+    mTreeSumETSignif[metn] = rmetHandle->front().mEtSig();
+    //if(metHandle->front().getSignificanceMatrix());
+    double sigmaX2= (rmetHandle->front() ).getSignificanceMatrix()(0,0);
+	double sigmaY2= (rmetHandle->front() ).getSignificanceMatrix()(1,1);
+	double significance = -1;
+	if(sigmaX2<1.e10 && sigmaY2<1.e10) significance = (rmetHandle->front() ).significance();
+
     mTreeMETSignif[metn]   = significance;
-
-
-    // pf specific
-    mTreeMETChargedEMEtFraction[metn]  = -1;
-    mTreeMETChargedHadEtFraction[metn] = -1;
-    mTreeMETMuonEtFraction[metn]       = -1;
-    mTreeMETNeutralEMFraction[metn]    = -1;
-    mTreeMETNeutralHadEtFraction[metn] = -1;
-    mTreeMETType6EtFraction[metn]      = -1;
-    mTreeMETType7EtFraction[metn]      = -1;
+    
+    //pf spesific
+    mTreeMETChargedEMEtFraction[metn]  = rmetHandle->front().ChargedEMEtFraction();
+    mTreeMETChargedHadEtFraction[metn] = rmetHandle->front().ChargedHadEtFraction();
+    mTreeMETMuonEtFraction[metn]       = rmetHandle->front().MuonEtFraction();
+    mTreeMETNeutralEMFraction[metn]  = rmetHandle->front().NeutralEMFraction();
+    mTreeMETNeutralHadEtFraction[metn] = rmetHandle->front().NeutralHadEtFraction();
+    mTreeMETType6EtFraction[metn]      = rmetHandle->front().Type6EtFraction();
+    mTreeMETType7EtFraction[metn]      = rmetHandle->front().Type7EtFraction();
   }
-
-
-  // PFMETnoPU
-  edm::Handle< std::vector<reco::PFMET> > PFmetHandle;
-  iEvent.getByLabel(metTagPFnoPU_, PFmetHandle);
-  if ( !PFmetHandle.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagPFnoPU_;
-  if ( PFmetHandle->size()!=1 )
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << PFmetHandle->size() << " instead of 1";
-  if ( PFmetHandle.isValid() && PFmetHandle->size()==1 ) {
-    int metn=5;
-    mTreeMET[metn]         = PFmetHandle->front().et();
-    mTreeMEX[metn]         = PFmetHandle->front().momentum().X();
-    mTreeMEY[metn]         = PFmetHandle->front().momentum().Y();
-    mTreeSumET[metn]       = PFmetHandle->front().sumEt();
-    mTreeMETphi[metn]      = PFmetHandle->front().phi();
-    mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
-
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (PFmetHandle->front() ).significance();
-    mTreeMETSignif[metn]   = significance;
-
-    // pf specific
-    mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
-    mTreeMETChargedHadEtFraction[metn] = PFmetHandle->front().ChargedHadEtFraction();
-    mTreeMETMuonEtFraction[metn]       = PFmetHandle->front().MuonEtFraction();
-    mTreeMETNeutralEMFraction[metn]    = PFmetHandle->front().NeutralEMFraction();
-    mTreeMETNeutralHadEtFraction[metn] = PFmetHandle->front().NeutralHadEtFraction();
-    mTreeMETType6EtFraction[metn]      = PFmetHandle->front().Type6EtFraction();
-    mTreeMETType7EtFraction[metn]      = PFmetHandle->front().Type7EtFraction();
-  }
-
-  //metTagJPFnoPUType1
-  iEvent.getByLabel(metTagJPFnoPUType1_, PFmetHandle);
-  if ( !PFmetHandle.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagJPFnoPUType1_;
-  if ( PFmetHandle->size()!=1 )
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << PFmetHandle->size() << " instead of 1";
-  if ( PFmetHandle.isValid() && PFmetHandle->size()==1 ) {
-
-    int metn=6;
-    mTreeMET[metn]         = PFmetHandle->front().et();
-    mTreeMEX[metn]         = PFmetHandle->front().momentum().X();
-    mTreeMEY[metn]         = PFmetHandle->front().momentum().Y();
-    mTreeSumET[metn]       = PFmetHandle->front().sumEt();
-    mTreeMETphi[metn]      = PFmetHandle->front().phi();
-    mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (PFmetHandle->front() ).significance();
-    mTreeMETSignif[metn]   = significance;
-
-    // pf specific
-    mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
-    mTreeMETChargedHadEtFraction[metn] = PFmetHandle->front().ChargedHadEtFraction();
-    mTreeMETMuonEtFraction[metn]       = PFmetHandle->front().MuonEtFraction();
-    mTreeMETNeutralEMFraction[metn]    = PFmetHandle->front().NeutralEMFraction();
-    mTreeMETNeutralHadEtFraction[metn] = PFmetHandle->front().NeutralHadEtFraction();
-    mTreeMETType6EtFraction[metn]      = PFmetHandle->front().Type6EtFraction();
-    mTreeMETType7EtFraction[metn]      = PFmetHandle->front().Type7EtFraction();
-  }
-
-
-  // metTagcorMetGlobalMuons
-  // this is type1 corrected pfMet
-  //edm::Handle< std::vector<reco::CaloMET> > CalometHandle;
-  iEvent.getByLabel(metTagcorMetGlobalMuons_, PFmetHandle);
-  if ( !PFmetHandle.isValid() )
-    edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << metTagcorMetGlobalMuons_;
-  if ( PFmetHandle->size()!=1 )
-    edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "
-					  << PFmetHandle->size() << " instead of 1";
-  if ( PFmetHandle.isValid() && PFmetHandle->size()==1 ) {
-
-    int metn=7;
-    mTreeMET[metn]         = PFmetHandle->front().et();
-    mTreeMEX[metn]         = PFmetHandle->front().momentum().X();
-    mTreeMEY[metn]         = PFmetHandle->front().momentum().Y();
-    mTreeSumET[metn]       = PFmetHandle->front().sumEt();
-    mTreeMETphi[metn]      = PFmetHandle->front().phi();
-    mTreeSumETSignif[metn] = PFmetHandle->front().mEtSig();
-    double sigmaX2= (PFmetHandle->front() ).getSignificanceMatrix()(0,0);
-    double sigmaY2= (PFmetHandle->front() ).getSignificanceMatrix()(1,1);
-    double significance = -1;
-    if(sigmaX2<1.e10 && sigmaY2<1.e10) 
-      significance = (PFmetHandle->front() ).significance();
-    mTreeMETSignif[metn]   = significance;
-
-
-    //pf specific
-    mTreeMETChargedEMEtFraction[metn]  = PFmetHandle->front().ChargedEMEtFraction();
-    mTreeMETChargedHadEtFraction[metn] = PFmetHandle->front().ChargedHadEtFraction();
-    mTreeMETMuonEtFraction[metn]       = PFmetHandle->front().MuonEtFraction();
-    mTreeMETNeutralEMFraction[metn]    = PFmetHandle->front().NeutralEMFraction();
-    mTreeMETNeutralHadEtFraction[metn] = PFmetHandle->front().NeutralHadEtFraction();
-    mTreeMETType6EtFraction[metn]      = PFmetHandle->front().Type6EtFraction();
-    mTreeMETType7EtFraction[metn]      = PFmetHandle->front().Type7EtFraction();
-  }
+  
+  
+  //met uncertainties:
+  TString METcollection [12]={"patType1CorrectedPFMetElectronEnUp","patType1CorrectedPFMetElectronEnDown","patType1CorrectedPFMetMuonEnUp","patType1CorrectedPFMetMuonEnDown","patType1CorrectedPFMetTauEnUp","patType1CorrectedPFMetTauEnDown","patType1CorrectedPFMetJetResUp","patType1CorrectedPFMetJetResDown","patType1CorrectedPFMetJetEnUp","patType1CorrectedPFMetJetEnDown","patType1CorrectedPFMetUnclusteredEnUp","patType1CorrectedPFMetUnclusteredEnDown"};
+  for(int i=0; i<12;i++){
+    addMETSystematics(iEvent,  METcollection[i], i);
+  } 
+  //met uncertainties:
+  //TString METcollectionObjecs [2]={"smearedPatJetsResUp","smearedPatJetsResDown"};
+  //mTreeSystJet_ResUpP4.Clear();
+  //mTreeSystJet_ResDownP4.Clear();
+  
+  //for(int i=0; i<2;i++){
+    //addMETSystematicsObject(iEvent,  METcollectionObjecs[i], i);
+  //}
 
   // This filter
-  if (metcalo_ > 0 && mTreeMET[0] < metcalo_) return 0;
-  if (metpf_ > 0   && mTreeMET[5] < metpf_)   return 0;
-  if (mettc_ > 0   && mTreeMET[4] < mettc_)   return 0;
+  if (met0_ > 0 && mTreeMET[0] < met0_) return 0;
+  if (met1_ > 0   && mTreeMET[1] < met1_)   return 0;
+  if (met2_ > 0   && mTreeMET[2] < met2_)   return 0;
 
   //cut on HT
   if(npfjet_ > 0 && PFhtc_  > 0   && PFhtcutsum_<PFhtc_ )  return 0;
@@ -2470,6 +2349,44 @@ bool SusyACSkimAnalysis::isSUSY(int pdgid) {
     return false;
 }
 
+////////////////////////////////
+//
+// Add systematic shifts for met
+//
+void SusyACSkimAnalysis::addMETSystematics(edm::Event& iEvent, TString METcollection, int imet){
+    edm::Handle< std::vector<pat::MET> > metHandle;
+    iEvent.getByLabel(METcollection.Data(), metHandle);
+    if ( !metHandle.isValid() ) 
+        edm::LogWarning("SusyACSkimAnalysis") << "No Met results found for InputTag " << METcollection.Data();
+    if ( metHandle->size()!=1 ) 
+        edm::LogWarning("SusyACSkimAnalysis") << "MET collection size is "<< metHandle->size() << " instead of 1";
+    if ( metHandle.isValid() && metHandle->size()==1 ) {
+        mTreeSystMET[imet]       =   metHandle->front().et();
+        mTreeSystMETphi[imet]    =   metHandle->front().phi();
+    }
+}
+
+//void SusyACSkimAnalysis::addMETSystematicsObject(edm::Event& iEvent, TString JETcollection, int ijet){
+    //edm::Handle< std::vector<pat::Jet> > jetHandle;
+    //iEvent.getByLabel(JETcollection.Data(), jetHandle);
+    //if ( !jetHandle.isValid() ) 
+        //edm::LogWarning("SusyACSkimAnalysis") << "No JET results found for InputTag " << JETcollection.Data();
+    //if ( jetHandle.isValid() && jetHandle->size()>=1 ) {
+        //for(unsigned int i=0; i<jetHandle->size();i++){
+            //if((*jetHandle)[i].pt()>10 66 i<100){
+                //tmpJet
+                //if(ijet==0){
+                    //TLorentzVector *jet = (TLorentzVector*)mTreeSystJet_ResUpP4->ConstructedAt(i);
+                    //jet->SetPxPyPzE((*jetHandle)[i].px(),(*jetHandle)[i].py(),(*jetHandle)[i].pz(),(*jetHandle)[i].energy());
+                //}
+                //if(ijet==1){
+                    //TLorentzVector *jet = (TLorentzVector*)mTreeSystJet_ResDownP4->ConstructedAt(i);
+                    //jet->SetPxPyPzE((*jetHandle)[i].px(),(*jetHandle)[i].py(),(*jetHandle)[i].pz(),(*jetHandle)[i].energy());
+                //}
+            //}
+        //}
+    //}
+//}
 
 void SusyACSkimAnalysis::storeMuonVertex(
   reco::TrackRef trackref1,
@@ -2575,22 +2492,6 @@ void SusyACSkimAnalysis::printSummary( void ) {
   edm::LogInfo("SusyACSkimAnalysis") << "*** Summary of counters: ";
   edm::LogVerbatim("SusyACSkimAnalysis") << "Total number of events = " << nrEventTotalRaw_
 					 << " ; selected = " << nrEventPassedRaw_ << endl;
-  // cout << "RunSUSY: REAL time1 (s)     : " << timer1.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time1 (s)     : " << timer1.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time2 (s)     : " << timer2.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time2 (s)     : " << timer2.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time3 (s)     : " << timer3.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time3 (s)     : " << timer3.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time4 (s)     : " << timer4.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time4 (s)     : " << timer4.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time5 (s)     : " << timer5.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time5 (s)     : " << timer5.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time6 (s)     : " << timer6.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time6 (s)     : " << timer6.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time7 (s)     : " << timer7.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time7 (s)     : " << timer7.CpuTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: REAL time8 (s)     : " << timer8.RealTime()/nrEventTotalRaw_ << endl;
-  // cout << "RunSUSY: CPU  time8 (s)     : " << timer8.CpuTime()/nrEventTotalRaw_ << endl;
 }
 
 ////////////////////////////////
@@ -2738,20 +2639,35 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tracks_hqf", &mTreetrackshqf, "tracks_hqf/double");
 
   // MET
-  mAllData->Branch("met_et",       &mTreeMET,         "met_et[8]/double");
-  mAllData->Branch("met_ex",       &mTreeMEX,         "met_ex[8]/double");
-  mAllData->Branch("met_ey",       &mTreeMEY,         "met_ey[8]/double");
-  mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[8]/double");
-  mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[8]/double");
-  mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[8]/double");
-  mAllData->Branch("met_etsignif", &mTreeMETSignif,   "met_etsignif[8]/double");
-  mAllData->Branch("met_ChargedEMEtFraction", &mTreeMETChargedEMEtFraction,   "met_ChargedEMEtFraction[8]/double");
-  mAllData->Branch("met_ChargedHadEtFraction",&mTreeMETChargedHadEtFraction,   "met_ChargedHadEtFraction[8]/double");
-  mAllData->Branch("met_MuonEtFraction",      &mTreeMETMuonEtFraction,   "met_MuonEtFraction[8]/double");
-  mAllData->Branch("met_NeutralEMFraction", &mTreeMETNeutralEMFraction,   "met_NeutralEMFraction[8]/double");
-  mAllData->Branch("met_NeutralHadEtFraction",&mTreeMETNeutralHadEtFraction,   "met_NeutralHadEtFraction[8]/double");
-  mAllData->Branch("met_Type6EtFraction",     &mTreeMETType6EtFraction,   "met_Type6EtFraction[8]/double");
-  mAllData->Branch("met_Type7EtFraction",     &mTreeMETType7EtFraction,   "met_Type7EtFraction[8]/double");
+  mAllData->Branch("met_et",       &mTreeMET,         "met_et[3]/double");
+  mAllData->Branch("met_ex",       &mTreeMEX,         "met_ex[3]/double");
+  mAllData->Branch("met_ey",       &mTreeMEY,         "met_ey[3]/double");
+  mAllData->Branch("met_phi",      &mTreeMETphi,      "met_phi[3]/double");
+  mAllData->Branch("met_sumet",    &mTreeSumET,       "met_sumet[3]/double");
+  mAllData->Branch("met_sumetsig", &mTreeSumETSignif, "met_sumetsig[3]/double");
+  mAllData->Branch("met_etsignif", &mTreeMETSignif,   "met_etsignif[3]/double");
+  mAllData->Branch("met_ChargedEMEtFraction", &mTreeMETChargedEMEtFraction,   "met_ChargedEMEtFraction[3]/double");
+  mAllData->Branch("met_ChargedHadEtFraction",&mTreeMETChargedHadEtFraction,   "met_ChargedHadEtFraction[3]/double");
+  mAllData->Branch("met_MuonEtFraction",      &mTreeMETMuonEtFraction,   "met_MuonEtFraction[3]/double");
+  mAllData->Branch("met_NeutralEMFraction", &mTreeMETNeutralEMFraction,   "met_NeutralEMFraction[3]/double");
+  mAllData->Branch("met_NeutralHadEtFraction",&mTreeMETNeutralHadEtFraction,   "met_NeutralHadEtFraction[3]/double");
+  mAllData->Branch("met_Type6EtFraction",     &mTreeMETType6EtFraction,   "met_Type6EtFraction[3]/double");
+  mAllData->Branch("met_Type7EtFraction",     &mTreeMETType7EtFraction,   "met_Type7EtFraction[3]/double");
+  
+  //Gen MET
+  mAllData->Branch("Genmet_et",       &mTreeGenMET,         "Genmet_et[2]/double");
+  mAllData->Branch("Genmet_ex",       &mTreeGenMEX,         "Genmet_ex[2]/double");
+  mAllData->Branch("Genmet_ey",       &mTreeGenMEY,         "Genmet_ey[2]/double");
+  mAllData->Branch("Genmet_phi",      &mTreeGenMETphi,      "Genmet_phi[2]/double");
+  mAllData->Branch("Genmet_sumet",    &mTreeGenSumET,       "Genmet_sumet[2]/double");
+  mAllData->Branch("Genmet_sumetsig", &mTreeGenSumETSignif, "Genmet_sumetsig[2]/double");
+
+  //Systematic MET
+  mAllData->Branch("Systmet_et",       &mTreeSystMET,         "Systmet_et[12]/double");
+  mAllData->Branch("Systmet_phi",      &mTreeSystMETphi,      "Systmet_phi[12]/double");
+  
+  //mAllData->Branch("SystJet_ResUp",      &mTreeSystJet_ResUpP4);
+  //mAllData->Branch("SystJet_ResDown",      &mTreeSystJet_ResDownP4);
 
 
   // PF Jets

@@ -138,6 +138,8 @@ private:
   virtual bool isStable(int pdgid);
   virtual bool isDecaying(int pdgid);
   virtual bool isSUSY(int pdgid);
+  void addMETSystematics(edm::Event&, TString METcollection, int imet);
+  //void addMETSystematicsObject(edm::Event&, TString JETcollection, int ijet);
 
   /// Print a summary of counts for all selectors
   virtual void printSummary(void);
@@ -193,29 +195,21 @@ private:
 
   // Data tags
   edm::InputTag pfjetTag_;
-  edm::InputTag metTag_;
-  edm::InputTag metTagPF_;
-  edm::InputTag metTagTC_;
   edm::InputTag photonTag_;
   edm::InputTag elecTag_;
   edm::InputTag gsfelecTag_;
   edm::InputTag PFelecTag_;
   edm::InputTag muonTag_;
   edm::InputTag tauSrc_;
-  edm::InputTag metTagPFnoPU_;
-  edm::InputTag metTagJPFnoPUType1_ ;
-  edm::InputTag metTagcorMetGlobalMuons_;
-  edm::InputTag metTagHO_;
-  edm::InputTag metTagNoHF_;
+  edm::InputTag metRAWTag_;
+  edm::InputTag metType1Tag_;
+  edm::InputTag metType0Tag_;
   edm::InputTag genTag_;
   edm::InputTag genJetTag_;
   edm::InputTag vertexTag_;
   edm::InputTag ebhitsTag_;
   edm::InputTag freducedBarrelRecHitCollection_;
   edm::InputTag freducedEndcapRecHitCollection_;
-//  edm::InputTag IsoDepElectron;
-//  edm::InputTag IsoValElectronPF;
-//  edm::InputTag IsoDepPhoton;
   edm::InputTag IsoValPhotonPF;
   edm::InputTag   hltInputTag_;
   edm::InputTag   TriggerSummary_;
@@ -309,9 +303,9 @@ private:
   double pfeleeta_;
   double pfjetpt_;
   double pfjeteta_;
-  double metcalo_;
-  double metpf_;
-  double mettc_;
+  double met0_;
+  double met1_;
+  double met2_;
   double htc_;
   double PFhtc_;
   double taupt_;
@@ -423,38 +417,32 @@ private:
   double mTreetrigeta[nMaxTrigger];
   double mTreetrigphi[nMaxTrigger];
   
-  double mTreeMET[10];
-  double mTreeMEX[10];
-  double mTreeMEY[10];
-  double mTreeMETphi[10];
-  double mTreeSumET[10];
-  double mTreeSumETSignif[8];
-  double mTreeMETSignif[8];
-  double mTreeMETCaloMETInmHF[8];
-  double mTreeMETCaloMETInpHF[8];
-  double mTreeMETCaloMETPhiInmHF[8];
-  double mTreeMETCaloMETPhiInpHF[8];
-  double mTreeMETCaloSETInmHF[8];
-  double mTreeMETCaloSETInpHF[8];
-  double mTreeMETemEtFraction[8];
-  double mTreeMETetFractionHadronic[8];
-  double mTreeMETmaxEtInEmTowers[8];
-  double mTreeMETmaxEtInHadTowers[8];
-  double mTreeMETemEtInHF[8];
-  double mTreeMETemEtInEE[8];
-  double mTreeMETemEtInEB[8];
-  double mTreeMEThadEtInHF[8];
-  double mTreeMEThadEtInHE[8];
-  double mTreeMEThadEtInHO[8];
-  double mTreeMEThadEtInHB[8];
+  double mTreeGenMET[2];
+  double mTreeGenMEX[2];
+  double mTreeGenMEY[2];
+  double mTreeGenMETphi[2];
+  double mTreeGenSumET[2];
+  double mTreeGenSumETSignif[2];
   
-  double mTreeMETChargedEMEtFraction[10];
-  double mTreeMETChargedHadEtFraction[10];
-  double mTreeMETMuonEtFraction[10];
-  double mTreeMETNeutralEMFraction[10];
-  double mTreeMETNeutralHadEtFraction[10];
-  double mTreeMETType6EtFraction[10];
-  double mTreeMETType7EtFraction[10];
+  
+  double mTreeMET[3];
+  double mTreeMEX[3];
+  double mTreeMEY[3];
+  double mTreeMETphi[3];
+  double mTreeSumET[3];
+  double mTreeSumETSignif[3];
+  double mTreeMETSignif[3];
+  double mTreeMETChargedEMEtFraction[3];
+  double mTreeMETChargedHadEtFraction[3];
+  double mTreeMETMuonEtFraction[3];
+  double mTreeMETNeutralEMFraction[3];
+  double mTreeMETNeutralHadEtFraction[3];
+  double mTreeMETType6EtFraction[3];
+  double mTreeMETType7EtFraction[3];
+  
+  double mTreeSystMET[12];
+  double mTreeSystMETphi[12];
+  
 
   int    mTreeNtracks;
   double mTreetrackshqf;

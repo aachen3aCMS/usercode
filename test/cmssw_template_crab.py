@@ -111,23 +111,10 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 
-# see https://twiki.cern.ch/twiki/bin/view/CMS/HBHEAnomalousSignals2011
-# process.load("CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi")
-
 # Pythia GEN filter (used to correct for wrong 4-momentum-imbalance
 # see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
-
-#-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
-#process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-#~ process.load('RecoJets.Configuration.RecoPFJets_cff')
-#process.kt6PFJets.doRhoFastjet = True
-#process.ak5PFJets.doAreaFastjet = True
-
-#--This is a temporary fix for electrons
-#process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
-#process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
 
 #--To modify noPU needed for METnoPU -------------------------------------------
 process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
@@ -162,7 +149,7 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
     filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
     src=cms.InputTag('offlinePrimaryVertices')
-)
+    )
 
 
 ### Input / output ###
@@ -187,17 +174,20 @@ process.patMuons.embedStandAloneMuon = False;
 
 
 if tauSwitch:
-	process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 # PF2PAT
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
+
+
+usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
+          
 if isData:
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=False, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet','L2Relative','L3Absolute','L2L3Residual']))
     removeMCMatching(process, ['All'])
-else:
-     usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix, jetCorrections=('AK5PFchs',['L1FastJet', 'L2Relative', 'L3Absolute']))
+    
+process.pfPileUpPFlow.checkClosestZVertex = False
 
 
 process.load("PhysicsTools/PatAlgos/patSequences_cff")
@@ -210,65 +200,10 @@ switchToPFTauHPS(process)
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger(process)
 
-# for PFnoPU
-process.pfPileUpPFlow.Enable = True
-process.pfPileUpPFlow.checkClosestZVertex = cms.bool(False)
-process.pfPileUpPFlow.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
-process.pfJetsPFlow.doAreaFastjet = True
-process.pfJetsPFlow.doRhoFastjet = False
 
-
-from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
-process.kt6PFJetsPFlow = kt4PFJets.clone(
-    rParam = cms.double(0.6),
-    src = cms.InputTag('pfNoElectron'+postfix),
-    doAreaFastjet = cms.bool(True),
-    doRhoFastjet = cms.bool(True)
-    )
-
-# https://twiki.cern.ch/twiki/bin/view/CMS/EgammaEARhoCorrection Rho Computation for Electrons
-process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
-
-process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
-if isData:
-    process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual')
-else:
-    process.patJetCorrFactorsPFlow.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
-
-
-if isData:
-    process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual') # DATA
-else:
-    process.patJetCorrFactors.levels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute') # MC
-
-process.patJetCorrFactors.useRho = True
-
-# Add anti-kt 5 jets
-# this is only for calo met is there an other way?
-
-
-
-
-# Add the PV selector and KT6 producer to the sequence
-getattr(process,"patPF2PATSequence"+postfix).replace(
-    getattr(process,"pfNoElectron"+postfix),
-    getattr(process,"pfNoElectron"+postfix)*process.kt6PFJetsPFlow )
-
-
-# add TrackCorrected  met
-from PhysicsTools.PatAlgos.tools.metTools import *
-addTcMET(process, 'TC')
 
 # get the jet corrections
 from PhysicsTools.PatAlgos.tools.jetTools import *
-
-# Add met with NoPU to the Collections FIXED
-#~ from aachen3a.ACSusyAnalysis.pfMET_cfi import *
-#~ process.pfMetPFnoPU         = pfMET.clone()
-#~ process.pfMetPFnoPU.alias   = 'pfMetNoPileUp'
-#~ process.pfMetPFnoPU.src     = 'pfNoPileUpPFlow'
-#~ process.pfMetPFnoPU.jets = cms.InputTag("ak5PFJets")
 
 
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
@@ -279,10 +214,29 @@ process.phoIsoSequence = setupPFPhotonIso(process, 'patPhotons')
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
 
-process.pfMETType1 = pfType1CorrectedMet.clone()
-process.pfMETType1.applyType0Corrections = cms.bool(False)
+
+switchJetCollection(
+    process,
+    cms.InputTag('ak5PFJets'),
+    doJTA = True,
+    doBTagging = False,
+    jetCorrLabel = ( 'AK5PFchs', cms.vstring([ 'L1FastJet', 'L2Relative', 'L3Absolute' ]) ),
+    doType1MET = False,
+    doJetID = True,
+    jetIdLabel = "ak5"
+)
+
+# apply type I/type I + II PFMEt corrections to pat::MET object 
+# and estimate systematic uncertainties on MET
+from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
+runMEtUncertainties(process,doApplyType0corr=False)
+
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
+ 
 process.pfMETType0 = pfType1CorrectedMet.clone()
-process.pfMETType0.applyType1Corrections = cms.bool(False)
+process.pfMETType0.applyType1Corrections = cms.bool(True)
+process.pfMETType0.applyType0Corrections = cms.bool(True)
 
 if tauSwitch:
     tausequence = cms.Sequence( process.PFTau)
@@ -324,15 +278,9 @@ pfjetTag        = cms.InputTag("patJetsPFlow")
 muonTag      = cms.InputTag("patMuons")
 PFmuonTag  = cms.InputTag("selectedPatMuonsPFlow")
 tauTag         = cms.InputTag("patTaus")
-metTag        = cms.InputTag("patMETs")
-metTagTC    = cms.InputTag("patMETsTC")
-metTagPF    = cms.InputTag("patMETsPFlow")
-metTagPFnoPU=cms.InputTag("pfMETType0")
-metTagJPFnoPUType1 =cms.InputTag("pfType1CorrectedMet")
-metTagcorMetGlobalMuons     = cms.InputTag("pfMETType1")
-#these two are ignored for now:
-metTagHO    = cms.InputTag("metHO")
-metTagNoHF= cms.InputTag("metNoHF")
+metRAWTag= cms.InputTag("pfMet")
+metType1Tag=cms.InputTag("patType1CorrectedPFMet")
+metType0Tag=cms.InputTag("pfMETType0")
 genTag        = cms.InputTag("genParticles")
 genJetTag    = cms.InputTag("ak5GenJets")
 vtxTag         = cms.InputTag("offlinePrimaryVertices")
@@ -346,23 +294,20 @@ TriggerSummaryTag = cms.InputTag('hltTriggerSummaryAOD',"","HLT")
 # For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
 
 IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
-	cms.InputTag('elPFIsoDepositGammaPFIso'),
-	cms.InputTag('elPFIsoDepositNeutralPFIso'))
+    cms.InputTag('elPFIsoDepositGammaPFIso'),
+    cms.InputTag('elPFIsoDepositNeutralPFIso'))
 IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
-	cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
-	cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'))
+    cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+    cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'))
 IsoValElectronNoPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03NoPFIdPFIso'),
-	cms.InputTag('elPFIsoValueGamma03NoPFIdPFIso'),
-	cms.InputTag('elPFIsoValueNeutral03NoPFIdPFIso'))
+    cms.InputTag('elPFIsoValueGamma03NoPFIdPFIso'),
+    cms.InputTag('elPFIsoValueNeutral03NoPFIdPFIso'))
 IsoDepPhoton = cms.VInputTag(cms.InputTag('phPFIsoDepositChargedPFIso'),
-	cms.InputTag('phPFIsoDepositGammaPFIso'),
-	cms.InputTag('phPFIsoDepositNeutralPFIso'))
-#IsoValPhotonPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03PFIdPFIso'),
-#	cms.InputTag('phPFIsoValueGamma03PFIdPFIso'),
-#	cms.InputTag('phPFIsoValueNeutral03PFIdPFIso'))
+    cms.InputTag('phPFIsoDepositGammaPFIso'),
+    cms.InputTag('phPFIsoDepositNeutralPFIso'))
 IsoValPhotonNoPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03NoPFIdPFIso'),
-	cms.InputTag('phPFIsoValueGamma03NoPFIdPFIso'),
-	cms.InputTag('phPFIsoValueNeutral03NoPFIdPFIso'))
+    cms.InputTag('phPFIsoValueGamma03NoPFIdPFIso'),
+    cms.InputTag('phPFIsoValueNeutral03NoPFIdPFIso'))
 
 
 #~ inputTagIsoValElectronsPFId = cms.InputTag("IsoValElectronPF")
@@ -397,14 +342,9 @@ process.ACSkimAnalysis = cms.EDFilter(
     muonTag    = muonTag,
     PFmuonTag  = PFmuonTag,
     tauTag     = tauTag,
-    metTag     = metTag,
-    metTagTC   = metTagTC,
-    metTagPF   = metTagPF,
-    metTagPFnoPU   =metTagPFnoPU,
-    metTagJPFnoPUType1= metTagJPFnoPUType1,
-    metTagcorMetGlobalMuons =metTagcorMetGlobalMuons,
-    metTagHO = metTagHO,
-    metTagNoHF = metTagNoHF,
+    metRAWTag= metRAWTag,
+    metType1Tag=metType1Tag,
+    metType0Tag=metType0Tag,
     genTag     = genTag,
     genJetTag  = genJetTag,
     vtxTag     = vtxTag,
@@ -435,9 +375,9 @@ process.ACSkimAnalysis = cms.EDFilter(
     pfjeteta   = cms.double(@PFJETETA@),
     taupt      = cms.double(@TAUPT@),
     taueta     = cms.double(@TAUETA@),
-    metcalo    = cms.double(@METCALO@),
-    metpf      = cms.double(@METPF@),
-    mettc      = cms.double(@METTC@),
+    met0       = cms.double(@MET0@),
+    met1       = cms.double(@MET1@),
+    met2       = cms.double(@MET2@),
     nele       = cms.int32(@NELE@),
     npho       = cms.int32(@NPHO@),
     npfele     = cms.int32(@NPFELE@),
@@ -464,7 +404,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 ### Define the paths
 process.p = cms.Path(
     filtersequence*
-    #process.gsfElectronsHEEPCorr*
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     tausequence*
@@ -474,17 +413,16 @@ process.p = cms.Path(
     process.eleIsoSequence*
     process.phoIsoSequence*
     process.phoPFIso*
-    process.kt6PFJetsForIsolation*
     process.producePFMETCorrections*
-    process.pfMETType0*
-    process.pfMETType1
+    process.pfMETType0
+    #process.pfMETType1
     )
 
 
 
-    # The skimmer is in the endpath because then the results of all preceding paths
-    # are available. This is used to access the outcome of filters that ran.
-    #
+# The skimmer is in the endpath because then the results of all preceding paths
+# are available. This is used to access the outcome of filters that ran.
+#
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
 addCSCHaloFilter( process )
@@ -501,5 +439,5 @@ if IsPythiaShowered:
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()
-#~ process.outpath = cms.EndPath(process.out2)
+# process.outpath = cms.EndPath(process.out2)
 process.e = cms.EndPath(process.ACSkimAnalysis )

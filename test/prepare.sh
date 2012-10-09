@@ -57,7 +57,7 @@ function createconfigfiles()
     fi
 
     PYFILE="$JOBDIR/cmssw.py"
-    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@METCALO@/$METCALO/g -e s/@METTC@/$METTC/g -e s/@METPF@/$METPF/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@DOPFELE@/$DOPFELE/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
+    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@MET0@/$MET0/g -e s/@MET1@/$MET1/g -e s/@MET2@/$MET2/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@DOPFELE@/$DOPFELE/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
 	#~ sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g $CMSSWCFG >> $PYFILE
     # create CRAB configuration file from template
     echo "Creating crab configuration file..."
@@ -216,7 +216,7 @@ function main()
     # sanity checks on skimming cuts. Gives warnings, does not prevent you from doing something you really want to.
 
     # sanity checks on skimming cuts
-    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $METCALO == $NTEST && $METPF == $NTEST && $METTC == $NTEST ]] ; then
+    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $MET0 == $NTEST && $MET1 == $NTEST && $MET2 == $NTEST ]] ; then
 	echo "WARNING! You have specifed no object to cut on!"
     fi
 
@@ -256,14 +256,14 @@ function main()
     if [[ $NPFJET != $NTEST2 ]]; then
 	echo "Preparing Skim requiring $NPFJET pfjet(s) with pt > $PFJETPT GeV and eta < $PFJETETA"
     fi
-    if [[ $METPF != $NTEST ]]; then
-	echo "Preparing Skim requiring PFMET > $METPF GeV"
+    if [[ $MET0 != $NTEST ]]; then
+	echo "Preparing Skim requiring MET0 > $MET0 GeV"
     fi
-    if [[ $METCALO != $NTEST ]]; then
-	echo "Preparing Skim requiring CALOMET > $METCALO GeV"
+    if [[ $MET1 != $NTEST ]]; then
+	echo "Preparing Skim requiring MET1 > $MET2 GeV"
     fi
-    if [[ $METTC != $NTEST ]]; then
-	echo "Preparing Skim requiring TCMET > $METTC GeV"
+    if [[ $MET2 != $NTEST ]]; then
+	echo "Preparing Skim requiring MET2 > $MET2GeV"
     fi
 
     echo "Preparing crab task with following options:"
