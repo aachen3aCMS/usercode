@@ -1,0 +1,25 @@
+Readme for Reskimmer
+====================
+
+First, edit the program Analysis.cxx to incorporate your cuts.
+Then, build the Reskimmer by issuing at the command prompt
+
+make clean
+make
+
+Then, for submitting your jobs, issue the following command:
+
+./reskim.py output/v7-8/ttjets /tmp/test/
+
+where output/v7-8/ttjets is a directory on dcache relative to your user area,
+e.g. relative to
+"/pnfs/physik.rwth-aachen.de/cms/store/user/[your-user-id]". This directory
+should contain all your input files (.root files) that the Skimmer has
+produced.
+
+The reskimmer will then join each 20 files (configure with "-m" switch) and
+skim the input files with the cuts that you programmed. The output will be
+stored in the directory "/tmp/test".
+
+If you need help on further options, issue ./reskim.py --help
+
