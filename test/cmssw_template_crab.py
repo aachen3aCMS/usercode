@@ -70,6 +70,15 @@ def addHBHENoiseFilter( process ):
     process.p_HBHENoiseFilter = cms.Path(process.HBHENoiseFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_HBHENoiseFilter' )
 
+def addXtalsLargeLaser( process ):
+    # Filter for large laser calibration for cristal
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFilters#EB_or_EE_Xtals_with_large_laser
+    #to add in the recipe:
+    #cvs co RecoMET/METFilters/plugins/EcalLaserCorrFilter.cc
+    #cvs co RecoMET/METFilters/python/ecalLaserCorrFilter_cfi.py
+    process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+    process.p_XtalsLargeLaser = cms.Path(process.ecalLaserCorrFilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_XtalsLargeLaser' )    
 
 process = cms.Process("ANA")
 
@@ -115,7 +124,20 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 # see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
+<<<<<<< cmssw_template_crab.py
+#-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
+#process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+#~ process.load('RecoJets.Configuration.RecoPFJets_cff')
+#process.kt6PFJets.doRhoFastjet = True
+#process.ak5PFJets.doAreaFastjet = True
 
+#--This is a temporary fix for electrons
+#process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
+#process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
+
+=======
+
+>>>>>>> 1.16
 #--To modify noPU needed for METnoPU -------------------------------------------
 process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
 
@@ -433,6 +455,7 @@ addMuonFailureFilter( process )
 addBadSuperCrystalFilter( process )
 addTrackingFailureFilter( process )
 addHBHENoiseFilter( process )
+addXtalsLargeLaser( process )
 
 if IsPythiaShowered:
     addKinematicsFilter( process )
