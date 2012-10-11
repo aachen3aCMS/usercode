@@ -1481,14 +1481,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   mumet_sumpt=0;
 
   // prepare for cocktail muons, get refit types
-  Handle <reco::TrackToTrackMap> tevMap1;
-  Handle <reco::TrackToTrackMap> tevMap2;
-  Handle <reco::TrackToTrackMap> tevMap3;
   Handle <reco::TrackToTrackMap> dytMap;
   Handle <reco::TrackToTrackMap> defaultMap;
-  iEvent.getByLabel("tevMuons", "default",  tevMap1);
-  iEvent.getByLabel("tevMuons", "firstHit", tevMap2);
-  iEvent.getByLabel("tevMuons", "picky",    tevMap3);
   iEvent.getByLabel("tevMuons", "dyt",      dytMap);
   iEvent.getByLabel("tevMuons", "default",  defaultMap);
 
@@ -1695,8 +1689,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
 
       // cocktail muons
-      if (muons[i].combinedMuon().isNonnull() &&
-	  (!tevMap1.failedToGet() && !tevMap2.failedToGet() && !tevMap3.failedToGet())) {
+      if (muons[i].globalTrack().isNonnull() &&
+	  muons[i].pickyTrack().isNonnull() &&
+	  muons[i].tpfmsTrack().isNonnull() &&
+	  muons[i].innerTrack().isNonnull()){
 	//~ reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], *tevMap1, *tevMap2, *tevMap3)).first;
 	// Using retuned cocktail for the moment, can changed back in 5_3_X
 	reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], 200.,  4., 6.)).first;
