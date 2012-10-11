@@ -209,8 +209,8 @@ def submit_condor_job(executable, arguments, inbox, outbox, jobname):
     jobfile.write(content)
     jobfile.close()
     wait_for_jobs(options.njobs)
-#    rc = getCommandOutput2("condor_submit " + cfgFile)
-#    return rc
+    rc = getCommandOutput2("condor_submit " + cfgFile)
+    return rc
 
 ######################################################################
 # main
