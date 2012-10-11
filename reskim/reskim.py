@@ -223,14 +223,14 @@ a network disk."""
     optParser = optparse.OptionParser(usage)
     defaulttemplate="condor_template.cfg"
     defaultnjobs=20
-    defaultsplit=1000
+    defaultmerge=20
     defaultanalysiscfg='default'
     optParser.add_option("-n", "--njobs", dest="njobs",
                          help="how many CONDOR jobs to run at once",
                          default=defaultnjobs)
     optParser.add_option("-m", "--merge", dest="nmerge",
                          help="split processing into this number of jobs",
-                         default=defaultsplit)
+                         default=defaultmerge)
 
     global options
     (options, args) = optParser.parse_args()
