@@ -1,7 +1,11 @@
 Readme for Reskimmer
 ====================
 
-First, edit the program Analysis.cxx to incorporate your cuts.
+First, edit the program Analysis.cxx to incorporate your cuts. Look for the
+text "Start here implementing your cuts" for the right place. You can put cuts
+on any arbitrary variables which are in the tree. It is also good to create a
+few control histograms for the variables you are cutting on. 
+
 Then, build the Reskimmer by issuing at the command prompt
 
 make clean
@@ -19,7 +23,10 @@ produced.
 
 The reskimmer will then join each 20 files (configure with "-m" switch) and
 skim the input files with the cuts that you programmed. The output will be
-stored in the directory "/tmp/test".
+stored in the directory "/tmp/test". Currently ROOT does not allow to store
+files on dCache when authorisation (certificates) are required. If you want to
+have your output files on dCache, you need to use srmmkdir+srmcp or uberftp
+for the transfer.
 
 If you need help on further options, issue ./reskim.py --help
 
