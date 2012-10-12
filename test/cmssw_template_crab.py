@@ -203,8 +203,9 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
 
-
-usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
+# Removed the pv Collection from the PF2PAT statement because it produced a segfault in some events
+#~ usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
+usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']))
           
 if isData:
     removeMCMatching(process, ['All'])
