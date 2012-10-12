@@ -105,9 +105,6 @@ def getCommandOutput2(command):
         raise RuntimeError, '%s failed with exit code %d' % (command, err)
     return data
 
-#def getUserStoragePath(directory):
-#    return 
-
 def uberftpls(path, verbose=False):
     """List files on dCache"""
     fullpath = ftp+path
@@ -142,6 +139,49 @@ ls
             print size, fname
         files.append([size, fname])
     return files
+
+def grep_file(filename, tokens, verbose=True):
+    found = False
+    searchfor = "|".join(tokens)
+    child = os.popen('/bin/bash -c \'grep -Ei \"' + searchfor + '\" ' + filename + '\'')
+    data = child.read().splitlines()
+    rc = child.close()
+    if len(data) > 0:
+        found = True
+        if verbose:
+            print "Tokens matching %s found in file %s: " % ( searchfor, filename )
+            for line in data:
+                print line
+    if rc == 2:
+        raise Exception("Error executing grep \"query\" % for file %s " % (searchfor, filenam))
+    return found
+
+def check_log(logfilename, errors, warnings, requirements):
+    """Check the log files and return True on success.
+       errors is an iterable object containing strings marking errors in log file
+       warnings is an iterable object containing strings marking warnings in log file
+       requirements is an iterable object containing strings the log file that must appear
+
+       If errors are found, print errors and return False
+       If warnings are found, print warnings and return True
+       If requirements are not found, print message and return False
+    """
+
+    # check for errors
+    if grep_file(logfilename, errors):
+        return False
+
+    # check for warnings
+    grep_file(logfilename, warnings)
+
+    # check for requirements
+    if requirements != None:
+        if not grep_file(logfilename, requirements, verbose=False):
+            print "Requirements not found in logfile %s: " % ( logfilename )
+            return False
+
+    # inform user
+    return True
 
 def setupInbox():
     """set up local files for transfer with CONDOR"""

@@ -28,5 +28,16 @@ files on dCache when authorisation (certificates) are required. If you want to
 have your output files on dCache, you need to use srmmkdir+srmcp or uberftp
 for the transfer.
 
-If you need help on further options, issue ./reskim.py --help
+Once your jobs finish, you can use the program collect.py to check your
+log files and resubmit failed jobs. Issue the program like this:
+
+./collect.py /tmp/test
+
+where /tmp/test is the output directory of the reskim job (same as above). The
+log files are checked. Warnings are being printed. If errors are encountered,
+the jobs are resubmitted. Jobs are also resubmitted if the program did not
+terminate correctly.
+
+If you need help on further options, issue ./reskim.py --help or 
+./collect.py --help, respectively.
 
