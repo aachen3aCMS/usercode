@@ -250,6 +250,7 @@ private:
   bool susyPar_;
   bool doTaus_;
   bool doPFele_;
+  bool doCommonSkim;
 
   std::string btag_;
   std::string processName_; 

@@ -66,6 +66,7 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   susyPar_           = iConfig.getParameter<bool>("susyPar");
   doTaus_ 	     = iConfig.getParameter<bool>("doTaus");
   doPFele_           = iConfig.getParameter<bool>("doPFele");
+  doCommonSkim       = iConfig.getParameter<bool>("doCommonSkim");
 
   edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_MC      = " << is_MC << endl;
   edm::LogVerbatim("SusyACSkimAnalysis") << " Running with flag is_SHERPA  = " << is_SHERPA << endl;
@@ -2316,7 +2317,25 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreesusyScantanbeta = 99999;
   }
 
-  // do we have to use an "OR"ed cut of the selection?
+  // Common skim: Use an "OR"ed cut of the selection
+  bool accept = false;
+  if (doCommonSkim) {
+    if (mTreeNmuo >= 1 && mTreeMuoPt[0] >= 10)
+      accept = true;
+    else if (mTreeNmuo >= 2 && mTreeMuoPt[0] >= 3 && fabs(mTreeMuoEta[0]) <= 2.4 
+	&& mTreeMuoPt[1] >= 3 && fabs(mTreeMuoEta[1]) <= 2.4)
+      accept = true;
+    else if (mTreeMET[0] >= 30)
+      accept = true;
+    else if (mTreeNele >= 1 && mTreeElePt[0] >= 10) 
+      accept = true;
+    else if (mTreeNPFEle >= 1 && mTreePFElePt[0] >= 10)
+      accept = true;
+    else if (mTreeNPFjet >= 1 && mTreePFJetPt[0] >= 200)
+      accept = true;
+  }
+  if (!accept)
+    return 0;
 
   DEBUG("Mark 20")
 
