@@ -124,20 +124,6 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
 # see https://hypernews.cern.ch/HyperNews/CMS/get/physics-validation/1489.html
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
-<<<<<<< cmssw_template_crab.py
-#-- To get JEC in 4_2 return rho corrections:----------------------------------------------------
-#process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-#~ process.load('RecoJets.Configuration.RecoPFJets_cff')
-#process.kt6PFJets.doRhoFastjet = True
-#process.ak5PFJets.doAreaFastjet = True
-
-#--This is a temporary fix for electrons
-#process.load("SHarper.HEEPAnalyzer.gsfElectronsHEEPCorr_cfi")
-#process.load("RecoEgamma.ElectronIdentification.electronIdSequence_cff")
-
-=======
-
->>>>>>> 1.16
 #--To modify noPU needed for METnoPU -------------------------------------------
 process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
 
@@ -346,6 +332,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     susyPar    = cms.bool(SusyParSwith),
     doTaus     = cms.bool(tauSwitch),
     doPFele    = cms.bool(pfeleSwitch),
+    doCommonSkim = cms.bool(@COMMONSKIM@),
 
     # This is used to access the results of all filters that ran.
     #

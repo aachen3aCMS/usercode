@@ -57,7 +57,7 @@ function createconfigfiles()
     fi
 
     PYFILE="$JOBDIR/cmssw.py"
-    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@MET0@/$MET0/g -e s/@MET1@/$MET1/g -e s/@MET2@/$MET2/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@DOPFELE@/$DOPFELE/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
+    sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g -e s/@QSCALE_LOW@/$QSCALELOW/g -e s/@QSCALE_HIGH@/$QSCALEHIGH/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@NMUO@/$NMUO/g -e s/@MUOPTFIRST@/$MUOPTFIRST/g -e s/@MUOPTOTHER@/$MUOPTOTHER/g -e s/@MUOETA@/$MUOETA/g -e s/@PFELEPT@/$PFELEPT/g -e s/@PFELEETA@/$PFELEETA/g -e s/@NPFELE@/$NPFELE/g -e s/@COMMONSKIM@/$COMMONSKIM/g -e s/@PHOPT@/$PHOPT/g -e s/@PHOETA@/$PHOETA/g -e s/@NPHO@/$NPHO/g -e s/@TAUPT@/$TAUPT/g -e s/@TAUETA@/$TAUETA/g -e s/@NTAU@/$NTAU/g -e s/@PFJETPT@/$PFJETPT/g -e s/@PFJETETA@/$PFJETETA/g -e s/@NPFJET@/$NPFJET/g -e s/@ELEPT@/$ELEPT/g -e s/@ELEETA@/$ELEETA/g -e s/@NELE@/$NELE/g -e s/@MET0@/$MET0/g -e s/@MET1@/$MET1/g -e s/@MET2@/$MET2/g -e s/@PFHTC@/$PFHTC/g -e s/@HTC@/$HTC/g -e s/@TRIGGERCONTAINS@/$TRIGGERCONTAINS/g -e s/@DOTAU@/$DOTAU/g -e s/@DOPFELE@/$DOPFELE/g -e s/@MUOMINV@/$MUOMINV/g -e s/@MUODMINV@/$MUODMINV/g  -e s/@PYTHIA8@/$PYTHIA8/g -e s/@SHERPA@/$SHERPA/g -e s/@MATCHALL@/$MATCHALL/g -e s/@SUSYPAR@/$SUSYPAR/g -e s/@ISPYTHIASHOWERED@/$ISPYTHIASHOWERED/g $CMSSWCFG >> $PYFILE
 	#~ sed -e s/@ISDATA@/$ISDATA/g -e s/@GLOBALTAG@/$GLOBALTAG/g $CMSSWCFG >> $PYFILE
     # create CRAB configuration file from template
     echo "Creating crab configuration file..."
@@ -216,14 +216,13 @@ function main()
     # sanity checks on skimming cuts. Gives warnings, does not prevent you from doing something you really want to.
 
     # sanity checks on skimming cuts
-    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $MET0 == $NTEST && $MET1 == $NTEST && $MET2 == $NTEST ]] ; then
-	echo "WARNING! You have specifed no object to cut on!"
+    if  [[ $NELE == $NTEST2  && $NMUO == $NTEST2  && $NPFELE == $NTEST2 && $NPHO == $NTEST2 && $NTAU == $NTEST2 && $NPFJET == $NTEST2 && $MET0 == $NTEST && $MET1 == $NTEST && $MET2 == $NTEST && $COMMONSKIM == 'False' ]] ; then
+	echo "WARNING! You have specified no object to cut on!"
     fi
-
     if [[ $NELE == $NTEST2 &&  $ELEPT != $NTEST ]]; then
 	echo "WARNING! elept > 0 but nele = 0. Cut has no effect!"
     fi
-    if [[ $NMUO == $NTEST2  &&  $MUOPT != $NTEST ]]; then
+    if [[ $NMUO == $NTEST2  &&  $MUOPTFIRST != $NTEST ]]; then
 	echo "WARNING! muopt > 0 but nmuo == 0. Cut has no effect!"
     fi
     if [[ $NPFELE == $NTEST2  &&  $PFELEPT != $NTEST ]]; then
@@ -264,6 +263,15 @@ function main()
     fi
     if [[ $MET2 != $NTEST ]]; then
 	echo "Preparing Skim requiring MET2 > $MET2GeV"
+    fi
+    if [[ $COMMONSKIM != 'False' && $COMMONSKIM != 'True' ]] ; then
+	echo "You have specified neither 'True' nor 'False' for COMMONSKIM, exiting"
+	return 1
+    fi
+    if [[ $COMMONSKIM == 'True' ]] ; then 
+	echo "======================================================================"
+	echo "= Preparing common skim =============================================="
+	echo "======================================================================"
     fi
 
     echo "Preparing crab task with following options:"
