@@ -14,6 +14,8 @@ using std::cout;
 using std::endl;
 using namespace std;
 
+const int met_index = 1; // 0 = RAW PFMET, 1 = TYPE1 corrected MET, 2 = TYPE 0 corrected MET
+
 SUSYAna::SUSYAna(TTree *tree) : TreeContent(tree) 
 {
   if (tree ==  0) {
@@ -342,13 +344,13 @@ void SUSYAna::doJESandRecalculateMET(TString corr) {
     pfjet_pz[i] *= pfscale;
   }
   
-  met_sumet[3] += dSumEt;
-  met_ex[3]    -= dMEx;
-  met_ey[3]    -= dMEy;
+  met_sumet[met_index] += dSumEt;
+  met_ex[met_index]    -= dMEx;
+  met_ey[met_index]    -= dMEy;
   
-  TVector3 mpf(met_ex[3], met_ey[3], 0.);
+  TVector3 mpf(met_ex[met_index], met_ey[met_index], 0.);
 
-  met_phi[3] = mpf.Phi();
-  met_et[3]  = mpf.Perp();
+  met_phi[met_index] = mpf.Phi();
+  met_et[met_index]  = mpf.Perp();
 
 }

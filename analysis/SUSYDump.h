@@ -235,26 +235,21 @@ void SUSYAna::VertexDump() {
 }
 
 void SUSYAna::METDump() {
+  const char * met_types[] = {
+    "PFMET (raw)         ",
+    "PFMET (Type 1 corr.)",
+    "PFMET (Type 0 corr.)"
+  };
 
   cout << setprecision(3);
 
   cout << "  ===  MET Dump  === " << endl;
   cout << "  Type          MET     phi        MEx     MEy     METSig     SumEt   SumEtSig" << endl;
-  cout << "  CaloMET " << setw(9) << fixed << met_et[0] << setw(8) << met_phi[0] 
-       << "  [" << setw(8) << met_ex[0] << setw(8) << met_ey[0] 
-       << " ] " << setw(8) << met_etsignif[0] << " [" << setw(9) << met_sumet[0] << setw(9) << met_sumetsig[0] << " ]" << endl;
-  cout << "  PFMET   " << setw(9) << fixed << met_et[3] << setw(8) << met_phi[3] 
-       << "  [" << setw(8) << met_ex[3] << setw(8) << met_ey[3] 
-       << " ] " << setw(8) << met_etsignif[3] << " [" << setw(9) << met_sumet[3] << setw(9) << met_sumetsig[3] << " ]" << endl;
-  cout << "  TCMET   " << setw(9) << fixed << met_et[4] << setw(8) << met_phi[4] 
-       << "  [" << setw(8) << met_ex[4] << setw(8) << met_ey[4] 
-       << " ] " << setw(8) << met_etsignif[4] << " [" << setw(9) << met_sumet[4] << setw(9) << met_sumetsig[4] << " ]" << endl;
-  cout << "  GENMET1 " << setw(9) << fixed << met_et[1] << setw(8) << met_phi[1] 
-       << "  [" << setw(8) << met_ex[1] << setw(8) << met_ey[1] 
-       << " ] " << setw(8) << met_etsignif[1] << " [" << setw(9) << met_sumet[1] << setw(9) << met_sumetsig[1] << " ]" << endl;
-  cout << "  GENMET2 " << setw(9) << fixed << met_et[2] << setw(8) << met_phi[2] 
-       << "  [" << setw(8) << met_ex[2] << setw(8) << met_ey[2] 
-       << " ] " << setw(8) << met_etsignif[2] << " [" << setw(9) << met_sumet[2] << setw(9) << met_sumetsig[2] << " ]" << endl;
+  for (int i = 0; i < 2; i++) {
+    cout << "  " << met_types[i] << setw(9) << fixed << met_et[i] << setw(8) << met_phi[i] 
+	 << "  [" << setw(8) << met_ex[i] << setw(8) << met_ey[i] 
+	 << " ] " << setw(8) << met_etsignif[i] << " [" << setw(9) << met_sumet[i] << setw(9) << met_sumetsig[i] << " ]" << endl;
+  }
   cout << endl;
 
 }
