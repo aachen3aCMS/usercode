@@ -797,6 +797,10 @@ private:
   double mTreeTauPhi[100];
   int mTreeTauCharge[100];
   double mTreeTauParticleIso[100];
+  double mTreeTauJetPt[100];
+  double mTreeTauJetEta[100];
+  double mTreeTauJetPhi[100];
+  double mTreeTauJetMass[100];
 
   int mTreeNTruthMatchTaus;
   int mTreePosTruthMatchTaus[100];
