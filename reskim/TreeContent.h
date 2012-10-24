@@ -119,37 +119,36 @@ public :
    Double_t        bs_z;
    Int_t           tracks_n;
    Double_t        tracks_hqf;
-   Double_t        met_et[8];
-   Double_t        met_ex[8];
-   Double_t        met_ey[8];
-   Double_t        met_phi[8];
-   Double_t        met_sumet[8];
-   Double_t        met_sumetsig[8];
-   Double_t        met_etsignif[8];
-   Double_t        met_CaloMETInmHF[8];
-   Double_t        met_CaloMETInpHF[8];
-   Double_t        met_CaloMETPhiInmHF[8];
-   Double_t        met_CaloMETPhiInpHF[8];
-   Double_t        met_CaloSETInmHF[8];
-   Double_t        met_CaloSETInpHF[8];
-   Double_t        met_emEtFraction[8];
-   Double_t        met_etFractionHadronic[8];
-   Double_t        met_maxEtInEmTowers[8];
-   Double_t        met_maxEtInHadTowers[8];
-   Double_t        met_emEtInHF[8];
-   Double_t        met_emEtInEE[8];
-   Double_t        met_emEtInEB[8];
-   Double_t        met_hadEtInHF[8];
-   Double_t        met_hadEtInHE[8];
-   Double_t        met_hadEtInHO[8];
-   Double_t        met_hadEtInHB[8];
-   Double_t        met_ChargedEMEtFraction[8];
-   Double_t        met_ChargedHadEtFraction[8];
-   Double_t        met_MuonEtFraction[8];
-   Double_t        met_NeutralEMFraction[8];
-   Double_t        met_NeutralHadEtFraction[8];
-   Double_t        met_Type6EtFraction[8];
-   Double_t        met_Type7EtFraction[8];
+   Double_t        met_et[3];
+   Double_t        met_ex[3];
+   Double_t        met_ey[3];
+   Double_t        met_phi[3];
+   Double_t        met_sumet[3];
+   Double_t        met_sumetsig[3];
+   Double_t        met_etsignif[3];
+   Double_t        met_ChargedEMEtFraction[3];
+   Double_t        met_ChargedHadEtFraction[3];
+   Double_t        met_MuonEtFraction[3];
+   Double_t        met_NeutralEMFraction[3];
+   Double_t        met_NeutralHadEtFraction[3];
+   Double_t        met_Type6EtFraction[3];
+   Double_t        met_Type7EtFraction[3];
+   Double_t        Genmet_et[2];
+   Double_t        Genmet_ex[2];
+   Double_t        Genmet_ey[2];
+   Double_t        Genmet_phi[2];
+   Double_t        Genmet_sumet[2];
+   Double_t        Genmet_sumetsig[2];
+   Double_t        Systmet_et[12];
+   Double_t        Systmet_phi[12];
+   Int_t           SystJet_ResUp_n;
+   Double_t        SystJet_ResUp_pt[100];   //[SystJet_ResUp_n]
+   Double_t        SystJet_ResUp_eta[100];   //[SystJet_ResUp_n]
+   Double_t        SystJet_ResUp_phi[100];   //[SystJet_ResUp_n]
+   Int_t           SystJet_ResDown_n;
+   Double_t        SystJet_ResDown_pt[100];   //[SystJet_ResDown_n]
+   Double_t        SystJet_ResDown_eta[100];   //[SystJet_ResDown_n]
+   Double_t        SystJet_ResDown_phi[100];   //[SystJet_ResDown_n]
    Int_t           pfjet_n;
    Double_t        pfjet_E[100];   //[pfjet_n]
    Double_t        pfjet_Et[100];   //[pfjet_n]
@@ -553,23 +552,6 @@ public :
    TBranch        *b_met_sumet;   //!
    TBranch        *b_met_sumetsig;   //!
    TBranch        *b_met_etsignif;   //!
-   TBranch        *b_met_CaloMETInmHF;   //!
-   TBranch        *b_met_CaloMETInpHF;   //!
-   TBranch        *b_met_CaloMETPhiInmHF;   //!
-   TBranch        *b_met_CaloMETPhiInpHF;   //!
-   TBranch        *b_met_CaloSETInmHF;   //!
-   TBranch        *b_met_CaloSETInpHF;   //!
-   TBranch        *b_met_emEtFraction;   //!
-   TBranch        *b_met_etFractionHadronic;   //!
-   TBranch        *b_met_maxEtInEmTowers;   //!
-   TBranch        *b_met_maxEtInHadTowers;   //!
-   TBranch        *b_met_emEtInHF;   //!
-   TBranch        *b_met_emEtInEE;   //!
-   TBranch        *b_met_emEtInEB;   //!
-   TBranch        *b_met_hadEtInHF;   //!
-   TBranch        *b_met_hadEtInHE;   //!
-   TBranch        *b_met_hadEtInHO;   //!
-   TBranch        *b_met_hadEtInHB;   //!
    TBranch        *b_met_ChargedEMEtFraction;   //!
    TBranch        *b_met_ChargedHadEtFraction;   //!
    TBranch        *b_met_MuonEtFraction;   //!
@@ -577,6 +559,22 @@ public :
    TBranch        *b_met_NeutralHadEtFraction;   //!
    TBranch        *b_met_Type6EtFraction;   //!
    TBranch        *b_met_Type7EtFraction;   //!
+   TBranch        *b_Genmet_et;   //!
+   TBranch        *b_Genmet_ex;   //!
+   TBranch        *b_Genmet_ey;   //!
+   TBranch        *b_Genmet_phi;   //!
+   TBranch        *b_Genmet_sumet;   //!
+   TBranch        *b_Genmet_sumetsig;   //!
+   TBranch        *b_Systmet_et;   //!
+   TBranch        *b_Systmet_phi;   //!
+   TBranch        *b_SystJet_ResUp_n;   //!
+   TBranch        *b_SystJet_ResUp_pt;   //!
+   TBranch        *b_SystJet_ResUp_eta;   //!
+   TBranch        *b_SystJet_ResUp_phi;   //!
+   TBranch        *b_SystJet_ResDown_n;   //!
+   TBranch        *b_SystJet_ResDown_pt;   //!
+   TBranch        *b_SystJet_ResDown_eta;   //!
+   TBranch        *b_SystJet_ResDown_phi;   //!
    TBranch        *b_pfjet_n;   //!
    TBranch        *b_pfjet_E;   //!
    TBranch        *b_pfjet_Et;   //!
@@ -1053,23 +1051,6 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_sumet", met_sumet, &b_met_sumet);
    fChain->SetBranchAddress("met_sumetsig", met_sumetsig, &b_met_sumetsig);
    fChain->SetBranchAddress("met_etsignif", met_etsignif, &b_met_etsignif);
-   fChain->SetBranchAddress("met_CaloMETInmHF", met_CaloMETInmHF, &b_met_CaloMETInmHF);
-   fChain->SetBranchAddress("met_CaloMETInpHF", met_CaloMETInpHF, &b_met_CaloMETInpHF);
-   fChain->SetBranchAddress("met_CaloMETPhiInmHF", met_CaloMETPhiInmHF, &b_met_CaloMETPhiInmHF);
-   fChain->SetBranchAddress("met_CaloMETPhiInpHF", met_CaloMETPhiInpHF, &b_met_CaloMETPhiInpHF);
-   fChain->SetBranchAddress("met_CaloSETInmHF", met_CaloSETInmHF, &b_met_CaloSETInmHF);
-   fChain->SetBranchAddress("met_CaloSETInpHF", met_CaloSETInpHF, &b_met_CaloSETInpHF);
-   fChain->SetBranchAddress("met_emEtFraction", met_emEtFraction, &b_met_emEtFraction);
-   fChain->SetBranchAddress("met_etFractionHadronic", met_etFractionHadronic, &b_met_etFractionHadronic);
-   fChain->SetBranchAddress("met_maxEtInEmTowers", met_maxEtInEmTowers, &b_met_maxEtInEmTowers);
-   fChain->SetBranchAddress("met_maxEtInHadTowers", met_maxEtInHadTowers, &b_met_maxEtInHadTowers);
-   fChain->SetBranchAddress("met_emEtInHF", met_emEtInHF, &b_met_emEtInHF);
-   fChain->SetBranchAddress("met_emEtInEE", met_emEtInEE, &b_met_emEtInEE);
-   fChain->SetBranchAddress("met_emEtInEB", met_emEtInEB, &b_met_emEtInEB);
-   fChain->SetBranchAddress("met_hadEtInHF", met_hadEtInHF, &b_met_hadEtInHF);
-   fChain->SetBranchAddress("met_hadEtInHE", met_hadEtInHE, &b_met_hadEtInHE);
-   fChain->SetBranchAddress("met_hadEtInHO", met_hadEtInHO, &b_met_hadEtInHO);
-   fChain->SetBranchAddress("met_hadEtInHB", met_hadEtInHB, &b_met_hadEtInHB);
    fChain->SetBranchAddress("met_ChargedEMEtFraction", met_ChargedEMEtFraction, &b_met_ChargedEMEtFraction);
    fChain->SetBranchAddress("met_ChargedHadEtFraction", met_ChargedHadEtFraction, &b_met_ChargedHadEtFraction);
    fChain->SetBranchAddress("met_MuonEtFraction", met_MuonEtFraction, &b_met_MuonEtFraction);
@@ -1077,6 +1058,24 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("met_NeutralHadEtFraction", met_NeutralHadEtFraction, &b_met_NeutralHadEtFraction);
    fChain->SetBranchAddress("met_Type6EtFraction", met_Type6EtFraction, &b_met_Type6EtFraction);
    fChain->SetBranchAddress("met_Type7EtFraction", met_Type7EtFraction, &b_met_Type7EtFraction);
+   fChain->SetBranchAddress("Genmet_et", Genmet_et, &b_Genmet_et);
+   fChain->SetBranchAddress("Genmet_ex", Genmet_ex, &b_Genmet_ex);
+   fChain->SetBranchAddress("Genmet_ey", Genmet_ey, &b_Genmet_ey);
+   fChain->SetBranchAddress("Genmet_phi", Genmet_phi, &b_Genmet_phi);
+   fChain->SetBranchAddress("Genmet_sumet", Genmet_sumet, &b_Genmet_sumet);
+   fChain->SetBranchAddress("Genmet_sumetsig", Genmet_sumetsig, &b_Genmet_sumetsig);
+   fChain->SetBranchAddress("Systmet_et", Systmet_et, &b_Systmet_et);
+   fChain->SetBranchAddress("Systmet_phi", Systmet_phi, &b_Systmet_phi);
+   fChain->SetBranchAddress("SystJet_ResUp_n", &SystJet_ResUp_n, &b_SystJet_ResUp_n);
+   fChain->SetBranchAddress("SystJet_ResUp_pt", SystJet_ResUp_pt, &b_SystJet_ResUp_pt);
+   fChain->SetBranchAddress("SystJet_ResUp_eta", SystJet_ResUp_eta, &b_SystJet_ResUp_eta);
+   fChain->SetBranchAddress("SystJet_ResUp_phi", SystJet_ResUp_phi, &b_SystJet_ResUp_phi);
+//    fChain->SetBranchAddress("SystJet_ResUp_pt", SystJet_ResUp_pt, &b_SystJet_ResUp_pt);
+   fChain->SetBranchAddress("SystJet_ResDown_n", &SystJet_ResDown_n, &b_SystJet_ResDown_n);
+   fChain->SetBranchAddress("SystJet_ResDown_pt", SystJet_ResDown_pt, &b_SystJet_ResDown_pt);
+   fChain->SetBranchAddress("SystJet_ResDown_eta", SystJet_ResDown_eta, &b_SystJet_ResDown_eta);
+   fChain->SetBranchAddress("SystJet_ResDown_phi", SystJet_ResDown_phi, &b_SystJet_ResDown_phi);
+//    fChain->SetBranchAddress("SystJet_ResDown_pt", SystJet_ResDown_pt, &b_SystJet_ResDown_pt);
    fChain->SetBranchAddress("pfjet_n", &pfjet_n, &b_pfjet_n);
    fChain->SetBranchAddress("pfjet_E", pfjet_E, &b_pfjet_E);
    fChain->SetBranchAddress("pfjet_Et", pfjet_Et, &b_pfjet_Et);
