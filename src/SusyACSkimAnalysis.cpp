@@ -2261,18 +2261,28 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   
   
-  //met uncertainties:
-  TString METcollection [12]={"patType1CorrectedPFMetElectronEnUp","patType1CorrectedPFMetElectronEnDown","patType1CorrectedPFMetMuonEnUp","patType1CorrectedPFMetMuonEnDown","patType1CorrectedPFMetTauEnUp","patType1CorrectedPFMetTauEnDown","patType1CorrectedPFMetJetResUp","patType1CorrectedPFMetJetResDown","patType1CorrectedPFMetJetEnUp","patType1CorrectedPFMetJetEnDown","patType1CorrectedPFMetUnclusteredEnUp","patType1CorrectedPFMetUnclusteredEnDown"};
-  for(int i=0; i<12;i++){
-    addMETSystematics(iEvent,  METcollection[i], i);
-  } 
+
+  for( int imet=0;imet<12;imet++){
+      mTreeSystMET[imet]       =  0;
+      mTreeSystMETphi[imet]    =   0;
+  }
+  if (is_MC) {
+      //met uncertainties:
+      TString METcollection [12]={"patType1CorrectedPFMetElectronEnUp","patType1CorrectedPFMetElectronEnDown","patType1CorrectedPFMetMuonEnUp","patType1CorrectedPFMetMuonEnDown","patType1CorrectedPFMetTauEnUp","patType1CorrectedPFMetTauEnDown","patType1CorrectedPFMetJetResUp","patType1CorrectedPFMetJetResDown","patType1CorrectedPFMetJetEnUp","patType1CorrectedPFMetJetEnDown","patType1CorrectedPFMetUnclusteredEnUp","patType1CorrectedPFMetUnclusteredEnDown"};
+      for(int i=0; i<12;i++){
+        addMETSystematics(iEvent,  METcollection[i], i);
+      } 
+  }
+  
+  mTreeSystJet_ResUp_n=0;
+  mTreeSystJet_ResDown_n=0;
   //jet uncertainties:
   TString METcollectionObjecs [2]={"smearedPatJetsResUp","smearedPatJetsResDown"};
   
   for(int i=0; i<2;i++){
     addMETSystematicsObject(iEvent,  METcollectionObjecs[i], i);
   }
-
+  
   // This filter
   if (met0_ > 0 && mTreeMET[0] < met0_) return 0;
   if (met1_ > 0   && mTreeMET[1] < met1_)   return 0;
@@ -2388,8 +2398,6 @@ void SusyACSkimAnalysis::addMETSystematics(edm::Event& iEvent, TString METcollec
 void SusyACSkimAnalysis::addMETSystematicsObject(edm::Event& iEvent, TString JETcollection, int ijet){
     edm::Handle< std::vector<pat::Jet> > jetHandle;
     iEvent.getByLabel(JETcollection.Data(), jetHandle);
-    mTreeSystJet_ResUp_n=0;
-    mTreeSystJet_ResDown_n=0;
     
     if ( !jetHandle.isValid() ) 
         edm::LogWarning("SusyACSkimAnalysis") << "No JET results found for InputTag " << JETcollection.Data();

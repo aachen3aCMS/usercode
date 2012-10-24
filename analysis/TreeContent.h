@@ -418,6 +418,10 @@ public :
    Double_t        tau_LeadPFChargedHadrCandsignedSipt[100];   //[tau_n]
    Int_t           tau_NSignalTracks[100];   //[tau_n]
    Double_t        tau_PFLeadChargedPT[100];   //[tau_n]
+   Double_t        tau_Jet_pt[100];   //[tau_n]
+   Double_t        tau_Jet_eta[100];   //[tau_n]
+   Double_t        tau_Jet_phi[100];   //[tau_n]
+   Double_t        tau_Jet_m[100];   //[tau_n]
    Double_t        tau_id[100][31];   //[tau_n]
    Int_t           tau_GenJet_Match_n;
    Int_t           tau_GenJet_DecayMode[100];   //[tau_GenJet_Match_n]
@@ -844,6 +848,10 @@ public :
    TBranch        *b_tau_LeadPFChargedHadrCandsignedSipt;   //!
    TBranch        *b_tau_NSignalTracks;   //!
    TBranch        *b_tau_PFLeadChargedPT;   //!
+   TBranch        *b_tau_Jet_pt;   //!
+   TBranch        *b_tau_Jet_eta;   //!
+   TBranch        *b_tau_Jet_phi;   //!
+   TBranch        *b_tau_Jet_m;   //!
    TBranch        *b_tau_id;   //!
    TBranch        *b_tau_GenJet_Match_n;   //!
    TBranch        *b_tau_GenJet_DecayMode;   //!
@@ -1345,6 +1353,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("tau_LeadPFChargedHadrCandsignedSipt", tau_LeadPFChargedHadrCandsignedSipt, &b_tau_LeadPFChargedHadrCandsignedSipt);
    fChain->SetBranchAddress("tau_NSignalTracks", tau_NSignalTracks, &b_tau_NSignalTracks);
    fChain->SetBranchAddress("tau_PFLeadChargedPT", tau_PFLeadChargedPT, &b_tau_PFLeadChargedPT);
+   fChain->SetBranchAddress("tau_Jet_pt", tau_Jet_pt, &b_tau_Jet_pt);
+   fChain->SetBranchAddress("tau_Jet_eta", tau_Jet_eta, &b_tau_Jet_eta);
+   fChain->SetBranchAddress("tau_Jet_phi", tau_Jet_phi, &b_tau_Jet_phi);
+   fChain->SetBranchAddress("tau_Jet_m", tau_Jet_m, &b_tau_Jet_m);
    fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
    fChain->SetBranchAddress("tau_GenJet_Match_n", &tau_GenJet_Match_n, &b_tau_GenJet_Match_n);
    fChain->SetBranchAddress("tau_GenJet_DecayMode", tau_GenJet_DecayMode, &b_tau_GenJet_DecayMode);
