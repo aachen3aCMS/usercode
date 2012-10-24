@@ -145,12 +145,10 @@ public :
    Double_t        SystJet_ResUp_pt[100];   //[SystJet_ResUp_n]
    Double_t        SystJet_ResUp_eta[100];   //[SystJet_ResUp_n]
    Double_t        SystJet_ResUp_phi[100];   //[SystJet_ResUp_n]
-   Double_t        SystJet_ResUp_pt[100];   //[SystJet_ResUp_n]
    Int_t           SystJet_ResDown_n;
    Double_t        SystJet_ResDown_pt[100];   //[SystJet_ResDown_n]
    Double_t        SystJet_ResDown_eta[100];   //[SystJet_ResDown_n]
    Double_t        SystJet_ResDown_phi[100];   //[SystJet_ResDown_n]
-   Double_t        SystJet_ResDown_pt[100];   //[SystJet_ResDown_n]
    Int_t           pfjet_n;
    Double_t        pfjet_E[100];   //[pfjet_n]
    Double_t        pfjet_Et[100];   //[pfjet_n]
@@ -573,12 +571,10 @@ public :
    TBranch        *b_SystJet_ResUp_pt;   //!
    TBranch        *b_SystJet_ResUp_eta;   //!
    TBranch        *b_SystJet_ResUp_phi;   //!
-   TBranch        *b_SystJet_ResUp_pt;   //!
    TBranch        *b_SystJet_ResDown_n;   //!
    TBranch        *b_SystJet_ResDown_pt;   //!
    TBranch        *b_SystJet_ResDown_eta;   //!
    TBranch        *b_SystJet_ResDown_phi;   //!
-   TBranch        *b_SystJet_ResDown_pt;   //!
    TBranch        *b_pfjet_n;   //!
    TBranch        *b_pfjet_E;   //!
    TBranch        *b_pfjet_Et;   //!
