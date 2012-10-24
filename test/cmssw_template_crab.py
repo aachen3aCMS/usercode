@@ -410,6 +410,8 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
+# switch off tau top level projection
+getattr(process,"pfNoTau"+postfix).enable = False
 
 ### Define the paths
 process.p = cms.Path(
