@@ -1,3 +1,10 @@
+2012-10-31 Sebastian Thüer < thuer -at< physik.rwth-aachen.de>
+v96
+===
+   - Fixed empty output when not using global skims
+   - Updated SkimmingCuts to use the default Aachen clustername(has to be changed for users where the hypernews name differs from the aachen name)
+   - Output is compatible with v95 output
+
 2012-10-23 Martin Weber <weberm -at- physik.rwth-aachen.de>, Markus Radziej <radziej -at- physik.rwth-aachen.de>
 	Added common skim
 	Fixed CVS merge bug

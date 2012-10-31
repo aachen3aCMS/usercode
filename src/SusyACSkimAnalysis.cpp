@@ -2349,9 +2349,10 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       accept = true;
     else if (mTreeNPFjet >= 1 && mTreePFJetPt[0] >= 200)
       accept = true;
+    if (!accept)
+      return 0;
   }
-  if (!accept)
-    return 0;
+  
 
   DEBUG("Mark 20")
 
