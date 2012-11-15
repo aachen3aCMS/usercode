@@ -7,6 +7,7 @@
 
 import os
 import sys
+import inspect
 import optparse
 import ConfigParser
 import subprocess
@@ -27,7 +28,7 @@ dcap="dcap://grid-dcap.physik.rwth-aachen.de"
 ftp="grid-ftp.physik.rwth-aachen.de"
 
 # The path to your user area on the grid storage element (note the leading slash)
-sp="/pnfs/physik.rwth-aachen.de/cms/store/user/"
+sp="/pnfs/physik.rwth-aachen.de/cms/store/user"
 
 # CONDOR template file for job submission
 condor_template='''# Condor universe
@@ -190,11 +191,12 @@ def setupInbox():
     inbox = []
 
     # binary files
+    reskimpyDir = os.path.split(os.path.realpath(inspect.getfile(inspect.currentframe())))[0]
     myDir = options.outputdir
     os.system("mkdir -p " + myDir)
 
     # copy executable in place
-    src = 'reskim'
+    src = reskimpyDir + '/reskim'
     dest = myDir + '/reskim'
     shutil.copy(src, dest)
     inbox.append(dest)
@@ -255,7 +257,7 @@ def submit_condor_job(executable, arguments, inbox, outbox, jobname):
 ######################################################################
 # main
 def main():
-    usage = """usage: %prog [options] dcache-dir output-dir
+    usage = """usage: %prog [options] [username] dcache-dir output-dir
 
 Will create a and submit jobs from the given dcache directory to CONDOR.  The
 output files will be stored in the output-dir, please use a local disk and not
@@ -274,12 +276,16 @@ a network disk."""
 
     global options
     (options, args) = optParser.parse_args()
-    if len(args) != 2:
+        
+    if len(args) == 3:
+        options.inputdir = sp + '/' + args[0] + '/' +  args[1]
+        options.outputdir = args[2]
+    elif len(args) == 2:
+        options.inputdir = sp + '/' + getpass.getuser() + '/' +  args[0]
+        options.outputdir = args[1]
+    else:
         optParser.print_help()
         return 1
-
-    options.inputdir = sp + '/' + getpass.getuser() + '/' +  args[0]
-    options.outputdir = args[1]
 
     if os.environ['CMSSW_BASE'] == '':
         raise "You must setup correct CMSSW version for reskim to work"
