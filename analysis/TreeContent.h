@@ -160,7 +160,7 @@ public :
    Double_t        pfjet_pz[100];   //[pfjet_n]
    Double_t        pfjet_eta[100];   //[pfjet_n]
    Double_t        pfjet_phi[100];   //[pfjet_n]
-   Double_t        pfjet_btag[100];   //[pfjet_n]
+   Double_t        pfjet_btag[100][18];   //[pfjet_n]
    Double_t        pfjet_charge[100];   //[pfjet_n]
    Int_t           pfjet_n90[100];   //[pfjet_n]
    Int_t           pfjet_flav[100];   //[pfjet_n]
@@ -422,6 +422,9 @@ public :
    Double_t        tau_Jet_eta[100];   //[tau_n]
    Double_t        tau_Jet_phi[100];   //[tau_n]
    Double_t        tau_Jet_m[100];   //[tau_n]
+   Double_t        tau_vtx_x[100];   //[tau_n]
+   Double_t        tau_vtx_y[100];   //[tau_n]
+   Double_t        tau_vtx_z[100];   //[tau_n]
    Double_t        tau_id[100][31];   //[tau_n]
    Int_t           tau_GenJet_Match_n;
    Int_t           tau_GenJet_DecayMode[100];   //[tau_GenJet_Match_n]
@@ -852,6 +855,9 @@ public :
    TBranch        *b_tau_Jet_eta;   //!
    TBranch        *b_tau_Jet_phi;   //!
    TBranch        *b_tau_Jet_m;   //!
+   TBranch        *b_tau_vtx_x;   //!
+   TBranch        *b_tau_vtx_y;   //!
+   TBranch        *b_tau_vtx_z;   //!
    TBranch        *b_tau_id;   //!
    TBranch        *b_tau_GenJet_Match_n;   //!
    TBranch        *b_tau_GenJet_DecayMode;   //!
@@ -1357,6 +1363,9 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("tau_Jet_eta", tau_Jet_eta, &b_tau_Jet_eta);
    fChain->SetBranchAddress("tau_Jet_phi", tau_Jet_phi, &b_tau_Jet_phi);
    fChain->SetBranchAddress("tau_Jet_m", tau_Jet_m, &b_tau_Jet_m);
+   fChain->SetBranchAddress("tau_vtx_x", tau_vtx_x, &b_tau_vtx_x);
+   fChain->SetBranchAddress("tau_vtx_y", tau_vtx_y, &b_tau_vtx_y);
+   fChain->SetBranchAddress("tau_vtx_z", tau_vtx_z, &b_tau_vtx_z);
    fChain->SetBranchAddress("tau_id", tau_id, &b_tau_id);
    fChain->SetBranchAddress("tau_GenJet_Match_n", &tau_GenJet_Match_n, &b_tau_GenJet_Match_n);
    fChain->SetBranchAddress("tau_GenJet_DecayMode", tau_GenJet_DecayMode, &b_tau_GenJet_DecayMode);

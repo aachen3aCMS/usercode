@@ -109,6 +109,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+
 using namespace std;
 using namespace pat;
 using namespace ACSusyAnalysis;
@@ -278,9 +279,10 @@ private:
   typedef std::vector< edm::Handle<edm::ValueMap<double> > > isoContainer;
   isoContainer *eIsoFromDepsValueMap_;
   isoContainer *muIsoFromDepsValueMap_;
-
+  
   TString ACmuonID[24];
   TString ACtauID[31];
+  TString ACBtagId[17];
 
   double _jeta[100];
   double _jphi[100];
@@ -513,7 +515,7 @@ private:
   double mTreePFJetE[100];
   double mTreePFJetEta[100];
   double mTreePFJetPhi[100];
-  double mTreePFJetBtag[100];
+  double mTreePFJetBtag[100][18];
   double mTreePFJetCharge[100];
   double mTreePFJetF[100][7];
 
@@ -823,6 +825,10 @@ private:
   double mTreeTauLeadPFChargedHadrCandsignedSipt[100]; 
   double mTreeTauPFLeadChargedPT[100];
   int mTreeTauNSignalTracks[100];
+  
+  double mTreeTauVtxX[100];
+  double mTreeTauVtxY[100];
+  double mTreeTauVtxZ[100];
   
   double mTreesusyScanM0;
   double mTreesusyScanM12;

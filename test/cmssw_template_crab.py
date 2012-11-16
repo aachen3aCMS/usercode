@@ -302,24 +302,8 @@ TriggerSummaryTag = cms.InputTag('hltTriggerSummaryAOD',"","HLT")
 
 # For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
 
-IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
-    cms.InputTag('elPFIsoDepositGammaPFIso'),
-    cms.InputTag('elPFIsoDepositNeutralPFIso'))
-IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
-    cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
-    cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'))
-IsoValElectronNoPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03NoPFIdPFIso'),
-    cms.InputTag('elPFIsoValueGamma03NoPFIdPFIso'),
-    cms.InputTag('elPFIsoValueNeutral03NoPFIdPFIso'))
-IsoDepPhoton = cms.VInputTag(cms.InputTag('phPFIsoDepositChargedPFIso'),
-    cms.InputTag('phPFIsoDepositGammaPFIso'),
-    cms.InputTag('phPFIsoDepositNeutralPFIso'))
-IsoValPhotonNoPF = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03NoPFIdPFIso'),
-    cms.InputTag('phPFIsoValueGamma03NoPFIdPFIso'),
-    cms.InputTag('phPFIsoValueNeutral03NoPFIdPFIso'))
 
 
-#~ inputTagIsoValElectronsPFId = cms.InputTag("IsoValElectronPF")
 
 ### Cuts and switches ###
 process.ACSkimAnalysis = cms.EDFilter(
@@ -364,9 +348,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     HLTInputTag = HLTInputTag,
     TriggerSummaryTag = TriggerSummaryTag,
 
-	IsoDepElectron = IsoDepElectron,
-	IsoValElectronPF = IsoValElectronPF,
-	IsoDepPhoton = IsoDepPhoton,
 	IsoValPhotonPF = IsoValPhotonPF,
 
 
@@ -400,7 +381,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     muoMinv    = cms.double(@MUOMINV@),
     muoDMinv   = cms.double(@MUODMINV@),
 
-    btag       = cms.string('trackCountingHighEffBJetTags'),
+  #  btag       = cms.string('trackCountingHighEffBJetTags'),
 
     # Calo Jet ID
     jetselvers = cms.string("PURE09"),

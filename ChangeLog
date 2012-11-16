@@ -1,3 +1,13 @@
+2012-11-16 Sören Erdweg < erdweg -at- physik.rwth-aachen.de>
+v97
+===
+   - update to CMSSW_5_3_6_patch1
+   - update TreeContent.h
+   - new Cocktail muon
+   - tau vertex
+   - changed b-tag
+   - truth: decay of W', Z', H and Graviton is now stored
+
 2012-10-31 Sebastian Thüer < thuer -at< physik.rwth-aachen.de>
 v96
 ===
