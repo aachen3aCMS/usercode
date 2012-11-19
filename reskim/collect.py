@@ -37,7 +37,7 @@ def check(fname):
                                    errors, warnings, None)
         if not success:
             good = False
-            resubmit(filename, period)
+            resubmit(fname)
     return good
 
 ######################################################################
