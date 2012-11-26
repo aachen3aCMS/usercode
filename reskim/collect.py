@@ -1,9 +1,14 @@
 #!/bin/env python
 import os
 import sys
+import inspect
 import ConfigParser
 import stat
 import optparse
+
+collectpy_dir = os.path.split(os.path.realpath(inspect.getfile(inspect.currentframe())))[0]
+sys.path.append(collectpy_dir)
+
 import reskim
 
 ######################################################################
@@ -27,6 +32,7 @@ def check(fname):
     warnings = [ "warning", "wrn" ]
     requirements = [ "End executing" ]
     
+    os.chdir(collectpy_dir)
     success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
                                errors, warnings, requirements)
     if not success:
