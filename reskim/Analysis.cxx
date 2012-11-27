@@ -34,6 +34,10 @@ void Analysis::Loop()
   // set branch addresses in output tree if necessary
   SetBranchAddresses();
   CreateHistograms();
+  
+  TString BadLaserFile= getenv("CMSSW_BASE");
+  BadLaserFile+="/src/EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt.gz";
+  HcalLaser = new HCALLaserFilter(BadLaserFile);
 
   // main event loop
   Long64_t nbytes = 0, nb = 0;
@@ -54,7 +58,10 @@ void Analysis::Loop()
       INFO("Memory in MB : " << info.fMemResident/1000. << " (resident) " 
 	   << info.fMemVirtual/1000. << " (virtual) ");
     }
-
+    if(!HcalLaser->filter(global_run, lumi_section, global_event) && global_isdata){
+        continue;
+    }
+    
     //////////////////////////////////////////////////////////////////////
     // Start here implementing your cuts. Use histograms to check later
     // if everything went as expected.
