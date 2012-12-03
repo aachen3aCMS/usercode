@@ -269,6 +269,11 @@ IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
                                cms.InputTag('phoPFIso:nhIsoForGsfEle'))
 #it also requires to add phoPFIso in the path
 
+#grrrr this is so anoying
+#for isolation correction in HEEP ID
+process.load("RecoJets.JetProducers.kt4PFJets_cfi")
+process.kt6PFJetsForIsolation = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
 
 ################################
@@ -299,9 +304,6 @@ reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE")
 ebhitsTag     = cms.InputTag("reducedEcalRecHitsEB")   # AOD
 HLTInputTag = cms.InputTag('TriggerResults','','HLT')
 TriggerSummaryTag = cms.InputTag('hltTriggerSummaryAOD',"","HLT")
-
-# For Particle Based Isolation for Electrons & Photons, following latest EGamma Recipie https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation
-
 
 
 
@@ -399,6 +401,7 @@ process.p = cms.Path(
     filtersequence*
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
+    process.kt6PFJetsForIsolation*
     tausequence*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*

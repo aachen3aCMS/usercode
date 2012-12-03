@@ -442,15 +442,15 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     nrEventPassedQscaleRaw_++;
   }
 
-  //edm::Handle<double> rhoEGH;
-  //iEvent.getByLabel(edm::InputTag("kt6PFJetsForIsolation","rho"),rhoEGH);
-  //if(rhoEGH.isValid()){
-    //mTreeElerhoEG=(*rhoEGH);
-  //}
-  //else {
-    //edm::LogWarning("SusyACSkimAnalysis") << " could not find rhoEGH";
-    //mTreeElerhoEG=-1;
-  //}
+  edm::Handle<double> rhoEGH;
+  iEvent.getByLabel(edm::InputTag("kt6PFJetsForIsolation","rho"),rhoEGH);
+  if(rhoEGH.isValid()){
+    mTreeElerhoEG=(*rhoEGH);
+  }
+  else {
+    edm::LogWarning("SusyACSkimAnalysis") << " could not find rhoEGH";
+    mTreeElerhoEG=-1;
+  }
 
   edm::Handle<double> rhoH;
   iEvent.getByLabel(edm::InputTag("kt6PFJets","rho"),rhoH);
@@ -1693,10 +1693,8 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  muons[i].pickyTrack().isNonnull() &&
 	  muons[i].tpfmsTrack().isNonnull() &&
 	  muons[i].innerTrack().isNonnull()){
-	//~ reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], *tevMap1, *tevMap2, *tevMap3)).first;
 	// Using retuned cocktail for the moment, can changed back in 5_3_X
-// 	reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], 200.,  4., 6.)).first;
-     reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], 200, 40., 17., 0.25)).first;
+     reco::TrackRef cocktailTrack = (muon::tevOptimized(muons[i], 200, 17., 40., 0.25)).first;
 	if ( cocktailTrack.isAvailable() ) {
 	  mTreeMuoCocktailPt[countmuo] = cocktailTrack.get()->pt();
 	  mTreeMuoCocktailEta[countmuo] = cocktailTrack.get()->eta();
