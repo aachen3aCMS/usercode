@@ -1844,37 +1844,45 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     mTreeNmuo = countmuo;
 
-    // Vertex info for dimuons
-    unsigned int max_muons=5;
-    for (unsigned int k=0; k<max_muons; k++){
-      for (unsigned int j=0; j<max_muons; j++){
-	mTreeDiMuonVertexValid[k][j]=-1.;
-	mTreeDiMuonVertexChi2[k][j]=-1.;
-	mTreeDiMuonVertexNdf[k][j]=-1.;
-	mTreeDiMuonVertexMass[k][j]=-1.;
+// Vertex info for dimuons
+// The info is written into arrays.
+// Vertex infos are created for the 5 muons with highest pt
+// Array index example: 4 muons (1,2,3,4)
+// Vertex[0] = vertex(1<->2)
+// Vertex[1] = vertex(1<->3)
+// Vertex[2] = vertex(1<->4)
+// Vertex[3] = vertex(2<->3)
+// Vertex[4] = vertex(2<->4)
+// Vertex[5] = vertex(3<->4)
 
-      }
-    }
-    // _DimuVertexInfo DiMuonVertexInfo;
 
-    // if (trackRefs.size() < max_muons) 
-    //   max_muons=trackRefs.size();
+    unsigned int max_muons=5;	
+	for (unsigned int k = 0; k<10;k++){
+		mTreeDiMuonVertexValid[k] =-1;
+		mTreeDiMuonVertexChi2[k] =-1.;
+		mTreeDiMuonVertexNdf[k] = -1;
+		mTreeDiMuonVertexMass[k] =-1.;
+	}
+    _DimuVertexInfo DiMuonVertexInfo;
+     if (trackRefs.size() < max_muons) 
+      max_muons=trackRefs.size();
+	  Int_t indexshift = 0;
 
-    // for (unsigned int k=0; k<max_muons; k++){
-    //   for (unsigned int j=k+1; j<max_muons; j++){
-    // 	if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon()) {
-    // 	  SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
-    // 	  mTreeDiMuonVertexValid[k][j] = DiMuonVertexInfo.valid;
-    // 	  mTreeDiMuonVertexValid[j][k] = DiMuonVertexInfo.valid;
-    // 	  mTreeDiMuonVertexChi2[k][j]  = DiMuonVertexInfo.chi2;
-    // 	  mTreeDiMuonVertexChi2[j][k]  = DiMuonVertexInfo.chi2;
-    // 	  mTreeDiMuonVertexNdf[k][j]   = DiMuonVertexInfo.ndf;
-    // 	  mTreeDiMuonVertexNdf[j][k]   = DiMuonVertexInfo.ndf;
-    // 	  mTreeDiMuonVertexMass[k][j]  = DiMuonVertexInfo.vals[6];
-    // 	  mTreeDiMuonVertexMass[j][k]  = DiMuonVertexInfo.vals[6];
-    // 	}
-    //   }
-    // }
+	 for (unsigned int k=0; k<max_muons; k++){  
+		if(k>0){
+			indexshift += max_muons - k;
+
+		}		  
+	  for (unsigned int j=k+1; j<max_muons; j++){
+		if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon() && muons[j].isTrackerMuon() && muons[k].isTrackerMuon()) {
+     	  SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
+     	  mTreeDiMuonVertexValid[j-k-1+indexshift] = DiMuonVertexInfo.valid;
+    	  mTreeDiMuonVertexChi2[j-k-1+indexshift]  = DiMuonVertexInfo.chi2;
+     	  mTreeDiMuonVertexNdf[j-k-1+indexshift]   = DiMuonVertexInfo.ndf;
+     	  mTreeDiMuonVertexMass[j-k-1+indexshift]  = DiMuonVertexInfo.vals[6];
+     	}
+       }
+     }
   }
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   // timer6.Stop();
@@ -2972,10 +2980,10 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_LostHits", mTreeMuoLostHits,"muo_LostHits[muo_n]/I");
   mAllData->Branch("muo_LostHitsTk", mTreeMuoLostHitsTk,"muo_LostHits[muo_n]/I");
   mAllData->Branch("muo_isPFMuon", mTreeMuoIsPF,"muo_isPFMuon[muo_n]/I");
-  mAllData->Branch("muo_DiMuonVertexValid", mTreeDiMuonVertexValid,"muo_DiMuonVertexValid[5][5]/I");
-  mAllData->Branch("muo_DiMuonVertexNdf", mTreeDiMuonVertexNdf,"muo_DiMuonVertexNdf[5][5]/I");
-  mAllData->Branch("muo_DiMuonVertexChi2", mTreeDiMuonVertexChi2,"muo_DiMuonVertexChi2[5][5]/double");
-  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[5][5]/double");
+  mAllData->Branch("muo_DiMuonVertexValid", mTreeDiMuonVertexValid,"muo_DiMuonVertexValid[10]/I");
+  mAllData->Branch("muo_DiMuonVertexNdf", mTreeDiMuonVertexNdf,"muo_DiMuonVertexNdf[10]/I");
+  mAllData->Branch("muo_DiMuonVertexChi2", mTreeDiMuonVertexChi2,"muo_DiMuonVertexChi2[10]/double");
+  mAllData->Branch("muo_DiMuonVertexMass", mTreeDiMuonVertexMass,"muo_DiMuonVertexMass[10]/double");
   mAllData->Branch("muo_Cocktail_pt",  mTreeMuoCocktailPt,  "muo_Cocktail_pt[muo_n]/double");
   mAllData->Branch("muo_Cocktail_phi", mTreeMuoCocktailPhi, "muo_Cocktail_phi[muo_n]/double");
   mAllData->Branch("muo_Cocktail_eta", mTreeMuoCocktailEta, "muo_Cocktail_eta[muo_n]/double");
