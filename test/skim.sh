@@ -36,7 +36,7 @@ JSON="20121032_json_DCSONLY.txt"
 # 2012 A+B ReReco, CMSSW_5_3_2_patch4
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions#2012_A_and_B_data_re_reco_with_C
 GLOBALTAG="FT_53_V6_AN2"
-submit_data /DoubleMu/Run2012A-13Jul2012-v1/AOD $JSON
+#submit_data /DoubleMu/Run2012A-13Jul2012-v1/AOD $JSON
 #submit_data /DoubleMu/Run2012B-13Jul2012-v4/AOD $JSON
 
 # 2012 special ECAL recovery (A+B), CMSSW_5_3_3_patch1
@@ -64,6 +64,7 @@ GLOBALTAG="GR_P_V42_AN2"
 
 # CMSSW_5_3_2_patch4
 GLOBALTAG="START53_V7F"
-submit_mc /DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
+submit_mc /WToTauNu_ptmin500_TuneZ2Star_8TeV-pythia6-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
+#submit_mc /DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
 
 #submit_mc /soft332_m0eq1000_m12eq500_tanbeq20_sgnMueq1_A0eq0_lp211eq0.01_hw4000_CMSSW523p3_noPU_AOD_20.08.2012/sonnen-soft332_m0eq1000_m12eq500_tanbeq20_sgnMueq1_A0eq0_lp211eq0.01_hw4000_CMSSW523p3_noPU_AOD_20.08.2012-1c2ba989717b25223297e99c10c41dbd/USER

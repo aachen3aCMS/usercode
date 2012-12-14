@@ -122,6 +122,21 @@ process.pfPileUpPFlow.checkClosestZVertex = False
 process.load("PhysicsTools/PatAlgos/patSequences_cff")
 
 from PhysicsTools.PatAlgos.tools.tauTools import *
+#
+#from aachen3a.ACSusyAnalysis.tauDiscriminator_cff import updateHPSPFTausRelPt
+process.load("aachen3a/ACSusyAnalysis/tauDiscriminator_cff")
+
+hpsTauIDSources+=[
+    #("decayModeFinding", "DiscriminationByDecayModeFinding"),
+    ("ByVLooseChargedIsolation","DiscriminationByVLooseChargedIsolation"),
+    ("ByLooseChargedIsolation","DiscriminationByLooseChargedIsolation"),
+    ("ByMediumChargedIsolation","DiscriminationByMediumChargedIsolation"),
+    ("ByTightChargedIsolation","DiscriminationByTightChargedIsolation"),
+    ("ByLooseCombinedIsolationDBRelSumPtCorr","DiscriminationByLooseCombinedIsolationDBRelSumPtCorr"),
+    ("ByMediumCombinedIsolationDBRelSumPtCorr","DiscriminationByMediumCombinedIsolationDBRelSumPtCorr"),
+    ("ByTightCombinedIsolationDBRelSumPtCorr","DiscriminationByTightCombinedIsolationDBRelSumPtCorr"),
+    ("ByRawCombinedIsolationDBRelSumPtCorr","DiscriminationByRawCombinedIsolationDBRelSumPtCorr")
+]
 switchToPFTauHPS(process)
 
 
@@ -270,7 +285,7 @@ process.ACSkimAnalysis = cms.EDFilter(
     HLTInputTag = HLTInputTag,
     TriggerSummaryTag = TriggerSummaryTag,
 
-	IsoValPhotonPF = IsoValPhotonPF,
+    IsoValPhotonPF = IsoValPhotonPF,
 
 
     qscale_low  = cms.double(qscalelow),
@@ -323,6 +338,7 @@ process.p = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.kt6PFJetsForIsolation*
     tausequence*
+    process.updateHPSPFTausRelPt*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
     process.pfParticleSelectionSequence*

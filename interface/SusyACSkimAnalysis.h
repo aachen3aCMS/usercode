@@ -281,7 +281,7 @@ private:
   isoContainer *muIsoFromDepsValueMap_;
   
   TString ACmuonID[24];
-  TString ACtauID[31];
+  TString ACtauID[48];
   TString ACBtagId[17];
 
   double _jeta[100];
@@ -717,10 +717,10 @@ private:
   int    mTreeMuoIsPF[100];
 
   
-  int mTreeDiMuonVertexValid[5][5];
-  int mTreeDiMuonVertexNdf[5][5];
-  double mTreeDiMuonVertexChi2[5][5];
-  double mTreeDiMuonVertexMass[5][5];
+  int mTreeDiMuonVertexValid[10];
+  int mTreeDiMuonVertexNdf[10];
+  double mTreeDiMuonVertexChi2[10];
+  double mTreeDiMuonVertexMass[10];
 
 
 
@@ -785,7 +785,7 @@ private:
   int mTreeTauDecayMode[100];
   int mTreeTauPFChargedHadrCands[100];
   int mTreeTauPFGammaCands[100];
-  double mTreeTauID[100][31];
+  double mTreeTauID[100][47];
   double mTreeTauP[100];
   double mTreeTauPt[100];
   double mTreeTauE[100];

@@ -1857,32 +1857,31 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     unsigned int max_muons=5;	
-	for (unsigned int k = 0; k<10;k++){
-		mTreeDiMuonVertexValid[k] =-1;
-		mTreeDiMuonVertexChi2[k] =-1.;
-		mTreeDiMuonVertexNdf[k] = -1;
-		mTreeDiMuonVertexMass[k] =-1.;
-	}
+    for (unsigned int k = 0; k<10;k++){
+        mTreeDiMuonVertexValid[k] =-1;
+        mTreeDiMuonVertexChi2[k] =-1.;
+        mTreeDiMuonVertexNdf[k] = -1;
+        mTreeDiMuonVertexMass[k] =-1.;
+    }
     _DimuVertexInfo DiMuonVertexInfo;
-     if (trackRefs.size() < max_muons) 
-      max_muons=trackRefs.size();
-	  Int_t indexshift = 0;
+    if (trackRefs.size() < max_muons) 
+        max_muons=trackRefs.size();
+    Int_t indexshift = 0;
 
-	 for (unsigned int k=0; k<max_muons; k++){  
-		if(k>0){
-			indexshift += max_muons - k;
-
-		}		  
-	  for (unsigned int j=k+1; j<max_muons; j++){
-		if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon() && muons[j].isTrackerMuon() && muons[k].isTrackerMuon()) {
-     	  SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
-     	  mTreeDiMuonVertexValid[j-k-1+indexshift] = DiMuonVertexInfo.valid;
-    	  mTreeDiMuonVertexChi2[j-k-1+indexshift]  = DiMuonVertexInfo.chi2;
-     	  mTreeDiMuonVertexNdf[j-k-1+indexshift]   = DiMuonVertexInfo.ndf;
-     	  mTreeDiMuonVertexMass[j-k-1+indexshift]  = DiMuonVertexInfo.vals[6];
-     	}
-       }
-     }
+    for (unsigned int k=0; k<max_muons; k++){  
+        if(k>0){
+            indexshift += max_muons - k;
+        }
+        for (unsigned int j=k+1; j<max_muons; j++){
+            if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon() && muons[j].isTrackerMuon() && muons[k].isTrackerMuon()) {
+                SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
+                mTreeDiMuonVertexValid[j-k-1+indexshift] = DiMuonVertexInfo.valid;
+                mTreeDiMuonVertexChi2[j-k-1+indexshift]  = DiMuonVertexInfo.chi2;
+                mTreeDiMuonVertexNdf[j-k-1+indexshift]   = DiMuonVertexInfo.ndf;
+                mTreeDiMuonVertexMass[j-k-1+indexshift]  = DiMuonVertexInfo.vals[6];
+            }
+        }
+    }
   }
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   // timer6.Stop();
@@ -1903,60 +1902,67 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       int counterTauTruthMatch = 0;
       mTreeNtaus = tauHandle->size();
       for (int i=0; i<mTreeNtaus; i++) {
-	taus.push_back((*tauHandle)[i]);
+    taus.push_back((*tauHandle)[i]);
       }
       sort(taus.begin(), taus.end(), ptcomp_tau);
       if (mTreeNtaus > 50) 
-	mTreeNtaus = 50;
+    mTreeNtaus = 50;
 
-      for (int i=0; i<mTreeNtaus; i++){
-	mTreePosTruthMatchTaus[i]	=  -1;
-	mTreeTauGenJetE[i]		=  -1.;
-	mTreeTauGenJetEt[i]		=  -1.;
-	mTreeTauGenJetEta[i] 		=  -100.;
-	mTreeTauGenJetPhi[i]		=  -100.;
-	mTreeTauGenJetMass[i]		=  -1.;
-	mTreeTauGenJetMt[i] 		=  -1.;
-	mTreeTauGenJetP[i] 		=  -1.;
-	mTreeTauGenJetPt[i]		=  -1.;
-	mTreeTauGenJetPx[i] 		=  -1000000.;
-	mTreeTauGenJetPy[i] 		=  -1000000.;
-	mTreeTauGenJetPz[i] 		=  -1000000.;
-	mTreeGenTauDecay[i]             =  -1;
-	for(int j=0; j < 31; j++){
-	  mTreeTauID[i][j] = -1.;
-	}
+    for (int i=0; i<mTreeNtaus; i++){
+      mTreePosTruthMatchTaus[i]	=  -1;
+      mTreeTauGenJetE[i]		=  -1.;
+      mTreeTauGenJetEt[i]		=  -1.;
+      mTreeTauGenJetEta[i] 		=  -100.;
+      mTreeTauGenJetPhi[i]		=  -100.;
+      mTreeTauGenJetMass[i]		=  -1.;
+      mTreeTauGenJetMt[i] 		=  -1.;
+      mTreeTauGenJetP[i] 		=  -1.;
+      mTreeTauGenJetPt[i]		=  -1.;
+      mTreeTauGenJetPx[i] 		=  -1000000.;
+      mTreeTauGenJetPy[i] 		=  -1000000.;
+      mTreeTauGenJetPz[i] 		=  -1000000.;
+      mTreeGenTauDecay[i]             =  -1;
+      for(int j=0; j < 48; j++){
+        mTreeTauID[i][j] = -1.;
       }
+    }
 
       for( int i=0;i<mTreeNtaus ; i++){
-	if (taus[i].pt() > taupt_ && fabs(taus[i].eta()) < taueta_ ) {
-	  ctau_++;
-	}
-	// do not consider taus below 15 GeV if there are already some
-	if (taus[i].pt() < 15) {
-	  break;
-	}
+    if (taus[i].pt() > taupt_ && fabs(taus[i].eta()) < taueta_ ) {
+      ctau_++;
+    }
+    // do not consider taus below 15 GeV if there are already some
+    if (taus[i].pt() < 15) {
+      break;
+    }
 
-	for(int j=0; j<31; j++){
-	  mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
-	}
-	mTreeTauP[counttau]          = taus[i].p();
-	mTreeTauPt[counttau]         = taus[i].pt();
-	mTreeTauE[counttau]          = taus[i].energy();
-	mTreeTauEt[counttau]         = taus[i].et();
-	mTreeTauMass[counttau]       = taus[i].mass();
-	mTreeTauMt[counttau]         = taus[i].mt();
-	mTreeTauPx[counttau]         = taus[i].momentum().X();
-	mTreeTauPy[counttau]         = taus[i].momentum().Y();
-	mTreeTauPz[counttau]         = taus[i].momentum().Z();
-	mTreeTauEta[counttau]        = taus[i].eta();
-	mTreeTauPhi[counttau]        = taus[i].phi();
-	mTreeTauDecayMode[counttau]  = taus[i].decayMode();
-	mTreeTauCharge[counttau]     = taus[i].charge();
-	mTreeTauParticleIso[counttau]= taus[i].userIsolation("pat::PfAllParticleIso");
-	mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
-	mTreeTauEcalStripSumEOverPLead[counttau] = taus[i].ecalStripSumEOverPLead();
-	mTreeTauLeadPFChargedHadrCandsignedSipt[counttau] = taus[i].leadPFChargedHadrCandsignedSipt();
+    for(int j=0; j<48; j++){
+      mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
+    }
+    //cout<<"jaja"<<taus[i].tauID("ByRawCombinedIsolationDBRelSumPtCorr")<<endl;
+    //vector< pair<string,float> > ids= taus[i].tauIDs();
+    //cout<<endl;
+    //for(unsigned int k=0;k<ids.size();k++){
+        //cout<<ids[k].first <<"  "<<ids[k].second<<endl;
+    //}
+    //cout<<endl;
+    mTreeTauP[counttau]          = taus[i].p();
+    mTreeTauPt[counttau]         = taus[i].pt();
+    mTreeTauE[counttau]          = taus[i].energy();
+    mTreeTauEt[counttau]         = taus[i].et();
+    mTreeTauMass[counttau]       = taus[i].mass();
+    mTreeTauMt[counttau]         = taus[i].mt();
+    mTreeTauPx[counttau]         = taus[i].momentum().X();
+    mTreeTauPy[counttau]         = taus[i].momentum().Y();
+    mTreeTauPz[counttau]         = taus[i].momentum().Z();
+    mTreeTauEta[counttau]        = taus[i].eta();
+    mTreeTauPhi[counttau]        = taus[i].phi();
+    mTreeTauDecayMode[counttau]  = taus[i].decayMode();
+    mTreeTauCharge[counttau]     = taus[i].charge();
+    mTreeTauParticleIso[counttau]= taus[i].userIsolation("pat::PfAllParticleIso");
+    mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
+    mTreeTauEcalStripSumEOverPLead[counttau] = taus[i].ecalStripSumEOverPLead();
+    mTreeTauLeadPFChargedHadrCandsignedSipt[counttau] = taus[i].leadPFChargedHadrCandsignedSipt();
     mTreeTauJetPt[counttau]     = taus[i].p4Jet().pt();
     mTreeTauJetEta[counttau]    = taus[i].p4Jet().eta();
     mTreeTauJetPhi[counttau]    = taus[i].p4Jet().phi();
@@ -3032,7 +3038,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_vtx_x", mTreeTauVtxX, "tau_vtx_x[tau_n]/double");
   mAllData->Branch("tau_vtx_y", mTreeTauVtxY, "tau_vtx_y[tau_n]/double");
   mAllData->Branch("tau_vtx_z", mTreeTauVtxZ, "tau_vtx_z[tau_n]/double");
-  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][31]/double");
+  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][47]/double");
   mAllData->Branch("tau_GenJet_Match_n",   &mTreeNTruthMatchTaus,    "tau_GenJet_Match_n/I");
   mAllData->Branch("tau_GenJet_DecayMode", mTreeGenTauDecay, "tau_GenJet_DecayMode[tau_GenJet_Match_n]/I");
   mAllData->Branch("tau_GenJetMatch_Pos", mTreePosTruthMatchTaus, "tau_GenJetMatch_Pos[tau_GenJet_Match_n]/I");
@@ -3085,37 +3091,54 @@ void SusyACSkimAnalysis::initPlots() {
   ACmuonID[23] = "TMLastStationOptimizedBarrelLowPtTight";
   // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
 
-  ACtauID[0]="againstElectronLoose";
-  ACtauID[1]="againstElectronMedium";
-  ACtauID[2]="againstElectronTight";
-  ACtauID[3]="againstElectronMVA";
-  ACtauID[4]="againstElectronMVA2raw";
-  ACtauID[5]="againstElectronMVA2category";
-  ACtauID[6]="againstElectronVLooseMVA2";
-  ACtauID[7]="againstElectronLooseMVA2";
-  ACtauID[8]="againstElectronMediumMVA2";
-  ACtauID[9]="againstElectronTightMVA2";
-  ACtauID[10]="againstMuonLoose";
-  ACtauID[11]="againstMuonMedium";
-  ACtauID[12]="againstMuonTight";
-  ACtauID[13]="byVLooseIsolation";
-  ACtauID[14]="byLooseIsolation";
-  ACtauID[15]="byMediumIsolation";
-  ACtauID[16]="byTightIsolation";
-  ACtauID[17]="decayModeFinding";
-  ACtauID[18]="byVLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[19]="byLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[20]="byMediumCombinedIsolationDeltaBetaCorr";
-  ACtauID[21]="byTightCombinedIsolationDeltaBetaCorr";
-  ACtauID[22]="byCombinedIsolationDeltaBetaCorrRaw";
-  ACtauID[23]="byVLooseIsolationDeltaBetaCorr";
-  ACtauID[24]="byLooseIsolationDeltaBetaCorr";
-  ACtauID[25]="byMediumIsolationDeltaBetaCorr";
-  ACtauID[26]="byTightIsolationDeltaBetaCorr";
+  ACtauID[0]="ByLooseChargedIsolation";
+  ACtauID[1]="ByLooseCombinedIsolationDBRelSumPtCorr";
+  ACtauID[2]="ByMediumChargedIsolation";
+  ACtauID[3]="ByMediumCombinedIsolationDBRelSumPtCorr";
+  ACtauID[4]="ByTightChargedIsolation";
+  ACtauID[5]="ByTightCombinedIsolationDBRelSumPtCorr";
+  ACtauID[6]="ByVLooseChargedIsolation";
+  ACtauID[7]="againstElectronDeadECAL";
+  ACtauID[8]="againstElectronLoose";
+  ACtauID[9]="againstElectronLooseMVA2";
+  ACtauID[10]="againstElectronLooseMVA3";
+  ACtauID[11]="againstElectronMVA";
+  ACtauID[12]="againstElectronMVA2category";
+  ACtauID[13]="againstElectronMVA2raw";
+  ACtauID[14]="againstElectronMVA3raw";
+  ACtauID[15]="againstElectronMedium";
+  ACtauID[16]="againstElectronMediumMVA2";
+  ACtauID[17]="againstElectronMediumMVA3";
+  ACtauID[18]="againstElectronTight";
+  ACtauID[19]="againstElectronTightMVA2";
+  ACtauID[20]="againstElectronTightMVA3";
+  ACtauID[21]="againstElectronVLooseMVA2";
+  ACtauID[22]="againstElectronVTightMVA3";
+  ACtauID[23]="againstMuonLoose";
+  ACtauID[24]="againstMuonMedium";
+  ACtauID[25]="againstMuonTight";
+  ACtauID[26]="byCombinedIsolationDeltaBetaCorrRaw";
   ACtauID[27]="byIsolationMVAraw";
-  ACtauID[28]="byLooseIsolationMVA";
-  ACtauID[29]="byMediumIsolationMVA";
-  ACtauID[30]="byTightIsolationMVA";
+  ACtauID[28]="byLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[29]="byLooseCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[30]="byLooseIsolation";
+  ACtauID[31]="byLooseIsolationDeltaBetaCorr";
+  ACtauID[32]="byLooseIsolationMVA";
+  ACtauID[33]="byMediumCombinedIsolationDeltaBetaCorr";
+  ACtauID[34]="byMediumCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[35]="byMediumIsolation";
+  ACtauID[36]="byMediumIsolationDeltaBetaCorr";
+  ACtauID[37]="byMediumIsolationMVA";
+  ACtauID[38]="byTightCombinedIsolationDeltaBetaCorr";
+  ACtauID[39]="byTightCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[40]="byTightIsolation";
+  ACtauID[41]="byTightIsolationDeltaBetaCorr";
+  ACtauID[42]="byTightIsolationMVA";
+  ACtauID[43]="byVLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[44]="byVLooseIsolation";
+  ACtauID[45]="byVLooseIsolationDeltaBetaCorr";
+  ACtauID[46]="ByRawCombinedIsolationDBRelSumPtCorr";
+  ACtauID[47]="decayModeFinding";
   
   
   ACBtagId[0]="jetBProbabilityBJetTags";
