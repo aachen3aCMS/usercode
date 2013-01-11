@@ -65,16 +65,6 @@ def addHBHENoiseFilter( process ):
     process.p_HBHENoiseFilter = cms.Path(process.HBHENoiseFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_HBHENoiseFilter' )
 
-def addXtalsLargeLaser( process ):
-    # Filter for large laser calibration for cristal
-    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFilters#EB_or_EE_Xtals_with_large_laser
-    #to add in the recipe:
-    #cvs co RecoMET/METFilters/plugins/EcalLaserCorrFilter.cc
-    #cvs co RecoMET/METFilters/python/ecalLaserCorrFilter_cfi.py
-
-    process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
-    process.p_XtalsLargeLaser = cms.Path(process.ecalLaserCorrFilter)
-    process.ACSkimAnalysis.filterlist.append( 'p_XtalsLargeLaser' )    
 
 def addecalLaserCorrFilter( process):
     ## The ECAL laser correction filter
