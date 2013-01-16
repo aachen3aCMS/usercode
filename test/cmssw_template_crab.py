@@ -337,13 +337,14 @@ process.p = cms.Path(
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     process.kt6PFJetsForIsolation*
-    tausequence*
+    #tausequence*
+    process.recoTauClassicHPSSequence*
     process.updateHPSPFTausRelPt*
     process.patDefaultSequence*
     getattr(process,"patPF2PATSequence"+postfix)*
-    process.pfParticleSelectionSequence*
-    process.eleIsoSequence*
-    process.phoIsoSequence*
+    #process.pfParticleSelectionSequence*
+    #process.eleIsoSequence*
+    #process.phoIsoSequence*
     process.phoPFIso*
     process.producePFMETCorrections*
     process.pfMETType0
@@ -365,10 +366,10 @@ addMuonFailureFilter( process )
 addBadSuperCrystalFilter( process )
 addTrackingFailureFilter( process )
 addHBHENoiseFilter( process )
-addXtalsLargeLaser( process )
+addecalLaserCorrFilter( process )
 addecalLaserCorrFilter( process )
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()
-# process.outpath = cms.EndPath(process.out2)
+#process.outpath = cms.EndPath(process.out2)
 process.e = cms.EndPath(process.ACSkimAnalysis )

@@ -63,7 +63,7 @@ GLOBALTAG="GR_P_V42_AN2"
 # MC Summer 12 - July ReReco
 
 # CMSSW_5_3_2_patch4
-GLOBALTAG="START53_V7F"
+GLOBALTAG="START53_V15"
 submit_mc /WToTauNu_ptmin500_TuneZ2Star_8TeV-pythia6-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
 #submit_mc /DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
 

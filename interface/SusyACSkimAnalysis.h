@@ -136,7 +136,6 @@ private:
   virtual void endJob();
   
   /// Helpers
-  virtual bool isStable(int pdgid);
   virtual bool isDecaying(int pdgid);
   virtual bool isSUSY(int pdgid);
   void addMETSystematics(edm::Event&, TString METcollection, int imet);
@@ -281,7 +280,7 @@ private:
   isoContainer *muIsoFromDepsValueMap_;
   
   TString ACmuonID[24];
-  TString ACtauID[48];
+  TString ACtauID[57];
   TString ACBtagId[17];
 
   double _jeta[100];
@@ -785,9 +784,12 @@ private:
   int mTreeTauDecayMode[100];
   int mTreeTauPFChargedHadrCands[100];
   int mTreeTauPFGammaCands[100];
-  double mTreeTauID[100][47];
+  double mTreeTauPFChargedHadrCandPt[100];
+  double mTreeTauPFGammaCandPt[100];
+  double mTreeTauID[100][57];
   double mTreeTauP[100];
   double mTreeTauPt[100];
+  double mTreeTauAltPt[100];
   double mTreeTauE[100];
   double mTreeTauEt[100];
   double mTreeTauMass[100];

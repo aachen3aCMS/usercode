@@ -71,3 +71,11 @@ def addecalLaserCorrFilter( process):
     process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
     process.p_ecalLaserCorrFilter = cms.Path(process.ecalLaserCorrFilter)
     process.ACSkimAnalysis.filterlist.append( 'p_ecalLaserCorrFilter' )    
+    
+    
+def addtrkPOGFilters( process ):
+    # The Tracking POG filters -- Strip Tracker coherent noise filters & log error filters
+    ###The filter sets true if the event is bad so be warned
+    process.load('RecoMET.METFilters.trackingPOGFilters_cfi')
+    process.p_trkPOGFilters = cms.Path( process.trkPOGFilters )
+    process.ACSkimAnalysis.filterlist.append( 'p_trkPOGFilters' )

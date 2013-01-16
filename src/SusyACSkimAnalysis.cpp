@@ -1922,7 +1922,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeTauGenJetPy[i] 		=  -1000000.;
       mTreeTauGenJetPz[i] 		=  -1000000.;
       mTreeGenTauDecay[i]             =  -1;
-      for(int j=0; j < 48; j++){
+      for(int j=0; j < 57; j++){
         mTreeTauID[i][j] = -1.;
       }
     }
@@ -1936,7 +1936,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       break;
     }
 
-    for(int j=0; j<48; j++){
+    for(int j=0; j<57; j++){
       mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
     }
     //cout<<"jaja"<<taus[i].tauID("ByRawCombinedIsolationDBRelSumPtCorr")<<endl;
@@ -1963,6 +1963,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     mTreeTauIsolationPFChargedHadrCandsPtSum[counttau] = taus[i].isolationPFChargedHadrCandsPtSum();
     mTreeTauEcalStripSumEOverPLead[counttau] = taus[i].ecalStripSumEOverPLead();
     mTreeTauLeadPFChargedHadrCandsignedSipt[counttau] = taus[i].leadPFChargedHadrCandsignedSipt();
+    mTreeTauAltPt[counttau]     = taus[i].alternatLorentzVect().Pt();
     mTreeTauJetPt[counttau]     = taus[i].p4Jet().pt();
     mTreeTauJetEta[counttau]    = taus[i].p4Jet().eta();
     mTreeTauJetPhi[counttau]    = taus[i].p4Jet().phi();
@@ -1973,65 +1974,66 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     
     
-	if (taus[i].leadPFChargedHadrCand().isNonnull()) {
-	  mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
-	} else {
-	  mTreeTauPFLeadChargedPT[counttau] = -1.;
-	}
-	if (taus[i].signalPFChargedHadrCands().isNonnull()) {
-	  mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
-	}  else {
-	  mTreeTauPFChargedHadrCands[counttau] = -1;
-	}
-	if (taus[i].signalPFGammaCands().isNonnull()) {
-	  mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
-	}  else {
-	  mTreeTauPFGammaCands[counttau] = -1;
-	}
-	if (taus[i].signalTracks().isNonnull()) {
-	  mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
-	}  else {
-	  mTreeTauNSignalTracks[counttau] = -1;
-	}
-	if (is_MC) {
-	  if (taus[i].genJet() != 0) {
-	    mTreePosTruthMatchTaus[counterTauTruthMatch]	= i;
-	    mTreeTauGenJetE[counterTauTruthMatch]		= taus[i].genJet()->energy();
-	    mTreeTauGenJetEt[counterTauTruthMatch]		= taus[i].genJet()->et();
-	    mTreeTauGenJetEta[counterTauTruthMatch] 	        = taus[i].genJet()->eta();
-	    mTreeTauGenJetPhi[counterTauTruthMatch]		= taus[i].genJet()->phi();
-	    mTreeTauGenJetMass[counterTauTruthMatch]	        = taus[i].genJet()->mass();
-	    mTreeTauGenJetMt[counterTauTruthMatch] 		= taus[i].genJet()->mt();
-	    mTreeTauGenJetP[counterTauTruthMatch] 		= taus[i].genJet()->p();
-	    mTreeTauGenJetPt[counterTauTruthMatch]		= taus[i].genJet()->pt();
-	    mTreeTauGenJetPx[counterTauTruthMatch] 		= taus[i].genJet()->px();
-	    mTreeTauGenJetPy[counterTauTruthMatch] 		= taus[i].genJet()->py();
-	    mTreeTauGenJetPz[counterTauTruthMatch] 		= taus[i].genJet()->pz();
-	    std::string decaymode = JetMCTagUtils::genTauDecayMode(*(taus[i].genJet()));
-	    if (decaymode == "electron") 
-	      mTreeGenTauDecay[counterTauTruthMatch] = 0;
-	    else if (decaymode == "muon")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 1;
-	    else if (decaymode == "oneProngOther")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 2;
-	    else if (decaymode == "oneProng0Pi0")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 3;
-	    else if (decaymode == "oneProng1Pi0")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 4;
-	    else if (decaymode == "oneProng2Pi0")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 5;
-	    else if (decaymode == "threeProngOther")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 6;
-	    else if (decaymode == "threeProng0Pi0")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 7;
-	    else if (decaymode == "threeProng1Pi0")
-	      mTreeGenTauDecay[counterTauTruthMatch] = 8;
-	    else // rare decay
-	      mTreeGenTauDecay[counterTauTruthMatch] = 99;
-	    counterTauTruthMatch++;
-	  }
-	}
-	counttau++;
+    if (taus[i].leadPFChargedHadrCand().isNonnull()) {
+      mTreeTauPFLeadChargedPT[counttau]  = taus[i].leadPFChargedHadrCand()->pt();
+      
+    } else {
+      mTreeTauPFLeadChargedPT[counttau] = -1.;
+    }
+    if (taus[i].signalPFChargedHadrCands().isNonnull()) {
+      mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
+    }  else {
+      mTreeTauPFChargedHadrCands[counttau] = -1;
+    }
+    if (taus[i].signalPFGammaCands().isNonnull()) {
+      mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
+    }  else {
+      mTreeTauPFGammaCands[counttau] = -1;
+    }
+    if (taus[i].signalTracks().isNonnull()) {
+      mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
+    }  else {
+      mTreeTauNSignalTracks[counttau] = -1;
+    }
+    if (is_MC) {
+      if (taus[i].genJet() != 0) {
+        mTreePosTruthMatchTaus[counterTauTruthMatch]	= i;
+        mTreeTauGenJetE[counterTauTruthMatch]		= taus[i].genJet()->energy();
+        mTreeTauGenJetEt[counterTauTruthMatch]		= taus[i].genJet()->et();
+        mTreeTauGenJetEta[counterTauTruthMatch] 	        = taus[i].genJet()->eta();
+        mTreeTauGenJetPhi[counterTauTruthMatch]		= taus[i].genJet()->phi();
+        mTreeTauGenJetMass[counterTauTruthMatch]	        = taus[i].genJet()->mass();
+        mTreeTauGenJetMt[counterTauTruthMatch] 		= taus[i].genJet()->mt();
+        mTreeTauGenJetP[counterTauTruthMatch] 		= taus[i].genJet()->p();
+        mTreeTauGenJetPt[counterTauTruthMatch]		= taus[i].genJet()->pt();
+        mTreeTauGenJetPx[counterTauTruthMatch] 		= taus[i].genJet()->px();
+        mTreeTauGenJetPy[counterTauTruthMatch] 		= taus[i].genJet()->py();
+        mTreeTauGenJetPz[counterTauTruthMatch] 		= taus[i].genJet()->pz();
+        std::string decaymode = JetMCTagUtils::genTauDecayMode(*(taus[i].genJet()));
+        if (decaymode == "electron") 
+          mTreeGenTauDecay[counterTauTruthMatch] = 0;
+        else if (decaymode == "muon")
+          mTreeGenTauDecay[counterTauTruthMatch] = 1;
+        else if (decaymode == "oneProngOther")
+          mTreeGenTauDecay[counterTauTruthMatch] = 2;
+        else if (decaymode == "oneProng0Pi0")
+          mTreeGenTauDecay[counterTauTruthMatch] = 3;
+        else if (decaymode == "oneProng1Pi0")
+          mTreeGenTauDecay[counterTauTruthMatch] = 4;
+        else if (decaymode == "oneProng2Pi0")
+          mTreeGenTauDecay[counterTauTruthMatch] = 5;
+        else if (decaymode == "threeProngOther")
+          mTreeGenTauDecay[counterTauTruthMatch] = 6;
+        else if (decaymode == "threeProng0Pi0")
+          mTreeGenTauDecay[counterTauTruthMatch] = 7;
+        else if (decaymode == "threeProng1Pi0")
+          mTreeGenTauDecay[counterTauTruthMatch] = 8;
+        else // rare decay
+          mTreeGenTauDecay[counterTauTruthMatch] = 99;
+        counterTauTruthMatch++;
+      }
+    }
+    counttau++;
       }
       mTreeNTruthMatchTaus = counterTauTruthMatch;
       mTreeNtaus=counttau;
@@ -2063,62 +2065,64 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeNPFjet = 100;
 
     for (int i=0; i<mTreeNPFjet; i++) {
-      if (pfjets[i].pt() > pfjetpt_ && fabs(pfjets[i].eta()) < pfjeteta_)
-        cpfjet_++;
-      // do not save PF jets below 15 GeV
-      if (pfjets[i].pt() < 15) {
-        break;
-      }
-      mTreePFJetP[countjets]     = pfjets[i].p();
-      mTreePFJetPt[countjets]    = pfjets[i].pt();
-      mTreePFJetE[countjets]     = pfjets[i].energy();
-      mTreePFJetEt[countjets]    = pfjets[i].et();
-      mTreePFJetPx[countjets]    = pfjets[i].momentum().X();
-      mTreePFJetPy[countjets]    = pfjets[i].momentum().Y();
-      mTreePFJetPz[countjets]    = pfjets[i].momentum().Z();
-      mTreePFJetEta[countjets]   = pfjets[i].eta();
-      mTreePFJetPhi[countjets]   = pfjets[i].phi();
-      mTreePFJetPtRaw[countjets] = pfjets[i].correctedJet("Uncorrected").pt();
-      mTreePFJetCharge[countjets] = pfjets[i].jetCharge();
-      mTreePFJetn90[countjets]   = pfjets[i].n90();
-      mTreePFJetF[countjets][0]  = pfjets[i].chargedHadronEnergyFraction();
-      mTreePFJetN[countjets][0]  = pfjets[i].chargedHadronMultiplicity();
-      mTreePFJetF[countjets][1]  = pfjets[i].neutralHadronEnergyFraction();
-      mTreePFJetN[countjets][1]  = pfjets[i].neutralHadronMultiplicity();
-      mTreePFJetF[countjets][2]  = pfjets[i].neutralEmEnergyFraction();
-      mTreePFJetN[countjets][2]  = 0.;
-      mTreePFJetF[countjets][3]  = pfjets[i].chargedEmEnergyFraction();
-      mTreePFJetN[countjets][3]  = 0.;
-      mTreePFJetF[countjets][4]  = pfjets[i].chargedMuEnergyFraction();
-      mTreePFJetN[countjets][4]  = pfjets[i].muonMultiplicity();
-      // workaround: missing: pfjets[i].electronEnergyFraction();
-      mTreePFJetF[countjets][5]  = pfjets[i].electronEnergy()/(pfjets[i].jecFactor(0)*pfjets[i].energy());
-      mTreePFJetN[countjets][5]  = pfjets[i].electronMultiplicity();
-      mTreePFJetF[countjets][6]  = pfjets[i].photonEnergyFraction();
-      mTreePFJetN[countjets][6]  = pfjets[i].photonMultiplicity();
-      mTreePFJetConst[countjets] = pfjets[i].getPFConstituents().size();
+        if (pfjets[i].pt() > pfjetpt_ && fabs(pfjets[i].eta()) < pfjeteta_)
+            cpfjet_++;
+        // do not save PF jets below 15 GeV
+        if (pfjets[i].pt() < 15) {
+            break;
+        }
+        mTreePFJetP[countjets]     = pfjets[i].p();
+        mTreePFJetPt[countjets]    = pfjets[i].pt();
+        mTreePFJetE[countjets]     = pfjets[i].energy();
+        mTreePFJetEt[countjets]    = pfjets[i].et();
+        mTreePFJetPx[countjets]    = pfjets[i].momentum().X();
+        mTreePFJetPy[countjets]    = pfjets[i].momentum().Y();
+        mTreePFJetPz[countjets]    = pfjets[i].momentum().Z();
+        mTreePFJetEta[countjets]   = pfjets[i].eta();
+        mTreePFJetPhi[countjets]   = pfjets[i].phi();
+        mTreePFJetPtRaw[countjets] = pfjets[i].correctedJet("Uncorrected").pt();
+        mTreePFJetCharge[countjets] = pfjets[i].jetCharge();
+        mTreePFJetn90[countjets]   = pfjets[i].n90();
+        mTreePFJetF[countjets][0]  = pfjets[i].chargedHadronEnergyFraction();
+        mTreePFJetN[countjets][0]  = pfjets[i].chargedHadronMultiplicity();
+        mTreePFJetF[countjets][1]  = pfjets[i].neutralHadronEnergyFraction();
+        mTreePFJetN[countjets][1]  = pfjets[i].neutralHadronMultiplicity();
+        mTreePFJetF[countjets][2]  = pfjets[i].neutralEmEnergyFraction();
+        mTreePFJetN[countjets][2]  = 0.;
+        mTreePFJetF[countjets][3]  = pfjets[i].chargedEmEnergyFraction();
+        mTreePFJetN[countjets][3]  = 0.;
+        mTreePFJetF[countjets][4]  = pfjets[i].chargedMuEnergyFraction();
+        mTreePFJetN[countjets][4]  = pfjets[i].muonMultiplicity();
+        // workaround: missing: pfjets[i].electronEnergyFraction();
+        mTreePFJetF[countjets][5]  = pfjets[i].electronEnergy()/(pfjets[i].jecFactor(0)*pfjets[i].energy());
+        mTreePFJetN[countjets][5]  = pfjets[i].electronMultiplicity();
+        mTreePFJetF[countjets][6]  = pfjets[i].photonEnergyFraction();
+        mTreePFJetN[countjets][6]  = pfjets[i].photonMultiplicity();
+        mTreePFJetConst[countjets] = pfjets[i].getPFConstituents().size();
 
-      // default b tagger
-      for( int ibtag =0; ibtag<18; ibtag++){
+        
+        //}
+        // default b tagger
+        for( int ibtag =0; ibtag<18; ibtag++){
         mTreePFJetBtag[countjets][ibtag]    = pfjets[i].bDiscriminator(ACBtagId[ibtag].Data());
-      }
-      
-      mTreePFJetPart[countjets]    = pfjets[i].partonFlavour();
-      
-      // MC matching
-      mTreePFJetTruth[countjets]   = -1;
-      const reco::GenJet * gl = pfjets[i].genJet();
-      if (gl) {
-	for (int k=0; k<mTreeNtruthjet; k++) {
-	  if (fabs(mTreetruthJetE[k]   - gl->energy()) < 1e-5 &&
-	      fabs(mTreetruthJetEta[k] - gl->eta()) < 1e-5 &&
-	      fabs(mTreetruthJetPhi[k] - gl->phi()) < 1e-5) {
-	    mTreePFJetTruth[countjets] = k;
-	    break;
-	  }
-	}
-      }
-      countjets++;
+        }
+
+        mTreePFJetPart[countjets]    = pfjets[i].partonFlavour();
+
+        // MC matching
+        mTreePFJetTruth[countjets]   = -1;
+        const reco::GenJet * gl = pfjets[i].genJet();
+        if (gl) {
+            for (int k=0; k<mTreeNtruthjet; k++) {
+                if (fabs(mTreetruthJetE[k]   - gl->energy()) < 1e-5 &&
+                  fabs(mTreetruthJetEta[k] - gl->eta()) < 1e-5 &&
+                  fabs(mTreetruthJetPhi[k] - gl->phi()) < 1e-5) {
+                    mTreePFJetTruth[countjets] = k;
+                    break;
+                }
+            }
+        }
+        countjets++;
     }
     mTreeNPFjet = countjets;
   }
@@ -2493,19 +2497,6 @@ void SusyACSkimAnalysis::storeMuonVertex(
 }
 
 
-bool SusyACSkimAnalysis::isStable(int pdgid) {
-
-  int tid = abs(pdgid);
-
-  if ( ( tid>0  && tid<6 ) ||     // quarks
-       ( tid>10 && tid<15 ) ||    // leptons
-       tid == 16 ||               // lepons
-       tid == 21 || tid == 22 ||  // bosons
-       tid == 1000022)            // neutralino
-    return true;
-  else
-    return false;
-}
 
 bool SusyACSkimAnalysis::isDecaying(int pdgid) {
 
@@ -2515,7 +2506,9 @@ bool SusyACSkimAnalysis::isDecaying(int pdgid) {
        (tid>1000020&&  tid<1000040) || //&&  tid!=1000022) ||
        (tid>2000000 && tid<2000016) ||
        (tid> 4000000 && tid<4000020) ||
-       tid==25 || tid==24 || tid==23 || tid==6 || tid==15 || tid==32 || tid==33 || tid==34|| tid==39)
+       tid==25 || tid==24 || tid==23 || tid==6 || tid==15 || tid==32 || tid==33 || tid==34|| tid==39
+       ||tid==20213||tid==20113 || 213 || 113  //a1 meson decay needed in for tau prong
+       )
     return true;
   else
     return false;
@@ -2729,13 +2722,11 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("SystJet_ResUp_pt" ,     mTreeSystJet_ResUp_pt,      "SystJet_ResUp_pt[SystJet_ResUp_n]/double");
   mAllData->Branch("SystJet_ResUp_eta" ,     mTreeSystJet_ResUp_eta,      "SystJet_ResUp_eta[SystJet_ResUp_n]/double");
   mAllData->Branch("SystJet_ResUp_phi" ,     mTreeSystJet_ResUp_phi,      "SystJet_ResUp_phi[SystJet_ResUp_n]/double");
-  mAllData->Branch("SystJet_ResUp_pt" ,     mTreeSystJet_ResUp_pt,      "SystJet_ResUp_pt[SystJet_ResUp_n]/double");
   
   mAllData->Branch("SystJet_ResDown_n",     &mTreeSystJet_ResDown_n,      "SystJet_ResDown_n/I");
   mAllData->Branch("SystJet_ResDown_pt" ,     mTreeSystJet_ResDown_pt,      "SystJet_ResDown_pt[SystJet_ResDown_n]/double");
   mAllData->Branch("SystJet_ResDown_eta" ,     mTreeSystJet_ResDown_eta,      "SystJet_ResDown_eta[SystJet_ResDown_n]/double");
   mAllData->Branch("SystJet_ResDown_phi" ,     mTreeSystJet_ResDown_phi,      "SystJet_ResDown_phi[SystJet_ResDown_n]/double");
-  mAllData->Branch("SystJet_ResDown_pt" ,     mTreeSystJet_ResDown_pt,      "SystJet_ResDown_pt[SystJet_ResDown_n]/double");
   
 
 
@@ -2998,7 +2989,8 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_TevReco_eta",mTreeMuoTevRecoEta,"muo_TevReco_eta[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_phi",mTreeMuoTevRecoPhi,"muo_TevReco_phi[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_chi2",mTreeMuoTevRecoChi2,"muo_TevReco_chi2[muo_n][7]/double");
-  mAllData->Branch("muo_TevReco_ndof",mTreeMuoTevRecoNdof,"muo_TevReco_ndof[muo_n][7]/double");   mAllData->Branch("muo_PFiso",mTreeMuoPFiso,    "muo_PFiso[muo_n][7]/double");
+  mAllData->Branch("muo_TevReco_ndof",mTreeMuoTevRecoNdof,"muo_TevReco_ndof[muo_n][7]/double");   
+  mAllData->Branch("muo_PFiso",mTreeMuoPFiso,    "muo_PFiso[muo_n][7]/double");
   mAllData->Branch("muo_PFCand_px", mTreeMuoPFCandPx,    "muo_PFCand_px[muo_n]/double");
   mAllData->Branch("muo_PFCand_py", mTreeMuoPFCandPy,    "muo_PFCand_py[muo_n]/double");
   mAllData->Branch("muo_PFCand_pz", mTreeMuoPFCandPz,    "muo_PFCand_pz[muo_n]/double");
@@ -3021,6 +3013,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_Pz", mTreeTauPz, "tau_Pz[tau_n]/double");
   mAllData->Branch("tau_Eta", mTreeTauEta, "tau_Eta[tau_n]/double");
   mAllData->Branch("tau_Phi", mTreeTauPhi, "tau_Phi[tau_n]/double");
+  mAllData->Branch("tau_AltPt", mTreeTauAltPt, "tau_Pt[tau_n]/double");
   mAllData->Branch("tau_DecayMode",   mTreeTauDecayMode,    "tau_DecayMode[tau_n]/I");
   mAllData->Branch("tau_Charge", mTreeTauCharge,"tau_Charge[tau_n]/I");
   mAllData->Branch("tau_ParticleIso", mTreeTauParticleIso, "tau_ParticleIso[tau_n]/double");
@@ -3038,7 +3031,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_vtx_x", mTreeTauVtxX, "tau_vtx_x[tau_n]/double");
   mAllData->Branch("tau_vtx_y", mTreeTauVtxY, "tau_vtx_y[tau_n]/double");
   mAllData->Branch("tau_vtx_z", mTreeTauVtxZ, "tau_vtx_z[tau_n]/double");
-  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][47]/double");
+  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][57]/double");
   mAllData->Branch("tau_GenJet_Match_n",   &mTreeNTruthMatchTaus,    "tau_GenJet_Match_n/I");
   mAllData->Branch("tau_GenJet_DecayMode", mTreeGenTauDecay, "tau_GenJet_DecayMode[tau_GenJet_Match_n]/I");
   mAllData->Branch("tau_GenJetMatch_Pos", mTreePosTruthMatchTaus, "tau_GenJetMatch_Pos[tau_GenJet_Match_n]/I");
@@ -3095,50 +3088,59 @@ void SusyACSkimAnalysis::initPlots() {
   ACtauID[1]="ByLooseCombinedIsolationDBRelSumPtCorr";
   ACtauID[2]="ByMediumChargedIsolation";
   ACtauID[3]="ByMediumCombinedIsolationDBRelSumPtCorr";
-  ACtauID[4]="ByTightChargedIsolation";
-  ACtauID[5]="ByTightCombinedIsolationDBRelSumPtCorr";
-  ACtauID[6]="ByVLooseChargedIsolation";
-  ACtauID[7]="againstElectronDeadECAL";
-  ACtauID[8]="againstElectronLoose";
-  ACtauID[9]="againstElectronLooseMVA2";
-  ACtauID[10]="againstElectronLooseMVA3";
-  ACtauID[11]="againstElectronMVA";
-  ACtauID[12]="againstElectronMVA2category";
-  ACtauID[13]="againstElectronMVA2raw";
-  ACtauID[14]="againstElectronMVA3raw";
-  ACtauID[15]="againstElectronMedium";
-  ACtauID[16]="againstElectronMediumMVA2";
-  ACtauID[17]="againstElectronMediumMVA3";
-  ACtauID[18]="againstElectronTight";
-  ACtauID[19]="againstElectronTightMVA2";
-  ACtauID[20]="againstElectronTightMVA3";
-  ACtauID[21]="againstElectronVLooseMVA2";
-  ACtauID[22]="againstElectronVTightMVA3";
-  ACtauID[23]="againstMuonLoose";
-  ACtauID[24]="againstMuonMedium";
-  ACtauID[25]="againstMuonTight";
-  ACtauID[26]="byCombinedIsolationDeltaBetaCorrRaw";
-  ACtauID[27]="byIsolationMVAraw";
-  ACtauID[28]="byLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[29]="byLooseCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[30]="byLooseIsolation";
-  ACtauID[31]="byLooseIsolationDeltaBetaCorr";
-  ACtauID[32]="byLooseIsolationMVA";
-  ACtauID[33]="byMediumCombinedIsolationDeltaBetaCorr";
-  ACtauID[34]="byMediumCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[35]="byMediumIsolation";
-  ACtauID[36]="byMediumIsolationDeltaBetaCorr";
-  ACtauID[37]="byMediumIsolationMVA";
-  ACtauID[38]="byTightCombinedIsolationDeltaBetaCorr";
-  ACtauID[39]="byTightCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[40]="byTightIsolation";
-  ACtauID[41]="byTightIsolationDeltaBetaCorr";
-  ACtauID[42]="byTightIsolationMVA";
-  ACtauID[43]="byVLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[44]="byVLooseIsolation";
-  ACtauID[45]="byVLooseIsolationDeltaBetaCorr";
-  ACtauID[46]="ByRawCombinedIsolationDBRelSumPtCorr";
-  ACtauID[47]="decayModeFinding";
+  ACtauID[4]="ByRawCombinedIsolationDBRelSumPtCorr";
+  ACtauID[5]="ByTightChargedIsolation";
+  ACtauID[6]="ByTightCombinedIsolationDBRelSumPtCorr";
+  ACtauID[7]="ByVLooseChargedIsolation";
+  ACtauID[8]="againstElectronDeadECAL";
+  ACtauID[9]="againstElectronLoose";
+  ACtauID[10]="againstElectronLooseMVA2";
+  ACtauID[11]="againstElectronLooseMVA3";
+  ACtauID[12]="againstElectronMVA";
+  ACtauID[13]="againstElectronMVA2category";
+  ACtauID[14]="againstElectronMVA2raw";
+  ACtauID[15]="againstElectronMVA3category";
+  ACtauID[16]="againstElectronMVA3raw";
+  ACtauID[17]="againstElectronMedium";
+  ACtauID[18]="againstElectronMediumMVA2";
+  ACtauID[19]="againstElectronMediumMVA3";
+  ACtauID[20]="againstElectronTight";
+  ACtauID[21]="againstElectronTightMVA2";
+  ACtauID[22]="againstElectronTightMVA3";
+  ACtauID[23]="againstElectronVLooseMVA2";
+  ACtauID[24]="againstElectronVTightMVA3";
+  ACtauID[25]="againstMuonLoose";
+  ACtauID[26]="againstMuonLoose2";
+  ACtauID[27]="againstMuonMedium";
+  ACtauID[28]="againstMuonMedium2";
+  ACtauID[29]="againstMuonTight";
+  ACtauID[30]="againstMuonTight2";
+  ACtauID[31]="byCombinedIsolationDeltaBetaCorrRaw";
+  ACtauID[32]="byCombinedIsolationDeltaBetaCorrRaw3Hits";
+  ACtauID[33]="byIsolationMVA2raw";
+  ACtauID[34]="byIsolationMVAraw";
+  ACtauID[35]="byLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[36]="byLooseCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[37]="byLooseIsolation";
+  ACtauID[38]="byLooseIsolationDeltaBetaCorr";
+  ACtauID[39]="byLooseIsolationMVA";
+  ACtauID[40]="byLooseIsolationMVA2";
+  ACtauID[41]="byMediumCombinedIsolationDeltaBetaCorr";
+  ACtauID[42]="byMediumCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[43]="byMediumIsolation";
+  ACtauID[44]="byMediumIsolationDeltaBetaCorr";
+  ACtauID[45]="byMediumIsolationMVA";
+  ACtauID[46]="byMediumIsolationMVA2";
+  ACtauID[47]="byTightCombinedIsolationDeltaBetaCorr";
+  ACtauID[48]="byTightCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[49]="byTightIsolation";
+  ACtauID[50]="byTightIsolationDeltaBetaCorr";
+  ACtauID[51]="byTightIsolationMVA";
+  ACtauID[52]="byTightIsolationMVA2";
+  ACtauID[53]="byVLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[54]="byVLooseIsolation";
+  ACtauID[55]="byVLooseIsolationDeltaBetaCorr";
+  ACtauID[56]="decayModeFinding";
   
   
   ACBtagId[0]="jetBProbabilityBJetTags";
