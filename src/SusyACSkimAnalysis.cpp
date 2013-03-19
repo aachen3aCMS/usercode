@@ -1036,7 +1036,9 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreePhoSCEtaWidth[countphoton]   = photons[i].superCluster()->etaWidth();
       mTreePhoHasPixelSeed[countphoton] = photons[i].hasPixelSeed();
       mTreePhoHasConvTracks[countphoton]= photons[i].hasConversionTracks () ;
-      mTreePhohasMatchedPromptElectron[countphoton] = ConversionTools::hasMatchedPromptElectron(photons[i].superCluster(), gsfelecHandle, hConversions, bsPoint) ? 1 : 0;
+      // mTreePhohasMatchedPromptElectron[countphoton] = ConversionTools::hasMatchedPromptElectron(photons[i].superCluster(), gsfelecHandle, hConversions, bsPoint) ? 1 : 0;
+      const reco::Photon* rPho = (reco::Photon*)photons[i].originalObject();
+      mTreePhohasMatchedPromptElectron[countphoton] = ConversionTools::hasMatchedPromptElectron(rPho->superCluster(), gsfelecHandle, hConversions, bsPoint) ? 1 : 0; 
 
       //Zernike moments ?
       mTreePhoe3x3[countphoton]           = photons[i].e3x3();
