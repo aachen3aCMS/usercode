@@ -170,7 +170,10 @@ def check_log(logfilename, errors, warnings, requirements):
 
     # check for errors
     if grep_file(logfilename, errors):
-        return False
+        if grep_file(logfilename, "for error calculation"):
+            print "no actual error has occured"
+        else:
+            return False
 
     # check for warnings
     grep_file(logfilename, warnings)
@@ -266,6 +269,8 @@ a network disk."""
     defaulttemplate="condor_template.cfg"
     defaultnjobs=20
     defaultmerge=20
+    defaultpdf="cteq6ll"
+    defaultuser = os.getlogin()
     defaultanalysiscfg='default'
     optParser.add_option("-n", "--njobs", dest="njobs",
                          help="how many CONDOR jobs to run at once",
@@ -273,6 +278,12 @@ a network disk."""
     optParser.add_option("-m", "--merge", dest="nmerge",
                          help="split processing into this number of jobs",
                          default=defaultmerge)
+    optParser.add_option("-p", "--pdfset", dest="pdfset",
+                         help="pdf set used to produce the MC (cteq6ll/CT10) or data)",
+                         default=defaultpdf)
+    optParser.add_option("-u", "--user", dest="user",
+                         help="grid user name",
+                         default=defaultuser)
 
     global options
     (options, args) = optParser.parse_args()
@@ -281,7 +292,8 @@ a network disk."""
         options.inputdir = sp + '/' + args[0] + '/' +  args[1]
         options.outputdir = args[2]
     elif len(args) == 2:
-        options.inputdir = sp + '/' + getpass.getuser() + '/' +  args[0]
+        #options.inputdir = sp + '/' + getpass.getuser() + '/' +  args[0]
+        options.inputdir = sp + '/' + user + '/' +  args[0]
         options.outputdir = args[1]
     else:
         optParser.print_help()
@@ -312,6 +324,12 @@ a network disk."""
         print "Number of jobs must be greater than zero"
         return 2
 
+    # get pdfset
+    if not options.pdfset == "cteq6ll" and not options.pdfset == "CT10" and not options.pdfset == "data":
+        print options.pdfset
+        print "pdfset has to be 'cteq6ll','CT10' or 'data'"
+        return 1
+
     # setup local directory with all files that need to be shipped to the batch host
     setupInbox()
 
@@ -339,7 +357,7 @@ a network disk."""
         jobName = 'reskim_' + str(counter) 
         outputFile = jobName + '.root'
         outbox = [ outputFile ]
-        arguments = outputFile + ' ' + " ".join(filelist[start:end])
+        arguments = options.pdfset + ' ' + outputFile + ' ' + " ".join(filelist[start:end])
 
         submit_condor_job(executable, arguments, 
                           inbox, outbox, jobName)

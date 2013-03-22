@@ -41,3 +41,16 @@ terminate correctly.
 If you need help on further options, issue ./reskim.py --help or 
 ./collect.py --help, respectively.
 
+PDF-weights:
+To use the reskimmer to get pdf-weights for different PDF-sets use the -p option
+of ./reskim.py to choose a PDF-set which will be used to calculate the PDF-weights.
+The default value is 'data' which means no PDF-weights are calculated. The other
+options are 'cteq6ll' and 'CT10'. The weights are calculated for three PDF-sets:
+'NNPDF22_nlo_100','MSTW2008nlo68cl' and 'CT10'. This can be changed in 'Analysis.cxx'.
+Important is to always do:
+'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/lib'
+without that the PDF-weight calculation will not work.
+
+deactivation of Branches:
+If you want to deactivate some Branches of the skimmer output, modify 'reskim.cxx' 'void deactivateBranches'.
+Default is everything activated.

@@ -9,15 +9,29 @@
 #include <TMath.h>
 #include <TList.h>
 #include <TKey.h>
+#include <TString.h>
+#include <TFile.h>
+#include <TH1F.h>
+#include <TTree.h>
+#include <TEntryList.h>
 
 // C / C++ includes
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cmath>
+#include <vector>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
+#include "/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/include/LHAPDF/LHAPDF.h"
 #include "Utilities.h"
 
+
 using namespace std;
+using namespace LHAPDF;
 
 Analysis::Analysis(TTree & inputTree, TTree & outputTree) 
   : TreeContent(& inputTree) , fInputTree(inputTree), fOutputTree(outputTree)
@@ -26,22 +40,126 @@ Analysis::Analysis(TTree & inputTree, TTree & outputTree)
 }
 
 // main event loop
-void Analysis::Loop() 
+void Analysis::Loop(TString pdfset) 
 {
   // process and memory info
   ProcInfo_t info;
 
+  bool data = false;
+  bool cteq6ll = false;
+  bool CT10 = false;
+  if(pdfset == "data")data = true;
+  else if(pdfset == "cteq6ll")cteq6ll = true;
+  else if(pdfset == "CT10")CT10 = true;
+  else{
+    cout << "pdfset has to be 'cteq6ll','CT10' or 'data'" << endl;
+    return;
+  }
+
   // set branch addresses in output tree if necessary
   SetBranchAddresses();
   CreateHistograms();
-  
-  TString BadLaserFile= getenv("CMSSW_BASE");
-  BadLaserFile+="/src/EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt.gz";
+
+  TString BadLaserFile= "/net/scratch_cms/institut_3a/erdweg/AllBadHCALLaser.txt.gz";
   HcalLaser = new HCALLaserFilter(BadLaserFile);
 
-  // main event loop
+  ///######################################################################################################
+  ///   Initializing the neccessary stuff for LHAPDF
+  ///   !!always!! do:
+  ///   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/lib
+  ///
+  TString PDF_path = "/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/share/lhapdf/PDFsets/";
+
+  ///   PDF sets to use, beware that the maximum number of pdf sets to use is 5 at the moment
+  TString PDF_1 = "NNPDF22_nlo_100.LHgrid";
+  TString PDF_2 = "MSTW2008nlo68cl.LHgrid";
+  TString PDF_3 = "CT10.LHgrid";
+
+  ///   Initialize PDF sets
+  TString PDFset_1 = PDF_path+PDF_1;
+  TString PDFset_2 = PDF_path+PDF_2;
+  TString PDFset_3 = PDF_path+PDF_3;
+  
+  /// declare variables for saving weights, initialize
+  Double_t weights_1[200];
+  Double_t weights_2[200];
+  Double_t weights_3[200];
+  
+  Double_t ori;
+  TBranch *nweights_1;
+  TBranch *bweights_1;
+  TBranch *nweights_2;
+  TBranch *bweights_2;
+  TBranch *nweights_3;
+  TBranch *bweights_3;
+  if(!data){
+    LHAPDF::initPDFSet(1,PDFset_1.Data());
+    LHAPDF::initPDFSet(2,PDFset_2.Data());
+    LHAPDF::initPDFSet(3,PDFset_3.Data());
+    ///   reference PDF set which is used to produce the Monte Carlos
+    if(cteq6ll)LHAPDF::initPDFSet(4,"/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/share/lhapdf/PDFsets/cteq6ll.LHpdf");
+    else if(CT10)LHAPDF::initPDFSet(4,PDFset_3.Data());
+
+    NPDF_1 = 0;
+    if (LHAPDF::numberPDF(1) == 1)
+      NPDF_1 = 1;
+    else
+      NPDF_1 = LHAPDF::numberPDF(1) + 1;                    /// usually 0: mean, 1...2*N: N eigenvectors
+    if ( NPDF_1 > 200 ) cout << "  Your weights array isn't big enough! Please increase it's size " << PDF_1 << endl;
+    cout << PDF_1 << " size: " << NPDF_1 << endl;
+
+    NPDF_2 = 0;
+    if (LHAPDF::numberPDF(2) == 1)
+      NPDF_2 = 1;
+    else
+      NPDF_2 = LHAPDF::numberPDF(2) + 1;                    /// usually 0: mean, 1...2*N: N eigenvectors
+    if ( NPDF_2 > 200 ) cout << "  Your weights array isn't big enough! Please increase it's size " << PDF_2 << endl;
+    cout << PDF_2 << " size: " << NPDF_2 << endl;
+
+    NPDF_3 = 0;
+    if (LHAPDF::numberPDF(3) == 1)
+      NPDF_3 = 1;
+    else
+      NPDF_3 = LHAPDF::numberPDF(3) + 1;                    /// usually 0: mean, 1...2*N: N eigenvectors
+    if ( NPDF_3 > 200 ) cout << "  Your weights array isn't big enough! Please increase it's size " << PDF_3 << endl;
+    cout << PDF_3 << " size: " << NPDF_3 << endl;
+
+    for (int i=0; i<NPDF_1; i++) {
+      weights_1[i] = 0.;
+    }
+    for (int i=0; i<NPDF_2; i++) {
+      weights_2[i] = 0.;
+    }
+    for (int i=0; i<NPDF_3; i++) {
+      weights_3[i] = 0.;
+    }
+
+    /// new branches with weights for each PDF set
+    PDF_1.Remove(PDF_1.Length()-7,7);
+    TString temp = "pdf_weights_n_"+PDF_1+"/I";
+    nweights_1 = fOutputTree.Branch("pdf_weights_n_"+PDF_1, &NPDF_1, temp.Data());
+    temp = "pdf_weights[pdf_weights_n_"+PDF_1+"]/double";
+    bweights_1 = fOutputTree.Branch("pdf_weights_"+PDF_1, weights_1, temp.Data());
+  
+    PDF_2.Remove(PDF_2.Length()-7,7);
+    temp = "pdf_weights_n_"+PDF_2+"/I";
+    nweights_2 = fOutputTree.Branch("pdf_weights_n_"+PDF_2, &NPDF_2, temp.Data());
+    temp = "pdf_weights[pdf_weights_n_"+PDF_2+"]/double";
+    bweights_2 = fOutputTree.Branch("pdf_weights_"+PDF_2, weights_2, temp.Data());
+  
+    PDF_3.Remove(PDF_3.Length()-7,7);
+    temp = "pdf_weights_n_"+PDF_3+"/I";
+    nweights_3 = fOutputTree.Branch("pdf_weights_n_"+PDF_3, &NPDF_3, temp.Data());
+    temp = "pdf_weights[pdf_weights_n_"+PDF_3+"]/double";
+    bweights_3 = fOutputTree.Branch("pdf_weights_"+PDF_3, weights_3, temp.Data());
+    ///
+    ///   End of Initializing PDF stuff
+    ///######################################################################################################
+  }
+  /// main event loop
   Long64_t nbytes = 0, nb = 0;
   Long64_t nentries = fChain->GetEntries();
+  cout << "entries: " << nentries << endl;
   INFO("Analysis: Chain contains " << nentries << " events");
   for (Long64_t jentry=0; jentry < nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -61,7 +179,7 @@ void Analysis::Loop()
     if(!HcalLaser->filter(global_run, lumi_section, global_event) && global_isdata){
         continue;
     }
-    
+
     //////////////////////////////////////////////////////////////////////
     // Start here implementing your cuts. Use histograms to check later
     // if everything went as expected.
@@ -74,23 +192,58 @@ void Analysis::Loop()
     if (muo_n > 1) {
       Fill("n_muo_pt1", muo_pt[1]);
     }
-
-    // select muons with pt cut    
+    ///   some high-pt Muon ID cuts
     bool rejection = true;
-    if (muo_n >= 2 && muo_pt[0] > 15. && muo_pt[1] > 7.) {
-      rejection = false;
+    for(int i = 0; i < muo_n; i++){
+      if (muo_n >= 1 && muo_pt[i] > 40. && muo_ID[i][1] == 1 && muo_ID[i][3] == 1 && muo_TrackerLayersMeasTk[i] > 5 && muo_StationsMatched[i] >= 2 && muo_ValidMuonHitsCm[i] >= 1 && muo_ValidPixelHitsCm[i] >= 1 && fabs(muo_d0Tk[i]) < 0.02 && fabs(muo_dzTk[i]) < 0.5 && muo_TevReco_ptError[i][1]/muo_TevReco_pt[i][1] < 0.3) {
+        rejection = false;
+        break;
+      }
     }
-
     // apply cut
     if (rejection)
       continue;
 
+    if(!data){
+      ///######################################################################################################
+      ///   Calculating the PDF weights
+      ///
+      LHAPDF::usePDFMember(4,0);         /// evaluate original PDF set's weight
+      ori = LHAPDF::xfx(4, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(4, pdf_x2, pdf_scale, pdf_id2);
+
+      for (int i=0; i<NPDF_1; i++) {
+        LHAPDF::usePDFMember(1,i);
+        weights_1[i] =                 /// for every event: calculate a weight for every PDF subset -> array of size NPDF
+          LHAPDF::xfx(1, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(1, pdf_x2, pdf_scale, pdf_id2)/ori;
+      }
+      bweights_1->Fill();
+      nweights_1->Fill();
+
+      for (int i=0; i<NPDF_2; i++) {
+        LHAPDF::usePDFMember(2,i);
+        weights_2[i] =                 /// for every event: calculate a weight for every PDF subset -> array of size NPDF
+          LHAPDF::xfx(2, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(2, pdf_x2, pdf_scale, pdf_id2)/ori;
+      }
+      bweights_2->Fill();
+      nweights_2->Fill();
+
+      for (int i=0; i<NPDF_3; i++) {
+        LHAPDF::usePDFMember(3,i);
+        weights_3[i] =               /// for every event: calculate a weight for every PDF subset -> array of size NPDF
+          LHAPDF::xfx(3, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(3, pdf_x2, pdf_scale, pdf_id2)/ori;
+      }
+
+      bweights_3->Fill();
+      nweights_3->Fill();
+      ///
+      ///   End of calculating the PDF weights
+      ///######################################################################################################
+    }
     // fill histograms after applying a cut
     Fill("muo_n", muo_n);
     Fill("muo_pt0", muo_pt[0]);
     Fill("muo_pt1", muo_pt[1]);
 
-    // write accepted events to output file
     fOutputTree.Fill();
   }
 }
@@ -136,8 +289,12 @@ void Analysis::SetBranchAddresses()
   TObjArray * branchlist = fInputTree.GetListOfBranches();
   TIter next(branchlist);
   while (TBranch * branch = (TBranch *) next()) {
-    fOutputTree.SetBranchAddress(branch->GetName(), branch->GetAddress());
-    LOG(4, "branch " << branch->GetName() << " has address " << (void *) branch->GetAddress());
+    if(fInputTree.GetBranchStatus(branch->GetName())){
+        LOG(4, "branch " << branch->GetName() << " has been deactivated at adress " << (void *) branch->GetAddress());
+    }else{
+        fOutputTree.SetBranchAddress(branch->GetName(), branch->GetAddress());
+        LOG(4, "branch " << branch->GetName() << " has address " << (void *) branch->GetAddress());
+    }
   }
   // tree size
   const UInt_t fMaxTreeSize = 100000000;

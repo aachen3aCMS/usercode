@@ -12,9 +12,10 @@ CMSSW_RELEASE_BASE_NOPATCH:=$(shell echo $(CMSSW_RELEASE_BASE) | sed -e 's/-patc
 CMSSW_INC:=-I$(CMSSW_RELEASE_BASE)/src -I$(CMSSW_BASE)/src
 CMSSW_LIBS:=-L$(CMSSW_BASE)/lib/$(SCRAM_ARCH) -L$(CMSSW_RELEASE_BASE)/lib/$(SCRAM_ARCH) -L$(CMSSW_RELEASE_BASE)/external/$(SCRAM_ARCH)/lib -L$(CMSSW_RELEASE_BASE_NOPATCH)/lib/$(SCRAM_ARCH)
  
+LHAPDF_PATH = /.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF
  
-EXTLIBS     = $(CMSSW_LIBS)
-EXTINCDIR   = $(CMSSW_INC)
+EXTLIBS     = $(CMSSW_LIBS) -L$(LHAPDF_PATH)/lib -lLHAPDF 
+EXTINCDIR   = $(CMSSW_INC) -I$(LHAPDF_PATH)/include
 
 # external includes / libraries
 #CLHEP_VERSION = 2.0.2.1
@@ -26,10 +27,12 @@ EXTINCDIR   = $(CMSSW_INC)
 #
 
 # Setup for ROOT libraries
+#   @echo $(LHAPDF_PATH)
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs)
 ROOTGLIBS    := $(shell root-config --glibs)
-ROOTGLIBS   += -lX3d
+# ROOTGLIBS   += -lX3d -L/net/data_cms/institut_3a/SusyWG/LHAPDF/lib
+ROOTGLIBS   += -lX3d -L/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/lib
 
 # Linux with gcc / g++ / g77
 FC            = g77
@@ -37,8 +40,10 @@ FCFLAGS       = -I/cern/pro/include -fPIC -fno-automatic -fdollar-ok -fno-backsl
 		-finit-local-zero -fno-second-underscore -fugly-logint -ftypeless-boz
 # -pg for gprof
 
+# top_builddir = /home/home1/institut_3a/erdweg/Desktop/Software/pdf_uncertainties/lhapdf-5.8.8/
+
 CXX           = g++
-CXXFLAGS      = -O2 -Wall -fPIC -fsignaling-nans -g # -DNDEBUG # -pg for gprof
+CXXFLAGS      = -O2 -Wall -fPIC -fsignaling-nans -g  -DNDEBUG#  -pg for gprof
 CXXFLAGS     += $(EXTINCDIR)   # external header files should be here
 CXXFLAGS     += $(ROOTCFLAGS)
 

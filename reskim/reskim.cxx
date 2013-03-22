@@ -7,6 +7,7 @@
 #include "TSystem.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TString.h"
 
 // C/C++ includes
 #include <stdlib.h>
@@ -16,6 +17,26 @@ using namespace std;
 using namespace ROOT;
 
 enum ErrorCodes { E_WRONG_PARAMS, E_OUTPUTFILE, E_NO_TREE, E_NO_ANALYSIS };
+
+void deactivateBranches(TTree* inputTree){
+  INFO("Setting output branch addresses");
+  TObjArray * branchlist = inputTree->GetListOfBranches();
+  ///######################################################################################################
+  ///   Change the status of Branches not needed for your analysis
+  ///
+  inputTree->SetBranchStatus("noise_*",1);
+  inputTree->SetBranchStatus("truthjet_*",1);
+  inputTree->SetBranchStatus("SystJet_*",1);
+  inputTree->SetBranchStatus("calojet_*",1);
+  inputTree->SetBranchStatus("pfjet_*",1);
+  inputTree->SetBranchStatus("fatjet_*",1);
+  inputTree->SetBranchStatus("SC_*",1);
+  inputTree->SetBranchStatus("ele_*",1);
+  inputTree->SetBranchStatus("pfele_*",1);
+  inputTree->SetBranchStatus("tau_*",1);
+  inputTree->SetBranchStatus("pho_*",1);
+  inputTree->SetBranchStatus("susy*",1);
+}
 
 int main(int argc, char *argv[])
 {
@@ -47,10 +68,11 @@ int main(int argc, char *argv[])
 
   // read configuration file, configure values from command line
   gLogLevel = 3;
-  const char * outputFileName = argv[1];
+  const char * outputFileName = argv[2];
+  TString pdfset = argv[1];
 
   TChain * chain = new TChain("ACSkimAnalysis/allData");
-  for (int n = 2; n < argc; n++) {
+  for (int n = 3; n < argc; n++) {
     // try to find out if inputfile is a directory.
     Text_t * basepath  = gSystem->ExpandPathName(argv[n]);
     void   * dirhandle = gSystem->OpenDirectory(basepath);
@@ -80,10 +102,12 @@ int main(int argc, char *argv[])
     ERROR("Could not open output file " << outputFileName);
     return E_OUTPUTFILE;
   }
+  outFile->SetCompressionLevel(6);
   outFile->mkdir("ACSkimAnalysis");
   outFile->cd("ACSkimAnalysis");
-
+  //chain->SetBranchStatus("*",0);
   // clone tree structure, do not copy events...
+  deactivateBranches(chain);
   TTree * outTree = chain->CloneTree(0);
   if (outTree == 0) {
     ERROR("Could not clone tree from input file - maybe no tree in input file?");
@@ -105,19 +129,19 @@ int main(int argc, char *argv[])
 
   // mem info
   gSystem->GetProcInfo(&info);
-  INFO("resident mem (MB) : " << info.fMemResident/1000.);
+// //   INFO("resident mem (MB) : " << info.fMemResident/1000.);
   INFO("virtual  mem (MB) : " << info.fMemVirtual/1000.);
 
   // start loop
-  INFO("starting event loop");
+//   INFO("starting event loop");
   try {
-    analysis->Loop();
+    analysis->Loop(pdfset);
   }
   CATCH;
   INFO("end of event loop");
 
   // save data in file
-  INFO("Saving data to file and closing...");
+//   INFO("Saving data to file and closing...");
   // get currrent file - needed because of output tree spanning different
   // files, via setting TTree::SetMaxTreeSize
   outFile = outTree->GetCurrentFile();
@@ -127,7 +151,7 @@ int main(int argc, char *argv[])
   // no, we do not need to delete the objects in the file, this is done on the file delete... 
   
   // delete analysis object
-  INFO("Deleting analysis");
+//   INFO("Deleting analysis");
   delete analysis;
 
   // time and memory info

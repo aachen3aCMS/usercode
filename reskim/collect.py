@@ -35,13 +35,17 @@ def check(fname):
     os.chdir(collectpy_dir)
     success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
                                errors, warnings, requirements)
-    if not success:
+    pdf_success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
+                               "for error calculation", warnings, requirements)
+    if not success and pdf_success:
         good = False
         resubmit(fname)
     else:
         success = reskim.check_log(fname.replace("_condor.cfg", "_stderr.log"),
                                    errors, warnings, None)
-        if not success:
+        pdf_success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
+                                   "for error calculation", warnings, None)
+        if not success and pdf_success:
             good = False
             resubmit(fname)
     return good
