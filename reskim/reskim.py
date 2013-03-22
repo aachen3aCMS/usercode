@@ -293,7 +293,7 @@ a network disk."""
         options.outputdir = args[2]
     elif len(args) == 2:
         #options.inputdir = sp + '/' + getpass.getuser() + '/' +  args[0]
-        options.inputdir = sp + '/' + user + '/' +  args[0]
+        options.inputdir = sp + '/' + options.user + '/' +  args[0]
         options.outputdir = args[1]
     else:
         optParser.print_help()
