@@ -28,26 +28,25 @@ def check(fname):
 
     good = True
 
-    errors = [ "exception", "segmentation", "error", "err:" ]
+    errors = [ "exception", "segmentation", "error", "err:", "return code 127"]
     warnings = [ "warning", "wrn" ]
-    requirements = [ "End executing" ]
+    requirements = [ "Executable finished with return code 0" ]
     
     os.chdir(collectpy_dir)
+    print "checking:",fname.replace("_condor.cfg", "_stdout.log")
     success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
                                errors, warnings, requirements)
-    pdf_success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
-                               "for error calculation", warnings, requirements)
-    if not success and pdf_success:
+    #pdf_success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
+                                   #no_errors, warnings, requirements)
+    if not success:
         good = False
         resubmit(fname)
-    else:
-        success = reskim.check_log(fname.replace("_condor.cfg", "_stderr.log"),
-                                   errors, warnings, None)
-        pdf_success = reskim.check_log(fname.replace("_condor.cfg", "_stdout.log"),
-                                   "for error calculation", warnings, None)
-        if not success and pdf_success:
-            good = False
-            resubmit(fname)
+    #else:
+        #success = reskim.check_log(fname.replace("_condor.cfg", "_stderr.log"),
+                                   #errors, warnings, None)
+        #if not success:
+            #good = False
+            #resubmit(fname)
     return good
 
 ######################################################################

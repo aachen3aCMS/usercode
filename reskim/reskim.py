@@ -170,7 +170,7 @@ def check_log(logfilename, errors, warnings, requirements):
 
     # check for errors
     if grep_file(logfilename, errors):
-        if grep_file(logfilename, "for error calculation"):
+        if grep_file(logfilename, ["for error calculation"]):
             print "no actual error has occured"
         else:
             return False
