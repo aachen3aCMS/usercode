@@ -1,3 +1,10 @@
+2013-04-10 Markus Radziej < radziej -at- physik.rwth-aachen.de>
+v100 & v101
+===
+   - update to CMSSW_5_3_9_patch1
+   - implemented workaround for dimuon vertex reconstruction failure
+   - added photon fix from Matthias Endres
+
 2012-12-07 Tobias Pook < pook -at- physik.rwth-aachen.de>
 	-Added new variables: muo_DiMuonVertexValid,muo_DiMuonVertexNdf,muo_DiMuonVertexChi2,muo_DiMuonVertexMass to SusyACSkimAnalysis.cpp
 	-Metfilter updated with latest recommendations

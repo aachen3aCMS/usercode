@@ -1859,32 +1859,41 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     unsigned int max_muons=5;	
-    for (unsigned int k = 0; k<10;k++){
-        mTreeDiMuonVertexValid[k] =-1;
-        mTreeDiMuonVertexChi2[k] =-1.;
-        mTreeDiMuonVertexNdf[k] = -1;
-        mTreeDiMuonVertexMass[k] =-1.;
+    for (unsigned int k = 0; k<10;k++) {
+      mTreeDiMuonVertexValid[k] =-1;
+      mTreeDiMuonVertexChi2[k] =-1.;
+      mTreeDiMuonVertexNdf[k] = -1;
+      mTreeDiMuonVertexMass[k] =-1.;
     }
     _DimuVertexInfo DiMuonVertexInfo;
     if (trackRefs.size() < max_muons) 
-        max_muons=trackRefs.size();
+      max_muons=trackRefs.size();
     Int_t indexshift = 0;
 
-    for (unsigned int k=0; k<max_muons; k++){  
-        if(k>0){
-            indexshift += max_muons - k;
-        }
-        for (unsigned int j=k+1; j<max_muons; j++){
-            if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon() && muons[j].isTrackerMuon() && muons[k].isTrackerMuon()) {
-                SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
-                mTreeDiMuonVertexValid[j-k-1+indexshift] = DiMuonVertexInfo.valid;
-                mTreeDiMuonVertexChi2[j-k-1+indexshift]  = DiMuonVertexInfo.chi2;
-                mTreeDiMuonVertexNdf[j-k-1+indexshift]   = DiMuonVertexInfo.ndf;
-                mTreeDiMuonVertexMass[j-k-1+indexshift]  = DiMuonVertexInfo.vals[6];
-            }
-        }
+    for (unsigned int k=0; k<max_muons; k++) {  
+      if(k>0){
+	indexshift += max_muons - k;
+
+      }		  
+      for (unsigned int j=k+1; j<max_muons; j++) {
+	if(trackRefs[k].isNonnull()&& trackRefs[j].isNonnull() && muons[k].isGlobalMuon() && muons[j].isGlobalMuon() && muons[j].isTrackerMuon() && muons[k].isTrackerMuon()) {
+	  try {
+	    if (trackRefs[k]->pt() > 10. && trackRefs[j]->pt() > 10.) {
+	      SusyACSkimAnalysis::storeMuonVertex(trackRefs[k],trackRefs[j],DiMuonVertexInfo);
+	      mTreeDiMuonVertexValid[j-k-1+indexshift] = DiMuonVertexInfo.valid;
+	      mTreeDiMuonVertexChi2[j-k-1+indexshift]  = DiMuonVertexInfo.chi2;
+	      mTreeDiMuonVertexNdf[j-k-1+indexshift]   = DiMuonVertexInfo.ndf;
+	      mTreeDiMuonVertexMass[j-k-1+indexshift]  = DiMuonVertexInfo.vals[6];
+	    }
+	  } catch (...) {
+	    edm::LogWarning("SusyACSkimAnalysis") << "DiMuon vertex reconstruction failed - Run: "<< mTreerun << "  Event: " << mTreeevent << "  Lumi: " << mTreelumiblk;
+	  }
+	
+	}
+      }
     }
   }
+
   if (nmuo_     > 0 && cmuo_     < nmuo_)     return 0;
   // timer6.Stop();
 
