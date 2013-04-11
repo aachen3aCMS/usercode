@@ -2518,7 +2518,7 @@ bool SusyACSkimAnalysis::isDecaying(int pdgid) {
        (tid>2000000 && tid<2000016) ||
        (tid> 4000000 && tid<4000020) ||
        tid==25 || tid==24 || tid==23 || tid==6 || tid==15 || tid==32 || tid==33 || tid==34|| tid==39
-       ||tid==20213||tid==20113 || 213 || 113  //a1 meson decay needed in for tau prong
+       ||tid==20213||tid==20113 || tid==213 || tid==113  //a1 meson decay needed in for tau prong
        )
     return true;
   else
