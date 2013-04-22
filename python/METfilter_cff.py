@@ -22,6 +22,12 @@ def addHCALLaserFilter ( process ):
     process.p_HCALLaserFilter = cms.Path(process.hcallasereventfilter2012)
     process.ACSkimAnalysis.filterlist.append( 'p_HCALLaserFilter' )    
 
+def addHCALLaserFilterFromTriggerResult ( process ):  
+    process.load("EventFilter.HcalRawToDigi.hcallaserFilterFromTriggerResult_cff")
+    process.hcalfilter.throw=cms.bool(False)
+    process.p_HCALLaserFilterFromTriggerResult = cms.Path(process.hcalfilter)
+    process.ACSkimAnalysis.filterlist.append( 'p_HCALLaserFilterFromTriggerResult' )  
+	
 def addECALDeadCellFilterTP ( process ):
     process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
     ## For AOD and RECO recommendation to use recovered rechits

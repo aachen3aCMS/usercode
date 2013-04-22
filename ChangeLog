@@ -1,3 +1,8 @@
+2013-04-22 Sebastian Thueer < thuer -at- physik.rwth-aachen.de>
+v102
+===
+	-added HCALLaserFilterFromTriggerResult which only works for 2013 reprocessed datasets(incl. parked) returns 0 for old datasets! 
+
 2013-04-11 Klaas Padeken < padeken -at- physik.rwth-aachen.de>
 untagged
 ===

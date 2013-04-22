@@ -368,6 +368,9 @@ addTrackingFailureFilter( process )
 addHBHENoiseFilter( process )
 addecalLaserCorrFilter( process )
 addecalLaserCorrFilter( process )
+# This only works for datasets reprocessed in 2013 datasets (e.g. 22Jan2013 or Parked datasets)
+addHCALLaserFilterFromTriggerResult ( process )
+
 
 process.ACSkimAnalysis.filters.AllFilters.paths = process.ACSkimAnalysis.filterlist
 process.ACSkimAnalysis.filters.AllFilters.process = process.name_()
