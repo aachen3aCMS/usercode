@@ -108,10 +108,13 @@ if tauSwitch:
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
-
+if isData:
+    _jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual'])
+else:
+    _jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 # Removed the pv Collection from the PF2PAT statement because it produced a segfault in some events
 #~ usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
-usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']))
+usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=_jetCorrections)
           
 if isData:
     removeMCMatching(process, ['All'])
@@ -164,7 +167,7 @@ switchJetCollection(
     cms.InputTag('ak5PFJets'),
     doJTA = True,
     doBTagging = False,
-    jetCorrLabel = ( 'AK5PFchs', cms.vstring([ 'L1FastJet', 'L2Relative', 'L3Absolute' ]) ),
+    jetCorrLabel = _jetCorrections,
     doType1MET = False,
     doJetID = True,
     jetIdLabel = "ak5"
