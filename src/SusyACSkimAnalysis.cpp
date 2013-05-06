@@ -668,6 +668,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mTreetrutheta[0]    = m0.p4().eta();
 	    mTreetruthphi[0]    = m0.p4().phi();
 	    mTreetruthm[0]      = m0.p4().M();
+	    mTreetruthstatus[0]      = m0.status();
 
 	    mTreetruthpdgid[1]  = m1.pdgId();
 	    mTreetruthbvtxid[1] = 0;
@@ -682,6 +683,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mTreetrutheta[1]    = m1.p4().eta();
 	    mTreetruthphi[1]    = m1.p4().phi();
 	    mTreetruthm[1]      = m1.p4().M();
+	    mTreetruthstatus[1]      = m1.status();
 
 	    truth.push_back(p.mother(0));
 	    truth.push_back(p.mother(1));
@@ -738,6 +740,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mTreetrutheta[ntruth]    = (*part1[d]).p4().eta();
 	    mTreetruthphi[ntruth]    = (*part1[d]).p4().phi();
 	    mTreetruthm[ntruth]      = (*part1[d]).p4().M();
+	    mTreetruthstatus[ntruth]      = (*part1[d]).status();
 
                 truth.push_back(&(*part1[d]));
 
@@ -1721,6 +1724,13 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       //Different reconstructors
 
       trackRefs.push_back(muonref);
+      
+	if(muons[i].innerTrack().isNonnull() && muons[i].innerTrack().isAvailable()){
+	  mTreeMuoTrackerPt[countmuo]=muons[i].innerTrack()->pt();
+	  mTreeMuoTrackerPtError[countmuo]=muons[i].innerTrack()->ptError();
+	  mTreeMuoTrackerEta[countmuo]=muons[i].innerTrack()->eta();
+	  mTreeMuoTrackerPhi[countmuo]=muons[i].innerTrack()->phi();
+	}   
 
       if(muons[i].isGlobalMuon()){
 	if(muons[i].globalTrack().isNonnull() && muons[i].globalTrack().isAvailable()){
@@ -2656,6 +2666,8 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("truth_eta",     mTreetrutheta,    "truth_eta[truth_n]/double");
   mAllData->Branch("truth_phi",     mTreetruthphi,    "truth_phi[truth_n]/double");
   mAllData->Branch("truth_m",       mTreetruthm,      "truth_m[truth_n]/double");
+  mAllData->Branch("truth_status",       mTreetruthstatus,      "truth_status[truth_n]/I");
+  
 
   // Truth stable e/mu in final state
   mAllData->Branch("truthl_n",      &mTreeNtruthl,      "truthl_n/I");
@@ -2995,6 +3007,10 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("muo_Cocktail_pt",  mTreeMuoCocktailPt,  "muo_Cocktail_pt[muo_n]/double");
   mAllData->Branch("muo_Cocktail_phi", mTreeMuoCocktailPhi, "muo_Cocktail_phi[muo_n]/double");
   mAllData->Branch("muo_Cocktail_eta", mTreeMuoCocktailEta, "muo_Cocktail_eta[muo_n]/double");
+  mAllData->Branch("muo_Tracker_pt",  mTreeMuoTrackerPt,  "muo_Tracker_pt[muo_n]/double");
+  mAllData->Branch("muo_Tracker_ptError",  mTreeMuoTrackerPtError,  "muo_Tracker_ptError[muo_n]/double");
+  mAllData->Branch("muo_Tracker_phi", mTreeMuoTrackerPhi, "muo_Tracker_phi[muo_n]/double");
+  mAllData->Branch("muo_Tracker_eta", mTreeMuoTrackerEta, "muo_Tracker_eta[muo_n]/double");
   mAllData->Branch("muo_TevReco_pt",mTreeMuoTevRecoPt,"muo_TevReco_pt[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_ptError",mTreeMuoTevRecoPtError,"muo_TevReco_ptError[muo_n][7]/double");
   mAllData->Branch("muo_TevReco_eta",mTreeMuoTevRecoEta,"muo_TevReco_eta[muo_n][7]/double");

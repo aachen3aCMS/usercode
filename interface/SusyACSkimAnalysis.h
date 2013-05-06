@@ -465,6 +465,7 @@ private:
   int mTreetruthpdgid[100];
   int mTreetruthbvtxid[100];
   int mTreetruthevtxid[100];
+  int mTreetruthstatus[100];
   double mTreetruthE[100];
   double mTreetruthEt[100];
   double mTreetruthp[100];
@@ -761,6 +762,11 @@ private:
   double mTreeMuoCocktailPt[100];
   double mTreeMuoCocktailPhi[100];
   double mTreeMuoCocktailEta[100];
+  
+  double mTreeMuoTrackerPt[100];
+  double mTreeMuoTrackerPtError[100];
+  double mTreeMuoTrackerEta[100];
+  double mTreeMuoTrackerPhi[100];
   
   double mTreeMuoTevRecoPtError[100][7];
   double mTreeMuoTevRecoPt[100][7];

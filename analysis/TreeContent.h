@@ -87,6 +87,7 @@ public :
    Double_t        truth_eta[100];   //[truth_n]
    Double_t        truth_phi[100];   //[truth_n]
    Double_t        truth_m[100];   //[truth_n]
+   Int_t           truth_status[100];   //[truth_n]
    Int_t           truthl_n;
    Int_t           truthl_ori[100];   //[truthl_n]
    Int_t           truthl_pdgid[100];   //[truthl_n]
@@ -381,6 +382,10 @@ public :
    Double_t        muo_Cocktail_pt[100];   //[muo_n]
    Double_t        muo_Cocktail_phi[100];   //[muo_n]
    Double_t        muo_Cocktail_eta[100];   //[muo_n]
+   Double_t        muo_Tracker_pt[100];   //[muo_n]
+   Double_t        muo_Tracker_ptError[100];   //[muo_n]
+   Double_t        muo_Tracker_phi[100];   //[muo_n]
+   Double_t        muo_Tracker_eta[100];   //[muo_n]
    Double_t        muo_TevReco_pt[100][7];   //[muo_n]
    Double_t        muo_TevReco_ptError[100][7];   //[muo_n]
    Double_t        muo_TevReco_eta[100][7];   //[muo_n]
@@ -520,6 +525,7 @@ public :
    TBranch        *b_truth_eta;   //!
    TBranch        *b_truth_phi;   //!
    TBranch        *b_truth_m;   //!
+   TBranch        *b_truth_status;   //!
    TBranch        *b_truthl_n;   //!
    TBranch        *b_truthl_ori;   //!
    TBranch        *b_truthl_pdgid;   //!
@@ -814,6 +820,10 @@ public :
    TBranch        *b_muo_Cocktail_pt;   //!
    TBranch        *b_muo_Cocktail_phi;   //!
    TBranch        *b_muo_Cocktail_eta;   //!
+   TBranch        *b_muo_Tracker_pt;   //!
+   TBranch        *b_muo_Tracker_ptError;   //!
+   TBranch        *b_muo_Tracker_phi;   //!
+   TBranch        *b_muo_Tracker_eta;   //!   
    TBranch        *b_muo_TevReco_pt;   //!
    TBranch        *b_muo_TevReco_ptError;   //!
    TBranch        *b_muo_TevReco_eta;   //!
@@ -1026,6 +1036,7 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("truth_eta", truth_eta, &b_truth_eta);
    fChain->SetBranchAddress("truth_phi", truth_phi, &b_truth_phi);
    fChain->SetBranchAddress("truth_m", truth_m, &b_truth_m);
+   fChain->SetBranchAddress("truth_status", truth_status, &b_truth_status);
    fChain->SetBranchAddress("truthl_n", &truthl_n, &b_truthl_n);
    fChain->SetBranchAddress("truthl_ori", truthl_ori, &b_truthl_ori);
    fChain->SetBranchAddress("truthl_pdgid", truthl_pdgid, &b_truthl_pdgid);
@@ -1322,6 +1333,10 @@ void TreeContent::Init(TTree *tree)
    fChain->SetBranchAddress("muo_Cocktail_pt", muo_Cocktail_pt, &b_muo_Cocktail_pt);
    fChain->SetBranchAddress("muo_Cocktail_phi", muo_Cocktail_phi, &b_muo_Cocktail_phi);
    fChain->SetBranchAddress("muo_Cocktail_eta", muo_Cocktail_eta, &b_muo_Cocktail_eta);
+   fChain->SetBranchAddress("muo_Tracker_pt", muo_Tracker_pt, &b_muo_Tracker_pt);
+   fChain->SetBranchAddress("muo_Tracker_ptError", muo_Tracker_ptError, &b_muo_Tracker_ptError);
+   fChain->SetBranchAddress("muo_Tracker_phi", muo_Tracker_phi, &b_muo_Tracker_phi);
+   fChain->SetBranchAddress("muo_Tracker_eta", muo_Tracker_eta, &b_muo_Tracker_eta);   
    fChain->SetBranchAddress("muo_TevReco_pt", muo_TevReco_pt, &b_muo_TevReco_pt);
    fChain->SetBranchAddress("muo_TevReco_ptError", muo_TevReco_ptError, &b_muo_TevReco_ptError);
    fChain->SetBranchAddress("muo_TevReco_eta", muo_TevReco_eta, &b_muo_TevReco_eta);
