@@ -115,6 +115,24 @@ else:
 # Removed the pv Collection from the PF2PAT statement because it produced a segfault in some events
 #~ usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
 usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=_jetCorrections)
+
+usePFIso( process )
+
+
+process.patElectrons.isolationValues = cms.PSet(
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso"),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFIdPFIso"),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFIdPFIso"),
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFIso")
+        )
+process.patElectrons.isolationValuesNoPFId = cms.PSet(
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03NoPFIdPFIso"),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03NoPFIdPFIso"),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03NoPFIdPFIso"),
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03NoPFIdPFIso"),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma03NoPFIdPFIso")
+        )
           
 if isData:
     removeMCMatching(process, ['All'])
@@ -153,9 +171,9 @@ switchOnTrigger(process)
 from PhysicsTools.PatAlgos.tools.jetTools import *
 
 
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
-process.eleIsoSequence = setupPFElectronIso(process, 'patElectrons')
-process.phoIsoSequence = setupPFPhotonIso(process, 'patPhotons')
+#~ from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
+#~ process.eleIsoSequence = setupPFElectronIso(process, 'patElectrons')
+#~ process.phoIsoSequence = setupPFPhotonIso(process, 'patPhotons')
 
 
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
