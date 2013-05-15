@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
   // check command line arguments
   if (argc < 3) {
-    ERROR("Usage: reskim outputfile.root inputfile [inputfile ... ]");
+    ERROR("Usage: reskim pdfset outputfile.root inputfile [inputfile ... ]");
     return E_WRONG_PARAMS;
   }
 

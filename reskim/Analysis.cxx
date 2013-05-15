@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/include/LHAPDF/LHAPDF.h"
+#include "/net/scratch_cms/institut_3a/padeken/lhapdfLib/include/LHAPDF/LHAPDF.h"
 #include "Utilities.h"
 
 
@@ -59,8 +59,8 @@ void Analysis::Loop(TString pdfset)
   // set branch addresses in output tree if necessary
   SetBranchAddresses();
   CreateHistograms();
-
-  TString BadLaserFile= "/net/scratch_cms/institut_3a/erdweg/AllBadHCALLaser.txt.gz";
+  
+  TString BadLaserFile= "/user/padeken/TauAna/AllBadHCALLaser.txt.gz";
   HcalLaser = new HCALLaserFilter(BadLaserFile);
 
   ///######################################################################################################
@@ -68,10 +68,12 @@ void Analysis::Loop(TString pdfset)
   ///   !!always!! do:
   ///   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/lib
   ///
-  TString PDF_path = "/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/share/lhapdf/PDFsets/";
+  TString PDF_path = "/net/scratch_cms/institut_3a/padeken/lhapdfLib/share/lhapdf/PDFsets/";
+  //TString PDF_path = "/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/share/lhapdf/PDFsets/";
 
   ///   PDF sets to use, beware that the maximum number of pdf sets to use is 5 at the moment
   TString PDF_1 = "NNPDF22_nlo_100.LHgrid";
+  //TString PDF_1 = "MSTW2008lo68cl.LHgrid";
   TString PDF_2 = "MSTW2008nlo68cl.LHgrid";
   TString PDF_3 = "CT10.LHgrid";
 
@@ -97,7 +99,7 @@ void Analysis::Loop(TString pdfset)
     LHAPDF::initPDFSet(2,PDFset_2.Data());
     LHAPDF::initPDFSet(3,PDFset_3.Data());
     ///   reference PDF set which is used to produce the Monte Carlos
-    if(cteq6ll)LHAPDF::initPDFSet(4,"/.automount/net_rw/net__scratch_cms/institut_3a/erdweg/LHAPDF/share/lhapdf/PDFsets/cteq6ll.LHpdf");
+    if(cteq6ll)LHAPDF::initPDFSet(4,(PDF_path+"cteq6ll.LHpdf").Data());
     else if(CT10)LHAPDF::initPDFSet(4,PDFset_3.Data());
 
     NPDF_1 = 0;
@@ -135,22 +137,19 @@ void Analysis::Loop(TString pdfset)
     }
 
     /// new branches with weights for each PDF set
-    PDF_1.Remove(PDF_1.Length()-7,7);
-    TString temp = "pdf_weights_n_"+PDF_1+"/I";
-    nweights_1 = fOutputTree.Branch("pdf_weights_n_"+PDF_1, &NPDF_1, temp.Data());
-    temp = "pdf_weights[pdf_weights_n_"+PDF_1+"]/double";
+    PDF_1.ReplaceAll(".LHgrid","");
+    TString temp = "";
+    temp = Form("pdf_weights_%s[%d]/double",PDF_1.Data(),NPDF_1);
     bweights_1 = fOutputTree.Branch("pdf_weights_"+PDF_1, weights_1, temp.Data());
   
-    PDF_2.Remove(PDF_2.Length()-7,7);
-    temp = "pdf_weights_n_"+PDF_2+"/I";
-    nweights_2 = fOutputTree.Branch("pdf_weights_n_"+PDF_2, &NPDF_2, temp.Data());
-    temp = "pdf_weights[pdf_weights_n_"+PDF_2+"]/double";
+    //PDF_2.Remove(PDF_2.Length()-7,7);
+    PDF_2.ReplaceAll(".LHgrid","");
+    temp = Form("pdf_weights_%s[%d]/double",PDF_2.Data(),NPDF_2);
     bweights_2 = fOutputTree.Branch("pdf_weights_"+PDF_2, weights_2, temp.Data());
   
-    PDF_3.Remove(PDF_3.Length()-7,7);
-    temp = "pdf_weights_n_"+PDF_3+"/I";
-    nweights_3 = fOutputTree.Branch("pdf_weights_n_"+PDF_3, &NPDF_3, temp.Data());
-    temp = "pdf_weights[pdf_weights_n_"+PDF_3+"]/double";
+    //PDF_3.Remove(PDF_3.Length()-7,7);
+    PDF_3.ReplaceAll(".LHgrid","");
+    temp = Form("pdf_weights_%s[%d]/double",PDF_3.Data(),NPDF_3);
     bweights_3 = fOutputTree.Branch("pdf_weights_"+PDF_3, weights_3, temp.Data());
     ///
     ///   End of Initializing PDF stuff
@@ -217,7 +216,6 @@ void Analysis::Loop(TString pdfset)
           LHAPDF::xfx(1, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(1, pdf_x2, pdf_scale, pdf_id2)/ori;
       }
       bweights_1->Fill();
-      nweights_1->Fill();
 
       for (int i=0; i<NPDF_2; i++) {
         LHAPDF::usePDFMember(2,i);
@@ -225,7 +223,6 @@ void Analysis::Loop(TString pdfset)
           LHAPDF::xfx(2, pdf_x1, pdf_scale, pdf_id1) * LHAPDF::xfx(2, pdf_x2, pdf_scale, pdf_id2)/ori;
       }
       bweights_2->Fill();
-      nweights_2->Fill();
 
       for (int i=0; i<NPDF_3; i++) {
         LHAPDF::usePDFMember(3,i);
@@ -234,7 +231,6 @@ void Analysis::Loop(TString pdfset)
       }
 
       bweights_3->Fill();
-      nweights_3->Fill();
       ///
       ///   End of calculating the PDF weights
       ///######################################################################################################
