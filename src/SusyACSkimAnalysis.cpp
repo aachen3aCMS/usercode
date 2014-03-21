@@ -51,7 +51,7 @@ SusyACSkimAnalysis::SusyACSkimAnalysis(const edm::ParameterSet& iConfig):
   ebhitsTag_         = iConfig.getParameter<edm::InputTag>("ebhitsTag");
   freducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
   freducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
-  inputTagIsoValPhotonsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValPhotonPF");
+  //inputTagIsoValPhotonsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValPhotonPF");
   hltInputTag_       = iConfig.getParameter<edm::InputTag>("HLTInputTag");
   TriggerSummary_    = iConfig.getParameter<edm::InputTag>("TriggerSummaryTag");
 
@@ -578,7 +578,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<DcsStatusCollection> dcsHandle;
   iEvent.getByLabel("scalersRawToDigi", dcsHandle);
   if ( !dcsHandle.isValid() ) {
-    edm::LogWarning("SusyACSkimAnalysis") << "No DcsStatusCollection found for InputTag scalersRawToDigi";
+    //edm::LogWarning("SusyACSkimAnalysis") << "No DcsStatusCollection found for InputTag scalersRawToDigi";
   }
   else {
     if (is_MC) {
@@ -904,17 +904,17 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel("allConversions", hConversions);
 
-  unsigned nTypes=3;
+  //unsigned nTypes=3;
   //IsoDepositMaps photonIsoDep(nTypes);
   //for (size_t j = 0; j<inputTagIsoDepPhotons_.size(); ++j) {
   //iEvent.getByLabel(inputTagIsoDepPhotons_[j], photonIsoDep[j]);
   //}
 
-  IsoDepositVals photonIsoValPFId(nTypes);
-  //~ const IsoDepositVals * photonIsoVals = &photonIsoValPFId;
-  for (size_t j = 0; j<inputTagIsoValPhotonsPFId_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoValPhotonsPFId_[j], photonIsoValPFId[j]);
-  }
+  //IsoDepositVals photonIsoValPFId(nTypes);
+  ////~ const IsoDepositVals * photonIsoVals = &photonIsoValPFId;
+  //for (size_t j = 0; j<inputTagIsoValPhotonsPFId_.size(); ++j) {
+    //iEvent.getByLabel(inputTagIsoValPhotonsPFId_[j], photonIsoValPFId[j]);
+  //}
 
   DEBUG("Mark 13")
 
@@ -988,33 +988,33 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreePhoPFisoEG[countphoton][0]= -999;
       mTreePhoPFisoEG[countphoton][1]= -999;
       mTreePhoPFisoEG[countphoton][2]= -999;
-      try {
-        mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[PhotonRefs[i]];
-        mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[PhotonRefs[i]];
-        mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[PhotonRefs[i]];
-      }
-      catch (...) {
-	      //the PhotonRefs value has not been found
-	      //maybe the photonIsoValPFId is based on reco::photon instead of pat::photon
-        int i_reco = -1;
-        for (unsigned int j=0; j<rphotonHandle->size(); j++){
-	        if (DeltaR(photons[i].eta(), (*rphotonHandle)[j].eta(), photons[i].phi(), (*rphotonHandle)[j].phi()) < 0.001){
-	          //pat::photon and reco::photon should have exactly the same eta,phi values, right ?
-	          i_reco = j;
-	        break;
-          }
-        }
+      //try {
+        //mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[PhotonRefs[i]];
+        //mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[PhotonRefs[i]];
+        //mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[PhotonRefs[i]];
+      //}
+      //catch (...) {
+	      ////the PhotonRefs value has not been found
+	      ////maybe the photonIsoValPFId is based on reco::photon instead of pat::photon
+        //int i_reco = -1;
+        //for (unsigned int j=0; j<rphotonHandle->size(); j++){
+	        //if (DeltaR(photons[i].eta(), (*rphotonHandle)[j].eta(), photons[i].phi(), (*rphotonHandle)[j].phi()) < 0.001){
+	          ////pat::photon and reco::photon should have exactly the same eta,phi values, right ?
+	          //i_reco = j;
+	        //break;
+          //}
+        //}
 
-        if (i_reco != -1){
-	        reco::PhotonRef myPhotonRef(rphotonHandle,i_reco);
-	        mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[myPhotonRef];
-	        mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[myPhotonRef];
-	        mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[myPhotonRef];
-        }
-      }
-//       mTreePhoPFisoEG[countphoton][1]= photons[i].neutralHadronIso();
-//       mTreePhoPFisoEG[countphoton][2]= photons[i].photonIso();
-//       mTreePhoPFisoEG[countphoton][3]= photons[i].puChargedHadronIso();
+        //if (i_reco != -1){
+	        //reco::PhotonRef myPhotonRef(rphotonHandle,i_reco);
+	        //mTreePhoPFisoEG[countphoton][0]= (*photonIsoValPFId[0])[myPhotonRef];
+	        //mTreePhoPFisoEG[countphoton][1]= (*photonIsoValPFId[1])[myPhotonRef];
+	        //mTreePhoPFisoEG[countphoton][2]= (*photonIsoValPFId[2])[myPhotonRef];
+        //}
+      //}
+       mTreePhoPFisoEG[countphoton][0]= photons[i].neutralHadronIso();
+       mTreePhoPFisoEG[countphoton][1]= photons[i].photonIso();
+       mTreePhoPFisoEG[countphoton][2]= photons[i].chargedHadronIso();
      
       mTreePhoHCalOverEm[countphoton] = photons[i].hadronicOverEm();
       mTreePhoHTowOverEm[countphoton] = photons[i].hadTowOverEm();
@@ -1943,7 +1943,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       mTreeTauGenJetPy[i] 		=  -1000000.;
       mTreeTauGenJetPz[i] 		=  -1000000.;
       mTreeGenTauDecay[i]             =  -1;
-      for(int j=0; j < 57; j++){
+      for(int j=0; j < 67; j++){
         mTreeTauID[i][j] = -1.;
       }
     }
@@ -1957,7 +1957,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       break;
     }
 
-    for(int j=0; j<57; j++){
+    for(int j=0; j<67; j++){
       mTreeTauID[counttau][j] = taus[i].tauID(ACtauID[j].Data());
     }
     //cout<<"jaja"<<taus[i].tauID("ByRawCombinedIsolationDBRelSumPtCorr")<<endl;
@@ -2001,21 +2001,39 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     } else {
       mTreeTauPFLeadChargedPT[counttau] = -1.;
     }
-    if (taus[i].signalPFChargedHadrCands().isNonnull()) {
+    //if (taus[i].signalPFChargedHadrCands().isNonnull()) {
       mTreeTauPFChargedHadrCands[counttau] = taus[i].signalPFChargedHadrCands().size();
-    }  else {
-      mTreeTauPFChargedHadrCands[counttau] = -1;
+    
+    
+    mTreeTauPFCandsN[counttau]=taus[i].signalPFCands().size();
+    for(unsigned int k =0 ;k<taus[i].signalPFCands().size(); k++){
+      if (taus[i].signalPFCands()[k].isNonnull()){
+	mTreeTauPFCandsE[counttau][k]=taus[i].signalPFCands()[k]->energy();
+	mTreeTauPFCandsPT[counttau][k]=taus[i].signalPFCands()[k]->pt();
+	mTreeTauPFCandsEta[counttau][k]=taus[i].signalPFCands()[k]->eta();
+	mTreeTauPFCandsPhi[counttau][k]=taus[i].signalPFCands()[k]->phi();
+	mTreeTauPFCandsID[counttau][k]=taus[i].signalPFCands()[k]->particleId();
+      }else{
+	mTreeTauPFCandsE[counttau][k]=-1;
+	mTreeTauPFCandsPT[counttau][k]=-1;
+	mTreeTauPFCandsEta[counttau][k]=-1;
+	mTreeTauPFCandsPhi[counttau][k]=-1;
+	mTreeTauPFCandsID[counttau][k]=-1;
+      }
     }
-    if (taus[i].signalPFGammaCands().isNonnull()) {
+    //}  else {
+      //mTreeTauPFChargedHadrCands[counttau] = -1;
+    //}
+    //if (taus[i].signalPFGammaCands().isNonnull()) {
       mTreeTauPFGammaCands[counttau] = taus[i].signalPFGammaCands().size();
-    }  else {
-      mTreeTauPFGammaCands[counttau] = -1;
-    }
-    if (taus[i].signalTracks().isNonnull()) {
+    //}  else {
+      //mTreeTauPFGammaCands[counttau] = -1;
+    //}
+    //if (taus[i].signalTracks().isNonnull()) {
       mTreeTauNSignalTracks[counttau] = taus[i].signalTracks().size();
-    }  else {
-      mTreeTauNSignalTracks[counttau] = -1;
-    }
+    //}  else {
+      //mTreeTauNSignalTracks[counttau] = -1;
+    //}
     if (is_MC) {
       if (taus[i].genJet() != 0) {
         mTreePosTruthMatchTaus[counterTauTruthMatch]	= i;
@@ -2124,7 +2142,7 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         
         //}
         // default b tagger
-        for( int ibtag =0; ibtag<18; ibtag++){
+        for( int ibtag =0; ibtag<9; ibtag++){
         mTreePFJetBtag[countjets][ibtag]    = pfjets[i].bDiscriminator(ACBtagId[ibtag].Data());
         }
 
@@ -2306,14 +2324,16 @@ bool SusyACSkimAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   
 
-  for( int imet=0;imet<12;imet++){
+  for( int imet=0;imet<10;imet++){
       mTreeSystMET[imet]       =  0;
       mTreeSystMETphi[imet]    =   0;
   }
   if (is_MC) {
       //met uncertainties:
-      TString METcollection [12]={"patType1CorrectedPFMetElectronEnUp","patType1CorrectedPFMetElectronEnDown","patType1CorrectedPFMetMuonEnUp","patType1CorrectedPFMetMuonEnDown","patType1CorrectedPFMetTauEnUp","patType1CorrectedPFMetTauEnDown","patType1CorrectedPFMetJetResUp","patType1CorrectedPFMetJetResDown","patType1CorrectedPFMetJetEnUp","patType1CorrectedPFMetJetEnDown","patType1CorrectedPFMetUnclusteredEnUp","patType1CorrectedPFMetUnclusteredEnDown"};
-      for(int i=0; i<12;i++){
+      TString METcollection [10]={"patType1CorrectedPFMetElectronEnUp","patType1CorrectedPFMetElectronEnDown","patType1CorrectedPFMetMuonEnUp","patType1CorrectedPFMetMuonEnDown",
+      //"patType1CorrectedPFMetTauEnUp","patType1CorrectedPFMetTauEnDown",
+	"patType1CorrectedPFMetJetResUp","patType1CorrectedPFMetJetResDown","patType1CorrectedPFMetJetEnUp","patType1CorrectedPFMetJetEnDown","patType1CorrectedPFMetUnclusteredEnUp","patType1CorrectedPFMetUnclusteredEnDown"};
+      for(int i=0; i<10;i++){
         addMETSystematics(iEvent,  METcollection[i], i);
       } 
   }
@@ -2766,7 +2786,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("pfjet_pz",     mTreePFJetPz,     "pfjet_pz[pfjet_n]/double");
   mAllData->Branch("pfjet_eta",    mTreePFJetEta,    "pfjet_eta[pfjet_n]/double");
   mAllData->Branch("pfjet_phi",    mTreePFJetPhi,    "pfjet_phi[pfjet_n]/double");
-  mAllData->Branch("pfjet_btag",   mTreePFJetBtag,   "pfjet_btag[pfjet_n][18]/double");
+  mAllData->Branch("pfjet_btag",   mTreePFJetBtag,   "pfjet_btag[pfjet_n][9]/double");
   mAllData->Branch("pfjet_charge", mTreePFJetCharge, "pfjet_charge[pfjet_n]/double");
   mAllData->Branch("pfjet_n90",    mTreePFJetn90,    "pfjet_n90[pfjet_n]/I");
   mAllData->Branch("pfjet_flav",   mTreePFJetPart,   "pfjet_flav[pfjet_n]/I");
@@ -3051,6 +3071,14 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_LeadPFChargedHadrCandsignedSipt", mTreeTauLeadPFChargedHadrCandsignedSipt, "tau_LeadPFChargedHadrCandsignedSipt[tau_n]/double");
   mAllData->Branch("tau_NSignalTracks", mTreeTauNSignalTracks, "tau_NSignalTracks[tau_n]/I");
   mAllData->Branch("tau_PFLeadChargedPT", mTreeTauPFLeadChargedPT, "tau_PFLeadChargedPT[tau_n]/double");
+  mAllData->Branch("tau_PFCand_n", mTreeTauPFCandsN,    "tau_PFCand_n[tau_n]/I");
+  mAllData->Branch("tau_PFCand_E", mTreeTauPFCandsE, "tau_PFCand_E[tau_n][10]/double");
+  mAllData->Branch("tau_PFCand_pt", mTreeTauPFCandsPT, "tau_PFCand_pt[tau_n][10]/double");
+  mAllData->Branch("tau_PFCand_eta", mTreeTauPFCandsEta, "tau_PFCand_eta[tau_n][10]/double");
+  mAllData->Branch("tau_PFCand_phi", mTreeTauPFCandsPhi, "tau_PFCand_phi[tau_n][10]/double");
+  mAllData->Branch("tau_PFCand_ID", mTreeTauPFCandsID, "tau_PFCand_ID[tau_n][10]/I");
+  
+  
   mAllData->Branch("tau_Jet_pt", mTreeTauJetPt, "tau_Jet_pt[tau_n]/double");
   mAllData->Branch("tau_Jet_eta", mTreeTauJetEta, "tau_Jet_eta[tau_n]/double");
   mAllData->Branch("tau_Jet_phi", mTreeTauJetPhi, "tau_Jet_phi[tau_n]/double");
@@ -3058,7 +3086,7 @@ void SusyACSkimAnalysis::initPlots() {
   mAllData->Branch("tau_vtx_x", mTreeTauVtxX, "tau_vtx_x[tau_n]/double");
   mAllData->Branch("tau_vtx_y", mTreeTauVtxY, "tau_vtx_y[tau_n]/double");
   mAllData->Branch("tau_vtx_z", mTreeTauVtxZ, "tau_vtx_z[tau_n]/double");
-  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][57]/double");
+  mAllData->Branch("tau_id", mTreeTauID, "tau_id[tau_n][67]/double");
   mAllData->Branch("tau_GenJet_Match_n",   &mTreeNTruthMatchTaus,    "tau_GenJet_Match_n/I");
   mAllData->Branch("tau_GenJet_DecayMode", mTreeGenTauDecay, "tau_GenJet_DecayMode[tau_GenJet_Match_n]/I");
   mAllData->Branch("tau_GenJetMatch_Pos", mTreePosTruthMatchTaus, "tau_GenJetMatch_Pos[tau_GenJet_Match_n]/I");
@@ -3111,82 +3139,91 @@ void SusyACSkimAnalysis::initPlots() {
   ACmuonID[23] = "TMLastStationOptimizedBarrelLowPtTight";
   // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
 
-  ACtauID[0]="ByLooseChargedIsolation";
-  ACtauID[1]="ByLooseCombinedIsolationDBRelSumPtCorr";
-  ACtauID[2]="ByMediumChargedIsolation";
-  ACtauID[3]="ByMediumCombinedIsolationDBRelSumPtCorr";
-  ACtauID[4]="ByRawCombinedIsolationDBRelSumPtCorr";
-  ACtauID[5]="ByTightChargedIsolation";
-  ACtauID[6]="ByTightCombinedIsolationDBRelSumPtCorr";
-  ACtauID[7]="ByVLooseChargedIsolation";
-  ACtauID[8]="againstElectronDeadECAL";
-  ACtauID[9]="againstElectronLoose";
-  ACtauID[10]="againstElectronLooseMVA2";
-  ACtauID[11]="againstElectronLooseMVA3";
-  ACtauID[12]="againstElectronMVA";
-  ACtauID[13]="againstElectronMVA2category";
-  ACtauID[14]="againstElectronMVA2raw";
-  ACtauID[15]="againstElectronMVA3category";
-  ACtauID[16]="againstElectronMVA3raw";
-  ACtauID[17]="againstElectronMedium";
-  ACtauID[18]="againstElectronMediumMVA2";
-  ACtauID[19]="againstElectronMediumMVA3";
-  ACtauID[20]="againstElectronTight";
-  ACtauID[21]="againstElectronTightMVA2";
-  ACtauID[22]="againstElectronTightMVA3";
-  ACtauID[23]="againstElectronVLooseMVA2";
-  ACtauID[24]="againstElectronVTightMVA3";
-  ACtauID[25]="againstMuonLoose";
-  ACtauID[26]="againstMuonLoose2";
-  ACtauID[27]="againstMuonMedium";
-  ACtauID[28]="againstMuonMedium2";
-  ACtauID[29]="againstMuonTight";
-  ACtauID[30]="againstMuonTight2";
-  ACtauID[31]="byCombinedIsolationDeltaBetaCorrRaw";
-  ACtauID[32]="byCombinedIsolationDeltaBetaCorrRaw3Hits";
-  ACtauID[33]="byIsolationMVA2raw";
-  ACtauID[34]="byIsolationMVAraw";
-  ACtauID[35]="byLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[36]="byLooseCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[37]="byLooseIsolation";
-  ACtauID[38]="byLooseIsolationDeltaBetaCorr";
-  ACtauID[39]="byLooseIsolationMVA";
-  ACtauID[40]="byLooseIsolationMVA2";
-  ACtauID[41]="byMediumCombinedIsolationDeltaBetaCorr";
-  ACtauID[42]="byMediumCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[43]="byMediumIsolation";
-  ACtauID[44]="byMediumIsolationDeltaBetaCorr";
-  ACtauID[45]="byMediumIsolationMVA";
-  ACtauID[46]="byMediumIsolationMVA2";
-  ACtauID[47]="byTightCombinedIsolationDeltaBetaCorr";
-  ACtauID[48]="byTightCombinedIsolationDeltaBetaCorr3Hits";
-  ACtauID[49]="byTightIsolation";
-  ACtauID[50]="byTightIsolationDeltaBetaCorr";
-  ACtauID[51]="byTightIsolationMVA";
-  ACtauID[52]="byTightIsolationMVA2";
-  ACtauID[53]="byVLooseCombinedIsolationDeltaBetaCorr";
-  ACtauID[54]="byVLooseIsolation";
-  ACtauID[55]="byVLooseIsolationDeltaBetaCorr";
-  ACtauID[56]="decayModeFinding";
   
   
-  ACBtagId[0]="jetBProbabilityBJetTags";
-  ACBtagId[1]="jetProbabilityBJetTags";
-  ACBtagId[2]="trackCountingHighPurBJetTags";
-  ACBtagId[3]="trackCountingHighEffBJetTags";
-  ACBtagId[4]="simpleSecondaryVertexHighEffBJetTags";
-  ACBtagId[5]="simpleSecondaryVertexHighPurBJetTags";
-  ACBtagId[6]="combinedSecondaryVertexBJetTags";
-  ACBtagId[7]="combinedSecondaryVertexMVABJetTags";
-  ACBtagId[8]="softMuonBJetTags";
-  ACBtagId[9]="softMuonByPtBJetTags";
-  ACBtagId[10]="softMuonByIP3dBJetTags";
-  ACBtagId[11]="simpleSecondaryVertexNegativeHighEffBJetTags";
-  ACBtagId[12]="simpleSecondaryVertexNegativeHighPurBJetTags";
-  ACBtagId[13]="negativeTrackCountingHighEffJetTags";
-  ACBtagId[14]="negativeTrackCountingHighPurJetTags";
-  ACBtagId[15]="combinedInclusiveSecondaryVertexBJetTags";
-  ACBtagId[16]="combinedMVABJetTags";
+  ACtauID[ 0 ]="againstElectronDeadECAL";
+  ACtauID[ 1 ]="againstElectronLoose";
+  ACtauID[ 2 ]="againstElectronLooseMVA5";
+  ACtauID[ 3 ]="againstElectronMVA5category";
+  ACtauID[ 4 ]="againstElectronMVA5raw";
+  ACtauID[ 5 ]="againstElectronMedium";
+  ACtauID[ 6 ]="againstElectronMediumMVA5";
+  ACtauID[ 7 ]="againstElectronTight";
+  ACtauID[ 8 ]="againstElectronTightMVA5";
+  ACtauID[ 9 ]="againstElectronVLooseMVA5";
+  ACtauID[ 10 ]="againstElectronVTightMVA5";
+  ACtauID[ 11 ]="againstMuonLoose";
+  ACtauID[ 12 ]="againstMuonLoose2";
+  ACtauID[ 13 ]="againstMuonLoose3";
+  ACtauID[ 14 ]="againstMuonLooseMVA";
+  ACtauID[ 15 ]="againstMuonMVAraw";
+  ACtauID[ 16 ]="againstMuonMedium";
+  ACtauID[ 17 ]="againstMuonMedium2";
+  ACtauID[ 18 ]="againstMuonMediumMVA";
+  ACtauID[ 19 ]="againstMuonTight";
+  ACtauID[ 20 ]="againstMuonTight2";
+  ACtauID[ 21 ]="againstMuonTight3";
+  ACtauID[ 22 ]="againstMuonTightMVA";
+  ACtauID[ 23 ]="byCombinedIsolationDeltaBetaCorrRaw";
+  ACtauID[ 24 ]="byCombinedIsolationDeltaBetaCorrRaw3Hits";
+  ACtauID[ 25 ]="byIsolationMVA3newDMwLTraw";
+  ACtauID[ 26 ]="byIsolationMVA3newDMwoLTraw";
+  ACtauID[ 27 ]="byIsolationMVA3oldDMwLTraw";
+  ACtauID[ 28 ]="byIsolationMVA3oldDMwoLTraw";
+  ACtauID[ 29 ]="byLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[ 30 ]="byLooseCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[ 31 ]="byLooseIsolation";
+  ACtauID[ 32 ]="byLooseIsolationMVA3newDMwLT";
+  ACtauID[ 33 ]="byLooseIsolationMVA3newDMwoLT";
+  ACtauID[ 34 ]="byLooseIsolationMVA3oldDMwLT";
+  ACtauID[ 35 ]="byLooseIsolationMVA3oldDMwoLT";
+  ACtauID[ 36 ]="byMediumCombinedIsolationDeltaBetaCorr";
+  ACtauID[ 37 ]="byMediumCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[ 38 ]="byMediumIsolationMVA3newDMwLT";
+  ACtauID[ 39 ]="byMediumIsolationMVA3newDMwoLT";
+  ACtauID[ 40 ]="byMediumIsolationMVA3oldDMwLT";
+  ACtauID[ 41 ]="byMediumIsolationMVA3oldDMwoLT";
+  ACtauID[ 42 ]="byTightCombinedIsolationDeltaBetaCorr";
+  ACtauID[ 43 ]="byTightCombinedIsolationDeltaBetaCorr3Hits";
+  ACtauID[ 44 ]="byTightIsolationMVA3newDMwLT";
+  ACtauID[ 45 ]="byTightIsolationMVA3newDMwoLT";
+  ACtauID[ 46 ]="byTightIsolationMVA3oldDMwLT";
+  ACtauID[ 47 ]="byTightIsolationMVA3oldDMwoLT";
+  ACtauID[ 48 ]="byVLooseCombinedIsolationDeltaBetaCorr";
+  ACtauID[ 49 ]="byVLooseIsolationMVA3newDMwLT";
+  ACtauID[ 50 ]="byVLooseIsolationMVA3newDMwoLT";
+  ACtauID[ 51 ]="byVLooseIsolationMVA3oldDMwLT";
+  ACtauID[ 52 ]="byVLooseIsolationMVA3oldDMwoLT";
+  ACtauID[ 53 ]="byVTightIsolationMVA3newDMwLT";
+  ACtauID[ 54 ]="byVTightIsolationMVA3newDMwoLT";
+  ACtauID[ 55 ]="byVTightIsolationMVA3oldDMwLT";
+  ACtauID[ 56 ]="byVTightIsolationMVA3oldDMwoLT";
+  ACtauID[ 57 ]="byVVTightIsolationMVA3newDMwLT";
+  ACtauID[ 58 ]="byVVTightIsolationMVA3newDMwoLT";
+  ACtauID[ 59 ]="byVVTightIsolationMVA3oldDMwLT";
+  ACtauID[ 60 ]="byVVTightIsolationMVA3oldDMwoLT";
+  ACtauID[ 61 ]="chargedIsoPtSum";
+  ACtauID[ 62 ]="decayModeFinding";
+  ACtauID[ 63 ]="decayModeFindingNewDMs";
+  ACtauID[ 64 ]="decayModeFindingOldDMs";
+  ACtauID[ 65 ]="neutralIsoPtSum";
+  ACtauID[ 66 ]="puCorrPtSum";
+  
+  
+
+    ACBtagId[0]="impactParameterTagInfos";
+    ACBtagId[1]="secondaryVertexTagInfos";
+    ACBtagId[2]="jetBProbabilityBJetTags";
+    ACBtagId[3]="jetProbabilityBJetTags";
+    ACBtagId[4]="trackCountingHighPurBJetTags";
+    ACBtagId[5]="trackCountingHighEffBJetTags";
+    ACBtagId[6]="simpleSecondaryVertexHighEffBJetTags";
+    ACBtagId[7]="simpleSecondaryVertexHighPurBJetTags";
+    ACBtagId[8]="combinedSecondaryVertexBJetTags";
+  
+  
+  
+  
 }
 
 ////////////////////////////////

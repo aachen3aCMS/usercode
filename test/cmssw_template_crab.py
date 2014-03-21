@@ -86,9 +86,15 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring([
 #    'file:///user/mweber/AODSIM/DoubleMu+Run2012A-13Jul2012-v1.root',
-    'file:///user/mweber/AODSIM/Summer12_DR53X+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph.root'
+    #'file:///user/mweber/AODSIM/Summer12_DR53X+DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph.root'
+    'file:///user/padeken/WTau500AOD.root'
     ]),
     #duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
+    dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
+    inputCommands = cms.untracked.vstring(
+        'keep *',
+        'drop recoPFTaus_*_*_*'                      
+    )
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -101,8 +107,8 @@ process.patMuons.embedStandAloneMuon = False;
 
 
 
-if tauSwitch:
-    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+#if tauSwitch:
+    #process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 # PF2PAT
 from PhysicsTools.PatAlgos.tools.pfTools import *
@@ -114,10 +120,12 @@ else:
     _jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 # Removed the pv Collection from the PF2PAT statement because it produced a segfault in some events
 #~ usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
-usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=_jetCorrections)
+#usePF2PAT(process,runPF2PAT=True,jetAlgo='AK5', runOnMC=not isData, postfix=postfix,jetCorrections=_jetCorrections)
 
 usePFIso( process )
-
+process.patDefaultSequence.remove(process.patPFTauIsolation)
+process.patTaus.isoDeposits = cms.PSet()
+process.patTaus.userIsolation = cms.PSet()
 
 process.patElectrons.isolationValues = cms.PSet(
         pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso"),
@@ -137,27 +145,26 @@ process.patElectrons.isolationValuesNoPFId = cms.PSet(
 if isData:
     removeMCMatching(process, ['All'])
     
-process.pfPileUpPFlow.checkClosestZVertex = False
 
 
 process.load("PhysicsTools/PatAlgos/patSequences_cff")
 
-from PhysicsTools.PatAlgos.tools.tauTools import *
+#from PhysicsTools.PatAlgos.tools.tauTools import *
 #
 #from aachen3a.ACSusyAnalysis.tauDiscriminator_cff import updateHPSPFTausRelPt
-process.load("aachen3a/ACSusyAnalysis/tauDiscriminator_cff")
+#process.load("aachen3a/ACSusyAnalysis/tauDiscriminator_cff")
 
-hpsTauIDSources+=[
-    #("decayModeFinding", "DiscriminationByDecayModeFinding"),
-    ("ByVLooseChargedIsolation","DiscriminationByVLooseChargedIsolation"),
-    ("ByLooseChargedIsolation","DiscriminationByLooseChargedIsolation"),
-    ("ByMediumChargedIsolation","DiscriminationByMediumChargedIsolation"),
-    ("ByTightChargedIsolation","DiscriminationByTightChargedIsolation"),
-    ("ByLooseCombinedIsolationDBRelSumPtCorr","DiscriminationByLooseCombinedIsolationDBRelSumPtCorr"),
-    ("ByMediumCombinedIsolationDBRelSumPtCorr","DiscriminationByMediumCombinedIsolationDBRelSumPtCorr"),
-    ("ByTightCombinedIsolationDBRelSumPtCorr","DiscriminationByTightCombinedIsolationDBRelSumPtCorr"),
-    ("ByRawCombinedIsolationDBRelSumPtCorr","DiscriminationByRawCombinedIsolationDBRelSumPtCorr")
-]
+#hpsTauIDSources+=[
+    ##("decayModeFinding", "DiscriminationByDecayModeFinding"),
+    #("ByVLooseChargedIsolation","DiscriminationByVLooseChargedIsolation"),
+    #("ByLooseChargedIsolation","DiscriminationByLooseChargedIsolation"),
+    #("ByMediumChargedIsolation","DiscriminationByMediumChargedIsolation"),
+    #("ByTightChargedIsolation","DiscriminationByTightChargedIsolation"),
+    #("ByLooseCombinedIsolationDBRelSumPtCorr","DiscriminationByLooseCombinedIsolationDBRelSumPtCorr"),
+    #("ByMediumCombinedIsolationDBRelSumPtCorr","DiscriminationByMediumCombinedIsolationDBRelSumPtCorr"),
+    #("ByTightCombinedIsolationDBRelSumPtCorr","DiscriminationByTightCombinedIsolationDBRelSumPtCorr"),
+    #("ByRawCombinedIsolationDBRelSumPtCorr","DiscriminationByRawCombinedIsolationDBRelSumPtCorr")
+#]
 switchToPFTauHPS(process)
 
 
@@ -184,7 +191,7 @@ switchJetCollection(
     process,
     cms.InputTag('ak5PFJets'),
     doJTA = True,
-    doBTagging = False,
+    doBTagging = True,
     jetCorrLabel = _jetCorrections,
     doType1MET = False,
     doJetID = True,
@@ -194,7 +201,8 @@ switchJetCollection(
 # apply type I/type I + II PFMEt corrections to pat::MET object 
 # and estimate systematic uncertainties on MET
 from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-runMEtUncertainties(process,doApplyType0corr=False)
+runMEtUncertainties(process,doApplyType0corr=False,tauCollection=None)
+#runMEtUncertainties(process,doApplyType0corr=False)
 
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
@@ -203,29 +211,13 @@ process.pfMETType0 = pfType1CorrectedMet.clone()
 process.pfMETType0.applyType1Corrections = cms.bool(True)
 process.pfMETType0.applyType0Corrections = cms.bool(True)
 
-if tauSwitch:
-    tausequence = cms.Sequence( process.PFTau)
-else:
-    tausequence = cms.Sequence()
+
 if IsPythiaShowered:
     filtersequence = cms.Sequence( process.totalKinematicsFilter )
 else:
     filtersequence = cms.Sequence()
 
-# photon
-# the isolation has to be reprocessed, cf. https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolation#The_25th_May_update
-# which require the EGammaAnalysisTools photonIsoProducer from:
-# cvs co -r V00-00-21 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
-# cvs up -r 1.13 EGamma/EGammaAnalysisTools/interface/PFIsolationEstimator.h
-# cvs up -r 1.20 EGamma/EGammaAnalysisTools/src/PFIsolationEstimator.cc 
-process.load('EGamma.EGammaAnalysisTools.photonIsoProducer_cfi')
-process.phoPFIso.verbose = False
-IsoValPhotonPF = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:phIsoForGsfEle'),
-                               cms.InputTag('phoPFIso:nhIsoForGsfEle'))
-#it also requires to add phoPFIso in the path
 
-#grrrr this is so anoying
 #for isolation correction in HEEP ID
 process.load("RecoJets.JetProducers.kt4PFJets_cfi")
 process.kt6PFJetsForIsolation = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
@@ -244,7 +236,7 @@ elecTag         = cms.InputTag("patElectrons")
 pfelecTag      = cms.InputTag("patElectronsPFlow")
 gsfelecTag         = cms.InputTag("gsfElectrons")
 photonTag         = cms.InputTag("patPhotons")
-pfjetTag        = cms.InputTag("patJetsPFlow")
+pfjetTag        = cms.InputTag("patJets")
 muonTag      = cms.InputTag("patMuons")
 PFmuonTag  = cms.InputTag("selectedPatMuonsPFlow")
 tauTag         = cms.InputTag("patTaus")
@@ -306,8 +298,6 @@ process.ACSkimAnalysis = cms.EDFilter(
     HLTInputTag = HLTInputTag,
     TriggerSummaryTag = TriggerSummaryTag,
 
-    IsoValPhotonPF = IsoValPhotonPF,
-
 
     qscale_low  = cms.double(qscalelow),
     qscale_high = cms.double(qscalehigh),
@@ -349,8 +339,6 @@ process.ACSkimAnalysis = cms.EDFilter(
 
 )
 
-# switch off tau top level projection
-getattr(process,"pfNoTau"+postfix).enable = False
 
 ### Define the paths
 process.p = cms.Path(
@@ -358,15 +346,9 @@ process.p = cms.Path(
     process.eIdSequence*
     process.goodOfflinePrimaryVertices*
     process.kt6PFJetsForIsolation*
-    #tausequence*
     process.recoTauClassicHPSSequence*
-    process.updateHPSPFTausRelPt*
+    #process.updateHPSPFTausRelPt*
     process.patDefaultSequence*
-    getattr(process,"patPF2PATSequence"+postfix)*
-    #process.pfParticleSelectionSequence*
-    #process.eleIsoSequence*
-    #process.phoIsoSequence*
-    process.phoPFIso*
     process.producePFMETCorrections*
     process.pfMETType0
     #process.pfMETType1
