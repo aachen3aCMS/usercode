@@ -69,24 +69,24 @@ function createconfigfiles()
 COUNTER=0
 function srm_mkdir()
 {
-    let COUNTER++
-    if [[ $COUNTER > 5 ]]; then
-	echo "Maximum recursion level reached - stopping"
-	echo "This probably means something is wrong with the storage path."
-	exit 3
-    fi
-    srmmkdir $1 >& /dev/null
-    RC=$?
-    if [[ $RC != 0 ]] ; then
-	# start recursion
-	srm_mkdir `dirname $1`
-	srmmkdir $1 >& /dev/null
-	RC=$?
-	if [[ $RC != 0 ]] ; then
-	    echo "Making directories recursively failed - this should not happen."
-	    exit 4
-	fi
-    fi
+    #let COUNTER++
+    #if [[ $COUNTER > 5 ]]; then
+	#echo "Maximum recursion level reached - stopping"
+	#echo "This probably means something is wrong with the storage path."
+	#exit 3
+    #fi
+    #srmmkdir $1 >& /dev/null
+    #RC=$?
+    #if [[ $RC != 0 ]] ; then
+	## start recursion
+	#srm_mkdir `dirname $1`
+	#srmmkdir $1 >& /dev/null
+	#RC=$?
+	#if [[ $RC != 0 ]] ; then
+	    #echo "Making directories recursively failed - this should not happen."
+	    #exit 4
+	#fi
+    #fi
     echo "Creating $1"
 }
 

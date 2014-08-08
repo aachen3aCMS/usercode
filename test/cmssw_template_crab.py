@@ -361,7 +361,7 @@ process.p = cms.Path(
 #
 process.ACSkimAnalysis.filterlist = cms.vstring()
 addScrapingFilter( process )
-addCSCHaloFilter( process )
+#addCSCHaloFilter( process )
 addHCALLaserFilter( process )
 addECALDeadCellFilterTP( process )
 addECALDeadCellFilterBE( process )
